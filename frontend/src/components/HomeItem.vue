@@ -12,7 +12,7 @@
   </div>
 </template>
 
-<style scoped>
+<style>
 .item {
   display: flex;
   align-items: center;
@@ -22,6 +22,7 @@
 
 .description {
   margin: 0 auto;
-  padding-left: 10px;
+  padding-left: 2px;
+  padding-right: 15px;
 }
 </style>
