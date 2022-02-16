@@ -3,14 +3,13 @@ import axios from 'axios'
 import { onMounted, ref } from 'vue'
 
 const data: any = ref(null)
-const url = "https://jsonplaceholder.typicode.com/todos"
+const url = "/api/users"
 
 onMounted(() => {
   axios.get(url).then(res =>
     data.value = res?.data
   ).catch(error => {
     console.log(error);
-
   })
 })
 
@@ -18,9 +17,9 @@ onMounted(() => {
 
 <template>
   <h2>Debug</h2>
-  <div>Tests GET requests from backend API</div>
+  <div>Tests GET requests to backend API</div>
   <ul v-for="item in data">
     <li>{{ item.id }}</li>
-    <li>{{ item.title }}</li>
+    <li>{{ item.name }}</li>
   </ul>
 </template>
