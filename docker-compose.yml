@@ -1,0 +1,72 @@
+version: "3"
+services:
+  postgres:
+    container_name: postgres-transcendence
+    image: postgres:14
+    # env_file:
+    #   - backend/docker.env
+    ports:
+      - 5431:5432
+    networks:
+      - default
+    volumes:
+      - postgres:/data/postgres-transcendence
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: pgadmin-transcendence
+    image: dpage/pgadmin4:6
+    # env_file:
+    #   - backend/docker.env
+    ports:
+      - 9090:80
+    networks:
+      - default
+    volumes:
+      - pgadmin:/root/.pgadmin-transcendence
+    restart: unless-stopped
+
+  # frontend:
+  #   container_name: frontend-transcendence
+  #   image: frontend-transcendence:1.0.0
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: ./Dockerfile
+  #   # command: tail -f /dev/null
+  #   command: npm run dev
+  #   depends_on:
+  #     - backend
+  #   ports:
+  #     - 3001:3001
+  #   networks:
+  #     - default
+  #   volumes:
+  #     - ./frontend:/usr/app
+  #     - /usr/app/node_modules
+  #   restart: unless-stopped
+
+  backend:
+    container_name: backend-transcendence
+    image: backend-transcendence:1.0.0
+    build:
+      context: ./backend
+      dockerfile: ./Dockerfile
+    command: npm run start:dev
+    depends_on:
+      - postgres
+    ports:
+      - 3000:3000
+    networks:
+      - default
+    volumes:
+      - ./backend:/usr/app
+      - /usr/app/node_modules
+    restart: unless-stopped
+
+volumes:
+  postgres:
+  pgadmin:
+
+networks:
+  default:
+    driver: bridge
