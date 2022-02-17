@@ -6,7 +6,7 @@ const data: any = ref(null)
 const login: any = ref("")
 const user: any = ref({})
 
-const url = "/api/users/"
+const url = "/users/"
 
 // Get user by login
 async function getUserByLogin() {
@@ -40,11 +40,9 @@ onMounted(() => {
     <input type="submit" value="Submit" />
   </form>
 
-  <p>{{ user.login }}</p>
-
   <h4>Get all - id, name</h4>
   <ul v-for="item in data">
-    <li>{{ item.id }}</li>
-    <li>{{ item.name }}</li>
+    <!-- <li>{{ item.id }}</li> -->
+    <li>{{ item.login }}</li>
   </ul>
 </template>
