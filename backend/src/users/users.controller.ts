@@ -1,12 +1,19 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
+import User from './entities/user.entity';
 
-@Controller('api')
+import UsersService from './users.service';
+
+@Controller('users')
 export class UsersController {
-  @Get('users')
-  getUsers(): any {
-    return [
-      { id: 0, name: 'user-0' },
-      { id: 1, name: 'user-1' },
-    ];
+  constructor(private readonly usersService: UsersService) {}
+
+  @Get()
+  getAllUsers(): User[] {
+    return this.usersService.getAllUsers();
+  }
+
+  @Get(':login')
+  getUser(@Param('login') login: string): User {
+    return this.usersService.getUserByLogin(login);
   }
 }

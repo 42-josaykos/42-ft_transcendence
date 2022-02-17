@@ -7,9 +7,9 @@ import { join } from 'path/posix';
 
 @Module({
   imports: [
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '../../frontend', 'dist'),
-    }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '../../frontend', 'dist'),
+    // }),
     UsersModule,
   ],
   controllers: [AppController],
