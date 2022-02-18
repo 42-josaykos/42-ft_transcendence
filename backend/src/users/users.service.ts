@@ -17,4 +17,9 @@ export default class UsersService {
     }
     throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
   }
+
+  createUser(user: CreateUserDTO) {
+    this.users.push(user);
+    return user;
+  }
 }
