@@ -7,7 +7,7 @@ frontend:
 	-cd frontend && npm run dev
 
 backend:
-	-cd backend && npm run start:dev
+	-cd backend && npm run dev
 
 database:
 	-docker-compose up -d postgres pgadmin
