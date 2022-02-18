@@ -3,7 +3,7 @@ import axios from 'axios'
 import { onMounted, ref } from 'vue'
 
 const data: any = ref(null)
-const url = "/api/users"
+const url = "/users/"
 
 onMounted(() => {
   axios.get(url).then(res =>
@@ -19,7 +19,6 @@ onMounted(() => {
   <h2>Debug</h2>
   <div>Tests GET requests to backend API</div>
   <ul v-for="item in data">
-    <li>{{ item.id }}</li>
-    <li>{{ item.name }}</li>
+    <li>{{ item.login }}</li>
   </ul>
 </template>
