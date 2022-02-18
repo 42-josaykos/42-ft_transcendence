@@ -5,11 +5,18 @@ import {
   NotFoundException,
   HttpCode,
 } from '@nestjs/common';
+import {Repository} from 'typeorm'
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDTO } from './dto/create-user.dto';
 import User from './entities/user.entity';
 
 @Injectable()
 export default class UsersService {
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>
+  ) {}
+
   private users: User[] = [
     { login: 'josaykos' },
     { login: 'lchapren' },
