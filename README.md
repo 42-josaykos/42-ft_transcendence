@@ -7,7 +7,7 @@
 ```bash
 $ cd backend
 $ npm install
-$ npm run start:dev
+$ npm run dev
 ```
 
 ### Frontend
@@ -17,6 +17,8 @@ $ cd Frontend
 $ npm install
 $ npm run dev
 ```
+
+A Makefile is available to easily launch dev environments locally.
 
 ## Team
 
