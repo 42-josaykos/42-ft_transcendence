@@ -17,22 +17,21 @@ export default class UsersService {
     private usersRepository: Repository<User>
   ) {}
 
-  private users: User[] = [
-    { login: 'josaykos' },
-    { login: 'lchapren' },
-    { login: 'mabriand' },
-    { login: 'adupuy' },
-    { login: 'vmoreau' },
-  ];
+//   private users: User[] = [
+//     { login: 'josaykos' },
+//     { login: 'lchapren' },
+//     { login: 'mabriand' },
+//     { login: 'adupuy' },
+//     { login: 'vmoreau' },
+//   ];
 
-  getAllUsers() {
-    return new Promise((resolve) => {
-      resolve(this.usersRepository.find());
-    });
+  async getAllUsers(): Promise<User[]> {
+      const users = await this.usersRepository.find();
+      return users
   }
 
-  getUserByLogin(login: string): User {
-    const user = this.usersRepository.findOne((user) => user.login === login);
+  async getUserByLogin(login: string): Promise<User> {
+    const user = await this.usersRepository.findOne({where: {login: login}});
     if (user) {
       return user;
     }
@@ -40,25 +39,29 @@ export default class UsersService {
   }
 
   @HttpCode(HttpStatus.CREATED)
-  createUser(user: CreateUserDTO) {
-    this.users.push(user);
-    return user;
+  async createUser(user: CreateUserDTO): Promise<User> {
+    console.log("In create")
+    const newUser = this.usersRepository.create(user);
+    await this.usersRepository.save(newUser);
+    return (newUser);
   }
 
-  updateUser(login: string, updatedUser: CreateUserDTO) {
-    const userIndex = this.users.findIndex((user) => user.login === login);
-    if (userIndex == -1) this.createUser(updatedUser);
-    else this.users[userIndex] = updatedUser;
+  async updateUser(login: string, updatedUser: CreateUserDTO): Promise<User> {
+    console.log("Verif user")
+    console.log(login, updatedUser)
+    const user = await this.usersRepository.findOne({where: {login: login}});
+    if (!user) this.createUser(updatedUser);
+    else await this.usersRepository.update(login, updatedUser)
     return updatedUser;
   }
 
   // @HttpCode(HttpStatus.ACCEPTED)
-  deleteUser(login: string) {
-    const userIndex = this.users.findIndex((user) => user.login === login);
-    if (userIndex === -1)
+  async deleteUser(login: string): Promise<void> {
+    const user = await this.usersRepository.findOne({where: {login: login}});
+    if (!user)
       throw new HttpException('User does not exists', HttpStatus.ACCEPTED);
     else {
-      this.users.splice(userIndex, 1);
+      this.usersRepository.delete(user);
       throw new HttpException('User deleted', HttpStatus.NO_CONTENT);
     }
   }

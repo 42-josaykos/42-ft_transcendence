@@ -41,29 +41,4 @@ export class UsersController {
   async deleteUser(@Param('login') login: string) {
     return await this.usersService.deleteUser(login);
   }
-
-  // @Get()
-  // getAllUsers(): User[] {
-  //   return this.usersService.getAllUsers();
-  // }
-
-  // @Get(':login')
-  // getUser(@Param('login') login: string): User {
-  //   return this.usersService.getUserByLogin(login);
-  // }
-
-  // @Post()
-  // createUser(@Body() user: CreateUserDTO) {
-  //   return this.usersService.createUser(user);
-  // }
-
-  // @Put(':login')
-  // updateUser(@Param('login') login: string, @Body() user: CreateUserDTO) {
-  //   return this.usersService.updateUser(login, user);
-  // }
-
-  // @Delete(':login')
-  // deleteUser(@Param('login') login: string) {
-  //   return this.usersService.deleteUser(login);
-  // }
 }
