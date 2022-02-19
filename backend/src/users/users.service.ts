@@ -25,12 +25,14 @@ export default class UsersService {
     { login: 'vmoreau' },
   ];
 
-  getAllUsers(): User[] {
-    return this.users;
+  getAllUsers() {
+    return new Promise((resolve) => {
+      resolve(this.usersRepository.find());
+    });
   }
 
   getUserByLogin(login: string): User {
-    const user = this.users.find((user) => user.login === login);
+    const user = this.usersRepository.findOne((user) => user.login === login);
     if (user) {
       return user;
     }
