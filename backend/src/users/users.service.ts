@@ -51,7 +51,12 @@ export default class UsersService {
     console.log(login, updatedUser)
     const user = await this.usersRepository.findOne({where: {login: login}});
     if (!user) this.createUser(updatedUser);
-    else await this.usersRepository.update(login, updatedUser)
+    else
+    {
+      const alreadyExists = await this.usersRepository.findOne({where: {login: updatedUser.login}});
+      if (!alreadyExists)
+        await this.usersRepository.update(login, updatedUser);
+    }
     return updatedUser;
   }
 
