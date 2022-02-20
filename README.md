@@ -9,7 +9,7 @@
 First check the ports and hosts in `.env` file. Then, to start the database, run:
 
 ```bash
-docker-compose up -d
+docker-compose up -d postgres
 ```
 
 <br/>
