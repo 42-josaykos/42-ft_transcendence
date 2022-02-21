@@ -11,6 +11,8 @@ const user: any = ref({});
 // Track forms input data
 const search_input = ref<string>('');
 const create_input = ref<string>('');
+const update_input = ref<string>('');
+const update_id = ref<any>(null);
 
 // Request url to API
 const url = '/users';
@@ -47,9 +49,9 @@ async function createUser() {
 
 // Update user data by Id
 // Call this function in createUser() if login already exists
-async function updateUser(id: string, updated_data: any) {
+async function updateUser(id: number, updated_data: string) {
   axios
-    .patch(url + id, updated_data)
+    .patch(url + '/' + id, { username: updated_data })
     .then(() => {
       getAllUsers();
     })
@@ -92,11 +94,22 @@ onMounted(() => {
     <input type="submit" value="Submit" />
   </form>
 
+  <h4>Update User</h4>
+  <form
+    @submit.prevent.trim.lazy="updateUser(update_id, update_input)"
+    method="PATCH"
+  >
+    <label for="id">id:</label>
+    <input v-model="update_id" name="id" type="text" />
+    <label for="name">new username:</label>
+    <input v-model="update_input" name="name" type="text" />
+    <input type="submit" value="Submit" />
+  </form>
+
   <h4>Get all - id, name</h4>
   <ul v-if="data" v-for="item in data">
     <li :id="item.id">
-      {{ item.username }}
-      <button>update</button>
+      Id: {{ item.id }}, Username: {{ item.username }}
       <button @click="deleteUser">delete</button>
     </li>
   </ul>
