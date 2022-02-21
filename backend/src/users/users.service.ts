@@ -30,42 +30,47 @@ export default class UsersService {
     return users;
   }
 
-  async getUserByLogin(login: string): Promise<User> {
+  async getUserByID(id: number): Promise<User> {
     const user = await this.usersRepository.findOne({
-      where: { login: login },
+      where: { id: id },
     });
     if (user) {
       return user;
     }
-    throw new NotFoundException('User not found (login not correct)');
+    throw new NotFoundException('User not found (id not correct)');
+  }
+
+  async getUserByUsername(username: string): Promise<User[]> {
+    const user = await this.usersRepository.find({
+      where: { username: username },
+    });
+    if (user) {
+      return user;
+    }
+    throw new NotFoundException('User not found (username not correct)');
   }
 
   @HttpCode(HttpStatus.CREATED)
   async createUser(user: CreateUserDTO): Promise<User> {
-    console.log('In create');
     const newUser = this.usersRepository.create(user);
     await this.usersRepository.save(newUser);
     return newUser;
   }
 
-  async updateUser(login: string, updatedUser: CreateUserDTO): Promise<User> {
+  async updateUser(id: number, updatedUser: CreateUserDTO): Promise<User> {
     const user = await this.usersRepository.findOne({
-      where: { login: login },
+      where: { id: id },
     });
     if (!user) this.createUser(updatedUser);
-    else {
-      const alreadyExists = await this.usersRepository.findOne({
-        where: { login: updatedUser.login },
-      });
-      if (!alreadyExists) await this.usersRepository.update(login, updatedUser);
-    }
+    else await this.usersRepository.update(id, updatedUser);
+
     return updatedUser;
   }
 
   // @HttpCode(HttpStatus.ACCEPTED)
-  async deleteUser(login: string): Promise<void> {
+  async deleteUser(id: number): Promise<void> {
     const user = await this.usersRepository.findOne({
-      where: { login: login },
+      where: { id: id },
     });
     if (!user)
       throw new HttpException('User does not exists', HttpStatus.ACCEPTED);

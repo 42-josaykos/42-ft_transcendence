@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path/posix';
+import { MessagesModule } from './messages/messages.module';
 
 const envSchema = Joi.object({
   POSTGRES_HOST: Joi.string().required(),
@@ -28,6 +29,7 @@ const envSchema = Joi.object({
     }),
     UsersModule,
     DatabaseModule,
+    MessagesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
