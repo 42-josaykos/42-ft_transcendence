@@ -1,6 +1,6 @@
 ### Requests done with REST-Client for VSCode (humao.rest-client) ###
 @hostname = localhost
-@port = 3000
+@port = 4000
 @host = {{hostname}}:{{port}}
 @contentType = application/json
 @userLogin = lchapren
@@ -23,20 +23,20 @@ POST http://{{host}}/users
 Content-Type: {{contentType}}
 
 {
-    "login": "Mario"
+    "username": "lchapren"
 }
 
 ###
 
-PUT http://{{host}}/users/{{userLogin}}
+PATCH http://{{host}}/users/4
 Content-Type: {{contentType}}
 
 {
-    "login": "Updated"
+    "username": "Updated"
 }
 
 ###
 
 // Delete a specific user
 # @userLogin = 6
-DELETE http://{{host}}/users/{{userLogin}} 
+DELETE http://{{host}}/users/4
