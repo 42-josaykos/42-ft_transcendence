@@ -2,6 +2,18 @@
 
 ## Development
 
+<br/>
+
+### Database
+
+First check the ports and hosts in `.env` file. Then, to start the database, run:
+
+```bash
+docker-compose up -d postgres
+```
+
+<br/>
+
 ### Backend
 
 ```bash
@@ -9,6 +21,8 @@ $ cd backend
 $ npm install
 $ npm run dev
 ```
+
+<br/>
 
 ### Frontend
 
@@ -18,7 +32,9 @@ $ npm install
 $ npm run dev
 ```
 
-A Makefile is available to easily launch dev environments locally.
+All these commands (and more) are also available via Makefile to easily launch dev environments locally.
+
+<br/>
 
 ## Team
 
