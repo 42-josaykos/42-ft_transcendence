@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import GamePadIcon from './icons/GamePadIcon.vue'
-import HomeItem from './HomeItem.vue'
-import HomeIcon from './icons/HomeIcon.vue'
-import BugIcon from './icons/BugIcon.vue'
+import GamePadIcon from './icons/GamePadIcon.vue';
+import HomeItem from './HomeItem.vue';
+import HomeIcon from './icons/HomeIcon.vue';
+import BugIcon from './icons/BugIcon.vue';
+import LoginIcon from './icons/LoginIcon.vue';
 </script>
 
 <template>
@@ -31,6 +32,15 @@ import BugIcon from './icons/BugIcon.vue'
           <BugIcon />
         </template>
         <template #heading>Debug</template>
+      </HomeItem>
+    </router-link>
+
+    <router-link to="/login">
+      <HomeItem>
+        <template #icon>
+          <LoginIcon />
+        </template>
+        <template #heading>Login</template>
       </HomeItem>
     </router-link>
   </nav>
