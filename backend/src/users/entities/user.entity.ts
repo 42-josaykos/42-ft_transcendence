@@ -8,11 +8,11 @@ import {
 
 @Entity()
 class User {
-  // @PrimaryGeneratedColumn()
-  // private id: number;
+  @PrimaryGeneratedColumn()
+  public id: number;
 
-  @PrimaryColumn()
-  public login: string;
+  @Column()
+  public username: string;
 }
 
 export default User;

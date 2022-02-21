@@ -12,7 +12,6 @@ async function bootstrap() {
     .setTitle('Transcendence')
     .setDescription('The Pong app API description')
     .setVersion('1.0')
-    // .addTag('books')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('/', app, document);
