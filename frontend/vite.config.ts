@@ -9,7 +9,7 @@ export default defineConfig({
     host: true,
     port: 3001,
     proxy: {
-      '/users': 'http://localhost:3000'
+      '/users': 'http://localhost:4000'
     }
   },
   plugins: [vue()],
