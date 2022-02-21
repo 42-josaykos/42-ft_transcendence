@@ -13,16 +13,19 @@ const envSchema = Joi.object({
   POSTGRES_PORT: Joi.number().required(),
   POSTGRES_USER: Joi.string().required(),
   POSTGRES_PASSWORD: Joi.string().required(),
-  POSTGRES_DB: Joi.string().required(), 
+  POSTGRES_DB: Joi.string().required(),
   POR: Joi.string(),
-})
+});
 
 @Module({
   imports: [
     // ServeStaticModule.forRoot({
     //   rootPath: join(__dirname, '../../frontend', 'dist'),
     // }),
-    ConfigModule.forRoot({ envFilePath: '../.env', validationSchema: envSchema }),
+    ConfigModule.forRoot({
+      envFilePath: '../.env',
+      validationSchema: envSchema,
+    }),
     UsersModule,
     DatabaseModule,
   ],
@@ -30,4 +33,3 @@ const envSchema = Joi.object({
   providers: [AppService],
 })
 export class AppModule {}
-

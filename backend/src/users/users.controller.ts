@@ -10,7 +10,6 @@ import {
   Res,
 } from '@nestjs/common';
 import { CreateUserDTO } from './dto/create-user.dto';
-import User from './entities/user.entity';
 import UsersService from './users.service';
 
 @Controller('users')
@@ -33,7 +32,10 @@ export class UsersController {
   }
 
   @Put(':login')
-  async updateUser(@Param('login') login: string, @Body() createUserDTO: CreateUserDTO) {
+  async updateUser(
+    @Param('login') login: string,
+    @Body() createUserDTO: CreateUserDTO,
+  ) {
     return await this.usersService.updateUser(login, createUserDTO);
   }
 

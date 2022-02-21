@@ -9,11 +9,11 @@ async function bootstrap() {
 
   // Setting up OpenAPI document
   const config = new DocumentBuilder()
-  .setTitle('Transcendence')
-  .setDescription('The Pong app API description')
-  .setVersion('1.0')
-  // .addTag('books')
-  .build();
+    .setTitle('Transcendence')
+    .setDescription('The Pong app API description')
+    .setVersion('1.0')
+    // .addTag('books')
+    .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('/', app, document);
 
