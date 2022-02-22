@@ -23,7 +23,7 @@ async function bootstrap() {
   await app.listen(port, '0.0.0.0');
   console.log(`Application is running on: ${await app.getUrl()}`);
 
-  const authApp = await NestFactory.create(AuthModule);
-  await authApp.listen(5000);
+  // const authApp = await NestFactory.create(AuthModule);
+  // await authApp.listen(5000);
 }
 bootstrap();
