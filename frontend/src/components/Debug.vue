@@ -21,7 +21,10 @@ const url = '/users';
 async function getAllUsers() {
   axios
     .get(url)
-    .then((res) => (data.value = res?.data))
+    .then((res) => {
+      data.value = res?.data;
+      data.value.sort((a: any, b: any) => a.id - b.id);
+    })
     .catch((e) => e.response.data);
 }
 
@@ -40,8 +43,9 @@ async function createUser() {
   const new_user = { username: create_input.value };
   axios
     .post(url, new_user)
-    .then(() => {
-      getAllUsers();
+    .then((ret) => {
+      data.value.push(ret.data);
+      data.value.sort((a: any, b: any) => a.id - b.id);
     })
     .catch((e) => e.response.data);
   create_input.value = '';
@@ -49,22 +53,25 @@ async function createUser() {
 
 // Update user data by Id
 // Call this function in createUser() if login already exists
-async function updateUser(id: number, updated_data: string) {
+async function updateUser(id: string, updated_data: string) {
   axios
     .patch(url + '/' + id, { username: updated_data })
-    .then(() => {
-      getAllUsers();
+    .then((ret) => {
+      const index = data.value.findIndex((el: any) => el.id === +id);
+      data.value[index] = { ...data.value[index], ...ret.data };
+      data.value.sort((a: any, b: any) => a.id - b.id);
     })
     .catch((e) => e.response.data);
   create_input.value = '';
 }
 
 // Delete user
-async function deleteUser(e: any) {
+async function deleteUser(id: number) {
   axios
-    .delete(url + '/' + e.target.parentElement.id)
+    .delete(url + '/' + id.toString())
     .then(() => {
-      getAllUsers();
+      data.value = data.value.filter((el: any) => el.id !== id);
+      data.value.sort((a: any, b: any) => a.id - b.id);
     })
     .catch((e) => e.response.data);
   create_input.value = '';
@@ -107,10 +114,10 @@ onMounted(() => {
   </form>
 
   <h4>Get all - id, name</h4>
-  <ul v-if="data" v-for="item in data">
-    <li :id="item.id">
+  <ul v-if="data">
+    <li v-for="(item, index) in data" :key="item.id">
       Id: {{ item.id }}, Username: {{ item.username }}
-      <button @click="deleteUser">delete</button>
+      <button @click="deleteUser(item.id)">delete</button>
     </li>
   </ul>
   <p v-else>Not Found</p>
