@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import axios from 'axios';
 import { onMounted, ref } from 'vue';
+import { getAllUsers, getUserByUsername, createUser, updateUser, deleteUser } from '../requests/userRequests'
+
+// Request url to API
+const url = '/users';
 
 // List of all users
 const data: any = ref(null);
@@ -14,80 +17,17 @@ const create_input = ref<string>('');
 const update_input = ref<string>('');
 const update_id = ref<any>(null);
 
-// Request url to API
-const url = '/users';
-
-// Get all users
-async function getAllUsers() {
-  axios
-    .get(url)
-    .then((res) => {
-      data.value = res?.data;
-      data.value.sort((a: any, b: any) => a.id - b.id);
-    })
-    .catch((e) => e.response.data);
-}
-
-// Get user by login
-async function getUserByUsername() {
-  try {
-    user.value = await axios.get(url + '?username=' + search_input.value);
-  } catch (e: any) {
-    user.value = { data: e.response.data.message };
-  }
-  search_input.value = '';
-}
-
-// Create user
-async function createUser() {
-  const new_user = { username: create_input.value };
-  axios
-    .post(url, new_user)
-    .then((ret) => {
-      data.value.push(ret.data);
-      data.value.sort((a: any, b: any) => a.id - b.id);
-    })
-    .catch((e) => e.response.data);
-  create_input.value = '';
-}
-
-// Update user data by Id
-// Call this function in createUser() if login already exists
-async function updateUser(id: string, updated_data: string) {
-  axios
-    .patch(url + '/' + id, { username: updated_data })
-    .then((ret) => {
-      const index = data.value.findIndex((el: any) => el.id === +id);
-      data.value[index] = { ...data.value[index], ...ret.data };
-      data.value.sort((a: any, b: any) => a.id - b.id);
-    })
-    .catch((e) => e.response.data);
-  create_input.value = '';
-}
-
-// Delete user
-async function deleteUser(id: number) {
-  axios
-    .delete(url + '/' + id.toString())
-    .then(() => {
-      data.value = data.value.filter((el: any) => el.id !== id);
-      data.value.sort((a: any, b: any) => a.id - b.id);
-    })
-    .catch((e) => e.response.data);
-  create_input.value = '';
-}
-
 onMounted(() => {
-  getAllUsers();
+  getAllUsers(url);
 });
 </script>
 
 <template>
   <h2>Debug</h2>
-  <div>Tests GET requests to backend API</div>
+  <h3>Tests GET requests to backend API => USER</h3>
 
   <h4>Get by name</h4>
-  <form @submit.prevent.trim.lazy="getUserByUsername" method="GET">
+  <form @submit.prevent.trim.lazy="getUserByUsername(url + '?username=' + search_input.value)" method="GET">
     <label for="name">Username:</label>
     <input v-model="search_input" name="username" type="text" />
     <input type="submit" value="Submit" />
@@ -95,7 +35,7 @@ onMounted(() => {
   <p>{{ user.data }}</p>
 
   <h4>Create User</h4>
-  <form @submit.prevent.trim.lazy="createUser" method="POST">
+  <form @submit.prevent.trim.lazy="createUser(url)" method="POST">
     <label for="name">Username:</label>
     <input v-model="create_input" name="name" type="text" />
     <input type="submit" value="Submit" />
@@ -103,7 +43,7 @@ onMounted(() => {
 
   <h4>Update User</h4>
   <form
-    @submit.prevent.trim.lazy="updateUser(update_id, update_input)"
+    @submit.prevent.trim.lazy="updateUser(update_id, update_input, url)"
     method="PATCH"
   >
     <label for="id">id:</label>
@@ -117,8 +57,17 @@ onMounted(() => {
   <ul v-if="data">
     <li v-for="(item, index) in data" :key="item.id">
       Id: {{ item.id }}, Username: {{ item.username }}
-      <button @click="deleteUser(item.id)">delete</button>
+      <button @click="deleteUser(item.id, url)">delete</button>
     </li>
   </ul>
   <p v-else>Not Found</p>
 </template>
+
+<style>
+ h2 {
+   color: red
+ }
+  h3 {
+   color: blue
+ }
+</style>
