@@ -3,8 +3,6 @@ services:
   postgres:
     container_name: postgres-transcendence
     image: postgres:14
-    # env_file:
-    #   - backend/docker.env
     environment:
       - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_PORT=5432
@@ -19,11 +17,32 @@ services:
       - postgres:/data/postgres-transcendence
     restart: unless-stopped
 
+  # dbeaver:
+  #   container_name: dbeaver-transcendence
+  #   image: dbeaver-transcendence:1.0.0
+  #   depends_on:
+  #     - postgres
+  #   build:
+  #     context: ./dbeaver
+  #     dockerfile: ./Dockerfile
+  #   # image: dbeaver/cloudbeaver:21.3.5
+  #   command: "tail -f /dev/null"
+  #   environment:
+  #     - CB_SERVER_NAME=API
+  #     - CB_SERVER_URL=http://localhost:9000
+  #     - CB_ADMIN_NAME=cbadmin
+  #     - CB_ADMIN_PASSWORD=cbadmin
+  #   ports:
+  #     - ${PGADMIN_PORT}:8978
+  #   networks:
+  #     - default
+  #   volumes:
+  #     - dbeaver:/root/.pgadmin-transcendence
+  #   restart: unless-stopped
+
   pgadmin:
     container_name: pgadmin-transcendence
     image: dpage/pgadmin4:6
-    # env_file:
-    #   - backend/docker.env
     environment:
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
@@ -75,6 +94,7 @@ services:
 volumes:
   postgres:
   pgadmin:
+  # dbeaver:
 
 networks:
   default:

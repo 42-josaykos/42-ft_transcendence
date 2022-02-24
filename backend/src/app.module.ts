@@ -1,13 +1,15 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
 import { DatabaseModule } from './database/database.module';
+import { UsersModule } from './api/users/users.module';
+import { MessagesModule } from './api/messages/messages.module';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path/posix';
-import { MessagesModule } from './messages/messages.module';
+// import { ServeStaticModule } from '@nestjs/serve-static';
+// import { join } from 'path/posix';
+import { MatchesModule } from './api/matches/matches.module';
+import { StatsModule } from './api/stats/stats.module';
 
 const envSchema = Joi.object({
   POSTGRES_HOST: Joi.string().required(),
@@ -27,9 +29,12 @@ const envSchema = Joi.object({
       envFilePath: '../.env',
       validationSchema: envSchema,
     }),
-    UsersModule,
     DatabaseModule,
+    UsersModule,
+    StatsModule,
     MessagesModule,
+    StatsModule,
+    // MatchesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
