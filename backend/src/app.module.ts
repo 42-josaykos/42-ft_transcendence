@@ -9,6 +9,7 @@ import * as Joi from 'joi';
 // import { ServeStaticModule } from '@nestjs/serve-static';
 // import { join } from 'path/posix';
 import { MatchesModule } from './api/matches/matches.module';
+import { StatsModule } from './api/stats/stats.module';
 
 const envSchema = Joi.object({
   POSTGRES_HOST: Joi.string().required(),
@@ -30,7 +31,9 @@ const envSchema = Joi.object({
     }),
     DatabaseModule,
     UsersModule,
+    StatsModule,
     MessagesModule,
+    StatsModule,
     // MatchesModule,
   ],
   controllers: [AppController],

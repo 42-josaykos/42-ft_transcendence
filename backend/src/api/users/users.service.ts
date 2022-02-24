@@ -8,13 +8,17 @@ import {
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDTO } from './dto/create-user.dto';
+import { CreateStatsDTO } from '../stats/dto/create-stats.dto';
 import User from './entities/user.entity';
+import Stats from '../stats/entities/stats.entity';
 
 @Injectable()
 export default class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    @InjectRepository(Stats)
+    private statsRepository: Repository<Stats>,
   ) {}
 
   //   private users: User[] = [
@@ -52,8 +56,15 @@ export default class UsersService {
 
   @HttpCode(HttpStatus.CREATED)
   async createUser(user: CreateUserDTO): Promise<User> {
+    // Creating and saving new  user
     const newUser = this.usersRepository.create(user);
     await this.usersRepository.save(newUser);
+
+    // Initializing stats
+    const stats = this.statsRepository.create(new CreateStatsDTO());
+    stats.user = newUser;
+    await this.statsRepository.save(stats);
+
     return newUser;
   }
 

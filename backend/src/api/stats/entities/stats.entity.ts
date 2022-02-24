@@ -7,7 +7,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import Match from '../../matches/entities/matches.entity';
-import User from './user.entity';
+import User from '../../users/entities/user.entity';
 
 @Entity()
 class Stats {
@@ -30,8 +30,8 @@ class Stats {
   @Column()
   public ratio: number;
 
-  @Column('int', { array: true })
-  public history: Match[];
+  // @Column('int', { array: true })
+  // public history: Match[];
 }
 
 export default Stats;
