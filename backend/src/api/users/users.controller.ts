@@ -9,8 +9,11 @@ import {
   Put,
   Query,
   Res,
+  Redirect,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { FilterUserDTO } from './dto/filter-user.dto';
 import UsersService from './users.service';
@@ -52,5 +55,41 @@ export class UsersController {
   @Delete(':id')
   async deleteUser(@Param('id') id: number) {
     return await this.usersService.deleteUser(id);
+  }
+}
+
+// Redirections to user stats from '/stats/:id'
+@Controller('users/:id/stats')
+@ApiTags('users')
+@ApiResponse({ status: HttpStatus.SEE_OTHER })
+export class StatsRedirection {
+  @Get()
+  @Redirect('/stats', HttpStatus.SEE_OTHER)
+  async getStats(@Param('id') userID: number) {
+    return { url: `/stats/${userID}` };
+  }
+
+  @Get('/played')
+  @Redirect('/stats', HttpStatus.SEE_OTHER)
+  async getStatPlayed(@Param('id') userID: number) {
+    return { url: `/stats/${userID}/played` };
+  }
+
+  @Get('/win')
+  @Redirect('/stats', HttpStatus.SEE_OTHER)
+  async getStatWin(@Param('id') userID: number) {
+    return { url: `/stats/${userID}/win` };
+  }
+
+  @Get('/lose')
+  @Redirect('/stats', HttpStatus.SEE_OTHER)
+  async getStatLose(@Param('id') userID: number) {
+    return { url: `/stats/${userID}/lose` };
+  }
+
+  @Get('/ratio')
+  @Redirect('/stats', HttpStatus.SEE_OTHER)
+  async getStatRatio(@Param('id') userID: number) {
+    return { url: `/stats/${userID}/ratio` };
   }
 }

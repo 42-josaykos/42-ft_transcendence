@@ -1,10 +1,12 @@
 import {
   Column,
   Entity,
-  OneToMany,
+  JoinColumn,
+  OneToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import Stats from '../../stats/entities/stats.entity';
 
 @Entity()
 class User {
@@ -13,6 +15,9 @@ class User {
 
   @Column()
   public username: string;
+
+  @OneToOne(() => Stats, (stats) => stats.user)
+  public stats: Stats;
 }
 
 export default User;
