@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import Message from '../../messages/entities/message.entity';
 import Stats from '../../stats/entities/stats.entity';
 
 export class CreateUserDTO {
@@ -9,4 +10,7 @@ export class CreateUserDTO {
 
   // @ApiProperty({ required: false })
   readonly stats: Stats;
+
+  @ApiProperty({ required: false })
+  readonly messages: Message[];
 }
