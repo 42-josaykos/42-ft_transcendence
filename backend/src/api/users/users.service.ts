@@ -48,10 +48,9 @@ export default class UsersService {
     const user = await this.usersRepository.find({
       where: { username: username },
     });
-    if (user) {
-      return user;
-    }
-    throw new NotFoundException('User not found (username not correct)');
+    if (!user)
+      throw new NotFoundException('User not found (username not correct)');
+    return user;
   }
 
   @HttpCode(HttpStatus.CREATED)
