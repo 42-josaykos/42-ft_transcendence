@@ -14,48 +14,46 @@ export async function getAllUsers(url: string, data: any) {
 // Get user by login
 export async function getUserByUsername(url: string, user: any) {
     try {
-      user.value = await axios.get(url);
-    } catch (e: any) {
-      user.value = { data: e.response.data.message };
+      user = await axios.get(url);
+    } catch (e) {
+      user = { data: e.response.data.message };
     }
-    search_input.value = '';
-  }
-  
+    return user;
+}
+
 // Create user
-export async function createUser(url: string) {
-    const new_user = { username: create_input.value };
+export async function createUser(url: string, create_input: string, data: any) {
+    const new_user = { username: create_input };
     axios
       .post(url, new_user)
       .then((ret) => {
-        data.value.push(ret.data);
-        data.value.sort((a: any, b: any) => a.id - b.id);
+        data.push(ret.data);
+        data.sort((a: any, b: any) => a.id - b.id);
       })
-      .catch((e) => e.response.data);
-    create_input.value = '';
+      .catch((e) => console.log(e));
   }
 
 // Update user data by Id
 // Call this function in createUser() if login already exists
-export async function updateUser(id: string, updated_data: string, url: string) {
-    axios
-      .patch(url + '/' + id, { username: updated_data })
+export async function updateUser(id: string, update_input: string, url: string, data: any) {
+  console.log("1-url => ", url)
+  axios
+      .patch(url, { username: update_input })
       .then((ret) => {
-        const index = data.value.findIndex((el: any) => el.id === +id);
-        data.value[index] = { ...data.value[index], ...ret.data };
-        data.value.sort((a: any, b: any) => a.id - b.id);
+        const index = data.findIndex((el: any) => el.id === +id);
+        data[index] = { ...data[index], ...ret.data };
+        data.sort((a: any, b: any) => a.id - b.id);
       })
-      .catch((e) => e.response.data);
-    create_input.value = '';
+      .catch((e) => console.log(e));
   }
   
 // Delete user
 export async function deleteUser(id: number, url: string) {
-    axios
-      .delete(url + '/' + id.toString())
-      .then(() => {
-        data.value = data.value.filter((el: any) => el.id !== id);
-        data.value.sort((a: any, b: any) => a.id - b.id);
-      })
-      .catch((e) => e.response.data);
-    create_input.value = '';
+    try {
+      await axios.delete(url);
+    } catch(e) {
+      id = -1;
+      console.log(e);
+    }
+    return id;
   }

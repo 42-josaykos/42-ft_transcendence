@@ -1,33 +1,66 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { getAllUsers, getUserByUsername, createUser, updateUser, deleteUser } from '../requests/userRequests'
+import { onMounted, ref, computed, onBeforeMount } from 'vue';
+import { getAllUsers, getUserByUsername, createUser, updateUser, deleteUser } from '../requests/userRequests';
+import { getAllMatches, getMatchById, createMatch, updateMatch, deleteMatch } from '../requests/matchRequests';
 
 // Request url to API
-const url = '/users';
+const url = 'http://localhost:3000/users';
+const urlMatch = 'http://localhost:3000/matches';
 
 // List of all users
-const data: any = ref(null);
+const dataUsers: any = ref(null);
 
 // Single user
 const user: any = ref({});
 
-// Track forms input data
+// Track forms input dataUsers
 const search_input = ref<string>('');
 const create_input = ref<string>('');
 const update_input = ref<string>('');
 const update_id = ref<any>(null);
 
+function filteredDataUsers(id: string) {
+    dataUsers.value = dataUsers.value.filter((t) => t.id !== id);
+    return dataUsers.value
+}
+
+
+// List of all Matches
+const dataMatches: any = ref(null);
+
+// Single user
+const match: any = ref({});
+
+// Track forms input dataMatches
+const id_input = ref<string>('');
+const p1_input = ref<string>('');
+const p2_input = ref<string>('');
+const s1_input = ref<string>('');
+const s2_input = ref<string>('');
+const update_id_match = ref<any>(null);
+const update_p1 = ref<string>('');
+const update_p2 = ref<string>('');
+const update_s1 = ref<string>('');
+const update_s2 = ref<string>('');
+
+function filteredDataMatch(id: string) {
+    dataMatches.value = dataMatches.value.filter((t) => t.id !== id);
+    return dataMatches.value
+}
+
 onMounted(() => {
-  getAllUsers(url);
+  getAllUsers(url, dataUsers);
+  getAllMatches(urlMatch, dataMatches);
 });
+
 </script>
 
 <template>
-  <h2>Debug</h2>
-  <h3>Tests GET requests to backend API => USER</h3>
+  <h2 class="debug">Debug</h2>
+  <h3 class="title">Tests GET requests to backend API => USER</h3>
 
   <h4>Get by name</h4>
-  <form @submit.prevent.trim.lazy="getUserByUsername(url + '?username=' + search_input.value)" method="GET">
+  <form @submit.prevent.trim.lazy="getUserByUsername(url + '?username=' + search_input, user).then((u) => { user= u; search_input = ''})" method="GET">
     <label for="name">Username:</label>
     <input v-model="search_input" name="username" type="text" />
     <input type="submit" value="Submit" />
@@ -35,15 +68,15 @@ onMounted(() => {
   <p>{{ user.data }}</p>
 
   <h4>Create User</h4>
-  <form @submit.prevent.trim.lazy="createUser(url)" method="POST">
+  <form @submit.prevent.trim.lazy="createUser(url, create_input, dataUsers).then(() => create_input = '')" method="POST">
     <label for="name">Username:</label>
     <input v-model="create_input" name="name" type="text" />
-    <input type="submit" value="Submit" />
+    <input type="submit" value="Submit"/>
   </form>
 
   <h4>Update User</h4>
   <form
-    @submit.prevent.trim.lazy="updateUser(update_id, update_input, url)"
+    @submit.prevent.trim.lazy="updateUser(update_id, update_input, url + '/' + update_id, dataUsers).then(() => {update_input = ''; update_id = ''})"
     method="PATCH"
   >
     <label for="id">id:</label>
@@ -54,20 +87,70 @@ onMounted(() => {
   </form>
 
   <h4>Get all - id, name</h4>
-  <ul v-if="data">
-    <li v-for="(item, index) in data" :key="item.id">
+  <ul v-if="dataUsers">
+    <li v-for="item in dataUsers" :key="item.id">
       Id: {{ item.id }}, Username: {{ item.username }}
-      <button @click="deleteUser(item.id, url)">delete</button>
+      <button @click="deleteUser(item.id, url + '/' + item.id.toString()).then((id) => filteredDataUsers(id))">delete</button>
+    </li>
+  </ul>
+  <p v-else>Not Found</p>
+
+  <h3 class="title">Tests GET requests to backend API => MATCH</h3>
+
+  <h4>Get by id</h4>
+  <form @submit.prevent.trim.lazy="getMatchById(urlMatch + '?id=' + id_input, match).then((m) => { match= m; id_input = ''});" method="GET">
+    <label for="name">Id:</label>
+    <input v-model="id_input" name="id" type="text" />
+    <input type="submit" value="Submit" />
+  </form>
+  <p>{{ match.data }}</p>
+
+  <h4>Create Match</h4>
+  <form @submit.prevent.trim.lazy="createMatch(urlMatch, p1_input, p2_input, Number(s1_input), Number(s2_input), dataMatches).then(() => {p1_input = ''; p2_input = '', s1_input = '', s2_input = '';})" method="POST">
+    <label for="name">Player1:</label>
+    <input v-model="p1_input" name="name" type="text" />
+    <label for="name">Player2:</label>
+    <input v-model="p2_input" name="name" type="text" />
+    <label for="name">Score1:</label>
+    <input v-model="s1_input" name="name" type="text" />
+    <label for="name">Score2:</label>
+    <input v-model="s2_input" name="name" type="text" />
+    <input type="submit" value="Submit"/>
+  </form>
+
+  <h4>Update Match</h4>
+  <form
+    @submit.prevent.trim.lazy="updateMatch(update_id_match, update_p1, update_p2, update_s1, update_s2, urlMatch + '/' + update_id_match, dataMatches).then(() => {update_id_match = ''; update_p1 = ''; update_p2 = ''; update_s1 = ''; update_s2 = '';})"
+    method="PATCH"
+  >
+    <label for="id">id:</label>
+    <input v-model="update_id_match" name="id" type="text" />
+    <label for="name">Player1:</label>
+    <input v-model="update_p1" name="name" type="text" />
+    <label for="name">Player2:</label>
+    <input v-model="update_p2" name="name" type="text" />
+    <label for="name">Score1:</label>
+    <input v-model="update_s1" name="name" type="text" />
+    <label for="name">Score2:</label>
+    <input v-model="update_s2" name="name" type="text" />
+    <input type="submit" value="Submit" />
+  </form>
+
+  <h4>Get all - id, playerOne, playerTwo, winner, score</h4>
+  <ul v-if="dataMatches">
+    <li v-for="item in dataMatches" :key="item.id">
+      Id: {{ item.id }},  Player1: {{ item.playerOne }},  Player2: {{ item.playerTwo }},  Winner: {{ item.winner }},  Score: {{ item.score }}
+      <button @click="deleteMatch(item.id, urlMatch + '/' + item.id.toString()).then((id) => filteredDataMatch(id))">delete</button>
     </li>
   </ul>
   <p v-else>Not Found</p>
 </template>
 
 <style>
- h2 {
-   color: red
- }
-  h3 {
+  .debug {
+    color: red
+  }
+  .title {
    color: blue
- }
-</style>
+  }
+</style>*/
