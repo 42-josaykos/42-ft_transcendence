@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MatchesService } from './matches.service';
 
@@ -14,7 +14,7 @@ export class MatchesController {
   }
 
   @Get(':id')
-  async getMatchByID(@Param('id') matchID: number) {
+  async getMatchByID(@Param('id', ParseIntPipe) matchID: number) {
     const match = this.matchesService.getMatchByID(matchID);
     return match;
   }

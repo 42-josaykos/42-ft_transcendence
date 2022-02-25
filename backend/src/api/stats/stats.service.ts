@@ -12,6 +12,10 @@ export class StatsService {
   ) {}
 
   //Basic GET routes
+  async getAllStats(): Promise<Stats[]> {
+    return await this.statsRepository.find();
+  }
+
   async getStatsByID(userID: number): Promise<Stats> {
     const stats = await this.statsRepository.findOne({
       where: { user: userID },
