@@ -1,3 +1,4 @@
+import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
@@ -5,8 +6,11 @@ import { AppModule } from './app.module';
 import { AuthModule } from './auth/auth.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.enableCors();
+  const api = await NestFactory.create(AppModule);
+  // api.useGlobalPipes(
+  //   new ValidationPipe({ transform: true, skipMissingProperties: true }),
+  // );
+  api.enableCors();
 
   // Setting up OpenAPI document
   const config = new DocumentBuilder()
@@ -14,14 +18,14 @@ async function bootstrap() {
     .setDescription('The Pong app API description')
     .setVersion('1.0')
     .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('/', app, document);
+  const document = SwaggerModule.createDocument(api, config);
+  SwaggerModule.setup('/', api, document);
 
   // Starting up API service
-  const configService = app.get(ConfigService);
+  const configService = api.get(ConfigService);
   const port = configService.get('BACKEND_PORT') || 3000;
-  await app.listen(port, '0.0.0.0');
-  console.log(`Application is running on: ${await app.getUrl()}`);
+  await api.listen(port, '0.0.0.0');
+  console.log(`Application is running on: ${await api.getUrl()}`);
 
   // const authApp = await NestFactory.create(AuthModule);
   // await authApp.listen(5000);

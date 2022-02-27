@@ -12,7 +12,7 @@ class Message {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @ManyToOne((type) => User, (user) => user.id)
+  @ManyToOne((type) => User, (user) => user.id, { eager: true })
   public author: User;
 
   @Column()
