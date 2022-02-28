@@ -14,7 +14,9 @@ export class MessagesService {
   ) {}
 
   async getAllMessages(): Promise<Message[]> {
-    const messages = await this.messagesRepository.find();
+    const messages = await this.messagesRepository.find({
+      order: { id: 'DESC' },
+    });
     return messages;
   }
 
@@ -27,10 +29,11 @@ export class MessagesService {
     return message;
   }
 
-  async getMessageByFilter(filter: FilterMessageDTO): Promise<Message[]> {
+  async getMessagesByFilter(filter: FilterMessageDTO): Promise<Message[]> {
     const query = this.messagesRepository
       .createQueryBuilder('messages')
-      .leftJoinAndSelect('messages.author', 'author');
+      .leftJoinAndSelect('messages.author', 'author')
+      .orderBy('messages.id', 'DESC');
 
     if (filter.author)
       query.andWhere('author.username = :author', { author: filter.author });

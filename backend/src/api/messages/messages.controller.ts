@@ -25,9 +25,6 @@ export class MessagesController {
   }
 
   @Get()
-  // @UsePipes(
-  //   new ValidationPipe({ transform: true, skipMissingProperties: true }),
-  // )
   async getAllMessages(@Query() filter: FilterMessageDTO): Promise<Message[]> {
     if (!this.isEmpty(filter)) return await this.getMessagesByFilter(filter);
     return await this.messagesService.getAllMessages();
@@ -35,7 +32,7 @@ export class MessagesController {
 
   @Get()
   async getMessagesByFilter(filter: FilterMessageDTO) {
-    return await this.messagesService.getMessageByFilter(filter);
+    return await this.messagesService.getMessagesByFilter(filter);
   }
 
   @Get(':id')

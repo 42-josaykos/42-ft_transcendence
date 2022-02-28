@@ -14,6 +14,7 @@ class Stats {
   @OneToOne((type) => User, (user) => user.stats, {
     primary: true,
     onDelete: 'CASCADE',
+    eager: true,
   })
   @JoinColumn()
   public user: User;

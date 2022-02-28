@@ -23,16 +23,8 @@ export default class UsersService {
     private statsRepository: Repository<Stats>,
   ) {}
 
-  //   private users: User[] = [
-  //     { login: 'josaykos' },
-  //     { login: 'lchapren' },
-  //     { login: 'mabriand' },
-  //     { login: 'adupuy' },
-  //     { login: 'vmoreau' },
-  //   ];
-
   async getAllUsers(): Promise<User[]> {
-    const users = await this.usersRepository.find();
+    const users = await this.usersRepository.find({ order: { id: 'ASC' } });
     return users;
   }
 
@@ -47,7 +39,9 @@ export default class UsersService {
   }
 
   async getUsersByFilter(filter: FilterUserDTO): Promise<User[]> {
-    const query = this.usersRepository.createQueryBuilder('users');
+    const query = this.usersRepository
+      .createQueryBuilder('users')
+      .orderBy('id', 'ASC');
 
     if (filter.id) query.andWhere('users.id = :id', { id: filter.id });
     if (filter.username)

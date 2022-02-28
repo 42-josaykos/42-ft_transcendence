@@ -13,7 +13,7 @@ export class StatsService {
 
   //Basic GET routes
   async getAllStats(): Promise<Stats[]> {
-    return await this.statsRepository.find();
+    return await this.statsRepository.find({ order: { user: 'ASC' } });
   }
 
   async getStatsByID(userID: number): Promise<Stats> {

@@ -12,7 +12,9 @@ export class MatchesService {
 
   // Basic GET routes
   async getAllMatches(): Promise<Match[]> {
-    const matches = await this.matchesRepository.find();
+    const matches = await this.matchesRepository.find({
+      order: { id: 'DESC' },
+    });
     return matches;
   }
 
