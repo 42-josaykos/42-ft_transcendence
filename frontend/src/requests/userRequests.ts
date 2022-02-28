@@ -5,10 +5,10 @@ export async function getAllUsers(url: string) {
   let response;
   try {
     response = await axios.get(url);
-  } catch (e) {
-    console.log(e);
+  } catch (e: any) {
+    response = e.response;
   }
-  return response?.data;
+  return response.data;
 }
 
 // Get user by login
@@ -22,43 +22,37 @@ export async function getUserByUsername(url: string, user: any) {
 }
 
 // Create user
-export async function createUser(url: string, create_input: string, data: any) {
+export async function createUser(url: string, create_input: string) {
   const new_user = { username: create_input };
-  axios
-    .post(url, new_user)
-    .then(ret => {
-      data.push(ret.data);
-      data.sort((a: any, b: any) => a.id - b.id);
-    })
-    .catch(e => console.log(e));
+  let response;
+  try {
+    response = await axios.post(url, new_user);
+  } catch (e: any) {
+    console.log(e);
+    response = e.response;
+  }
+  return response.data;
 }
 
 // Update user data by Id
 // Call this function in createUser() if login already exists
-export async function updateUser(
-  id: string,
-  update_input: string,
-  url: string,
-  data: any
-) {
-  console.log('1-url => ', url);
-  axios
-    .patch(url, { username: update_input })
-    .then(ret => {
-      const index = data.findIndex((el: any) => el.id === +id);
-      data[index] = { ...data[index], ...ret.data };
-      // data.sort((a: any, b: any) => a.id - b.id);
-    })
-    .catch(e => console.log(e));
+export async function updateUser(url: string, update_input: any) {
+  let response;
+  try {
+    response = await axios.patch(url, update_input);
+  } catch (e: any) {
+    response = e.response;
+  }
+  return response.data;
 }
 
 // Delete user
-export async function deleteUser(id: number, url: string) {
+export async function deleteUser(url: string) {
+  let response;
   try {
-    await axios.delete(url);
-  } catch (e) {
-    id = -1;
-    console.log(e);
+    response = await axios.delete(url);
+  } catch (e: any) {
+    response = e.response;
   }
-  return id;
+  return response.data;
 }

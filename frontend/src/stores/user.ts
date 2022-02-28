@@ -11,9 +11,19 @@ export const useUserStore = defineStore('user', {
       users: []
     } as UserState),
   actions: {
-    create() {},
+    create(newUser: User) {
+      this.users.push(newUser);
+    },
     delete(id: number) {
-      this.users = this.users.filter((t: any) => t.id !== id);
+      const index = this.users.findIndex((el: any) => el.id === id);
+      this.users.splice(index, 1);
+    },
+    update(id: number, updatedData: any) {
+      const index = this.users.findIndex((el: any) => el.id === id);
+      this.users.splice(index, 1, { ...this.users[index], ...updatedData });
+    },
+    setState(data: User[]) {
+      this.users = data;
     }
   }
 });

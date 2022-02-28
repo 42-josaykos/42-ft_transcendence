@@ -16,14 +16,16 @@ import {
 } from '../requests/matchRequests';
 
 import { useUserStore } from '@/stores/user';
+import { storeToRefs } from 'pinia';
 
 // Request url to API
 const url = 'http://localhost:3000/users';
 const urlMatch = 'http://localhost:3000/matches';
 
 // List of all users
-const userState = useUserStore();
-const dataUsers: any = ref(null);
+const userStore = useUserStore();
+const { users } = storeToRefs(userStore);
+// const dataUsers: any = ref(null);
 
 // Single user
 const user: any = ref({});
@@ -58,7 +60,7 @@ function filteredDataMatch(id: string) {
 }
 
 onMounted(() => {
-  getAllUsers(url).then(data => (userState.users = data));
+  getAllUsers(url).then(data => userStore.setState(data));
   getAllMatches(urlMatch, dataMatches);
 });
 </script>
@@ -86,7 +88,10 @@ onMounted(() => {
   <h4>Create User</h4>
   <form
     @submit.prevent.trim.lazy="
-      createUser(url, create_input, dataUsers).then(() => (create_input = ''))
+      createUser(url, create_input).then(newUser => {
+        userStore.create(newUser);
+        create_input = '';
+      })
     "
     method="POST"
   >
@@ -98,12 +103,10 @@ onMounted(() => {
   <h4>Update User</h4>
   <form
     @submit.prevent.trim.lazy="
-      updateUser(
-        update_id,
-        update_input,
-        url + '/' + update_id,
-        dataUsers
-      ).then(() => {
+      updateUser(url + '/' + update_id, { username: update_input }).then(() => {
+        userStore.update(+update_id, {
+          username: update_input
+        });
         update_input = '';
         update_id = '';
       })
@@ -118,13 +121,13 @@ onMounted(() => {
   </form>
 
   <h4>Get all - id, name</h4>
-  <ul v-if="userState.users">
-    <li v-for="item in userState.users" :key="item.id">
+  <ul v-if="users">
+    <li v-for="item in users" :key="item.id">
       Id: {{ item.id }}, Username: {{ item.username }}
       <button
         @click="
-          deleteUser(item.id, url + '/' + item.id.toString()).then(id => {
-            userState.delete(id);
+          deleteUser(url + '/' + item.id.toString()).then(() => {
+            userStore.delete(item.id);
           })
         "
       >
