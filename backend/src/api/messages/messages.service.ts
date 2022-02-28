@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { channel } from 'diagnostics_channel';
 import { Repository } from 'typeorm';
 import { CreateMessageDTO } from './dto/create-message.dto';
 import { FilterMessageDTO } from './dto/filter-message.dto';
@@ -27,15 +28,21 @@ export class MessagesService {
   }
 
   async getMessageByFilter(filter: FilterMessageDTO): Promise<Message[]> {
-    console.log('In MessageFilter');
-    console.log('Filter: ', filter);
-    const messages = this.messagesRepository.find({
-      relations: ['author'],
-      where: (user) => {
-        user.where({ id: filter.authorID, username: filter.author });
-      },
-    });
-    if (!messages)
+    const query = this.messagesRepository
+      .createQueryBuilder('messages')
+      .leftJoinAndSelect('messages.author', 'author');
+
+    if (filter.author)
+      query.andWhere('author.username = :author', { author: filter.author });
+    if (filter.authorID)
+      query.andWhere('author.id = :authorID', { authorID: filter.authorID });
+    if (filter.channel)
+      query.andWhere('messages.channel = :channel', {
+        channel: filter.channel,
+      });
+
+    const messages = await query.getMany();
+    if (!messages.length)
       throw new NotFoundException('Messages not found (filter incorrect)');
     return messages;
   }
