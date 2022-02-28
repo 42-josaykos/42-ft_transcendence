@@ -15,11 +15,14 @@ import {
   deleteMatch
 } from '../requests/matchRequests';
 
+import { useUserStore } from '@/stores/user';
+
 // Request url to API
 const url = 'http://localhost:3000/users';
 const urlMatch = 'http://localhost:3000/matches';
 
 // List of all users
+const userState = useUserStore();
 const dataUsers: any = ref(null);
 
 // Single user
@@ -30,11 +33,6 @@ const search_input = ref<string>('');
 const create_input = ref<string>('');
 const update_input = ref<string>('');
 const update_id = ref<any>(null);
-
-function filteredDataUsers(id: string) {
-  dataUsers.value = dataUsers.value.filter((t: any) => t.id !== id);
-  return dataUsers.value;
-}
 
 // List of all Matches
 const dataMatches: any = ref(null);
@@ -60,7 +58,7 @@ function filteredDataMatch(id: string) {
 }
 
 onMounted(() => {
-  getAllUsers(url, dataUsers);
+  getAllUsers(url).then(data => (userState.users = data));
   getAllMatches(urlMatch, dataMatches);
 });
 </script>
@@ -120,14 +118,14 @@ onMounted(() => {
   </form>
 
   <h4>Get all - id, name</h4>
-  <ul v-if="dataUsers">
-    <li v-for="item in dataUsers" :key="item.id">
+  <ul v-if="userState.users">
+    <li v-for="item in userState.users" :key="item.id">
       Id: {{ item.id }}, Username: {{ item.username }}
       <button
         @click="
-          deleteUser(item.id, url + '/' + item.id.toString()).then(id =>
-            filteredDataUsers('' + id)
-          )
+          deleteUser(item.id, url + '/' + item.id.toString()).then(id => {
+            userState.delete(id);
+          })
         "
       >
         delete

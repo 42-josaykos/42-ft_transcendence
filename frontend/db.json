@@ -2,15 +2,11 @@
   "users": [
     {
       "id": 1,
-      "username": "AAA"
+      "username": "user1"
     },
     {
       "id": 2,
-      "username": "updated"
-    },
-    {
-      "id": 3,
-      "username": "CCC"
+      "username": "user2"
     }
   ],
   "matches": [
