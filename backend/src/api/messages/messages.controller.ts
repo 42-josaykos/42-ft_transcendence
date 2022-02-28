@@ -14,19 +14,20 @@ import { MessagesService } from './messages.service';
 import { CreateMessageDTO } from './dto/create-message.dto';
 import Message from './entities/message.entity';
 import { FilterMessageDTO } from './dto/filter-message.dto';
+import { Utils } from 'src/utils.provider';
 
 @Controller('messages')
 @ApiTags('messages')
 export class MessagesController {
-  constructor(private readonly messagesService: MessagesService) {}
-
-  isEmpty(obj: any): boolean {
-    return Object.keys(obj).length === 0;
-  }
+  constructor(
+    private readonly messagesService: MessagesService,
+    private readonly utilsProvider: Utils,
+  ) {}
 
   @Get()
   async getAllMessages(@Query() filter: FilterMessageDTO): Promise<Message[]> {
-    if (!this.isEmpty(filter)) return await this.getMessagesByFilter(filter);
+    if (!this.utilsProvider.isEmptyObject(filter))
+      return await this.getMessagesByFilter(filter);
     return await this.messagesService.getAllMessages();
   }
 

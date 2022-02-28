@@ -15,22 +15,23 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { UsersService } from './users.service';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { FilterUserDTO } from './dto/filter-user.dto';
-import UsersService from './users.service';
+import { Utils } from 'src/utils.provider';
 
 @Controller('users')
 @ApiTags('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
-
-  isEmpty(obj: any): boolean {
-    return Object.keys(obj).length === 0;
-  }
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly utilsProvider: Utils,
+  ) {}
 
   @Get()
   async getAllUsers(@Query() filter: FilterUserDTO) {
-    if (!this.isEmpty(filter)) return await this.getUsersbyFilter(filter);
+    if (!this.utilsProvider.isEmptyObject(filter))
+      return await this.getUsersbyFilter(filter);
     else return await this.usersService.getAllUsers();
   }
 
