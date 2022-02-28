@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import User from '../api/users/entities/user.entity';
 import Stats from '../api/stats/entities/stats.entity';
 import Message from '../api/messages/entities/message.entity';
+import Channel from 'src/api/channels/entities/channel.entity';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import Message from '../api/messages/entities/message.entity';
         username: configService.get('POSTGRES_USER'),
         password: configService.get('POSTGRES_PASSWORD'),
         database: configService.get('POSTGRES_DB'),
-        entities: [User, Stats, Message],
+        entities: [User, Stats, Message, Channel],
         synchronize: true,
       }),
     }),

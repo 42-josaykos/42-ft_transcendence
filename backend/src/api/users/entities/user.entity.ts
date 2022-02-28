@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import Stats from '../../stats/entities/stats.entity';
 import Message from '../../messages/entities/message.entity';
+import Channel from 'src/api/channels/entities/channel.entity';
 
 @Entity()
 class User {
@@ -23,6 +24,9 @@ class User {
 
   @OneToMany((type) => Message, (message) => message.author)
   public messages: Message[];
+
+  @OneToMany((type) => Channel, (channels) => channels.id)
+  public channels: Channel[];
 }
 
 export default User;
