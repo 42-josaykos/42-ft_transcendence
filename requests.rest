@@ -48,6 +48,16 @@ Content-Type: {{contentType}}
 
 {
     "author": 1,
-    "channel": "test",
+    "channel": "Channel3",
     "data": "This is just a test message, to see if everything is working"
+}
+
+###
+
+POST http://{{host}}/channels
+Content-Type: {{contentType}}
+
+{
+    "name": "Channel3",
+    "owner": {"id": 1, "username": "josayko"}
 }

@@ -1,8 +1,12 @@
 import {
   Column,
   Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import User from 'src/api/users/entities/user.entity';
@@ -10,22 +14,30 @@ import User from 'src/api/users/entities/user.entity';
 @Entity()
 class Channel {
   @PrimaryGeneratedColumn()
+  @ManyToOne((type) => User, (user) => user.channels)
   public id: number;
 
   @Column()
   public name: string;
 
-  @ManyToOne((type) => User)
+  @Column({ nullable: true })
+  public password: string;
+
+  @OneToOne((type) => User)
+  @JoinColumn()
   public owner: User;
 
-  @OneToMany((type) => User, (moderators) => moderators.id)
-  public moderators: User[];
+  //   @OneToMany((type) => User, (moderators) => moderators.id)
+  //   @JoinTable()
+  //   public moderators: User[];
 
-  @OneToMany((type) => User, (members) => members.id)
-  public members: User[];
+  //   @OneToMany((type) => User, (members) => members.id)
+  //   @JoinTable()
+  //   public members: User[];
 
-  @OneToMany((type) => User, (bans) => bans.id)
-  public bans: User[];
+  //   @OneToMany((type) => User, (bans) => bans.id)
+  //   @JoinTable()
+  //   public bans: User[];
 }
 
 export default Channel;

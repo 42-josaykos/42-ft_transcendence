@@ -42,7 +42,7 @@ export class MessagesController {
   }
 
   @Post()
-  async postMessage(@Body() message: CreateMessageDTO): Promise<Message> {
-    return await this.messagesService.postMessage(message);
+  async createMessage(@Body() message: CreateMessageDTO): Promise<Message> {
+    return await this.messagesService.createMessage(message);
   }
 }

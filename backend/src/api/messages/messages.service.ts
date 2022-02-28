@@ -50,7 +50,7 @@ export class MessagesService {
     return messages;
   }
 
-  async postMessage(message: CreateMessageDTO): Promise<Message> {
+  async createMessage(message: CreateMessageDTO): Promise<Message> {
     const newMessage = this.messagesRepository.create(message);
     await this.messagesRepository.save(newMessage);
     return newMessage;
