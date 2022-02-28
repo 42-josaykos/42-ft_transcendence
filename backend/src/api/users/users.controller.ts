@@ -24,15 +24,19 @@ import UsersService from './users.service';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  isEmpty(obj: any): boolean {
+    return Object.keys(obj).length === 0;
+  }
+
   @Get()
   async getAllUsers(@Query() filter: FilterUserDTO) {
-    if (filter.username) return await this.getUserbyUsername(filter.username);
+    if (!this.isEmpty(filter)) return await this.getUsersbyFilter(filter);
     else return await this.usersService.getAllUsers();
   }
 
   @Get()
-  async getUserbyUsername(username: string) {
-    return await this.usersService.getUserByUsername(username);
+  async getUsersbyFilter(filter: FilterUserDTO) {
+    return await this.usersService.getUsersByFilter(filter);
   }
 
   @Get(':id')

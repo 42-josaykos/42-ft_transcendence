@@ -7,9 +7,9 @@ import { AuthModule } from './auth/auth.module';
 
 async function bootstrap() {
   const api = await NestFactory.create(AppModule);
-  // api.useGlobalPipes(
-  //   new ValidationPipe({ transform: true, skipMissingProperties: true }),
-  // );
+  api.useGlobalPipes(
+    new ValidationPipe({ transform: true, skipMissingProperties: true }),
+  );
   api.enableCors();
 
   // Setting up OpenAPI document

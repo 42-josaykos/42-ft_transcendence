@@ -25,22 +25,22 @@ export class MessagesController {
   }
 
   @Get()
-  @UsePipes(
-    new ValidationPipe({ transform: true, skipMissingProperties: true }),
-  )
+  // @UsePipes(
+  //   new ValidationPipe({ transform: true, skipMissingProperties: true }),
+  // )
   async getAllMessages(@Query() filter: FilterMessageDTO): Promise<Message[]> {
     if (!this.isEmpty(filter)) return await this.getMessagesByFilter(filter);
     return await this.messagesService.getAllMessages();
   }
 
-  @Get(':id')
-  async getMessageByID(@Param('id', ParseIntPipe) messageID: number) {
-    return await this.messagesService.getMessageByID(messageID);
-  }
-
   @Get()
   async getMessagesByFilter(filter: FilterMessageDTO) {
     return await this.messagesService.getMessageByFilter(filter);
+  }
+
+  @Get(':id')
+  async getMessageByID(@Param('id', ParseIntPipe) messageID: number) {
+    return await this.messagesService.getMessageByID(messageID);
   }
 
   @Post()
