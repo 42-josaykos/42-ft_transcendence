@@ -1,29 +1,28 @@
 import { defineStore } from 'pinia';
+import { ref } from 'vue';
 import type { User } from '@/models/user.model';
 
-export type UserState = {
-  users: User[];
-};
+// Tracks users database
+export const useUserStore = defineStore('user', () => {
+  const users = ref<User[]>([]);
 
-export const useUserStore = defineStore('user', {
-  state: () =>
-    ({
-      users: []
-    } as UserState),
-  actions: {
-    create(newUser: User) {
-      this.users.push(newUser);
-    },
-    delete(id: number) {
-      const index = this.users.findIndex((el: any) => el.id === id);
-      this.users.splice(index, 1);
-    },
-    update(id: number, updatedData: any) {
-      const index = this.users.findIndex((el: any) => el.id === id);
-      this.users.splice(index, 1, { ...this.users[index], ...updatedData });
-    },
-    setState(data: User[]) {
-      this.users = data;
-    }
-  }
+  const createUser = (newUser: User) => {
+    users.value.push(newUser);
+  };
+
+  const deleteUser = (id: number) => {
+    const index = users.value.findIndex((el: any) => el.id === id);
+    users.value.splice(index, 1);
+  };
+  const updateUser = (id: number, updatedData: any) => {
+    const index = users.value.findIndex((el: any) => el.id === id);
+    users.value.splice(index, 1, { ...users.value[index], ...updatedData });
+  };
+
+  return {
+    users,
+    createUser,
+    deleteUser,
+    updateUser
+  };
 });

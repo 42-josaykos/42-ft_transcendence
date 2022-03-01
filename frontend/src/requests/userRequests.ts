@@ -8,17 +8,20 @@ export async function getAllUsers(url: string) {
   } catch (e: any) {
     response = e.response;
   }
-  return response.data;
+  console.log(response);
+  return response;
 }
 
 // Get user by login
-export async function getUserByUsername(url: string, user: any) {
+export async function getUserByUsername(url: string) {
+  let response;
   try {
-    user = await axios.get(url);
+    response = await axios.get(url);
   } catch (e: any) {
-    user = { data: e.response.data.message };
+    response = e.response;
   }
-  return user;
+  console.log(response);
+  return response;
 }
 
 // Create user
@@ -28,9 +31,9 @@ export async function createUser(url: string, create_input: string) {
   try {
     response = await axios.post(url, new_user);
   } catch (e: any) {
-    console.log(e);
     response = e.response;
   }
+  console.log(response);
   return response.data;
 }
 
@@ -43,7 +46,8 @@ export async function updateUser(url: string, update_input: any) {
   } catch (e: any) {
     response = e.response;
   }
-  return response.data;
+  console.log(response);
+  return response;
 }
 
 // Delete user
@@ -54,5 +58,6 @@ export async function deleteUser(url: string) {
   } catch (e: any) {
     response = e.response;
   }
+  console.log(response);
   return response.data;
 }

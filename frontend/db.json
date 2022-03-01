@@ -1,16 +1,20 @@
 {
   "users": [
     {
-      "id": 1,
-      "username": "testUser"
-    },
-    {
       "id": 4,
       "username": "user4"
     },
     {
       "username": "user5",
       "id": 5
+    },
+    {
+      "username": "test2",
+      "id": 7
+    },
+    {
+      "username": "test3",
+      "id": 8
     }
   ],
   "matches": [
@@ -21,7 +25,7 @@
       "winner": "CCC",
       "score": [
         2,
-        19
+        20
       ]
     },
     {
