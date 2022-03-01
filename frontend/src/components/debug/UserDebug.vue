@@ -20,8 +20,8 @@ const inputStore = useInputStore();
 const { input } = storeToRefs(inputStore);
 
 // CRUD functions
-const getUser = (url: string) => {
-  Get(url).then(res => {
+const getUser = () => {
+  Get(baseUrl + '?username=' + input.value.search).then(res => {
     if (res.status == 200) {
       user.value = res.data[0];
     }
@@ -29,8 +29,8 @@ const getUser = (url: string) => {
   });
 };
 
-const createUser = (data: any) => {
-  Post(baseUrl, data).then(res => {
+const createUser = () => {
+  Post(baseUrl, { username: input.value.create }).then(res => {
     if (res.status == 201) {
       userStore.createUser(res.data);
     }
@@ -38,8 +38,10 @@ const createUser = (data: any) => {
   });
 };
 
-const updateUser = (url: string, data: any) => {
-  Patch(url, data).then(res => {
+const updateUser = () => {
+  Patch(baseUrl + '/' + input.value.user_id, {
+    username: input.value.update_username
+  }).then(res => {
     if (res.status == 200) {
       userStore.updateUser(res.data.id, res.data);
     }
@@ -47,10 +49,10 @@ const updateUser = (url: string, data: any) => {
   });
 };
 
-const deleteUser = (url: string) => {
-  Delete(url).then(res => {
+const deleteUser = (id: number) => {
+  Delete(baseUrl + '/' + id.toString()).then(res => {
     if (res.status == 200) {
-      userStore.deleteUser(res.data.id);
+      userStore.deleteUser(id);
     }
   });
 };
@@ -64,10 +66,7 @@ onMounted(() => {
   <h3 class="title">Tests GET requests to backend API => USER</h3>
 
   <h4>Get by name</h4>
-  <form
-    @submit.prevent.trim.lazy="getUser(baseUrl + '?username=' + input.search)"
-    method="GET"
-  >
+  <form @submit.prevent.trim.lazy="getUser" method="GET">
     <label for="name">Username:</label>
     <input v-model="input.search" name="username" type="text" />
     <input type="submit" value="Submit" />
@@ -75,24 +74,14 @@ onMounted(() => {
   <p>{{ user }}</p>
 
   <h4>Create User</h4>
-  <form
-    @submit.prevent.trim.lazy="createUser({ username: input.create })"
-    method="POST"
-  >
+  <form @submit.prevent.trim.lazy="createUser" method="POST">
     <label for="name">Username:</label>
     <input v-model="input.create" name="name" type="text" />
     <input type="submit" value="Submit" />
   </form>
 
   <h4>Update User</h4>
-  <form
-    @submit.prevent.trim.lazy="
-      updateUser(baseUrl + '/' + input.user_id, {
-        username: input.update_username
-      })
-    "
-    method="PATCH"
-  >
+  <form @submit.prevent.trim.lazy="updateUser" method="PATCH">
     <label for="id">id:</label>
     <input v-model="input.user_id" name="id" type="text" />
     <label for="name">new username:</label>
@@ -104,9 +93,7 @@ onMounted(() => {
   <ul v-if="users">
     <li v-for="item in users" :key="item.id">
       Id: {{ item.id }}, Username: {{ item.username }}
-      <button @click="deleteUser(baseUrl + '/' + item.id.toString())">
-        delete
-      </button>
+      <button @click="deleteUser(item.id)">delete</button>
     </li>
   </ul>
   <p v-else>Not Found</p>

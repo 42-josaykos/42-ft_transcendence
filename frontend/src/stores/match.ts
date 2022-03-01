@@ -15,10 +15,10 @@ export const useMatchStore = defineStore('match', () => {
     matches.value.splice(index, 1);
   };
 
-  const getMatchUpdates = (id: number, input: any) => {
+  const getMatchUpdates = (id: number, input: any): Match | null => {
     const index = matches.value.findIndex((el: any) => el.id === id);
     if (index == -1) {
-      return {};
+      return null;
     }
     let updates: Match = { ...matches.value[index] };
     if (input.update_p1) {

@@ -9,7 +9,7 @@
       "id": 5
     },
     {
-      "username": "ok",
+      "username": "user7",
       "id": 7
     }
   ],
@@ -45,9 +45,9 @@
       ]
     },
     {
-      "player1": "PONE",
+      "player1": "JO",
       "player2": "PTWO",
-      "winner": "PONE",
+      "winner": "JO",
       "score": [
         3,
         2
