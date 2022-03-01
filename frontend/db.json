@@ -20,8 +20,8 @@
   "matches": [
     {
       "id": 1,
-      "playerOne": "AAA",
-      "playerTwo": "CCC",
+      "player1": "AAA",
+      "player2": "CCC",
       "winner": "CCC",
       "score": [
         2,
@@ -30,8 +30,8 @@
     },
     {
       "id": 2,
-      "playerOne": "CCC",
-      "playerTwo": "BBB",
+      "player1": "CCC",
+      "player2": "BBB",
       "winner": "BBB",
       "score": [
         15,
@@ -40,13 +40,23 @@
     },
     {
       "id": 3,
-      "playerOne": "AAA",
-      "playerTwo": "CCC",
+      "player1": "AAA",
+      "player2": "CCC",
       "winner": "CCC",
       "score": [
         2,
         19
       ]
+    },
+    {
+      "player1": "jonny",
+      "player2": "PTWO",
+      "winner": "jonny",
+      "score": [
+        3,
+        2
+      ],
+      "id": 4
     }
   ]
 }
