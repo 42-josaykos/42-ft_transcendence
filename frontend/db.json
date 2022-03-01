@@ -9,12 +9,8 @@
       "id": 5
     },
     {
-      "username": "test2",
+      "username": "ok",
       "id": 7
-    },
-    {
-      "username": "test3",
-      "id": 9
     }
   ],
   "matches": [
@@ -49,9 +45,9 @@
       ]
     },
     {
-      "player1": "jonny",
-      "player2": "PTWO",
-      "winner": "jonny",
+      "player1": "PONE",
+      "player2": "TWO",
+      "winner": "PONE",
       "score": [
         3,
         2

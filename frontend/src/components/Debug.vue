@@ -5,6 +5,7 @@ import { Get, Post, Delete, Patch } from '@/services/requests';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/user';
 import { useMatchStore } from '@/stores/match';
+import { useInputStore } from '@/stores/input';
 import type { User } from '@/models/user.model';
 import type { Match } from '@/models/match.model';
 
@@ -27,22 +28,8 @@ const matchStore = useMatchStore();
 const { matches } = storeToRefs(matchStore);
 
 // Track forms inputs
-const input = ref({
-  search: '',
-  create: '',
-  update_username: '',
-  user_id: '',
-  match_id: '',
-  p1: '',
-  p2: '',
-  s1: '',
-  s2: '',
-  update_match_id: '',
-  update_p1: '',
-  update_p2: '',
-  update_s1: '',
-  update_s2: ''
-});
+const inputStore = useInputStore();
+const { input } = storeToRefs(inputStore);
 
 onMounted(() => {
   Get(user_url).then(res => (users.value = res.data));
@@ -61,7 +48,7 @@ onMounted(() => {
         if (res.status == 200) {
           user = res.data[0];
         }
-        input.search = '';
+        inputStore.$reset();
       })
     "
     method="GET"
@@ -79,7 +66,7 @@ onMounted(() => {
         if (res.status == 201) {
           userStore.createUser(res.data);
         }
-        input.create = '';
+        inputStore.$reset();
       })
     "
     method="POST"
@@ -100,7 +87,7 @@ onMounted(() => {
             username: input.update_username
           });
         }
-        input.update_username, (input.user_id = '');
+        inputStore.$reset();
       })
     "
     method="PATCH"
@@ -140,7 +127,7 @@ onMounted(() => {
         if (res.status == 200) {
           match = res.data;
         }
-        input.match_id = '';
+        inputStore.$reset();
       })
     "
     method="GET"
@@ -163,7 +150,7 @@ onMounted(() => {
         if (res.status == 201) {
           matchStore.createMatch(res.data);
         }
-        input.p1, input.p2, input.s1, (input.s2 = '');
+        inputStore.$reset();
       })
     "
     method="POST"
@@ -189,11 +176,7 @@ onMounted(() => {
         if (res.status == 200) {
           matchStore.updateMatch(+input.update_match_id, res.data);
         }
-        input.update_match_id,
-          input.update_p1,
-          input.update_p2,
-          input.update_s1,
-          (input.update_s2 = '');
+        inputStore.$reset();
       })
     "
     method="PATCH"

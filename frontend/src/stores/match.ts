@@ -17,6 +17,9 @@ export const useMatchStore = defineStore('match', () => {
 
   const getMatchUpdates = (id: number, input: any) => {
     const index = matches.value.findIndex((el: any) => el.id === id);
+    if (index == -1) {
+      return {};
+    }
     let updates: Match = { ...matches.value[index] };
     if (input.update_p1) {
       updates['player1'] = input.update_p1;
