@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { Match } from '@/models/match.model';
+import type { Input } from './input';
 
 // Tracks matches database
 export const useMatchStore = defineStore('match', () => {
@@ -11,12 +12,14 @@ export const useMatchStore = defineStore('match', () => {
   };
 
   const deleteMatch = (id: number) => {
-    const index = matches.value.findIndex((el: any) => el.id === id);
+    const index = matches.value.findIndex((el: Match) => el.id === id);
     matches.value.splice(index, 1);
   };
 
-  const getMatchUpdates = (id: number, input: any): Match | null => {
-    const index = matches.value.findIndex((el: any) => el.id === id);
+  const getMatchUpdates = (input: Input): Match | null => {
+    const index = matches.value.findIndex(
+      (el: Match) => el.id === +input.update_match_id
+    );
     if (index == -1) {
       return null;
     }
@@ -40,8 +43,8 @@ export const useMatchStore = defineStore('match', () => {
     return updates;
   };
 
-  const updateMatch = (id: number, updatedData: any) => {
-    const index = matches.value.findIndex((el: any) => el.id === id);
+  const updateMatch = (id: number, updatedData: Match) => {
+    const index = matches.value.findIndex((el: Match) => el.id === id);
     matches.value.splice(index, 1, { ...matches.value[index], ...updatedData });
   };
 

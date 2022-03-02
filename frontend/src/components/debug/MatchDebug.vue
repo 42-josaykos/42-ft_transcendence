@@ -4,8 +4,15 @@ import { Get, Post, Delete, Patch } from '@/services/requests';
 
 import { storeToRefs } from 'pinia';
 import { useMatchStore } from '@/stores/match';
-import { useInputStore } from '@/stores/input';
 import type { Match } from '@/models/match.model';
+import type { Input, InputStore } from '@/stores/input';
+
+// Props
+const props = defineProps<{
+  title: string;
+  inputStore: InputStore;
+  input: Input;
+}>();
 
 // Request url to API
 const baseUrl = 'http://localhost:3000/matches';
@@ -16,39 +23,37 @@ const match = ref<Match | null>(null);
 // Stores
 const matchStore = useMatchStore();
 const { matches } = storeToRefs(matchStore);
-const inputStore = useInputStore();
-const { input } = storeToRefs(inputStore);
 
 // CRUD functions
 const getMatch = () => {
-  Get(baseUrl + '?id=' + input.value.match_id).then(res => {
+  Get(baseUrl + '?id=' + props.input.match_id).then(res => {
     if (res.status == 200) {
       match.value = res.data;
     }
-    inputStore.$reset();
+    props.inputStore.$reset();
   });
 };
 
 const createMatch = () => {
   Post(baseUrl, {
-    player1: input.value.p1,
-    player2: input.value.p2,
-    winner: +input.value.s1 > +input.value.s2 ? input.value.p1 : input.value.p2,
-    score: [+input.value.s1, +input.value.s2]
+    player1: props.input.p1,
+    player2: props.input.p2,
+    winner: +props.input.s1 > +props.input.s2 ? props.input.p1 : props.input.p2,
+    score: [+props.input.s1, +props.input.s2]
   }).then(res => {
     if (res.status == 201) {
       matchStore.createMatch(res.data);
     }
-    inputStore.$reset();
+    props.inputStore.$reset();
   });
 };
 
 const updateMatch = (data: Match | null) => {
-  Patch(baseUrl + '/' + input.value.update_match_id, data).then(res => {
+  Patch(baseUrl + '/' + props.input.update_match_id, data).then(res => {
     if (res.status == 200) {
-      matchStore.updateMatch(+input.value.update_match_id, res.data);
+      matchStore.updateMatch(res.data.id, res.data);
     }
-    inputStore.$reset();
+    props.inputStore.$reset();
   });
 };
 
@@ -66,7 +71,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <h3 class="title">Tests GET requests to backend API => MATCH</h3>
+  <h3 class="title">{{ title }}</h3>
 
   <h4>Get by id</h4>
   <form @submit.prevent.trim.lazy="getMatch" method="GET">
@@ -91,9 +96,7 @@ onMounted(() => {
 
   <h4>Update Match</h4>
   <form
-    @submit.prevent.trim.lazy="
-      updateMatch(matchStore.getMatchUpdates(+input.update_match_id, input))
-    "
+    @submit.prevent.trim.lazy="updateMatch(matchStore.getMatchUpdates(input))"
     method="PATCH"
   >
     <label for="id">id:</label>

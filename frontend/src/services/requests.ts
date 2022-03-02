@@ -24,11 +24,23 @@ export async function Post(url: string, data: any) {
   return response;
 }
 
-// Patch / Update
+// Patch
 export async function Patch(url: string, data: any) {
   let response;
   try {
     response = await axios.patch(url, data);
+  } catch (e: any) {
+    response = e.response;
+  }
+  console.log(response);
+  return response;
+}
+
+// Put
+export async function Put(url: string, data: any) {
+  let response;
+  try {
+    response = await axios.put(url, data);
   } catch (e: any) {
     response = e.response;
   }

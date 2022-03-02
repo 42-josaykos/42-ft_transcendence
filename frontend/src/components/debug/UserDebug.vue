@@ -4,8 +4,15 @@ import { Get, Post, Delete, Patch } from '@/services/requests';
 
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/user';
-import { useInputStore } from '@/stores/input';
 import type { User } from '@/models/user.model';
+import type { Input, InputStore } from '@/stores/input';
+
+// Props
+const props = defineProps<{
+  title: string;
+  inputStore: InputStore;
+  input: Input;
+}>();
 
 // Request url to API
 const baseUrl = 'http://localhost:3000/users';
@@ -16,36 +23,34 @@ const user = ref<User | null>(null);
 // Stores
 const userStore = useUserStore();
 const { users } = storeToRefs(userStore);
-const inputStore = useInputStore();
-const { input } = storeToRefs(inputStore);
 
 // CRUD functions
 const getUser = () => {
-  Get(baseUrl + '?username=' + input.value.search).then(res => {
+  Get(baseUrl + '?username=' + props.input.search).then(res => {
     if (res.status == 200) {
       user.value = res.data[0];
     }
-    inputStore.$reset();
+    props.inputStore.$reset();
   });
 };
 
 const createUser = () => {
-  Post(baseUrl, { username: input.value.create }).then(res => {
+  Post(baseUrl, { username: props.input.create }).then(res => {
     if (res.status == 201) {
       userStore.createUser(res.data);
     }
-    inputStore.$reset();
+    props.inputStore.$reset();
   });
 };
 
 const updateUser = () => {
-  Patch(baseUrl + '/' + input.value.user_id, {
-    username: input.value.update_username
+  Patch(baseUrl + '/' + props.input.user_id, {
+    username: props.input.update_username
   }).then(res => {
     if (res.status == 200) {
       userStore.updateUser(res.data.id, res.data);
     }
-    inputStore.$reset();
+    props.inputStore.$reset();
   });
 };
 
@@ -63,7 +68,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <h3 class="title">Tests GET requests to backend API => USER</h3>
+  <h3 class="title">{{ title }}</h3>
 
   <h4>Get by name</h4>
   <form @submit.prevent.trim.lazy="getUser" method="GET">
