@@ -73,23 +73,23 @@ services:
   #     - /usr/app/node_modules
   #   restart: unless-stopped
 
-  backend:
-    container_name: backend-transcendence
-    image: backend-transcendence:1.0.0
-    build:
-      context: ./backend
-      dockerfile: ./Dockerfile
-    command: npm run start:dev
-    depends_on:
-      - postgres
-    ports:
-      - 3000:3000
-    networks:
-      - default
-    volumes:
-      - ./backend:/usr/app
-      - /usr/app/node_modules
-    restart: unless-stopped
+  # backend:
+  #   container_name: backend-transcendence
+  #   image: backend-transcendence:1.0.0
+  #   build:
+  #     context: ./backend
+  #     dockerfile: ./Dockerfile
+  #   command: npm run start:dev
+  #   depends_on:
+  #     - postgres
+  #   ports:
+  #     - 3000:3000
+  #   networks:
+  #     - default
+  #   volumes:
+  #     - ./backend:/usr/app
+  #     - /usr/app/node_modules
+  #   restart: unless-stopped
 
 volumes:
   postgres:

@@ -10,6 +10,7 @@ import * as Joi from 'joi';
 // import { join } from 'path/posix';
 import { MatchesModule } from './api/matches/matches.module';
 import { StatsModule } from './api/stats/stats.module';
+import { ChannelsModule } from './api/channels/channels.module';
 
 const envSchema = Joi.object({
   POSTGRES_HOST: Joi.string().required(),
@@ -34,6 +35,7 @@ const envSchema = Joi.object({
     StatsModule,
     MessagesModule,
     StatsModule,
+    ChannelsModule,
     // MatchesModule,
   ],
   controllers: [AppController],
