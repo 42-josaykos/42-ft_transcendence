@@ -1,5 +1,7 @@
 # Juste a little Makefile to easily manipulate docker-compose and dev environment
 
+all: up
+
 ### Dev environment ###
 # dev: database backend frontend
 
@@ -14,7 +16,6 @@ database:
 
 
 ### Prod environment ###
-all: up
 
 build:
 	-docker-compose build

@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import Match from './entities/matches.entity';
+import User from '../users/entities/user.entity';
+import { CreateMatchDTO } from './dto/create-match.dto';
 
 @Injectable()
 export class MatchesService {
@@ -26,7 +28,7 @@ export class MatchesService {
     return match;
   }
 
-  async getMatchPlayerOne(matchID: number): Promise<number> {
+  async getMatchPlayerOne(matchID: number): Promise<User> {
     try {
       const match = await this.getMatchByID(matchID);
       return match.playerOne;
@@ -35,7 +37,7 @@ export class MatchesService {
     }
   }
 
-  async getMatchPlayerTwo(matchID: number): Promise<number> {
+  async getMatchPlayerTwo(matchID: number): Promise<User> {
     try {
       const match = await this.getMatchByID(matchID);
       return match.playerTwo;
@@ -44,7 +46,7 @@ export class MatchesService {
     }
   }
 
-  async getMatchWinner(matchID: number): Promise<number> {
+  async getMatchWinner(matchID: number): Promise<User> {
     try {
       const match = await this.getMatchByID(matchID);
       return match.winner;
@@ -60,5 +62,11 @@ export class MatchesService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async createMatch(match: CreateMatchDTO): Promise<Match> {
+    const newMatch = this.matchesRepository.create(match);
+    await this.matchesRepository.save(newMatch);
+    return newMatch;
   }
 }

@@ -17,9 +17,6 @@ import Channel from 'src/api/channels/entities/channel.entity';
 @Entity()
 class User {
   @PrimaryGeneratedColumn()
-  // @ManyToOne((type) => Channel, (channel) => channel.moderators)
-  // @ManyToOne((type) => Channel, (channel) => channel.members)
-  // @ManyToOne((type) => Channel, (channel) => channel.bans)
   public id: number;
 
   @Column()
@@ -31,8 +28,8 @@ class User {
   @OneToMany((type) => Message, (message) => message.author)
   public messages: Message[];
 
-  @OneToMany((type) => Channel, (channels) => channels.id, {
-    eager: true,
+  @ManyToMany((type) => Channel, (channels) => channels.id, {
+    // eager: true,
     primary: true,
   })
   public channels: Channel[];
