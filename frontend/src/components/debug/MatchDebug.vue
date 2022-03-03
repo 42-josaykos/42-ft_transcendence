@@ -15,7 +15,7 @@ const props = defineProps<{
 }>();
 
 // Request url to API
-const baseUrl = 'http://localhost:4000/matches';
+const baseUrl = '/matches';
 
 // Single element
 const match = ref<Match | null>(null);

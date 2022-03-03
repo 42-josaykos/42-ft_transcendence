@@ -15,7 +15,7 @@ const props = defineProps<{
 }>();
 
 // Request url to API
-const baseUrl = 'http://localhost:4000/users';
+const baseUrl = '/users';
 
 // Single element
 const user = ref<User | null>(null);
