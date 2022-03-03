@@ -15,7 +15,7 @@ const props = defineProps<{
 }>();
 
 // Request url to API
-const baseUrl = 'http://localhost:3000/users';
+const baseUrl = 'http://localhost:4000/users';
 
 // Single element
 const user = ref<User | null>(null);
@@ -37,7 +37,8 @@ const getUser = () => {
 const createUser = () => {
   Post(baseUrl, { username: props.input.create }).then(res => {
     if (res.status == 201) {
-      userStore.createUser(res.data);
+      // userStore.createUser(res.data);
+      Get(baseUrl).then(res => (users.value = res.data));
     }
     props.inputStore.$reset();
   });
@@ -48,7 +49,8 @@ const updateUser = () => {
     username: props.input.update_username
   }).then(res => {
     if (res.status == 200) {
-      userStore.updateUser(res.data.id, res.data);
+      // userStore.updateUser(res.data.id, res.data);
+      Get(baseUrl).then(res => (users.value = res.data));
     }
     props.inputStore.$reset();
   });
@@ -56,8 +58,9 @@ const updateUser = () => {
 
 const deleteUser = (id: number) => {
   Delete(baseUrl + '/' + id.toString()).then(res => {
-    if (res.status == 200) {
-      userStore.deleteUser(id);
+    if (res.status == 204) {
+      // userStore.deleteUser(id);
+      Get(baseUrl).then(res => (users.value = res.data));
     }
   });
 };
