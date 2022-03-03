@@ -11,6 +11,7 @@ import * as Joi from 'joi';
 import { MatchesModule } from './api/matches/matches.module';
 import { StatsModule } from './api/stats/stats.module';
 import { ChannelsModule } from './api/channels/channels.module';
+import { ChatGateway } from './gateway/chat.gateway';
 
 const envSchema = Joi.object({
   POSTGRES_HOST: Joi.string().required(),
@@ -39,6 +40,6 @@ const envSchema = Joi.object({
     // MatchesModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ChatGateway],
 })
 export class AppModule {}

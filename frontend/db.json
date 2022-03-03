@@ -11,6 +11,10 @@
     {
       "username": "user7",
       "id": 7
+    },
+    {
+      "username": "user8",
+      "id": 8
     }
   ],
   "matches": [
@@ -43,6 +47,77 @@
         2,
         19
       ]
+    }
+  ],
+  "channels": [
+    {
+      "id": 1,
+      "name_channel": "test1",
+      "owner": 1,
+      "users": [
+        1,
+        2
+      ],
+      "messages": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "id": 2,
+      "name_channel": "test2",
+      "owner": 2,
+      "users": [
+        1,
+        2,
+        3
+      ],
+      "messages": []
+    }
+  ],
+  "messages": [
+    {
+      "sender": 1,
+      "text": "coucou",
+      "id": 1
+    },
+    {
+      "sender": 1,
+      "text": "coucou",
+      "id": 2
+    },
+    {
+      "sender": 1,
+      "text": "plouc",
+      "id": 3
+    },
+    {
+      "sender": 1,
+      "text": "plouc",
+      "id": 4
+    },
+    {
+      "sender": 1,
+      "text": "jjjjjj",
+      "id": 5
+    },
+    {
+      "sender": 1,
+      "text": "jjjjjj",
+      "id": 6
+    },
+    {
+      "sender": 1,
+      "text": "jtyjfjyf",
+      "id": 7
+    },
+    {
+      "sender": 1,
+      "text": "jtyjfjyf",
+      "id": 8
     }
   ]
 }
