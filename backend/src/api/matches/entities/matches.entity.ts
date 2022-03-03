@@ -1,4 +1,3 @@
-import Stats from 'src/api/stats/entities/stats.entity';
 import User from 'src/api/users/entities/user.entity';
 import {
   Column,
@@ -12,19 +11,16 @@ import {
 @Entity()
 class Match {
   @PrimaryGeneratedColumn()
-  @ManyToOne((type) => Stats, (stats) => stats.history)
+  @ManyToOne((type) => User, (user) => user.matchHistory)
   public id: number;
 
-  @OneToOne((type) => User, (playerOne) => playerOne.id)
-  @JoinColumn()
+  @ManyToOne((type) => User, (user) => user.id)
   public playerOne: User;
 
-  @OneToOne((type) => User, (playerTwo) => playerTwo.id)
-  @JoinColumn()
+  @ManyToOne((type) => User, (user) => user.id)
   public playerTwo: User;
 
-  @OneToOne((type) => User, (winner) => winner.id)
-  @JoinColumn()
+  @ManyToOne((type) => User, (user) => user.id)
   public winner: User;
 
   @Column('int', { array: true })
