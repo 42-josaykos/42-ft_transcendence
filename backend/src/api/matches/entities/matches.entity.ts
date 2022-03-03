@@ -11,20 +11,23 @@ import {
 @Entity()
 class Match {
   @PrimaryGeneratedColumn()
-  @ManyToOne((type) => User, (user) => user.matchHistory)
+  // @ManyToOne((type) => User, (user) => user.matchHistory)
   public id: number;
 
-  @ManyToOne((type) => User, (user) => user.id)
+  @ManyToOne((type) => User, (user) => user.matchHistory)
   public playerOne: User;
 
-  @ManyToOne((type) => User, (user) => user.id)
+  @ManyToOne((type) => User, (user) => user.matchHistory)
   public playerTwo: User;
 
-  @ManyToOne((type) => User, (user) => user.id)
-  public winner: User;
+  @Column()
+  public scorePlayerOne: number;
 
-  @Column('int', { array: true })
-  public score: number[];
+  @Column()
+  public scorePlayerTwo: number;
+
+  @ManyToOne((type) => User, (user) => user.matchHistory)
+  public winner: User;
 }
 
 export default Match;
