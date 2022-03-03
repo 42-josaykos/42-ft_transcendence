@@ -4,6 +4,7 @@ import Game from '@/components/Game.vue';
 import Debug from '@/components/debug/Debug.vue';
 import PageNotFound from '@/components/PageNotFound.vue';
 import Login from '@/components/Login.vue';
+import Chat from '@/components/Chat.vue';
 
 const routes = [
   {
@@ -25,6 +26,11 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login
+  },
+  {
+    path: '/chat',
+    name: 'Chat',
+    component: Chat
   },
   {
     path: '/:pathMatch(.*)*',
