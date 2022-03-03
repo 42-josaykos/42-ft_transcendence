@@ -16,6 +16,7 @@ export class MatchesService {
   async getAllMatches(): Promise<Match[]> {
     const matches = await this.matchesRepository.find({
       order: { id: 'DESC' },
+      relations: ['playerOne', 'playerTwo', 'winner'],
     });
     return matches;
   }

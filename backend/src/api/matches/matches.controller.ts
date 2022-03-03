@@ -8,8 +8,8 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MatchesService } from './matches.service';
-import Match from './entities/matches.entity';
 import { CreateMatchDTO } from './dto/create-match.dto';
+import Match from './entities/matches.entity';
 
 @Controller('matches')
 @ApiTags('matches')

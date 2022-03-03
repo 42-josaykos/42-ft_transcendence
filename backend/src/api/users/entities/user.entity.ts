@@ -13,6 +13,7 @@ import {
 import Stats from '../../stats/entities/stats.entity';
 import Message from '../../messages/entities/message.entity';
 import Channel from 'src/api/channels/entities/channel.entity';
+import Match from 'src/api/matches/entities/matches.entity';
 
 @Entity()
 class User {
@@ -25,10 +26,13 @@ class User {
   @OneToOne((type) => Stats, (stats) => stats.user)
   public stats: Stats;
 
+  @OneToMany((type) => Match, (match) => match.id)
+  public matchHistory: Match[];
+
   @OneToMany((type) => Message, (message) => message.author)
   public messages: Message[];
 
-  @ManyToMany((type) => Channel, (channels) => channels.id, {
+  @ManyToMany((type) => Channel, (channel) => channel.id, {
     // eager: true,
     primary: true,
   })

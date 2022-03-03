@@ -32,12 +32,12 @@ class Stats {
   @Column()
   public ratio: number;
 
-  @OneToMany((type) => Match, (history) => history.id, {
-    primary: true,
-    eager: true,
-  })
-  @JoinColumn()
-  public history: Match[];
+  // @OneToMany((type) => Match, (history) => history.id, {
+  //   primary: true,
+  //   // eager: true,
+  // })
+  // @JoinColumn()
+  // public history: Match[];
 }
 
 export default Stats;
