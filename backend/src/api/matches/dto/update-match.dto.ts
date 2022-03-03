@@ -2,21 +2,18 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsInt } from 'class-validator';
 import User from 'src/api/users/entities/user.entity';
 
-export class CreateMatchDTO {
+export class UpdateMatchDTO {
   @ApiProperty({ required: false })
-  readonly id: number;
-
-  @ApiProperty({ required: true })
   readonly playerOne: User;
 
-  @ApiProperty({ required: true })
+  @ApiProperty({ required: false })
   readonly playerTwo: User;
 
-  @ApiProperty({ required: true })
+  @ApiProperty({ required: false })
   @IsInt()
   readonly scorePlayerOne: number;
 
-  @ApiProperty({ required: true })
+  @ApiProperty({ required: false })
   @IsInt()
   readonly scorePlayerTwo: number;
 
