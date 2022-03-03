@@ -36,8 +36,8 @@ const getMatch = () => {
 
 const createMatch = () => {
   Post(baseUrl, {
-    player1: props.input.p1,
-    player2: props.input.p2,
+    playerOne: props.input.p1,
+    playerTwo: props.input.p2,
     winner: +props.input.s1 > +props.input.s2 ? props.input.p1 : props.input.p2,
     score: [+props.input.s1, +props.input.s2]
   }).then(res => {
@@ -115,8 +115,8 @@ onMounted(() => {
   <h4>Get all - id, playerOne, playerTwo, winner, score</h4>
   <ul v-if="matches">
     <li v-for="item in matches" :key="item.id">
-      Id: {{ item.id }}, Player1: {{ item.player1 }}, Player2:
-      {{ item.player2 }}, Winner: {{ item.winner }}, Score: {{ item.score }}
+      Id: {{ item.id }}, Player1: {{ item.playerOne }}, Player2:
+      {{ item.playerTwo }}, Winner: {{ item.winner }}, Score: {{ item.score }}
       <button @click="deleteMatch(item.id)">delete</button>
     </li>
   </ul>
