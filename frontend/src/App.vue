@@ -5,7 +5,7 @@ import Navbar from './components/Navbar.vue'
 
 <template>
   <div class="header">
-    <img src="./assets/42_Logo.svg" alt="42-logo" width="100" />
+   <!-- <img src="./assets/42_Logo.svg" alt="42-logo" width="100" /> -->
     <Navbar />
   </div>
   <router-view />
@@ -15,6 +15,5 @@ import Navbar from './components/Navbar.vue'
 .header {
   display: flex;
   flex-direction: column;
-  align-items: center;
 }
 </style>

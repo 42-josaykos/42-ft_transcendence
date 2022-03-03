@@ -24,5 +24,6 @@
   margin: 0 auto;
   padding-left: 2px;
   padding-right: 15px;
+  color: black;
 }
 </style>
