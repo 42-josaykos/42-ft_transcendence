@@ -1,7 +1,9 @@
+import type { User } from './user.model';
+
 export interface Match {
   id: number;
-  playerOne: string;
-  playerTwo: string;
-  winner: string;
+  playerOne: User;
+  playerTwo: User;
+  winner: User;
   score: number[];
 }
