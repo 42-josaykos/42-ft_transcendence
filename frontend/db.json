@@ -1,33 +1,33 @@
 {
   "users": [
     {
-      "id": 1,
-      "username": "AAA"
+      "id": 4,
+      "username": "user4"
     },
     {
-      "id": 2,
-      "username": "updated"
+      "username": "user5",
+      "id": 5
     },
     {
-      "id": 3,
-      "username": "CCC"
+      "username": "user7",
+      "id": 7
     }
   ],
   "matches": [
     {
       "id": 1,
-      "playerOne": "AAA",
-      "playerTwo": "CCC",
+      "player1": "AAA",
+      "player2": "CCC",
       "winner": "CCC",
       "score": [
         2,
-        19
+        20
       ]
     },
     {
       "id": 2,
-      "playerOne": "CCC",
-      "playerTwo": "BBB",
+      "player1": "CCC",
+      "player2": "BBB",
       "winner": "BBB",
       "score": [
         15,
@@ -36,8 +36,8 @@
     },
     {
       "id": 3,
-      "playerOne": "AAA",
-      "playerTwo": "CCC",
+      "player1": "AAA",
+      "player2": "CCC",
       "winner": "CCC",
       "score": [
         2,
