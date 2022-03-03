@@ -11,9 +11,10 @@ import User from '../../users/entities/user.entity';
 
 @Entity()
 class Stats {
-  @OneToOne((type) => User, {
+  @OneToOne((type) => User, (user) => user.stats, {
     primary: true,
     onDelete: 'CASCADE',
+    eager: true,
   })
   @JoinColumn()
   public user: User;

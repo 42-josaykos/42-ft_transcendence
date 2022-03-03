@@ -11,9 +11,11 @@ import { CreateUserDTO } from './dto/create-user.dto';
 import { CreateStatsDTO } from '../stats/dto/create-stats.dto';
 import User from './entities/user.entity';
 import Stats from '../stats/entities/stats.entity';
+import { FilterUserDTO } from './dto/filter-user.dto';
+import { query } from 'express';
 
 @Injectable()
-export default class UsersService {
+export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
@@ -21,16 +23,8 @@ export default class UsersService {
     private statsRepository: Repository<Stats>,
   ) {}
 
-  //   private users: User[] = [
-  //     { login: 'josaykos' },
-  //     { login: 'lchapren' },
-  //     { login: 'mabriand' },
-  //     { login: 'adupuy' },
-  //     { login: 'vmoreau' },
-  //   ];
-
   async getAllUsers(): Promise<User[]> {
-    const users = await this.usersRepository.find();
+    const users = await this.usersRepository.find({ order: { id: 'ASC' } });
     return users;
   }
 
@@ -44,14 +38,21 @@ export default class UsersService {
     throw new NotFoundException('User not found (id not correct)');
   }
 
-  async getUserByUsername(username: string): Promise<User[]> {
-    const user = await this.usersRepository.find({
-      where: { username: username },
-    });
-    if (user) {
-      return user;
-    }
-    throw new NotFoundException('User not found (username not correct)');
+  async getUsersByFilter(filter: FilterUserDTO): Promise<User[]> {
+    const query = this.usersRepository
+      .createQueryBuilder('users')
+      .orderBy('id', 'ASC');
+
+    if (filter.id) query.andWhere('users.id = :id', { id: filter.id });
+    if (filter.username)
+      query.andWhere('users.username = :username', {
+        username: filter.username,
+      });
+
+    const users = await query.getMany();
+    if (!users.length)
+      throw new NotFoundException('Users not found (filter incorrect)');
+    return users;
   }
 
   @HttpCode(HttpStatus.CREATED)

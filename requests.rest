@@ -28,7 +28,7 @@ Content-Type: {{contentType}}
 
 ###
 
-PATCH http://{{host}}/users/4
+PATCH http://{{host}}/users/1
 Content-Type: {{contentType}}
 
 {
@@ -40,3 +40,24 @@ Content-Type: {{contentType}}
 // Delete a specific user
 # @userLogin = 6
 DELETE http://{{host}}/users/4
+
+###
+
+POST http://{{host}}/messages
+Content-Type: {{contentType}}
+
+{
+    "author": 1,
+    "channel": "Channel3",
+    "data": "This is just a test message, to see if everything is working"
+}
+
+###
+
+POST http://{{host}}/channels
+Content-Type: {{contentType}}
+
+{
+    "name": "Channel3",
+    "owner": {"id": 1, "username": "josayko"}
+}
