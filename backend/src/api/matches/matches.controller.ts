@@ -1,6 +1,15 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MatchesService } from './matches.service';
+import Match from './entities/matches.entity';
+import { CreateMatchDTO } from './dto/create-match.dto';
 
 @Controller('matches')
 @ApiTags('matches')
@@ -17,5 +26,11 @@ export class MatchesController {
   async getMatchByID(@Param('id', ParseIntPipe) matchID: number) {
     const match = this.matchesService.getMatchByID(matchID);
     return match;
+  }
+
+  @Post()
+  async createMatch(@Body() match: CreateMatchDTO): Promise<Match> {
+    const newMatch = await this.matchesService.createMatch(match);
+    return newMatch;
   }
 }

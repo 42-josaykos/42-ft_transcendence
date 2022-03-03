@@ -61,3 +61,15 @@ Content-Type: {{contentType}}
     "name": "Channel3",
     "owner": {"id": 1, "username": "josayko"}
 }
+
+###
+
+POST http://{{host}}/matches
+Content-Type: {{contentType}}
+
+{
+    "playerOne": 2,
+    "playerTwo": 3,
+    "winner": 2,
+    "score": [10, 7]
+}
