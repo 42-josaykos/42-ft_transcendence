@@ -61,3 +61,30 @@ Content-Type: {{contentType}}
     "name": "Channel3",
     "owner": {"id": 1, "username": "josayko"}
 }
+
+###
+
+POST http://{{host}}/matches
+Content-Type: {{contentType}}
+
+{
+    "playerOne": 2,
+    "playerTwo": 1,
+    "scorePlayerOne": 10,
+    "scorePlayerTwo": 5
+}
+
+###
+
+PATCH http://{{host}}/matches/5
+Content-Type: {{contentType}}
+
+{
+    "scorePlayerOne": 10,
+    "scorePlayerTwo": 8,
+    "winner": 1
+}
+
+###
+
+DELETE http://{{host}}/matches/1

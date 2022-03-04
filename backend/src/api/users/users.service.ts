@@ -73,10 +73,12 @@ export class UsersService {
     const user = await this.usersRepository.findOne({
       where: { id: id },
     });
-    if (!user) this.createUser(updatedUser);
+    if (!user) return this.createUser(updatedUser);
     else await this.usersRepository.update(id, updatedUser);
 
-    return updatedUser;
+    return await this.usersRepository.findOne({
+      where: { id: id },
+    });
   }
 
   // @HttpCode(HttpStatus.ACCEPTED)

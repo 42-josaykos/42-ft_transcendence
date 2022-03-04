@@ -1,21 +1,33 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import User from 'src/api/users/entities/user.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 class Match {
   @PrimaryGeneratedColumn()
+  // @ManyToOne((type) => User, (user) => user.matchHistory)
   public id: number;
 
-  @Column()
-  public playerOne: number;
+  @ManyToOne((type) => User, (user) => user.matchHistory)
+  public playerOne: User;
+
+  @ManyToOne((type) => User, (user) => user.matchHistory)
+  public playerTwo: User;
 
   @Column()
-  public playerTwo: number;
+  public scorePlayerOne: number;
 
   @Column()
-  public winner: number;
+  public scorePlayerTwo: number;
 
-  @Column()
-  public score: number[];
+  @ManyToOne((type) => User, (user) => user.matchHistory)
+  public winner: User;
 }
 
 export default Match;

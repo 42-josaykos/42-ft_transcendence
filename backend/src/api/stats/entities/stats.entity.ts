@@ -5,6 +5,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import Match from '../../matches/entities/matches.entity';
 import User from '../../users/entities/user.entity';
@@ -31,7 +32,11 @@ class Stats {
   @Column()
   public ratio: number;
 
-  // @Column('int', { array: true })
+  // @OneToMany((type) => Match, (history) => history.id, {
+  //   primary: true,
+  //   // eager: true,
+  // })
+  // @JoinColumn()
   // public history: Match[];
 }
 
