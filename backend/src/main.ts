@@ -23,9 +23,9 @@ async function bootstrap() {
 
   // Starting up API service
   const configService = api.get(ConfigService);
-  const port = configService.get('BACKEND_PORT') || 3000;
+  const port = configService.get('API_PORT') || 4000;
   await api.listen(port, '0.0.0.0');
-  console.log(`Application is running on: ${await api.getUrl()}`);
+  console.log(`API is listening on: ${await api.getUrl()}`);
 
   // const authApp = await NestFactory.create(AuthModule);
   // await authApp.listen(5000);
