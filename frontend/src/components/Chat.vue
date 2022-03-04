@@ -27,56 +27,52 @@
     console.log("Message => ", input.value)
     console.log("Message.value => ", input.value.create)
       //createMessage(input.value.create);
-    socket.emit('message', { data: input.value.create })
+    //const newMessage = {sender: 1, text: };
+    socket.emit('msgToServer', { sender: 1, text: input.value.create });
+    Post(baseUrl, {sender: 1, text: input.value.create}).then(res => {
+      if (res.status == 201) {
+        console.log("POST message")
+      }
+          //Get(baseUrl).then(res => (messages.value = res.data));
+        //messageStore.createMessage(res.data);
+    })
+          inputStore.$reset();
   }
 
 
-  const createMessage = (data: string) => {
-    Post(baseUrl, {sender: 1, text: data}).then(res => {
+  //const createMessage = (data: string) => {
+   /* Post(baseUrl, {sender: 1, text: data}).then(res => {
       if (res.status == 201) {
+        console.log("POST message")
           //Get(baseUrl).then(res => (messages.value = res.data));
-        messageStore.createMessage(res.data);
-      }
-      inputStore.$reset();
+        //messageStore.createMessage(res.data);
+      }*/
+     // const newMessage = {sender: 1, text: data};
+     // messageStore.createMessage(data);
+      //inputStore.$reset();
 
-    });
-  };
+    //});
+ // };
 
-  socket.on('message', ({data}) => {
+  socket.on('msgToClient', (data) => {
     console.log("Data = ", data)
-    if (data !== null)
-      createMessage(data);
-    data = null;
+      messageStore.createMessage(data);
+
+    //createMessage(data);
     //msg?.appendChild(builNewMessage(data));
   })
 
-  const builNewMessage = (message: string) => {
+  /*const builNewMessage = (message: string) => {
     const li = document.createElement("li");
     li.appendChild(document.createTextNode(message));
     return li;
-  }
+  }*/
 
   onMounted(() => {
     Get(baseUrl).then(res => (messages.value = res.data));
   });
 
 </script>
- 
-<!--<template>
-  <h2>Chat</h2>
-
-  <ul v-if="messages">
-    <li v-for="item in messages" :key="item.id">
-      IdMessage: {{ item.id }}, IdSender: {{ item.sender }} Message: {{ item.text }}
-    </li>
-  </ul>
-
-  <form @submit.prevent.trim.lazy="handleSubmitNewMessage" method="POST">
-    <input v-model="message" type="text"/>
-    <input type="submit" value="Send" />
-  </form>
-
-</template> -->
 
 <template>
   <h2>Chat</h2>
@@ -88,11 +84,9 @@
     </ul>
   </div>
 
-<!--  <form @submit.prevent.trim.lazy="handleSubmitNewMessage" method="POST">
+  <form @submit.prevent.trim.lazy="handleSubmitNewMessage" method="POST">
     <input v-model="input.create" type="text"/>
-    <input type="submit" value="Send" />-->
-    <input v-model="input.create" type="text"/>
-    <button @click="handleSubmitNewMessage">Submit</button>
- <!-- </form>-->
+    <input type="submit" value="Send" />
+  </form>
 
 </template>
