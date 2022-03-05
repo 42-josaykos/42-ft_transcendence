@@ -42,7 +42,8 @@ const createMatch = () => {
     scorePlayerTwo: +props.input.s2
   }).then(res => {
     if (res.status == 201) {
-      Get(baseUrl).then(res => (matches.value = res.data));
+      matchStore.createMatch(res.data);
+      // Get(baseUrl).then(res => (matches.value = res.data));
     }
     props.inputStore.$reset();
   });
@@ -51,7 +52,8 @@ const createMatch = () => {
 const updateMatch = (data: Match | null) => {
   Patch(baseUrl + '/' + props.input.update_match_id, data).then(res => {
     if (res.status == 200) {
-      Get(baseUrl).then(res => (matches.value = res.data));
+      matchStore.updateMatch(res.data.id, res.data);
+      // Get(baseUrl).then(res => (matches.value = res.data));
     }
     props.inputStore.$reset();
   });
@@ -60,8 +62,8 @@ const updateMatch = (data: Match | null) => {
 const deleteMatch = (id: number) => {
   Delete(baseUrl + '/' + id.toString()).then(res => {
     if (res.status == 200) {
-      // matchStore.deleteMatch(id);
-      Get(baseUrl).then(res => (matches.value = res.data));
+      matchStore.deleteMatch(id);
+      // Get(baseUrl).then(res => (matches.value = res.data));
     }
   });
 };
@@ -119,7 +121,7 @@ onMounted(() => {
       Id: {{ item.id }}, Player1: {{ item.playerOne.username }}, Player2:
       {{ item.playerTwo.username }}, Winner: {{ item.winner.username }}, Score:
       [{{ item.scorePlayerOne }}, {{ item.scorePlayerTwo }}]
-      <button @click="deleteMatch(item.id)">delete</button>
+      <button @click.prevent="deleteMatch(item.id)">delete</button>
     </li>
   </ul>
   <p v-else>Not Found</p>

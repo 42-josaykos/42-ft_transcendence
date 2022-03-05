@@ -37,8 +37,8 @@ const getUser = () => {
 const createUser = () => {
   Post(baseUrl, { username: props.input.create }).then(res => {
     if (res.status == 201) {
-      // userStore.createUser(res.data);
-      Get(baseUrl).then(res => (users.value = res.data));
+      userStore.createUser(res.data);
+      // Get(baseUrl).then(res => (users.value = res.data));
     }
     props.inputStore.$reset();
   });
@@ -49,7 +49,8 @@ const updateUser = () => {
     username: props.input.update_username
   }).then(res => {
     if (res.status == 200) {
-      Get(baseUrl).then(res => (users.value = res.data));
+      userStore.updateUser(res.data.id, res.data);
+      // Get(baseUrl).then(res => (users.value = res.data));
     }
     props.inputStore.$reset();
   });
@@ -58,7 +59,8 @@ const updateUser = () => {
 const deleteUser = (id: number) => {
   Delete(baseUrl + '/' + id.toString()).then(res => {
     if (res.status == 204) {
-      Get(baseUrl).then(res => (users.value = res.data));
+      userStore.deleteUser(id);
+      // Get(baseUrl).then(res => (users.value = res.data));
     }
   });
 };
