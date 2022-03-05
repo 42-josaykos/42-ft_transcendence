@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/user';
 
@@ -45,7 +45,9 @@ function removeLoggedUser() {
 
 <template>
   {{ requestUri }}
-  <h2>Login</h2>
+  <h2 v-if="!isAuthenticated">Login</h2>
+  <h2 v-else>Logout</h2>
+
   <div v-if="!isAuthenticated">
     <router-link to="/game">
       <button class="btn btn-secondary" @click="createLoggedUser">

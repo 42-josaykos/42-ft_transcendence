@@ -7,15 +7,6 @@ import type { Input } from './input';
 export const useMatchStore = defineStore('match', () => {
   const matches = ref<Match[]>([]);
 
-  const createMatch = (newMatch: Match) => {
-    matches.value.push(newMatch);
-  };
-
-  const deleteMatch = (id: number) => {
-    const index = matches.value.findIndex((el: Match) => el.id === id);
-    matches.value.splice(index, 1);
-  };
-
   const getMatchUpdates = (input: Input): Match | null => {
     const index = matches.value.findIndex(
       (el: Match) => el.id === +input.update_match_id
@@ -23,23 +14,19 @@ export const useMatchStore = defineStore('match', () => {
     if (index == -1) {
       return null;
     }
-    let updates: Match = { ...matches.value[index] };
+    let updates: Match | any = { ...matches.value[index] };
     if (input.update_p1) {
-      updates['player1'] = input.update_p1;
+      updates['playerOne'] = input.update_p1;
     }
     if (input.update_p2) {
-      updates['player2'] = input.update_p1;
+      updates['playerTwo'] = input.update_p1;
     }
     if (input.update_s1) {
-      updates['score'][0] = +input.update_s1;
+      updates['scorePlayerOne'] = +input.update_s1;
     }
     if (input.update_s2) {
-      updates['score'][1] = +input.update_s2;
+      updates['scorePlayerTwo'] = +input.update_s2;
     }
-    updates['winner'] =
-      updates['score'][0] > updates['score'][1]
-        ? updates['player1']
-        : updates['player2'];
     return updates;
   };
 
@@ -50,8 +37,6 @@ export const useMatchStore = defineStore('match', () => {
 
   return {
     matches,
-    createMatch,
-    deleteMatch,
     getMatchUpdates,
     updateMatch
   };

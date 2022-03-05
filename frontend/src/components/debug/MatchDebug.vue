@@ -38,11 +38,10 @@ const createMatch = () => {
   Post(baseUrl, {
     playerOne: +props.input.p1,
     playerTwo: +props.input.p2,
-    winner: +props.input.s1 > +props.input.s2 ? props.input.p1 : props.input.p2,
-    score: [+props.input.s1, +props.input.s2]
+    scorePlayerOne: +props.input.s1,
+    scorePlayerTwo: +props.input.s2
   }).then(res => {
     if (res.status == 201) {
-      // matchStore.createMatch(res.data);
       Get(baseUrl).then(res => (matches.value = res.data));
     }
     props.inputStore.$reset();
@@ -52,7 +51,6 @@ const createMatch = () => {
 const updateMatch = (data: Match | null) => {
   Patch(baseUrl + '/' + props.input.update_match_id, data).then(res => {
     if (res.status == 200) {
-      // matchStore.updateMatch(res.data.id, res.data);
       Get(baseUrl).then(res => (matches.value = res.data));
     }
     props.inputStore.$reset();
@@ -120,7 +118,7 @@ onMounted(() => {
     <li v-for="item in matches" :key="item.id">
       Id: {{ item.id }}, Player1: {{ item.playerOne.username }}, Player2:
       {{ item.playerTwo.username }}, Winner: {{ item.winner.username }}, Score:
-      {{ item.score }}
+      [{{ item.scorePlayerOne }}, {{ item.scorePlayerTwo }}]
       <button @click="deleteMatch(item.id)">delete</button>
     </li>
   </ul>

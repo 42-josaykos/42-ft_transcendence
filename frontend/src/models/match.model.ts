@@ -5,5 +5,6 @@ export interface Match {
   playerOne: User;
   playerTwo: User;
   winner: User;
-  score: number[];
+  scorePlayerOne: number;
+  scorePlayerTwo: number;
 }

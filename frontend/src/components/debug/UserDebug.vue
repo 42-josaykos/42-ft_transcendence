@@ -49,7 +49,6 @@ const updateUser = () => {
     username: props.input.update_username
   }).then(res => {
     if (res.status == 200) {
-      // userStore.updateUser(res.data.id, res.data);
       Get(baseUrl).then(res => (users.value = res.data));
     }
     props.inputStore.$reset();
@@ -59,7 +58,6 @@ const updateUser = () => {
 const deleteUser = (id: number) => {
   Delete(baseUrl + '/' + id.toString()).then(res => {
     if (res.status == 204) {
-      // userStore.deleteUser(id);
       Get(baseUrl).then(res => (users.value = res.data));
     }
   });
