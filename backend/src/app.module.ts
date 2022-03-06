@@ -12,6 +12,7 @@ import { MatchesModule } from './api/matches/matches.module';
 import { StatsModule } from './api/stats/stats.module';
 import { ChannelsModule } from './api/channels/channels.module';
 import { AuthModule } from './auth/auth.module';
+import { PassportModule } from '@nestjs/passport';
 
 const envSchema = Joi.object({
   POSTGRES_HOST: Joi.string().required(),
@@ -46,6 +47,7 @@ if (process.env.ENVIRONMENT === 'PRODUCTION') {
     MessagesModule,
     ChannelsModule,
     AuthModule,
+    PassportModule.register({ session: true }),
   ],
   controllers: [AppController],
   providers: [AppService],

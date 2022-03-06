@@ -7,6 +7,13 @@ import { FortyTwoStrategy } from './strategies';
 @Module({
   imports: [HttpModule],
   controllers: [AuthController],
-  providers: [AuthService, FortyTwoStrategy],
+  providers: [
+    AuthService,
+    FortyTwoStrategy,
+    {
+      provide: 'AUTH_SERVICE',
+      useClass: AuthService,
+    },
+  ],
 })
 export class AuthModule {}

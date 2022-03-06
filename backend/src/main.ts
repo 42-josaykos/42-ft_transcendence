@@ -4,6 +4,9 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { AuthModule } from './auth/auth.module';
+import * as session from 'express-session';
+import * as passport from 'passport';
+import { appendFile } from 'fs';
 
 async function bootstrap() {
   const api = await NestFactory.create(AppModule);
@@ -24,6 +27,20 @@ async function bootstrap() {
   // Starting up API service
   const configService = api.get(ConfigService);
   const port = configService.get('BACKEND_PORT') || 3000;
+
+  api.use(
+    session({
+      cookie: {
+        maxAge: 86400000,
+      },
+      secret: 'oihgwoihreuewhvevrek',
+      resave: false,
+      saveUninitialized: false,
+    }),
+  );
+  api.use(passport.initialize());
+  api.use(passport.session());
+
   await api.listen(port, '0.0.0.0');
   console.log(`Application is running on: ${await api.getUrl()}`);
 
