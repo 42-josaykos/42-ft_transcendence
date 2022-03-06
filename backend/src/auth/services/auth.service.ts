@@ -31,7 +31,7 @@ export class AuthService implements AuthenticationProvider {
     return this.userRepo.save(user);
   }
 
-  findUser() {
-    return;
+  findUser(student_id: string) {
+    return this.userRepo.findOne({ student_id });
   }
 }

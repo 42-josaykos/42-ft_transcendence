@@ -17,10 +17,10 @@ class User {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @Column()
+  @Column({ unique: true })
   public username: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, unique: true })
   public student_id: string;
 
   @Column({ nullable: true })

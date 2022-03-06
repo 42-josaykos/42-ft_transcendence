@@ -28,6 +28,6 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy) {
     ///////////////////////////////////////////////////////////////////
     const details = { username, student_id, avatar };
 
-    await this.authService.validateUser(details);
+    return await this.authService.validateUser(details);
   }
 }
