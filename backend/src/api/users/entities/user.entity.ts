@@ -1,14 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Column,
   Entity,
-  JoinColumn,
-  ManyToOne,
   OneToMany,
   OneToOne,
   ManyToMany,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
-  JoinTable,
 } from 'typeorm';
 import Stats from '../../stats/entities/stats.entity';
 import Message from '../../messages/entities/message.entity';
