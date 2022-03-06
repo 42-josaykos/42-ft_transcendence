@@ -1,8 +1,9 @@
 import { Strategy } from 'passport-42';
 import { PassportStrategy } from '@nestjs/passport';
 import { Inject, Injectable } from '@nestjs/common';
-import { AuthenticationProvider } from '../auth';
+import { AuthenticationProvider } from '../services/auth';
 
+// Invoke the 42 API Authentication Service
 @Injectable()
 export class FortyTwoStrategy extends PassportStrategy(Strategy) {
   constructor(
@@ -13,13 +14,20 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy) {
       clientID: process.env.FT_CLIENT_ID,
       clientSecret: process.env.FT_CLIENT_SECRET,
       callbackURL: process.env.FT_CALLBACK_URL,
-      scope: 'public',
     });
   }
 
   async validate(accessToken: string, refreshToken: string, profile: any) {
-    const { id, username, name, photos } = profile;
+    const { id: student_id, username, photos } = profile;
+    const { value: avatar } = photos[0];
+
+    /////////////////////////////////////// DEBUG
     console.log(profile);
-    console.log(id, username, name.givenName, photos[0].value);
+    console.log('Logged User:', student_id, username, avatar);
+    console.log('Access Token:', accessToken);
+    ///////////////////////////////////////////////////////////////////
+    const details = { username, student_id, avatar };
+
+    await this.authService.validateUser(details);
   }
 }

@@ -20,6 +20,12 @@ class User {
   @Column()
   public username: string;
 
+  @Column({ nullable: true })
+  public student_id: string;
+
+  @Column({ nullable: true })
+  public avatar: string;
+
   @OneToOne((type) => Stats, (stats) => stats.user)
   public stats: Stats;
 

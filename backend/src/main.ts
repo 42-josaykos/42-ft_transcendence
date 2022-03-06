@@ -28,6 +28,7 @@ async function bootstrap() {
   const configService = api.get(ConfigService);
   const port = configService.get('BACKEND_PORT') || 3000;
 
+  // Set session cookie
   api.use(
     session({
       cookie: {

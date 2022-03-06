@@ -1,6 +1,6 @@
 import { Controller, Get, Redirect, UseGuards } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { AuthService } from './auth.service';
+import { AuthService } from './services/auth.service';
 import { FortyTwoAuthGuard } from './guards';
 
 @Controller('auth')

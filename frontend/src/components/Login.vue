@@ -3,31 +3,8 @@ import { ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/user';
 
-const generateState = () => {
-  let state: string = '';
-  const possible =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-  for (let i = 0; i < 40; i++) {
-    state += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return state;
-};
-
 const userStore = useUserStore();
 const { isAuthenticated } = storeToRefs(userStore);
-
-const baseUrl = '/auth/login';
-const state = generateState();
-sessionStorage.setItem('state_token', state);
-
-const params: any = {
-  state: state,
-  response_type: 'code'
-};
-
-const qs = new URLSearchParams(params);
-const requestUri = ref(baseUrl + '?' + qs);
 
 function createLoggedUser() {
   localStorage.setItem('loggedUser', 'test_user logged');
@@ -41,7 +18,6 @@ function removeLoggedUser() {
 </script>
 
 <template>
-  {{ requestUri }}
   <h2 v-if="!isAuthenticated">Login</h2>
   <h2 v-else>Logout</h2>
 
@@ -57,5 +33,5 @@ function removeLoggedUser() {
       Remove log session
     </button>
   </div>
-  <a class="btn btn-primary" :href="requestUri">Login 42 API</a>
+  <a class="btn btn-primary" href="/auth/login">Login 42 API</a>
 </template>
