@@ -1,6 +1,7 @@
-import { Controller, Get, Redirect } from '@nestjs/common';
+import { Controller, Get, Redirect, UseGuards } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { AuthService } from './auth.service';
+import { FortyTwoAuthGuard } from './guards';
 
 @Controller('auth')
 export class AuthController {
@@ -14,6 +15,7 @@ export class AuthController {
    * This is the route user will visit to authenticate
    */
   @Get('login')
+  @UseGuards(FortyTwoAuthGuard)
   login() {
     return;
   }
@@ -24,6 +26,7 @@ export class AuthController {
    */
   @Get('redirect')
   @Redirect('/game')
+  @UseGuards(FortyTwoAuthGuard)
   redirect() {
     return;
   }

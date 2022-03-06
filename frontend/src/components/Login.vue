@@ -17,20 +17,17 @@ const generateState = () => {
 const userStore = useUserStore();
 const { isAuthenticated } = storeToRefs(userStore);
 
-const baseUrl = 'https://api.intra.42.fr/oauth/authorize?';
+const baseUrl = '/auth/login';
 const state = generateState();
 sessionStorage.setItem('state_token', state);
 
 const params: any = {
-  client_id: import.meta.env.VITE_CLIENT_ID,
-  redirect_uri: encodeURI('http://localhost:3001/game'),
-  scope: 'public',
   state: state,
   response_type: 'code'
 };
 
 const qs = new URLSearchParams(params);
-const requestUri = ref(baseUrl + qs);
+const requestUri = ref(baseUrl + '?' + qs);
 
 function createLoggedUser() {
   localStorage.setItem('loggedUser', 'test_user logged');

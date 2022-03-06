@@ -22,13 +22,21 @@ const envSchema = Joi.object({
   POR: Joi.string(),
 });
 
+// Choose environment by setting $ENVIRONMENT to 'DEVELOPMENT' or 'PRODUDCTION'
+let envFilePath = '.env.development';
+const mode = process.env.ENVIRONMENT ? process.env.ENVIRONMENT : 'DEVELOPMENT';
+console.log(`Running in ${mode}`);
+if (process.env.ENVIRONMENT === 'PRODUCTION') {
+  envFilePath = '.env.production';
+}
+
 @Module({
   imports: [
     // ServeStaticModule.forRoot({
     //   rootPath: join(__dirname, '../../frontend', 'dist'),
     // }),
     ConfigModule.forRoot({
-      envFilePath: '../.env',
+      envFilePath: envFilePath,
       validationSchema: envSchema,
     }),
     DatabaseModule,
