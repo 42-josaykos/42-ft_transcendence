@@ -2,9 +2,7 @@ import type { User } from './user.model';
 
 export interface Match {
   id: number;
-  playerOne: User;
-  playerTwo: User;
+  players: User[];
   winner: User;
-  scorePlayerOne: number;
-  scorePlayerTwo: number;
+  score: number[];
 }
