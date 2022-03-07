@@ -2,18 +2,19 @@
 import { ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/user';
+import { Get } from '@/services/requests';
 
 const userStore = useUserStore();
 const { isAuthenticated } = storeToRefs(userStore);
 
-function createLoggedUser() {
-  localStorage.setItem('loggedUser', 'test_user logged');
+async function login42Stud() {
   isAuthenticated.value = true;
+  console.log('login:', isAuthenticated.value);
 }
 
-function removeLoggedUser() {
-  localStorage.removeItem('loggedUser');
+async function logout42Stud() {
   isAuthenticated.value = false;
+  console.log('logout:', isAuthenticated.value);
 }
 </script>
 
@@ -22,16 +23,13 @@ function removeLoggedUser() {
   <h2 v-else>Logout</h2>
 
   <div v-if="!isAuthenticated">
-    <router-link to="/game">
-      <button class="btn btn-secondary" @click="createLoggedUser">
-        Create log session
-      </button>
-    </router-link>
+    <div>
+      <a class="btn btn-primary" @click="login42Stud"> Login 42Stud </a>
+    </div>
   </div>
   <div v-else>
-    <button class="btn btn-danger" @click="removeLoggedUser">
-      Remove log session
-    </button>
+    <a class="btn btn-danger" href="/auth/logout" @click="logout42Stud"
+      >Logout 42Stud</a
+    >
   </div>
-  <a class="btn btn-primary" href="/auth/login">Login 42 API</a>
 </template>

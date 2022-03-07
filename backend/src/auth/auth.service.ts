@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserDetails } from 'src/utils/types';
 import { Repository } from 'typeorm';
-import { AuthenticationProvider } from './auth';
+import { AuthenticationProvider } from './auth.interface';
 import User from 'src/api/users/entities/user.entity';
+import { Inject, Injectable } from '@nestjs/common';
+import { PassportSerializer } from '@nestjs/passport';
+import { Done } from 'src/utils/types';
 
 /**
  * Create a new student user if not found in database
@@ -33,5 +35,28 @@ export class AuthService implements AuthenticationProvider {
 
   findUser(student_id: string) {
     return this.userRepo.findOne({ student_id });
+  }
+}
+
+/**
+ * Handle session store in DB
+ */
+
+@Injectable()
+export class SessionSerializer extends PassportSerializer {
+  constructor(
+    @Inject('AUTH_SERVICE')
+    private readonly authService: AuthenticationProvider,
+  ) {
+    super();
+  }
+
+  serializeUser(user: User, done: Done) {
+    done(null, user);
+  }
+
+  async deserializeUser(user: User, done: Done) {
+    const userDB = await this.authService.findUser(user.student_id);
+    return userDB ? done(null, userDB) : done(null, null);
   }
 }
