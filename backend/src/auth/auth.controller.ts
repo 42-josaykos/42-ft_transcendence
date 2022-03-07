@@ -1,15 +1,8 @@
-import { Controller, Get, Redirect, UseGuards } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
-import { AuthService } from './services/auth.service';
-import { FortyTwoAuthGuard } from './guards';
+import { Controller, Get, Redirect, Req, UseGuards } from '@nestjs/common';
+import { AuthenticatedGuard, FortyTwoAuthGuard } from './guards';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private httpService: HttpService,
-  ) {}
-
   /**
    * GET /auth/login
    * This is the route user will visit to authenticate
@@ -36,8 +29,9 @@ export class AuthController {
    * Retrieve the auth status
    */
   @Get('status')
-  status() {
-    return;
+  @UseGuards(AuthenticatedGuard)
+  status(@Req() req) {
+    return req.user;
   }
 
   /**
@@ -45,7 +39,8 @@ export class AuthController {
    * Logging the user out
    */
   @Get('logout')
-  logout() {
-    return;
+  @Redirect('/')
+  logout(@Req() req) {
+    req.logOut();
   }
 }

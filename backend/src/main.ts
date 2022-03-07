@@ -7,13 +7,18 @@ import { AuthModule } from './auth/auth.module';
 import * as session from 'express-session';
 import * as passport from 'passport';
 import { appendFile } from 'fs';
+import { getRepository } from 'typeorm';
+import { TypeORMSession } from './auth/entities/session.entity';
+import { TypeormStore } from 'connect-typeorm';
 
 async function bootstrap() {
   const api = await NestFactory.create(AppModule);
   api.useGlobalPipes(
     new ValidationPipe({ transform: true, skipMissingProperties: true }),
   );
-  api.enableCors();
+  api.enableCors({
+    credentials: true,
+  });
 
   // Setting up OpenAPI document
   const config = new DocumentBuilder()
@@ -29,14 +34,16 @@ async function bootstrap() {
   const port = configService.get('API_PORT') || 4000;
 
   // Set session cookie
+  const sessionRepo = getRepository(TypeORMSession);
   api.use(
     session({
-      cookie: {
-        maxAge: 86400000,
-      },
       secret: 'oihgwoihreuewhvevrek',
+      cookie: {
+        maxAge: 3600000,
+      },
       resave: false,
       saveUninitialized: false,
+      store: new TypeormStore().connect(sessionRepo),
     }),
   );
   api.use(passport.initialize());

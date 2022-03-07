@@ -1,7 +1,7 @@
 import { Strategy } from 'passport-42';
 import { PassportStrategy } from '@nestjs/passport';
 import { Inject, Injectable } from '@nestjs/common';
-import { AuthenticationProvider } from '../services/auth';
+import { AuthenticationProvider } from '../auth.interface';
 
 // Invoke the 42 API Authentication Service
 @Injectable()
