@@ -6,4 +6,5 @@ import { io } from "socket.io-client";
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 
+
 createApp(App).use(createPinia()).use(router).mount('#app');

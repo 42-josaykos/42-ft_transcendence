@@ -1,5 +1,8 @@
+import  type { User } from './user.model'
+
 export interface Message {
     id: number;
-    sender: number;
-    text: string;
+    author: User;
+    data: string;
+    channel: number;
 }
