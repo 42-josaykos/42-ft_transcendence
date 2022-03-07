@@ -32,60 +32,60 @@ export class MatchesController {
     return await this.matchesService.getMatchByID(matchID);
   }
 
-  // @Get(':id/playerOne')
-  // async getMatchPlayerOne(
-  //   @Param('id', ParseIntPipe) matchID: number,
-  // ): Promise<User> {
-  //   return await this.matchesService.getMatchPlayerOne(matchID);
-  // }
+  @Get(':id/playerOne')
+  async getMatchPlayerOne(
+    @Param('id', ParseIntPipe) matchID: number,
+  ): Promise<User> {
+    return await this.matchesService.getMatchPlayerOne(matchID);
+  }
 
-  // @Get(':id/playerTwo')
-  // async getMatchPlayerTwo(
-  //   @Param('id', ParseIntPipe) matchID: number,
-  // ): Promise<User> {
-  //   return await this.matchesService.getMatchPlayerTwo(matchID);
-  // }
+  @Get(':id/playerTwo')
+  async getMatchPlayerTwo(
+    @Param('id', ParseIntPipe) matchID: number,
+  ): Promise<User> {
+    return await this.matchesService.getMatchPlayerTwo(matchID);
+  }
 
-  // @Get(':id/score')
-  // async getMatchScore(
-  //   @Param('id', ParseIntPipe) matchID: number,
-  // ): Promise<number[]> {
-  //   return await this.matchesService.getMatchScore(matchID);
-  // }
+  @Get(':id/score')
+  async getMatchScore(
+    @Param('id', ParseIntPipe) matchID: number,
+  ): Promise<number[]> {
+    return await this.matchesService.getMatchScore(matchID);
+  }
 
-  // @Get(':id/scorePlayerOne')
-  // async getMatchScorePlayerOne(
-  //   @Param('id', ParseIntPipe) matchID: number,
-  // ): Promise<number> {
-  //   return await this.matchesService.getMatchScorePlayerOne(matchID);
-  // }
+  @Get(':id/scorePlayerOne')
+  async getMatchScorePlayerOne(
+    @Param('id', ParseIntPipe) matchID: number,
+  ): Promise<number> {
+    return await this.matchesService.getMatchScorePlayerOne(matchID);
+  }
 
-  // @Get(':id/scorePlayerTwo')
-  // async getMatchScorePlayerTwo(
-  //   @Param('id', ParseIntPipe) matchID: number,
-  // ): Promise<number> {
-  //   return await this.matchesService.getMatchScorePlayerTwo(matchID);
-  // }
+  @Get(':id/scorePlayerTwo')
+  async getMatchScorePlayerTwo(
+    @Param('id', ParseIntPipe) matchID: number,
+  ): Promise<number> {
+    return await this.matchesService.getMatchScorePlayerTwo(matchID);
+  }
 
-  // @Get(':id/winner')
-  // async getMatchWinner(
-  //   @Param('id', ParseIntPipe) matchID: number,
-  // ): Promise<User> {
-  //   return await this.matchesService.getMatchWinner(matchID);
-  // }
+  @Get(':id/winner')
+  async getMatchWinner(
+    @Param('id', ParseIntPipe) matchID: number,
+  ): Promise<User> {
+    return await this.matchesService.getMatchWinner(matchID);
+  }
 
   @Post()
   async createMatch(@Body() match: CreateMatchDTO): Promise<Match> {
     return await this.matchesService.createMatch(match);
   }
 
-  // @Patch(':id')
-  // async updateMatch(
-  //   @Param('id', ParseIntPipe) matchID: number,
-  //   @Body() updatedMatch: UpdateMatchDTO,
-  // ): Promise<Match> {
-  //   return await this.matchesService.updateMatch(matchID, updatedMatch);
-  // }
+  @Patch(':id')
+  async updateMatch(
+    @Param('id', ParseIntPipe) matchID: number,
+    @Body() updatedMatch: UpdateMatchDTO,
+  ): Promise<Match> {
+    return await this.matchesService.updateMatch(matchID, updatedMatch);
+  }
 
   @Delete(':id')
   async deleteMatch(@Param('id', ParseIntPipe) matchID: number): Promise<void> {

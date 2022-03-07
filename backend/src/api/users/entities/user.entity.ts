@@ -24,18 +24,18 @@ class User {
   public username: string;
 
   @OneToOne((type) => Stats, (stats) => stats.user)
+  @JoinColumn()
   public stats: Stats;
 
-  @OneToMany((type) => Match, (match) => match.id)
-  public matchHistory: Match[];
+  @ManyToMany((type) => Match, (match) => match.players)
+  @JoinTable()
+  public matches: Match[];
 
   @OneToMany((type) => Message, (message) => message.author)
   public messages: Message[];
 
-  @ManyToMany((type) => Channel, (channel) => channel.id, {
-    // eager: true,
-    primary: true,
-  })
+  @ManyToMany((type) => Channel, (channel) => channel.members)
+  @JoinTable()
   public channels: Channel[];
 }
 
