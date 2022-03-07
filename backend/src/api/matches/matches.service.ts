@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { getRepository, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import Match from './entities/matches.entity';
 import User from '../users/entities/user.entity';
@@ -11,12 +11,14 @@ export class MatchesService {
   constructor(
     @InjectRepository(Match)
     private readonly matchesRepository: Repository<Match>,
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
   ) {}
 
   async getAllMatches(): Promise<Match[]> {
     const matches = await this.matchesRepository.find({
       order: { id: 'DESC' },
-      relations: ['playerOne', 'playerTwo', 'winner'],
+      relations: ['players', 'winner'],
     });
     return matches;
   }
@@ -24,7 +26,7 @@ export class MatchesService {
   async getMatchByID(matchID: number): Promise<Match> {
     const match = await this.matchesRepository.findOne({
       where: { id: matchID },
-      relations: ['playerOne', 'playerTwo', 'winner'],
+      relations: ['players', 'winner'],
     });
     if (!match) throw new NotFoundException('Match not found (id not correct)');
     return match;
@@ -33,7 +35,7 @@ export class MatchesService {
   async getMatchPlayerOne(matchID: number): Promise<User> {
     try {
       const match = await this.getMatchByID(matchID);
-      return match.playerOne;
+      return match.players[0];
     } catch (error) {
       throw error;
     }
@@ -42,7 +44,7 @@ export class MatchesService {
   async getMatchPlayerTwo(matchID: number): Promise<User> {
     try {
       const match = await this.getMatchByID(matchID);
-      return match.playerTwo;
+      return match.players[1];
     } catch (error) {
       throw error;
     }
@@ -60,7 +62,7 @@ export class MatchesService {
   async getMatchScore(matchID: number): Promise<number[]> {
     try {
       const match = await this.getMatchByID(matchID);
-      return [match.scorePlayerOne, match.scorePlayerTwo];
+      return match.score;
     } catch (error) {
       throw error;
     }
@@ -69,7 +71,7 @@ export class MatchesService {
   async getMatchScorePlayerOne(matchID: number): Promise<number> {
     try {
       const match = await this.getMatchByID(matchID);
-      return match.scorePlayerOne;
+      return match.score[0];
     } catch (error) {
       throw error;
     }
@@ -78,7 +80,7 @@ export class MatchesService {
   async getMatchScorePlayerTwo(matchID: number): Promise<number> {
     try {
       const match = await this.getMatchByID(matchID);
-      return match.scorePlayerTwo;
+      return match.score[1];
     } catch (error) {
       throw error;
     }
@@ -89,9 +91,9 @@ export class MatchesService {
 
     // Deciding winner if no 'winner' key in body
     if (!newMatch.winner) {
-      if (newMatch.scorePlayerOne > newMatch.scorePlayerTwo)
-        newMatch.winner = newMatch.playerOne;
-      else newMatch.winner = newMatch.playerTwo;
+      if (newMatch.score[0] > newMatch.score[1])
+        newMatch.winner = newMatch.players[0];
+      else newMatch.winner = newMatch.players[1];
     }
 
     await this.matchesRepository.save(newMatch);
@@ -114,9 +116,10 @@ export class MatchesService {
 
   async deleteMatch(matchID: number): Promise<void> {
     const match = await this.matchesRepository.findOne({
+      relations: ['players', 'winner'],
       where: { id: matchID },
     });
     if (!match) throw new NotFoundException('Match not found (id incorrect)');
-    else await this.matchesRepository.delete(match);
+    else await this.matchesRepository.remove(match);
   }
 }

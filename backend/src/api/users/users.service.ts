@@ -12,7 +12,7 @@ import { CreateStatsDTO } from '../stats/dto/create-stats.dto';
 import User from './entities/user.entity';
 import Stats from '../stats/entities/stats.entity';
 import { FilterUserDTO } from './dto/filter-user.dto';
-import { query } from 'express';
+import { CreateMatchDTO } from '../matches/dto/create-match.dto';
 
 @Injectable()
 export class UsersService {
@@ -24,7 +24,10 @@ export class UsersService {
   ) {}
 
   async getAllUsers(): Promise<User[]> {
-    const users = await this.usersRepository.find({ order: { id: 'ASC' } });
+    const users = await this.usersRepository.find({
+      order: { id: 'ASC' },
+      relations: ['stats', 'messages', 'matches'],
+    });
     return users;
   }
 
@@ -89,7 +92,7 @@ export class UsersService {
     if (!user)
       throw new HttpException('User does not exists', HttpStatus.ACCEPTED);
     else {
-      this.usersRepository.delete(user);
+      await this.usersRepository.delete(user);
       throw new HttpException('User deleted', HttpStatus.NO_CONTENT);
     }
   }

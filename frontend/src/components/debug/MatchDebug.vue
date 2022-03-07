@@ -36,10 +36,8 @@ const getMatch = () => {
 
 const createMatch = () => {
   Post(baseUrl, {
-    playerOne: +props.input.p1,
-    playerTwo: +props.input.p2,
-    scorePlayerOne: +props.input.s1,
-    scorePlayerTwo: +props.input.s2
+    players: [{ id: +props.input.p1 }, { id: +props.input.p2 }],
+    score: [+props.input.s1, +props.input.s2]
   }).then(res => {
     if (res.status == 201) {
       matchStore.createMatch(res.data);
@@ -118,9 +116,9 @@ onMounted(() => {
   <h4>Get all - id, playerOne, playerTwo, winner, score</h4>
   <ul v-if="matches">
     <li v-for="item in matches" :key="item.id">
-      Id: {{ item.id }}, Player1: {{ item.playerOne.username }}, Player2:
-      {{ item.playerTwo.username }}, Winner: {{ item.winner.username }}, Score:
-      [{{ item.scorePlayerOne }}, {{ item.scorePlayerTwo }}]
+      Id: {{ item.id }}, Player1: {{ item.players[0].username }}, Player2:
+      {{ item.players[1].username }}, Winner: {{ item.winner.username }}, Score:
+      [{{ item.score[0] }}, {{ item.score[1] }}]
       <button @click.prevent="deleteMatch(item.id)">delete</button>
     </li>
   </ul>

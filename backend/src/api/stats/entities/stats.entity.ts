@@ -12,12 +12,12 @@ import User from '../../users/entities/user.entity';
 
 @Entity()
 class Stats {
+  @PrimaryGeneratedColumn()
+  public id: number;
+
   @OneToOne((type) => User, (user) => user.stats, {
-    primary: true,
     onDelete: 'CASCADE',
-    eager: true,
   })
-  @JoinColumn()
   public user: User;
 
   @Column()
@@ -31,13 +31,6 @@ class Stats {
 
   @Column()
   public ratio: number;
-
-  // @OneToMany((type) => Match, (history) => history.id, {
-  //   primary: true,
-  //   // eager: true,
-  // })
-  // @JoinColumn()
-  // public history: Match[];
 }
 
 export default Stats;

@@ -27,17 +27,17 @@ class Channel {
   @JoinColumn()
   public owner: User;
 
-  //   @OneToMany((type) => User, (moderators) => moderators.id)
-  //   @JoinTable()
-  //   public moderators: User[];
+  @OneToMany((type) => User, (moderators) => moderators.id)
+  @JoinTable()
+  public moderators: User[];
 
-  //   @OneToMany((type) => User, (members) => members.id)
-  //   @JoinTable()
-  //   public members: User[];
+  @OneToMany((type) => User, (members) => members.id)
+  @JoinTable()
+  public members: User[];
 
-  //   @OneToMany((type) => User, (bans) => bans.id)
-  //   @JoinTable()
-  //   public bans: User[];
+  @OneToMany((type) => User, (bans) => bans.id)
+  @JoinTable()
+  public bans: User[];
 }
 
 export default Channel;
