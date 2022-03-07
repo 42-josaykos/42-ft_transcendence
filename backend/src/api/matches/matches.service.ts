@@ -11,12 +11,14 @@ export class MatchesService {
   constructor(
     @InjectRepository(Match)
     private readonly matchesRepository: Repository<Match>,
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
   ) {}
 
   async getAllMatches(): Promise<Match[]> {
     const matches = await this.matchesRepository.find({
       order: { id: 'DESC' },
-      relations: ['playerOne', 'playerTwo', 'winner'],
+      relations: ['players', 'winner'],
     });
     return matches;
   }
@@ -24,93 +26,93 @@ export class MatchesService {
   async getMatchByID(matchID: number): Promise<Match> {
     const match = await this.matchesRepository.findOne({
       where: { id: matchID },
-      relations: ['playerOne', 'playerTwo', 'winner'],
+      relations: ['players', 'winner'],
     });
     if (!match) throw new NotFoundException('Match not found (id not correct)');
     return match;
   }
 
-  async getMatchPlayerOne(matchID: number): Promise<User> {
-    try {
-      const match = await this.getMatchByID(matchID);
-      return match.playerOne;
-    } catch (error) {
-      throw error;
-    }
-  }
+  // async getMatchPlayerOne(matchID: number): Promise<User> {
+  //   try {
+  //     const match = await this.getMatchByID(matchID);
+  //     return match.playerOne;
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 
-  async getMatchPlayerTwo(matchID: number): Promise<User> {
-    try {
-      const match = await this.getMatchByID(matchID);
-      return match.playerTwo;
-    } catch (error) {
-      throw error;
-    }
-  }
+  // async getMatchPlayerTwo(matchID: number): Promise<User> {
+  //   try {
+  //     const match = await this.getMatchByID(matchID);
+  //     return match.playerTwo;
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 
-  async getMatchWinner(matchID: number): Promise<User> {
-    try {
-      const match = await this.getMatchByID(matchID);
-      return match.winner;
-    } catch (error) {
-      throw error;
-    }
-  }
+  // async getMatchWinner(matchID: number): Promise<User> {
+  //   try {
+  //     const match = await this.getMatchByID(matchID);
+  //     return match.winner;
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 
-  async getMatchScore(matchID: number): Promise<number[]> {
-    try {
-      const match = await this.getMatchByID(matchID);
-      return [match.scorePlayerOne, match.scorePlayerTwo];
-    } catch (error) {
-      throw error;
-    }
-  }
+  // async getMatchScore(matchID: number): Promise<number[]> {
+  //   try {
+  //     const match = await this.getMatchByID(matchID);
+  //     return [match.scorePlayerOne, match.scorePlayerTwo];
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 
-  async getMatchScorePlayerOne(matchID: number): Promise<number> {
-    try {
-      const match = await this.getMatchByID(matchID);
-      return match.scorePlayerOne;
-    } catch (error) {
-      throw error;
-    }
-  }
+  // async getMatchScorePlayerOne(matchID: number): Promise<number> {
+  //   try {
+  //     const match = await this.getMatchByID(matchID);
+  //     return match.scorePlayerOne;
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 
-  async getMatchScorePlayerTwo(matchID: number): Promise<number> {
-    try {
-      const match = await this.getMatchByID(matchID);
-      return match.scorePlayerTwo;
-    } catch (error) {
-      throw error;
-    }
-  }
+  // async getMatchScorePlayerTwo(matchID: number): Promise<number> {
+  //   try {
+  //     const match = await this.getMatchByID(matchID);
+  //     return match.scorePlayerTwo;
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 
   async createMatch(match: CreateMatchDTO): Promise<Match> {
     const newMatch = this.matchesRepository.create(match);
 
     // Deciding winner if no 'winner' key in body
     if (!newMatch.winner) {
-      if (newMatch.scorePlayerOne > newMatch.scorePlayerTwo)
-        newMatch.winner = newMatch.playerOne;
-      else newMatch.winner = newMatch.playerTwo;
+      if (newMatch.score[0] > newMatch.score[1])
+        newMatch.winner = newMatch.players[0];
+      else newMatch.winner = newMatch.players[1];
     }
 
     await this.matchesRepository.save(newMatch);
     return newMatch;
   }
 
-  async updateMatch(
-    matchID: number,
-    updatedMatch: UpdateMatchDTO,
-  ): Promise<Match> {
-    const match = await this.matchesRepository.findOne({
-      where: { id: matchID },
-    });
-    if (!match) throw new NotFoundException('Match not found (id incorrect)');
-    else {
-      await this.matchesRepository.update(matchID, updatedMatch);
-      return await this.getMatchByID(matchID);
-    }
-  }
+  // async updateMatch(
+  //   matchID: number,
+  //   updatedMatch: UpdateMatchDTO,
+  // ): Promise<Match> {
+  //   const match = await this.matchesRepository.findOne({
+  //     where: { id: matchID },
+  //   });
+  //   if (!match) throw new NotFoundException('Match not found (id incorrect)');
+  //   else {
+  //     await this.matchesRepository.update(matchID, updatedMatch);
+  //     return await this.getMatchByID(matchID);
+  //   }
+  // }
 
   async deleteMatch(matchID: number): Promise<void> {
     const match = await this.matchesRepository.findOne({
@@ -118,5 +120,20 @@ export class MatchesService {
     });
     if (!match) throw new NotFoundException('Match not found (id incorrect)');
     else await this.matchesRepository.delete(match);
+  }
+
+  async addMatch(playerID: number, match: CreateMatchDTO): Promise<void> {
+    const user = await this.usersRepository.findOne({
+      where: { id: playerID },
+      relations: ['matches'],
+    });
+    console.log('User BEFORE: ', user);
+    if (!user)
+      throw new NotFoundException(
+        "Can't add match to history (user id incorrect)",
+      );
+    user.matches.push(match);
+    console.log('User AFTER: ', user);
+    await this.usersRepository.save(user);
   }
 }
