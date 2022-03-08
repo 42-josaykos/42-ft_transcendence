@@ -19,29 +19,39 @@ class Channel {
   @Column()
   public name: string;
 
+  @Column({ nullable: true, default: false })
+  public isPrivate: boolean;
+
   @Column({ nullable: true })
   public password: string;
 
   @ManyToOne((type) => User, (user) => user.ownerChannels, {
-    eager: true,
+    // eager: true,
     cascade: true,
   })
   public owner: User;
 
-  // @ManyToMany((type) => User, (administrators) => administrators.channels)
-  // // @JoinTable()
-  // public administrators: User[];
-
-  @ManyToMany((type) => User, (user) => user.membersChannels, {
-    eager: true,
+  @ManyToMany((type) => User, (admin) => admin.adminChannels, {
+    // eager: true,
     cascade: true,
   })
-  //   @JoinTable()
+  @JoinTable()
+  public admins: User[];
+
+  @ManyToMany((type) => User, (user) => user.memberChannels, {
+    // eager: true,
+    cascade: true,
+  })
+  @JoinTable()
   public members: User[];
 
-  // @ManyToMany((type) => User, (bans) => bans.channels)
-  // //   @JoinTable()
-  // public bans: User[];
+  @ManyToMany((type) => User, (bans) => bans.muteChannels)
+  @JoinTable()
+  public mutes: User[];
+
+  @ManyToMany((type) => User, (bans) => bans.banChannels)
+  @JoinTable()
+  public bans: User[];
 }
 
 export default Channel;

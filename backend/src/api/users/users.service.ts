@@ -30,8 +30,11 @@ export class UsersService {
         'stats',
         'messages',
         'matches',
-        'membersChannels',
         'ownerChannels',
+        'adminChannels',
+        'memberChannels',
+        'muteChannels',
+        'banChannels',
       ],
     });
     return users;
@@ -40,7 +43,16 @@ export class UsersService {
   async getUserByID(id: number): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { id: id },
-      relations: ['stats', 'messages', 'matches', 'channels'],
+      relations: [
+        'stats',
+        'messages',
+        'matches',
+        'ownerChannels',
+        'adminChannels',
+        'memberChannels',
+        'muteChannels',
+        'banChannels',
+      ],
     });
     if (user) {
       return user;

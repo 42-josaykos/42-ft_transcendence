@@ -34,12 +34,25 @@ class User {
   @OneToMany((type) => Message, (message) => message.author)
   public messages: Message[];
 
-  @ManyToMany((type) => Channel, (channel) => channel.members)
-  @JoinTable()
-  public membersChannels: Channel[];
-
+  // Channel related relations
   @OneToMany((type) => Channel, (channel) => channel.owner)
   public ownerChannels: Channel[];
+
+  @ManyToMany((type) => Channel, (channel) => channel.admins)
+  // @JoinTable()
+  public adminChannels: Channel[];
+
+  @ManyToMany((type) => Channel, (channel) => channel.members)
+  // @JoinTable()
+  public memberChannels: Channel[];
+
+  @ManyToMany((type) => Channel, (channel) => channel.mutes)
+  // @JoinTable()
+  public muteChannels: Channel[];
+
+  @ManyToMany((type) => Channel, (channel) => channel.bans)
+  // @JoinTable()
+  public banChannels: Channel[];
 }
 
 export default User;
