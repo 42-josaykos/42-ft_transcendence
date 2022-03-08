@@ -21,7 +21,15 @@ export class ChannelsService {
 
   async getChannelByID(
     channelID: number,
-    relations: string[] = [],
+    relations: string[] = [
+      'messages',
+      'messages.author',
+      'owner',
+      'admins',
+      'members',
+      'mutes',
+      'bans',
+    ],
   ): Promise<Channel> {
     const channel = await this.channelsRepository.findOne({
       where: { id: channelID },
@@ -123,7 +131,7 @@ export class ChannelsService {
   async deleteChannel(channelID: number): Promise<void> {
     const channel = await this.channelsRepository.findOne({
       where: { id: channelID },
-      relations: ['owner', 'admins', 'members', 'mutes', 'bans'],
+      relations: ['messages', 'owner', 'admins', 'members', 'mutes', 'bans'],
     });
     if (!channel)
       throw new NotFoundException('Channel not found (id incorrect)');

@@ -48,7 +48,7 @@ Content-Type: {{contentType}}
 
 {
     "author": 1,
-    "channel": "Channel3",
+    "channel": {"id": 10},
     "data": "This is just a test message, to see if everything is working"
 }
 
@@ -59,7 +59,6 @@ Content-Type: {{contentType}}
 
 {
     "name": "Channel21",
-    "isPrivate": true,
     "owner": {"id": 1},
     "admins": [{"id": 1}, {"id": 2}],
     "members": [{"id": 1}, {"id": 3}, {"id": 4}],
@@ -67,6 +66,10 @@ Content-Type: {{contentType}}
     "bans": [{"id": 5}]
 
 }
+
+###
+
+DELETE http://{{host}}/channels/1
 
 ###
 

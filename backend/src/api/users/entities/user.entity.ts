@@ -39,19 +39,15 @@ class User {
   public ownerChannels: Channel[];
 
   @ManyToMany((type) => Channel, (channel) => channel.admins)
-  // @JoinTable()
   public adminChannels: Channel[];
 
   @ManyToMany((type) => Channel, (channel) => channel.members)
-  // @JoinTable()
   public memberChannels: Channel[];
 
   @ManyToMany((type) => Channel, (channel) => channel.mutes)
-  // @JoinTable()
   public muteChannels: Channel[];
 
   @ManyToMany((type) => Channel, (channel) => channel.bans)
-  // @JoinTable()
   public banChannels: Channel[];
 }
 

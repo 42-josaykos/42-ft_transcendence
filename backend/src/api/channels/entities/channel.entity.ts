@@ -10,6 +10,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import User from 'src/api/users/entities/user.entity';
+import Message from 'src/api/messages/entities/message.entity';
 
 @Entity()
 class Channel {
@@ -25,31 +26,35 @@ class Channel {
   @Column({ nullable: true })
   public password: string;
 
+  @OneToMany((type) => Message, (message) => message.channel, { cascade: true })
+  public messages: Message[];
+
   @ManyToOne((type) => User, (user) => user.ownerChannels, {
-    // eager: true,
     cascade: true,
   })
   public owner: User;
 
   @ManyToMany((type) => User, (admin) => admin.adminChannels, {
-    // eager: true,
     cascade: true,
   })
   @JoinTable()
   public admins: User[];
 
   @ManyToMany((type) => User, (user) => user.memberChannels, {
-    // eager: true,
     cascade: true,
   })
   @JoinTable()
   public members: User[];
 
-  @ManyToMany((type) => User, (bans) => bans.muteChannels)
+  @ManyToMany((type) => User, (bans) => bans.muteChannels, {
+    cascade: true,
+  })
   @JoinTable()
   public mutes: User[];
 
-  @ManyToMany((type) => User, (bans) => bans.banChannels)
+  @ManyToMany((type) => User, (bans) => bans.banChannels, {
+    cascade: true,
+  })
   @JoinTable()
   public bans: User[];
 }
