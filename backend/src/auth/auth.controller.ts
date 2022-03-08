@@ -1,5 +1,5 @@
 import { Controller, Get, Redirect, Req, UseGuards } from '@nestjs/common';
-import { AuthenticatedGuard, FortyTwoAuthGuard } from './guards';
+import { AuthenticatedGuard, FortyTwoAuthGuard, GithubGuard } from './guards';
 
 @Controller('auth')
 export class AuthController {
@@ -10,6 +10,12 @@ export class AuthController {
   @Get('login')
   @UseGuards(FortyTwoAuthGuard)
   async login() {
+    return;
+  }
+
+  @Get('login/github')
+  @UseGuards(GithubGuard)
+  async loginGithub() {
     return;
   }
 
@@ -24,6 +30,12 @@ export class AuthController {
     return;
   }
 
+  @Get('redirect/github')
+  @Redirect('/game')
+  @UseGuards(GithubGuard)
+  async redirectGithub() {
+    return;
+  }
   /**
    * GET /auth/status
    * Retrieve the auth status

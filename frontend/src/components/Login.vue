@@ -14,10 +14,13 @@ const { isAuthenticated } = storeToRefs(userStore);
 
   <div v-if="!isAuthenticated">
     <div>
-      <a class="btn btn-primary" href="/auth/login"> Login 42Stud </a>
+      <a class="btn btn-primary" href="/auth/login"> Login with 42 </a>
+    </div>
+    <div>
+      <a class="btn btn-info" href="/auth/login/github"> Login with Github </a>
     </div>
   </div>
   <div v-else>
-    <a class="btn btn-danger" href="/auth/logout">Logout 42Stud</a>
+    <a class="btn btn-danger" href="/auth/logout">Logout</a>
   </div>
 </template>

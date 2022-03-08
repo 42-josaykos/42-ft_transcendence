@@ -27,6 +27,15 @@ export class AuthService implements AuthenticationProvider {
     return await this.createUser(details);
   }
 
+  async validateUserGithub(details: UserDetails) {
+    const { github_id } = details;
+    const user = await this.userRepo.findOne({ github_id });
+    console.log(user);
+
+    if (user) return user;
+    return await this.createUser(details);
+  }
+
   createUser(details: UserDetails) {
     console.log('Creating User');
     const user = this.userRepo.create(details);

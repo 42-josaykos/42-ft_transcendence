@@ -23,6 +23,9 @@ class User {
   @Column({ nullable: true, unique: true })
   public student_id: string;
 
+  @Column({ nullable: true, unique: true })
+  public github_id: string;
+
   @Column({ nullable: true })
   public avatar: string;
 
