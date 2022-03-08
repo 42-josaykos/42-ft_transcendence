@@ -30,12 +30,17 @@ export class ChannelsService {
 
   async createChannel(channel: CreateChannelDTO): Promise<Channel> {
     const newChannel = this.channelsRepository.create(channel);
-    await this.channelsRepository.save(newChannel);
+    const owner = await this.usersRepository.findOne({
+      where: newChannel.owner,
+    });
 
-    const owner = await this.usersRepository.findOne({ where: channel.owner });
-    owner.channels.push(newChannel);
-    await this.usersRepository.save(owner);
-
-    return newChannel;
+    if (!owner)
+      throw new NotFoundException(
+        "Can't create channel (owner does not exists)",
+      );
+    else {
+      await this.channelsRepository.save(newChannel);
+      return newChannel;
+    }
   }
 }

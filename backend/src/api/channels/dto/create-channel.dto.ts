@@ -17,4 +17,7 @@ export class CreateChannelDTO {
 
   @ApiProperty({ required: true })
   readonly owner: User;
+
+  @ApiProperty({ required: true })
+  readonly members: User[];
 }

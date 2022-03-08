@@ -36,7 +36,10 @@ class User {
 
   @ManyToMany((type) => Channel, (channel) => channel.members)
   @JoinTable()
-  public channels: Channel[];
+  public membersChannels: Channel[];
+
+  @OneToMany((type) => Channel, (channel) => channel.owner)
+  public ownerChannels: Channel[];
 }
 
 export default User;

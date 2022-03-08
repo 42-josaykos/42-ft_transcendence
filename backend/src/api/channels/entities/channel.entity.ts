@@ -14,7 +14,6 @@ import User from 'src/api/users/entities/user.entity';
 @Entity()
 class Channel {
   @PrimaryGeneratedColumn()
-  @ManyToMany((type) => User, (user) => user.channels)
   public id: number;
 
   @Column()
@@ -23,21 +22,26 @@ class Channel {
   @Column({ nullable: true })
   public password: string;
 
-  @OneToOne((type) => User)
-  @JoinColumn()
+  @ManyToOne((type) => User, (user) => user.ownerChannels, {
+    eager: true,
+    cascade: true,
+  })
   public owner: User;
 
-  //   @OneToMany((type) => User, (moderators) => moderators.id)
-  //   @JoinTable()
-  //   public moderators: User[];
+  // @ManyToMany((type) => User, (administrators) => administrators.channels)
+  // // @JoinTable()
+  // public administrators: User[];
 
-  //   @OneToMany((type) => User, (members) => members.id)
+  @ManyToMany((type) => User, (user) => user.membersChannels, {
+    eager: true,
+    cascade: true,
+  })
   //   @JoinTable()
-  //   public members: User[];
+  public members: User[];
 
-  //   @OneToMany((type) => User, (bans) => bans.id)
-  //   @JoinTable()
-  //   public bans: User[];
+  // @ManyToMany((type) => User, (bans) => bans.channels)
+  // //   @JoinTable()
+  // public bans: User[];
 }
 
 export default Channel;

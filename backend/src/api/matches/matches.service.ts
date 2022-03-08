@@ -109,12 +109,10 @@ export class MatchesService {
     });
     if (!match) throw new NotFoundException('Match not found (id incorrect)');
     else {
-      if (updatedMatch.players && match.players !== updatedMatch.players)
-        match.players = updatedMatch.players;
-      if (updatedMatch.score && match.score !== updatedMatch.score)
-        match.score = updatedMatch.score;
-      if (updatedMatch.winner && match.winner !== updatedMatch.winner)
-        match.winner = updatedMatch.winner;
+      //Checking what is updated
+      if (updatedMatch.players) match.players = updatedMatch.players;
+      if (updatedMatch.score) match.score = updatedMatch.score;
+      if (updatedMatch.winner) match.winner = updatedMatch.winner;
       await this.matchesRepository.save(match);
       return await this.getMatchByID(matchID);
     }
