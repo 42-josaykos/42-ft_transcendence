@@ -92,7 +92,7 @@ export class UsersService {
     if (!user)
       throw new HttpException('User does not exists', HttpStatus.ACCEPTED);
     else {
-      this.usersRepository.delete(user);
+      await this.usersRepository.delete(user);
       throw new HttpException('User deleted', HttpStatus.NO_CONTENT);
     }
   }
