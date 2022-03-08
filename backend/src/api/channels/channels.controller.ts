@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ChannelsService } from './channels.service';
 import { CreateChannelDTO } from './dto/create-channel.dto';
@@ -63,5 +63,10 @@ export class ChannelsController {
   @Post()
   async createChannel(@Body() channel: CreateChannelDTO): Promise<Channel> {
     return await this.channelsService.createChannel(channel);
+  }
+
+  @Delete(':id')
+  async deleteChannel(@Param('id') channelID: number): Promise<void> {
+    return await this.channelsService.deleteChannel(channelID);
   }
 }

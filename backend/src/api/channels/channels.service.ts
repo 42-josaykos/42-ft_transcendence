@@ -119,4 +119,14 @@ export class ChannelsService {
       return newChannel;
     }
   }
+
+  async deleteChannel(channelID: number): Promise<void> {
+    const channel = await this.channelsRepository.findOne({
+      where: { id: channelID },
+      relations: ['owner', 'admins', 'members', 'mutes', 'bans'],
+    });
+    if (!channel)
+      throw new NotFoundException('Channel not found (id incorrect)');
+    else await this.channelsRepository.remove(channel);
+  }
 }
