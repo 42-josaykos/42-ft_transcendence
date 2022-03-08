@@ -58,8 +58,14 @@ POST http://{{host}}/channels
 Content-Type: {{contentType}}
 
 {
-    "name": "Channel3",
-    "owner": {"id": 1, "username": "lchapren"}
+    "name": "Channel21",
+    "isPrivate": true,
+    "owner": {"id": 1},
+    "admins": [{"id": 1}, {"id": 2}],
+    "members": [{"id": 1}, {"id": 3}, {"id": 4}],
+    "mutes": [{"id": 4}],
+    "bans": [{"id": 5}]
+
 }
 
 ###
@@ -69,7 +75,8 @@ Content-Type: {{contentType}}
 
 {
     "players": [{"id": 1}, {"id": 2}],
-    "score": [7, 10]
+    "score": [7, 10],
+    "winner": {"id": 4}
 }
 
 ###
@@ -78,7 +85,7 @@ PATCH http://{{host}}/matches/1
 Content-Type: {{contentType}}
 
 {
-    "players": [{"id": 1}, {"id": 2}],
+    "players": [{"id": 1}, {"id": 2}]
 }
 
 ###
