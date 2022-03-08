@@ -5,12 +5,24 @@ import HomeIcon from './icons/HomeIcon.vue';
 import BugIcon from './icons/BugIcon.vue';
 import LoginIcon from './icons/LoginIcon.vue';
 import ChatIcon from './icons/ChatIcon.vue';
+
+defineProps<{
+  isAuthenticated: boolean;
+}>();
 </script>
 
 <template>
   <nav class="navbar navbar-expand-lg navbar-light my-nav">
     <div class="container-fluid">
-      <button class="nav-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <button
+        class="nav-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -61,7 +73,8 @@ import ChatIcon from './icons/ChatIcon.vue';
             <template #icon>
               <LoginIcon />
             </template>
-            <template #heading>Login</template>
+            <template v-if="!isAuthenticated" #heading>Login</template>
+            <template v-else #heading>Logout</template>
           </HomeItem>
         </router-link>
       </div>
@@ -73,22 +86,22 @@ import ChatIcon from './icons/ChatIcon.vue';
 .my-nav {
   display: flex;
   align-items: center;
-  background-color: rgb(143, 136, 136)
+  background-color: rgb(143, 136, 136);
 }
 
 .nav-toggler {
-    padding: 0.25rem 0.75rem;
-    font-size: 1.25rem;
-    line-height: 1;
-    background-color: rgba(209, 209, 208, 0.542);;
-    border: 1px solid transparent;
-    border-radius: 0.25rem;
-    transition: box-shadow .15s ease-in-out;
+  padding: 0.25rem 0.75rem;
+  font-size: 1.25rem;
+  line-height: 1;
+  background-color: rgba(209, 209, 208, 0.542);
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  transition: box-shadow 0.15s ease-in-out;
 }
 
 @media (min-width: 992px) {
   .navbar-expand-lg .nav-toggler {
-      display: none;
+    display: none;
   }
 }
 </style>

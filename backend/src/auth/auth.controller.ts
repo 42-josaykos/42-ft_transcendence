@@ -1,22 +1,46 @@
-import { Controller, Get } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
-import { AuthService } from './auth.service';
+import { Controller, Get, Redirect, Req, UseGuards } from '@nestjs/common';
+import { AuthenticatedGuard, FortyTwoAuthGuard } from './guards';
 
-@Controller()
+@Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private httpService: HttpService,
-  ) {}
-
-  @Get('log')
-  async log() {
-    const res = this.httpService.get('https://api.intra.42.fr');
-    return res;
+  /**
+   * GET /auth/login
+   * This is the route user will visit to authenticate
+   */
+  @Get('login')
+  @UseGuards(FortyTwoAuthGuard)
+  login() {
+    return;
   }
 
-  @Get()
-  getHello(): string {
-    return this.authService.getHello();
+  /**
+   * GET /auth/redirect
+   * This is the redirect URL the OAuth2 provider will call
+   */
+  @Get('redirect')
+  @Redirect('/game')
+  @UseGuards(FortyTwoAuthGuard)
+  redirect() {
+    return;
+  }
+
+  /**
+   * GET /auth/status
+   * Retrieve the auth status
+   */
+  @Get('status')
+  @UseGuards(AuthenticatedGuard)
+  status(@Req() req) {
+    return req.user;
+  }
+
+  /**
+   * GET /auth/logout
+   * Logging the user out
+   */
+  @Get('logout')
+  @Redirect('/')
+  logout(@Req() req) {
+    req.logOut();
   }
 }

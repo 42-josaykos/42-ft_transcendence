@@ -3,6 +3,8 @@ import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -11,22 +13,21 @@ import {
 @Entity()
 class Match {
   @PrimaryGeneratedColumn()
-  // @ManyToOne((type) => User, (user) => user.matchHistory)
   public id: number;
 
-  @ManyToOne((type) => User, (user) => user.matchHistory)
-  public playerOne: User;
+  @ManyToMany((type) => User, (user) => user.matches, {
+    eager: true,
+    cascade: true,
+  })
+  public players: User[];
 
-  @ManyToOne((type) => User, (user) => user.matchHistory)
-  public playerTwo: User;
+  @Column('int', { array: true })
+  public score: number[];
 
-  @Column()
-  public scorePlayerOne: number;
-
-  @Column()
-  public scorePlayerTwo: number;
-
-  @ManyToOne((type) => User, (user) => user.matchHistory)
+  @ManyToOne((type) => User, (user) => user.matches, {
+    eager: true,
+    cascade: true,
+  })
   public winner: User;
 }
 

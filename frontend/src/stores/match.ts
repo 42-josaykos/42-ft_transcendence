@@ -20,26 +20,25 @@ export const useMatchStore = defineStore('match', () => {
     const index = matches.value.findIndex(
       (el: Match) => el.id === +input.update_match_id
     );
+    console.log('not updated match:', matches.value[index]);
     if (index == -1) {
       return null;
     }
-    let updates: Match = { ...matches.value[index] };
+    let updates: Match | any = { ...matches.value[index] };
     if (input.update_p1) {
-      updates['player1'] = input.update_p1;
+      updates.players[0] = { id: +input.update_p1 };
     }
     if (input.update_p2) {
-      updates['player2'] = input.update_p1;
+      updates.players[1] = { id: +input.update_p2 };
     }
     if (input.update_s1) {
-      updates['score'][0] = +input.update_s1;
+      updates.score[0] = +input.update_s1;
     }
     if (input.update_s2) {
-      updates['score'][1] = +input.update_s2;
+      updates.score[1] = +input.update_s2;
     }
-    updates['winner'] =
-      updates['score'][0] > updates['score'][1]
-        ? updates['player1']
-        : updates['player2'];
+    console.log('updated match:', updates);
+
     return updates;
   };
 

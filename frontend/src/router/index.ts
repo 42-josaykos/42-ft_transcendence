@@ -5,6 +5,7 @@ import Debug from '@/components/debug/Debug.vue';
 import PageNotFound from '@/components/PageNotFound.vue';
 import Login from '@/components/Login.vue';
 import Chat from '@/components/Chat.vue';
+import { useUserStore } from '@/stores/user';
 
 const routes = [
   {
@@ -15,6 +16,7 @@ const routes = [
   {
     path: '/game',
     name: 'Game',
+    beforeEnter: routeGuard,
     component: Game
   },
   {
@@ -43,5 +45,18 @@ const router = createRouter({
   history: createWebHistory(),
   routes
 });
+
+function routeGuard(to: any, from: any, next: any) {
+  const userStore = useUserStore();
+  const { isAuthenticated } = userStore;
+
+  console.log(isAuthenticated);
+
+  if (isAuthenticated) {
+    next(); // allow to enter route
+  } else {
+    next('/login'); // go to '/login';
+  }
+}
 
 export default router;

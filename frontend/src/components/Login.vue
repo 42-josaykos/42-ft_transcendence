@@ -1,35 +1,35 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
+import { storeToRefs } from 'pinia';
+import { useUserStore } from '@/stores/user';
+import { Get } from '@/services/requests';
 
-const generateState = () => {
-  let state: string = '';
-  const possible =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+const userStore = useUserStore();
+const { isAuthenticated } = storeToRefs(userStore);
 
-  for (let i = 0; i < 40; i++) {
-    state += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return state;
-};
+async function login42Stud() {
+  isAuthenticated.value = true;
+  console.log('login:', isAuthenticated.value);
+}
 
-const baseUrl = 'https://api.intra.42.fr/oauth/authorize?';
-const state = generateState();
-window.sessionStorage.setItem('state_token', state);
-
-const params: any = {
-  client_id: import.meta.env.VITE_CLIENT_ID,
-  redirect_uri: encodeURI('http://localhost:3001/game'),
-  scope: 'public',
-  state: state,
-  response_type: 'code'
-};
-
-const qs = new URLSearchParams(params);
-const requestUri = ref(baseUrl + qs);
+async function logout42Stud() {
+  isAuthenticated.value = false;
+  console.log('logout:', isAuthenticated.value);
+}
 </script>
 
 <template>
-  {{ requestUri }}
-  <h2>Login</h2>
-  <a :href="requestUri">Login</a>
+  <h2 v-if="!isAuthenticated">Login</h2>
+  <h2 v-else>Logout</h2>
+
+  <div v-if="!isAuthenticated">
+    <div>
+      <a class="btn btn-primary" @click="login42Stud"> Login 42Stud </a>
+    </div>
+  </div>
+  <div v-else>
+    <a class="btn btn-danger" href="/auth/logout" @click="logout42Stud"
+      >Logout 42Stud</a
+    >
+  </div>
 </template>

@@ -1,6 +1,7 @@
 import User from '../../users/entities/user.entity';
 
 export class CreateStatsDTO {
+  readonly id: number;
   readonly user: User;
   readonly played: number = 0;
   readonly win: number = 0;

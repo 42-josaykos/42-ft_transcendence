@@ -36,14 +36,12 @@ const getMatch = () => {
 
 const createMatch = () => {
   Post(baseUrl, {
-    playerOne: +props.input.p1,
-    playerTwo: +props.input.p2,
-    winner: +props.input.s1 > +props.input.s2 ? props.input.p1 : props.input.p2,
+    players: [{ id: +props.input.p1 }, { id: +props.input.p2 }],
     score: [+props.input.s1, +props.input.s2]
   }).then(res => {
     if (res.status == 201) {
-      // matchStore.createMatch(res.data);
-      Get(baseUrl).then(res => (matches.value = res.data));
+      matchStore.createMatch(res.data);
+      // Get(baseUrl).then(res => (matches.value = res.data));
     }
     props.inputStore.$reset();
   });
@@ -52,8 +50,8 @@ const createMatch = () => {
 const updateMatch = (data: Match | null) => {
   Patch(baseUrl + '/' + props.input.update_match_id, data).then(res => {
     if (res.status == 200) {
-      // matchStore.updateMatch(res.data.id, res.data);
-      Get(baseUrl).then(res => (matches.value = res.data));
+      matchStore.updateMatch(res.data.id, res.data);
+      // Get(baseUrl).then(res => (matches.value = res.data));
     }
     props.inputStore.$reset();
   });
@@ -62,8 +60,8 @@ const updateMatch = (data: Match | null) => {
 const deleteMatch = (id: number) => {
   Delete(baseUrl + '/' + id.toString()).then(res => {
     if (res.status == 200) {
-      // matchStore.deleteMatch(id);
-      Get(baseUrl).then(res => (matches.value = res.data));
+      matchStore.deleteMatch(id);
+      // Get(baseUrl).then(res => (matches.value = res.data));
     }
   });
 };
@@ -118,10 +116,10 @@ onMounted(() => {
   <h4>Get all - id, playerOne, playerTwo, winner, score</h4>
   <ul v-if="matches">
     <li v-for="item in matches" :key="item.id">
-      Id: {{ item.id }}, Player1: {{ item.playerOne.username }}, Player2:
-      {{ item.playerTwo.username }}, Winner: {{ item.winner.username }}, Score:
-      {{ item.score }}
-      <button @click="deleteMatch(item.id)">delete</button>
+      Id: {{ item.id }}, Player1: {{ item.players[0].username }}, Player2:
+      {{ item.players[1].username }}, Winner: {{ item.winner.username }}, Score:
+      [{{ item.score[0] }}, {{ item.score[1] }}]
+      <button @click.prevent="deleteMatch(item.id)">delete</button>
     </li>
   </ul>
   <p v-else>Not Found</p>

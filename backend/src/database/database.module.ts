@@ -6,6 +6,7 @@ import Stats from '../api/stats/entities/stats.entity';
 import Message from '../api/messages/entities/message.entity';
 import Channel from 'src/api/channels/entities/channel.entity';
 import Match from 'src/api/matches/entities/matches.entity';
+import { TypeORMSession } from 'src/auth/entities/session.entity';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import Match from 'src/api/matches/entities/matches.entity';
         username: configService.get('POSTGRES_USER'),
         password: configService.get('POSTGRES_PASSWORD'),
         database: configService.get('POSTGRES_DB'),
-        entities: [User, Stats, Match, Message, Channel],
+        entities: [User, Stats, Match, Message, Channel, TypeORMSession],
         synchronize: true,
       }),
     }),
