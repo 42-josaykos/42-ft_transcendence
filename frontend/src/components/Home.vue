@@ -1,5 +1,5 @@
 <script setup lang="ts">
-
+import Login from './Login.vue';
 </script>
 
 <template>
@@ -11,7 +11,14 @@
       <p>Expliquer l'appli Pong + image ??</p>
     </div>
     <div>
-      <p>Match en cours sous forme de tableau ou de carte + boutons pour visualiser la partie</p>
+      <p>
+        Match en cours sous forme de tableau ou de carte + boutons pour
+        visualiser la partie
+      </p>
+    </div>
+    <div>
+      Login avec 42 API pour accèder aux autres pages
+      <Login />
     </div>
   </div>
 </template>
@@ -24,8 +31,8 @@
 }
 
 p.pong {
-    margin-left: auto;
-    margin-right: auto;
-    width: 6em
+  margin-left: auto;
+  margin-right: auto;
+  width: 6em;
 }
 </style>

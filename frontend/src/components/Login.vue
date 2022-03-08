@@ -6,16 +6,6 @@ import { Get } from '@/services/requests';
 
 const userStore = useUserStore();
 const { isAuthenticated } = storeToRefs(userStore);
-
-async function login42Stud() {
-  isAuthenticated.value = true;
-  console.log('login:', isAuthenticated.value);
-}
-
-async function logout42Stud() {
-  isAuthenticated.value = false;
-  console.log('logout:', isAuthenticated.value);
-}
 </script>
 
 <template>
@@ -24,12 +14,10 @@ async function logout42Stud() {
 
   <div v-if="!isAuthenticated">
     <div>
-      <a class="btn btn-primary" @click="login42Stud"> Login 42Stud </a>
+      <a class="btn btn-primary" href="/auth/login"> Login 42Stud </a>
     </div>
   </div>
   <div v-else>
-    <a class="btn btn-danger" href="/auth/logout" @click="logout42Stud"
-      >Logout 42Stud</a
-    >
+    <a class="btn btn-danger" href="/auth/logout">Logout 42Stud</a>
   </div>
 </template>

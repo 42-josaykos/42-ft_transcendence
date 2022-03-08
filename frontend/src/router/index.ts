@@ -32,6 +32,7 @@ const routes = [
   {
     path: '/chat',
     name: 'Chat',
+    beforeEnter: routeGuard,
     component: Chat
   },
   {
@@ -49,9 +50,6 @@ const router = createRouter({
 function routeGuard(to: any, from: any, next: any) {
   const userStore = useUserStore();
   const { isAuthenticated } = userStore;
-
-  console.log(isAuthenticated);
-
   if (isAuthenticated) {
     next(); // allow to enter route
   } else {

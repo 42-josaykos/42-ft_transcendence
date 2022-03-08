@@ -3,15 +3,21 @@ import Navbar from './components/Navbar.vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/user';
 import { onMounted } from 'vue';
+import { Get } from './services/requests';
 
 const userStore = useUserStore();
-const { isAuthenticated } = storeToRefs(userStore);
+const { loggedUser, isAuthenticated } = storeToRefs(userStore);
 
 // Verify if user is already logged in browser's local storage
 onMounted(() => {
-  if (localStorage.getItem('loggedUser')) {
-    isAuthenticated.value = true;
-  }
+  Get('/auth/status').then(res => {
+    if (res.status == 403) {
+      isAuthenticated.value = false;
+    } else {
+      isAuthenticated.value = true;
+      loggedUser.value = res.data;
+    }
+  });
 });
 </script>
 

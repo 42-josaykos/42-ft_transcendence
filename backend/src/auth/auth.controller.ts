@@ -9,7 +9,7 @@ export class AuthController {
    */
   @Get('login')
   @UseGuards(FortyTwoAuthGuard)
-  login() {
+  async login() {
     return;
   }
 
@@ -20,7 +20,7 @@ export class AuthController {
   @Get('redirect')
   @Redirect('/game')
   @UseGuards(FortyTwoAuthGuard)
-  redirect() {
+  async redirect() {
     return;
   }
 
@@ -30,7 +30,7 @@ export class AuthController {
    */
   @Get('status')
   @UseGuards(AuthenticatedGuard)
-  status(@Req() req) {
+  async status(@Req() req) {
     return req.user;
   }
 
@@ -40,7 +40,8 @@ export class AuthController {
    */
   @Get('logout')
   @Redirect('/')
-  logout(@Req() req) {
+  async logout(@Req() req) {
     req.logOut();
+    req.session.cookie.maxAge = 0;
   }
 }
