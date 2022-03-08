@@ -11,6 +11,8 @@ import * as Joi from 'joi';
 import { MatchesModule } from './api/matches/matches.module';
 import { StatsModule } from './api/stats/stats.module';
 import { ChannelsModule } from './api/channels/channels.module';
+import { AuthModule } from './auth/auth.module';
+import { PassportModule } from '@nestjs/passport';
 
 const envSchema = Joi.object({
   POSTGRES_HOST: Joi.string().required(),
@@ -21,13 +23,21 @@ const envSchema = Joi.object({
   POR: Joi.string(),
 });
 
+// Choose environment by setting $ENVIRONMENT to 'DEVELOPMENT' or 'PRODUDCTION'
+let envFilePath = '.env.development';
+const mode = process.env.ENVIRONMENT ? process.env.ENVIRONMENT : 'DEVELOPMENT';
+console.log(`Running in ${mode}`);
+if (process.env.ENVIRONMENT === 'PRODUCTION') {
+  envFilePath = '.env.production';
+}
+
 @Module({
   imports: [
     // ServeStaticModule.forRoot({
     //   rootPath: join(__dirname, '../../frontend', 'dist'),
     // }),
     ConfigModule.forRoot({
-      envFilePath: '../.env',
+      envFilePath: envFilePath,
       validationSchema: envSchema,
     }),
     DatabaseModule,
@@ -36,6 +46,8 @@ const envSchema = Joi.object({
     MatchesModule,
     MessagesModule,
     ChannelsModule,
+    AuthModule,
+    PassportModule.register({ session: true }),
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -97,7 +97,7 @@ export class MatchesService {
     }
 
     await this.matchesRepository.save(newMatch);
-    return newMatch;
+    return this.getMatchByID(newMatch.id);
   }
 
   async updateMatch(

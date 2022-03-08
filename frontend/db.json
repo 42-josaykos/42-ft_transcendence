@@ -1,0 +1,48 @@
+{
+  "users": [
+    {
+      "id": 4,
+      "username": "user4"
+    },
+    {
+      "username": "user5",
+      "id": 5
+    },
+    {
+      "username": "user7",
+      "id": 7
+    }
+  ],
+  "matches": [
+    {
+      "id": 1,
+      "playerOne": "AAA",
+      "playerTwo": "CCC",
+      "winner": "CCC",
+      "score": [
+        2,
+        20
+      ]
+    },
+    {
+      "id": 2,
+      "playerOne": "CCC",
+      "playerTwo": "BBB",
+      "winner": "BBB",
+      "score": [
+        15,
+        20
+      ]
+    },
+    {
+      "id": 3,
+      "playerOne": "AAA",
+      "playerTwo": "CCC",
+      "winner": "CCC",
+      "score": [
+        2,
+        19
+      ]
+    }
+  ]
+}

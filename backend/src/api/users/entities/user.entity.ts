@@ -1,14 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Column,
   Entity,
-  JoinColumn,
-  ManyToOne,
   OneToMany,
   OneToOne,
   ManyToMany,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
   JoinTable,
+  JoinColumn,
 } from 'typeorm';
 import Stats from '../../stats/entities/stats.entity';
 import Message from '../../messages/entities/message.entity';
@@ -20,8 +19,14 @@ class User {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @Column()
+  @Column({ unique: true })
   public username: string;
+
+  @Column({ nullable: true, unique: true })
+  public student_id: string;
+
+  @Column({ nullable: true })
+  public avatar: string;
 
   @OneToOne((type) => Stats, (stats) => stats.user)
   @JoinColumn()
