@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import type { Channel } from '@/models/channel.model';
+import type { Message} from '@/models/message.model';
 
 export const useChannelStore = defineStore('channel', () => {
     const channels = ref<Channel[]>([]);
@@ -9,8 +10,14 @@ export const useChannelStore = defineStore('channel', () => {
         channels.value.push(newChannel);
     }
 
+    const addMessage = (newMessage: Message) => {
+
+        channels.value.at(newMessage.channel)?.messages.push(newMessage);
+    }
+
     return {
         channels,
-        createChannel
+        createChannel,
+        addMessage,
     };
 });
