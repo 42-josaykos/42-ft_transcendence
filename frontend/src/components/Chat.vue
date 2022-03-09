@@ -24,8 +24,7 @@ const chan = document.getElementById('chan');
 
 const channelStore = useChannelStore();
 const { channels } = storeToRefs(channelStore);
-
-const channel = ref<Channel | null>(null);
+const { channel } = storeToRefs(channelStore);
 
 const baseUrl = 'http://localhost:3000/messages';
 const baseUrlChat = 'http://localhost:3000/channels';
@@ -33,7 +32,7 @@ const baseUrlChat = 'http://localhost:3000/channels';
 const handleSubmitNewMessage = async () => {
   if (input.value.create !== '')
   {
-    if (channel.value !== null) {
+    if (channel.value !== undefined) {
       const newMessage = {
           author: {
             "id": 1,
@@ -80,7 +79,7 @@ socket.on('msgToClient', (newMessage: Message) => {
    return li;
  }*/
 
-const displayMessages = async (id: number) => {
+const displayMessages = (id: number) => {
   Get(baseUrlChat).then(res => {
     if (res.status == 200) {
       channel.value = res.data[id - 1];
@@ -114,15 +113,17 @@ onMounted(() => {
 
     <div class="chatBox">
       <div class="chatBoxWrapper">{{channel?.name ? channel.name : "Message"}}
-        <div v-if="messages" class="scroller">
-          <ul id="msg" v-for="item in messages" :key="item.id">
-            Message: {{ item.data }}
-          </ul>
+        <div v-if="channel != undefined">
+          <div v-if="messages" class="scroller">
+            <ul id="msg" v-for="item in messages" :key="item.id">
+              Message: {{ item.data }}
+            </ul>
+          </div>
+          <form @submit.prevent.trim.lazy="handleSubmitNewMessage" method="POST" id="form">
+            <input v-model="input.create" type="text" id="input"/>
+            <input type="submit" value="Send" id="send"/>
+          </form>
         </div>
-        <form @submit.prevent.trim.lazy="handleSubmitNewMessage" method="POST" id="form">
-          <input v-model="input.create" type="text" id="input"/>
-          <input type="submit" value="Send" id="send"/>
-        </form>
        </div>
     </div>
 

@@ -9,18 +9,8 @@ export const useMessageStore = defineStore('message', () => {
         messages.value.push(newMessage);
     }
 
-    /*const filterMessage = (channel: string) => {
-        const newArrayMessages = ref<Message[]>([]);
-        messages.value.forEach(element => {
-            if (element.channel === channel)
-                newArrayMessages.push(element)
-        });
-        return newArrayMessages;
-    }*/
-
     return {
         messages,
         createMessage
-        //filterMessage
     }
 })
