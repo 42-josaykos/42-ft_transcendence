@@ -57,4 +57,14 @@ export class MessagesService {
     await this.messagesRepository.save(newMessage);
     return newMessage;
   }
+
+  async deleteMessage(messageID: number): Promise<void> {
+    const message = await this.messagesRepository.findOne({
+      where: { id: messageID },
+      relations: ['author', 'channel'],
+    });
+    if (!message)
+      throw new NotFoundException('Message not found (id incorrect)');
+    else await this.messagesRepository.remove(message);
+  }
 }

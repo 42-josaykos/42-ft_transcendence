@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -44,5 +45,10 @@ export class MessagesController {
   @Post()
   async createMessage(@Body() message: CreateMessageDTO): Promise<Message> {
     return await this.messagesService.createMessage(message);
+  }
+
+  @Delete(':id')
+  async deleteMessage(@Param('id') messageID: number) {
+    return await this.messagesService.deleteMessage(messageID);
   }
 }

@@ -47,10 +47,14 @@ POST http://{{host}}/messages
 Content-Type: {{contentType}}
 
 {
-    "author": 1,
-    "channel": {"id": 10},
-    "data": "This is just a test message, to see if everything is working"
+    "author": 3,
+    "channel": {"id": 5},
+    "data": "Bouh!"
 }
+
+###
+
+DELETE http://{{host}}/messages/1
 
 ###
 
@@ -58,7 +62,7 @@ POST http://{{host}}/channels
 Content-Type: {{contentType}}
 
 {
-    "name": "Channel21",
+    "name": "Channel1",
     "owner": {"id": 1},
     "admins": [{"id": 1}, {"id": 2}],
     "members": [{"id": 1}, {"id": 3}, {"id": 4}],
@@ -69,7 +73,7 @@ Content-Type: {{contentType}}
 
 ###
 
-DELETE http://{{host}}/channels/1
+DELETE http://{{host}}/channels/5
 
 ###
 

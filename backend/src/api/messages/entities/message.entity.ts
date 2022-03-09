@@ -16,7 +16,9 @@ class Message {
   @ManyToOne((type) => User, (user) => user.id)
   public author: User;
 
-  @ManyToOne((type) => Channel, (channel) => channel.messages)
+  @ManyToOne((type) => Channel, (channel) => channel.messages, {
+    onDelete: 'CASCADE',
+  })
   public channel: Channel;
 
   @Column()

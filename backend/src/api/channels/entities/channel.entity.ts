@@ -26,7 +26,9 @@ class Channel {
   @Column({ nullable: true })
   public password: string;
 
-  @OneToMany((type) => Message, (message) => message.channel, { cascade: true })
+  @OneToMany((type) => Message, (message) => message.channel, {
+    cascade: true,
+  })
   public messages: Message[];
 
   @ManyToOne((type) => User, (user) => user.ownerChannels, {
