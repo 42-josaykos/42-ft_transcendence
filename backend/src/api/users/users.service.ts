@@ -60,7 +60,7 @@ export class UsersService {
     if (user) {
       return user;
     }
-    throw new NotFoundException('User not found (id not correct)');
+    throw new NotFoundException('User not found (id incorrect)');
   }
 
   async getUsersByFilter(filter: FilterUserDTO): Promise<User[]> {
@@ -106,16 +106,11 @@ export class UsersService {
     });
   }
 
-  // @HttpCode(HttpStatus.ACCEPTED)
   async deleteUser(id: number): Promise<void> {
     const user = await this.usersRepository.findOne({
       where: { id: id },
     });
-    if (!user)
-      throw new HttpException('User does not exists', HttpStatus.ACCEPTED);
-    else {
-      await this.usersRepository.delete(user);
-      throw new HttpException('User deleted', HttpStatus.NO_CONTENT);
-    }
+    if (!user) throw new NotFoundException('User not found (id incorrect)');
+    else await this.usersRepository.remove(user);
   }
 }

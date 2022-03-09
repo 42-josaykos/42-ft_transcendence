@@ -33,29 +33,34 @@ class Channel {
 
   @ManyToOne((type) => User, (user) => user.ownerChannels, {
     cascade: true,
+    onDelete: 'CASCADE',
   })
   public owner: User;
 
   @ManyToMany((type) => User, (admin) => admin.adminChannels, {
     cascade: true,
+    onDelete: 'CASCADE',
   })
   @JoinTable()
   public admins: User[];
 
   @ManyToMany((type) => User, (user) => user.memberChannels, {
     cascade: true,
+    onDelete: 'CASCADE',
   })
   @JoinTable()
   public members: User[];
 
   @ManyToMany((type) => User, (bans) => bans.muteChannels, {
     cascade: true,
+    onDelete: 'CASCADE',
   })
   @JoinTable()
   public mutes: User[];
 
   @ManyToMany((type) => User, (bans) => bans.banChannels, {
     cascade: true,
+    onDelete: 'CASCADE',
   })
   @JoinTable()
   public bans: User[];

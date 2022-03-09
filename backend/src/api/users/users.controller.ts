@@ -19,6 +19,7 @@ import { UsersService } from './users.service';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { FilterUserDTO } from './dto/filter-user.dto';
 import { Utils } from 'src/utils.provider';
+import User from './entities/user.entity';
 
 @Controller('users')
 @ApiTags('users')
@@ -29,24 +30,24 @@ export class UsersController {
   ) {}
 
   @Get()
-  async getAllUsers(@Query() filter: FilterUserDTO) {
+  async getAllUsers(@Query() filter: FilterUserDTO): Promise<User[]> {
     if (!this.utilsProvider.isEmptyObject(filter))
       return await this.getUsersbyFilter(filter);
     else return await this.usersService.getAllUsers();
   }
 
   @Get()
-  async getUsersbyFilter(filter: FilterUserDTO) {
+  async getUsersbyFilter(filter: FilterUserDTO): Promise<User[]> {
     return await this.usersService.getUsersByFilter(filter);
   }
 
   @Get(':id')
-  async getUserbyID(@Param('id', ParseIntPipe) id: number) {
+  async getUserbyID(@Param('id', ParseIntPipe) id: number): Promise<User> {
     return await this.usersService.getUserByID(id);
   }
 
   @Post()
-  async createUser(@Body() createUserDTO: CreateUserDTO) {
+  async createUser(@Body() createUserDTO: CreateUserDTO): Promise<User> {
     return await this.usersService.createUser(createUserDTO);
   }
 
@@ -54,12 +55,12 @@ export class UsersController {
   async updateUser(
     @Param('id', ParseIntPipe) id: number,
     @Body() createUserDTO: CreateUserDTO,
-  ) {
+  ): Promise<User> {
     return await this.usersService.updateUser(id, createUserDTO);
   }
 
   @Delete(':id')
-  async deleteUser(@Param('id') id: number) {
+  async deleteUser(@Param('id') id: number): Promise<void> {
     return await this.usersService.deleteUser(id);
   }
 }
