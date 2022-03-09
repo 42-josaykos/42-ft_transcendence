@@ -23,7 +23,7 @@ POST http://{{host}}/users
 Content-Type: {{contentType}}
 
 {
-    "username": "lchapren"
+    "username": "josayko"
 }
 
 ###
@@ -48,7 +48,7 @@ Content-Type: {{contentType}}
 
 {
     "author": 1,
-    "channel": "Channel3",
+    "channel": {"id": 10},
     "data": "This is just a test message, to see if everything is working"
 }
 
@@ -58,9 +58,18 @@ POST http://{{host}}/channels
 Content-Type: {{contentType}}
 
 {
-    "name": "Channel3",
-    "owner": {"id": 1, "username": "josayko"}
+    "name": "Channel21",
+    "owner": {"id": 1},
+    "admins": [{"id": 1}, {"id": 2}],
+    "members": [{"id": 1}, {"id": 3}, {"id": 4}],
+    "mutes": [{"id": 4}],
+    "bans": [{"id": 5}]
+
 }
+
+###
+
+DELETE http://{{host}}/channels/1
 
 ###
 
@@ -68,23 +77,20 @@ POST http://{{host}}/matches
 Content-Type: {{contentType}}
 
 {
-    "playerOne": 2,
-    "playerTwo": 1,
-    "scorePlayerOne": 10,
-    "scorePlayerTwo": 5
+    "players": [{"id": 1}, {"id": 2}],
+    "score": [7, 10],
+    "winner": {"id": 4}
 }
 
 ###
 
-PATCH http://{{host}}/matches/5
+PATCH http://{{host}}/matches/1
 Content-Type: {{contentType}}
 
 {
-    "scorePlayerOne": 10,
-    "scorePlayerTwo": 8,
-    "winner": 1
+    "players": [{"id": 1}, {"id": 2}]
 }
 
 ###
 
-DELETE http://{{host}}/matches/1
+DELETE http://{{host}}/matches/4

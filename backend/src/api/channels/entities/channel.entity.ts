@@ -10,32 +10,51 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import User from 'src/api/users/entities/user.entity';
+import Message from 'src/api/messages/entities/message.entity';
 
 @Entity()
 class Channel {
   @PrimaryGeneratedColumn()
-  @ManyToMany((type) => User, (user) => user.channels)
   public id: number;
 
   @Column()
   public name: string;
 
+  @Column({ nullable: true, default: false })
+  public isPrivate: boolean;
+
   @Column({ nullable: true })
   public password: string;
 
-  @OneToOne((type) => User)
-  @JoinColumn()
+  @OneToMany((type) => Message, (message) => message.channel, { cascade: true })
+  public messages: Message[];
+
+  @ManyToOne((type) => User, (user) => user.ownerChannels, {
+    cascade: true,
+  })
   public owner: User;
 
-  @OneToMany((type) => User, (moderators) => moderators.id)
+  @ManyToMany((type) => User, (admin) => admin.adminChannels, {
+    cascade: true,
+  })
   @JoinTable()
-  public moderators: User[];
+  public admins: User[];
 
-  @OneToMany((type) => User, (members) => members.id)
+  @ManyToMany((type) => User, (user) => user.memberChannels, {
+    cascade: true,
+  })
   @JoinTable()
   public members: User[];
 
-  @OneToMany((type) => User, (bans) => bans.id)
+  @ManyToMany((type) => User, (bans) => bans.muteChannels, {
+    cascade: true,
+  })
+  @JoinTable()
+  public mutes: User[];
+
+  @ManyToMany((type) => User, (bans) => bans.banChannels, {
+    cascade: true,
+  })
   @JoinTable()
   public bans: User[];
 }

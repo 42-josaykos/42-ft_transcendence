@@ -11,10 +11,25 @@ export class CreateChannelDTO {
   @IsString()
   readonly name: string;
 
+  @ApiProperty({ nullable: true, required: false })
+  readonly isPrivate: boolean | false;
+
   @ApiProperty({ nullable: true, required: true })
   @IsString()
   readonly password: string | null;
 
   @ApiProperty({ required: true })
   readonly owner: User;
+
+  @ApiProperty({ required: false })
+  readonly admins: User[];
+
+  @ApiProperty({ required: true })
+  readonly members: User[];
+
+  @ApiProperty({ required: false })
+  readonly mutes: User[];
+
+  @ApiProperty({ required: false })
+  readonly bans: User[];
 }

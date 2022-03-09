@@ -26,7 +26,16 @@ export class UsersService {
   async getAllUsers(): Promise<User[]> {
     const users = await this.usersRepository.find({
       order: { id: 'ASC' },
-      relations: ['stats', 'messages', 'matches'],
+      relations: [
+        'stats',
+        'messages',
+        'matches',
+        'ownerChannels',
+        'adminChannels',
+        'memberChannels',
+        'muteChannels',
+        'banChannels',
+      ],
     });
     return users;
   }
@@ -34,6 +43,16 @@ export class UsersService {
   async getUserByID(id: number): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { id: id },
+      relations: [
+        'stats',
+        'messages',
+        'matches',
+        'ownerChannels',
+        'adminChannels',
+        'memberChannels',
+        'muteChannels',
+        'banChannels',
+      ],
     });
     if (user) {
       return user;
