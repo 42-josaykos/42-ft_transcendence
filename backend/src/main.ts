@@ -37,14 +37,14 @@ async function bootstrap() {
     session({
       secret: 'oihgwoihreuewhvevrek',
       cookie: {
-        maxAge: 20000,
+        maxAge: 86400000,
       },
       resave: false,
       saveUninitialized: false,
       store: new TypeormStore({
         cleanupLimit: 2,
         limitSubquery: false,
-        ttl: 20000,
+        ttl: 86400000,
       }).connect(sessionRepo),
     }),
   );
