@@ -10,14 +10,21 @@ export const useChannelStore = defineStore('channel', () => {
         channels.value.push(newChannel);
     }
 
-    const addMessage = (newMessage: Message) => {
+    const addMessage = (id: number, newMessage: Message) => {
+        console.log("2 - channel.id => ", id)
+        //channels.value.at(id)?.messages.push(newMessage);
+         channels.value[id - 1].messages.push(newMessage);
+         console.log("channels[id] => ", channels.value[id - 1])
+    }
 
-        channels.value.at(newMessage.channel)?.messages.push(newMessage);
+    const getChannelByID = (id: number): Channel => {
+        return channels.value[id];
     }
 
     return {
         channels,
         createChannel,
         addMessage,
+        getChannelByID
     };
 });

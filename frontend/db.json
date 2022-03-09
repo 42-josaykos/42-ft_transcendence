@@ -65,6 +65,7 @@
             "username": "user1"
           },
           "data": "message_1",
+          "channel": 1,
           "id": 1
         },
         {
@@ -73,6 +74,7 @@
             "username": "user2"
           },
           "data": "message_2",
+          "channel": 1,
           "id": 2
         },
         {
@@ -81,6 +83,7 @@
             "username": "user1"
           },
           "data": "message_3",
+          "channel": 1,
           "id": 3
         }
       ]
@@ -100,6 +103,7 @@
             "username": "user2"
           },
           "data": "message_4",
+          "channel": 2,
           "id": 4
         },
         {
@@ -108,6 +112,7 @@
             "username": "user1"
           },
           "data": "message_5",
+          "channel": 2,
           "id": 5
         },
         {
@@ -116,6 +121,7 @@
             "username": "user2"
           },
           "data": "message_6",
+          "channel": 2,
           "id": 6
         }
       ]

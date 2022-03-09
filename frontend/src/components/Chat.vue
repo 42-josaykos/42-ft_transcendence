@@ -3,16 +3,14 @@ import { Get } from '@/services/requests';
 import { useMessageStore } from '@/stores/message';
 import { useChannelStore } from '@/stores/channel';
 import type { Channel } from '@/models/channel.model'
+import type { Message } from '@/models/message.model'
 import { useInputStore } from '@/stores/input';
-import { storeToRefs } from 'pinia';
+import { storeToRefs} from 'pinia';
 import { io } from 'socket.io-client';
 import { onMounted, ref } from 'vue';
-import { Post } from '@/services/requests';
+import { Post, Put } from '@/services/requests';
 
 const socket = io("http://localhost:4000");
-
-//const message = ref<string>('')
-let display = false
 
 const msg = document.getElementById('msg');
 
@@ -27,40 +25,34 @@ const chan = document.getElementById('chan');
 const channelStore = useChannelStore();
 const { channels } = storeToRefs(channelStore);
 
-const channel = ref<Channel>()
+const channel = ref<Channel | null>(null);
 
 const baseUrl = 'http://localhost:3000/messages';
 const baseUrlChat = 'http://localhost:3000/channels';
 
-const handleSubmitNewMessage = () => {
-  console.log("Message => ", input.value)
-  console.log("Message.value => ", input.value.create)
-
-  //socket.emit('msgToServer', { data: input.value.create })
-  socket.emit('msgToServer', {author: {
-        "id": 1,
-        "username": "user1"
-      }, data: input.value.create, channel: channel.value?.id})
-  Post(baseUrl,
-    {
-      author: {
-        "id": 1,
-        "username": "user1"
-      },
-      data: input.value.create,
-      channel: channel.value?.id
-    }).then(res => {
-    if (res.status == 201) {
-         //Get(baseUrl).then(res => (messages.value = res.data));
-         if (channel.value !== undefined){
-          messageStore.createMessage(res.data);
-          console.log("Channel after POST = ", channel.value)
-          channelStore.addMessage(res.data);
-          console.log("ChannelStore => ", channelStore)
-         }
-     }
-     inputStore.$reset();
-     });
+const handleSubmitNewMessage = async () => {
+  if (input.value.create !== '')
+  {
+    if (channel.value !== null) {
+      const newMessage = {
+          author: {
+            "id": 1,
+            "username": "user1"
+          },
+          data: input.value.create,
+          channel: channel.value?.id
+        };
+        channelStore.addMessage(channel.value?.id, newMessage);
+        Put(baseUrlChat + '/' + channel.value?.id.toString(), channelStore.getChannelByID(channel.value?.id - 1))
+        .then(res => console.log("Put RES => ", res))
+        socket.emit('msgToServer', newMessage)
+        Post(baseUrl, newMessage)
+        .then(res => console.log("Post RES => ", res))
+    }
+    else
+      console.log("Channel NULL");
+    inputStore.$reset();
+  }
 }
 
 
@@ -75,12 +67,11 @@ const handleSubmitNewMessage = () => {
    });
  };*/
 
-socket.on('msgToClient', ({ data }) => {
-  console.log("Data = ", data)
-  /* if (data !== null)*/
-    // messageStore.createMessage(data);
-   //data = null;*/
-  //msg?.appendChild(builNewMessage(data));
+socket.on('msgToClient', (newMessage: Message) => {
+  channelStore.addMessage(newMessage.channel, newMessage);
+  Get(baseUrlChat).then(res => {
+      messages.value = res.data[channel.value?.id - 1].messages;
+  })
 })
 
 /* const builNewMessage = (message: string) => {
@@ -90,26 +81,16 @@ socket.on('msgToClient', ({ data }) => {
  }*/
 
 const displayMessages = async (id: number) => {
-  console.log("ID => ", id)
-  await Get(baseUrlChat/* + '/' + id.toString()*/).then(res => {
+  Get(baseUrlChat).then(res => {
     if (res.status == 200) {
-      console.log("RES => ", res.data[id - 1]);
       channel.value = res.data[id - 1];
       messages.value = res.data[id - 1].messages;
     }
   });
-  console.log("Messages => ", messages.value);
-  /*console.log("CLICK", item)
-  console.log("Messages => ", messages)
-  console.log("Messages.value => ", messages.value)*/
 }
-
-
-
 
 onMounted(() => {
   Get(baseUrlChat).then(res => channels.value = res.data);
-  console.log("channels => ", channels)
   //Get(baseUrl).then(res => (messages.value = res.data));
 });
 
@@ -135,7 +116,7 @@ onMounted(() => {
       <div class="chatBoxWrapper">{{channel?.name ? channel.name : "Message"}}
         <div v-if="messages" class="scroller">
           <ul id="msg" v-for="item in messages" :key="item.id">
-             Message: {{ item.data }}
+            Message: {{ item.data }}
           </ul>
         </div>
         <form @submit.prevent.trim.lazy="handleSubmitNewMessage" method="POST" id="form">

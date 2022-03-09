@@ -8,6 +8,7 @@ import {
  } from '@nestjs/websockets';
  import { Logger } from '@nestjs/common';
  import { Socket, Server } from 'socket.io';
+ import Message from '../api/messages/entities/message.entity';
  
  @WebSocketGateway({  //donne accès à la fonctionnalité socket.io
    cors: {
@@ -20,8 +21,9 @@ import {
   private logger: Logger = new Logger('ChatGateway');
  
   @SubscribeMessage('msgToServer') // permet d'écouter l'évènement "msgToServer"
-  handleMessage(client: Socket, payload: string): void {
-   this.server.emit('msgToClient', payload); // on envoit les données à tous les clients connectés au serveur
+  handleMessage(client: Socket, message: Message): void {
+   this.server.emit('msgToClient', message); // on envoit les données à tous les clients connectés au serveur
+    //this.server.emit('channelToClient', channel);
   }
  
   afterInit(server: Server) {
