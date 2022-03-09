@@ -6,6 +6,7 @@ import { FortyTwoStrategy } from './strategies';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import User from 'src/api/users/entities/user.entity';
 import { TypeORMSession } from './entities/session.entity';
+import { GithubStrategy } from './strategies/github.strategy';
 
 @Module({
   imports: [HttpModule, TypeOrmModule.forFeature([User, TypeORMSession])],
@@ -19,6 +20,7 @@ import { TypeORMSession } from './entities/session.entity';
   providers: [
     AuthService,
     FortyTwoStrategy,
+    GithubStrategy,
     SessionSerializer,
     {
       provide: 'AUTH_SERVICE',
