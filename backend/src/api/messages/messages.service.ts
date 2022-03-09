@@ -35,13 +35,15 @@ export class MessagesService {
       .leftJoinAndSelect('messages.author', 'author')
       .orderBy('messages.id', 'DESC');
 
-    if (filter.author)
-      query.andWhere('author.username = :author', { author: filter.author });
+    if (filter.authorName)
+      query.andWhere('author.username = :author', {
+        author: filter.authorName,
+      });
     if (filter.authorID)
       query.andWhere('author.id = :authorID', { authorID: filter.authorID });
-    if (filter.channel)
+    if (filter.channelID)
       query.andWhere('messages.channel = :channel', {
-        channel: filter.channel,
+        channel: filter.channelID,
       });
 
     const messages = await query.getMany();
