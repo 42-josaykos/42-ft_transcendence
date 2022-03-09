@@ -1,4 +1,3 @@
-import User from '../../users/entities/user.entity';
 import {
   Column,
   Entity,
@@ -6,17 +5,19 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import User from 'src/api/users/entities/user.entity';
+import Channel from 'src/api/channels/entities/channel.entity';
 
 @Entity()
 class Message {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @ManyToOne((type) => User, (user) => user.id, { eager: true })
+  @ManyToOne((type) => User, (user) => user.id)
   public author: User;
 
-  @Column()
-  public channel: string;
+  @ManyToOne((type) => Channel, (channel) => channel.messages)
+  public channel: Channel;
 
   @Column()
   public data: string;

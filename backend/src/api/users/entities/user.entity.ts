@@ -6,6 +6,8 @@ import {
   OneToOne,
   ManyToMany,
   PrimaryGeneratedColumn,
+  JoinTable,
+  JoinColumn,
 } from 'typeorm';
 import Stats from '../../stats/entities/stats.entity';
 import Message from '../../messages/entities/message.entity';
@@ -30,19 +32,31 @@ class User {
   public avatar: string;
 
   @OneToOne((type) => Stats, (stats) => stats.user)
+  @JoinColumn()
   public stats: Stats;
 
-  @OneToMany((type) => Match, (match) => match.id)
-  public matchHistory: Match[];
+  @ManyToMany((type) => Match, (match) => match.players)
+  @JoinTable()
+  public matches: Match[];
 
   @OneToMany((type) => Message, (message) => message.author)
   public messages: Message[];
 
-  @ManyToMany((type) => Channel, (channel) => channel.id, {
-    // eager: true,
-    primary: true,
-  })
-  public channels: Channel[];
+  // Channel related relations
+  @OneToMany((type) => Channel, (channel) => channel.owner)
+  public ownerChannels: Channel[];
+
+  @ManyToMany((type) => Channel, (channel) => channel.admins)
+  public adminChannels: Channel[];
+
+  @ManyToMany((type) => Channel, (channel) => channel.members)
+  public memberChannels: Channel[];
+
+  @ManyToMany((type) => Channel, (channel) => channel.mutes)
+  public muteChannels: Channel[];
+
+  @ManyToMany((type) => Channel, (channel) => channel.bans)
+  public banChannels: Channel[];
 }
 
 export default User;

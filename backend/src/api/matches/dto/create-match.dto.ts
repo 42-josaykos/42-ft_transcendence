@@ -6,19 +6,11 @@ export class CreateMatchDTO {
   @ApiProperty({ required: false })
   readonly id: number;
 
-  @ApiProperty({ required: true })
-  readonly playerOne: User;
+  @ApiProperty({ required: true, isArray: true })
+  readonly players: User[];
 
-  @ApiProperty({ required: true })
-  readonly playerTwo: User;
-
-  @ApiProperty({ required: true })
-  @IsInt()
-  readonly scorePlayerOne: number;
-
-  @ApiProperty({ required: true })
-  @IsInt()
-  readonly scorePlayerTwo: number;
+  @ApiProperty({ required: true, isArray: true })
+  readonly score: number[];
 
   @ApiProperty({ required: false })
   readonly winner: User;

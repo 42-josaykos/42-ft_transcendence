@@ -19,23 +19,122 @@ export class ChannelsService {
     return channels;
   }
 
-  async getChannelByID(channelID: number): Promise<Channel> {
+  async getChannelByID(
+    channelID: number,
+    relations: string[] = [
+      'messages',
+      'messages.author',
+      'owner',
+      'admins',
+      'members',
+      'mutes',
+      'bans',
+    ],
+  ): Promise<Channel> {
     const channel = await this.channelsRepository.findOne({
       where: { id: channelID },
+      relations: relations,
     });
     if (!channel)
       throw new NotFoundException('Channel not found (id incorrect)');
     return channel;
   }
 
+  async getChannelName(channelID: number): Promise<string> {
+    try {
+      const channel = await this.getChannelByID(channelID);
+      return channel.name;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getChannelPrivacy(channelID: number): Promise<boolean> {
+    try {
+      const channel = await this.getChannelByID(channelID);
+      return channel.isPrivate;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getChannelPassword(channelID: number): Promise<string> {
+    try {
+      const channel = await this.getChannelByID(channelID);
+      return channel.password;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getChannelOwner(channelID: number): Promise<User> {
+    try {
+      const channel = await this.getChannelByID(channelID, ['owner']);
+      return channel.owner;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getChannelAdmins(channelID: number): Promise<User[]> {
+    try {
+      const channel = await this.getChannelByID(channelID, ['admins']);
+      return channel.admins;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getChannelMembers(channelID: number): Promise<User[]> {
+    try {
+      const channel = await this.getChannelByID(channelID, ['members']);
+      return channel.members;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getChannelMutes(channelID: number): Promise<User[]> {
+    try {
+      const channel = await this.getChannelByID(channelID, ['mutes']);
+      return channel.mutes;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getChannelBans(channelID: number): Promise<User[]> {
+    try {
+      const channel = await this.getChannelByID(channelID, ['bans']);
+      return channel.bans;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async createChannel(channel: CreateChannelDTO): Promise<Channel> {
     const newChannel = this.channelsRepository.create(channel);
-    await this.channelsRepository.save(newChannel);
+    const owner = await this.usersRepository.findOne({
+      where: newChannel.owner,
+    });
 
-    const owner = await this.usersRepository.findOne({ where: channel.owner });
-    owner.channels.push(newChannel);
-    await this.usersRepository.save(owner);
+    if (!owner)
+      throw new NotFoundException(
+        "Can't create channel (owner does not exists)",
+      );
+    else {
+      await this.channelsRepository.save(newChannel);
+      return newChannel;
+    }
+  }
 
-    return newChannel;
+  async deleteChannel(channelID: number): Promise<void> {
+    const channel = await this.channelsRepository.findOne({
+      where: { id: channelID },
+      relations: ['messages', 'owner', 'admins', 'members', 'mutes', 'bans'],
+    });
+    if (!channel)
+      throw new NotFoundException('Channel not found (id incorrect)');
+    else await this.channelsRepository.remove(channel);
   }
 }
