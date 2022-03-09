@@ -64,7 +64,7 @@ export class UsersController {
   }
 }
 
-// Redirections to user stats from '/stats/:id'
+// Redirections to Stats from '/stats/:id'
 @Controller('users/:id/stats')
 @ApiTags('users')
 @ApiResponse({ status: HttpStatus.SEE_OTHER })
@@ -97,5 +97,35 @@ export class StatsRedirection {
   @Redirect('/stats', HttpStatus.SEE_OTHER)
   async getStatRatio(@Param('id', ParseIntPipe) userID: number) {
     return { url: `/stats/${userID}/ratio` };
+  }
+}
+
+// Redirections to Messages from '/messages/:id'
+@Controller('users/:userID/messages')
+@ApiTags('users')
+@ApiResponse({ status: HttpStatus.SEE_OTHER })
+export class MessagesRedirection {
+  @Get(':messageID')
+  @Redirect('/messages', HttpStatus.SEE_OTHER)
+  async getMessageByID(@Param('messageID', ParseIntPipe) messageID: number) {
+    return { url: `/messages/${messageID}` };
+  }
+
+  @Get(':messageID/author')
+  @Redirect('/messages', HttpStatus.SEE_OTHER)
+  async getMessageAuthor(@Param('messageID', ParseIntPipe) messageID: number) {
+    return { url: `/messages/${messageID}/author` };
+  }
+
+  @Get(':messageID/channel')
+  @Redirect('/messages', HttpStatus.SEE_OTHER)
+  async getMessageChannel(@Param('messageID', ParseIntPipe) messageID: number) {
+    return { url: `/messages/${messageID}/channel` };
+  }
+
+  @Get(':messageID/data')
+  @Redirect('/messages', HttpStatus.SEE_OTHER)
+  async getMessageData(@Param('messageID', ParseIntPipe) messageID: number) {
+    return { url: `/messages/${messageID}/data` };
   }
 }
