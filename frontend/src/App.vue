@@ -3,22 +3,27 @@ import Navbar from './components/Navbar.vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/user';
 import { onMounted } from 'vue';
+import { Get } from './services/requests';
 
 const userStore = useUserStore();
-const { isAuthenticated } = storeToRefs(userStore);
+const { loggedUser, isAuthenticated } = storeToRefs(userStore);
 
-// Verify if user is already logged in browser's local storage
+// Verify if user is already logged
 onMounted(() => {
-  if (localStorage.getItem('loggedUser')) {
-    isAuthenticated.value = true;
-  }
+  Get('/auth/status').then(res => {
+    if (res.status == 403) {
+      isAuthenticated.value = false;
+    } else {
+      isAuthenticated.value = true;
+      loggedUser.value = res.data;
+    }
+  });
 });
 </script>
 
 <template>
   <div class="header">
-    <!-- <img src="./assets/42_Logo.svg" alt="42-logo" width="100" /> -->
-    <Navbar :isAuthenticated="isAuthenticated" />
+    <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
   </div>
   <router-view />
 </template>

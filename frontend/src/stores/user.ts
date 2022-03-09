@@ -5,6 +5,7 @@ import type { User } from '@/models/user.model';
 // Tracks users database
 export const useUserStore = defineStore('user', () => {
   const users = ref<User[]>([]);
+  const loggedUser = ref<User | null>(null);
   const isAuthenticated = ref(false);
 
   const createUser = (newUser: User) => {
@@ -22,6 +23,7 @@ export const useUserStore = defineStore('user', () => {
 
   return {
     users,
+    loggedUser,
     isAuthenticated,
     createUser,
     deleteUser,

@@ -6,6 +6,8 @@ import PageNotFound from '@/components/PageNotFound.vue';
 import Login from '@/components/Login.vue';
 import Chat from '@/components/Chat.vue';
 import { useUserStore } from '@/stores/user';
+import { Get } from '@/services/requests';
+import { storeToRefs } from 'pinia';
 
 const routes = [
   {
@@ -32,6 +34,7 @@ const routes = [
   {
     path: '/chat',
     name: 'Chat',
+    beforeEnter: routeGuard,
     component: Chat
   },
   {
@@ -49,14 +52,20 @@ const router = createRouter({
 function routeGuard(to: any, from: any, next: any) {
   const userStore = useUserStore();
   const { isAuthenticated } = userStore;
-
-  console.log(isAuthenticated);
-
   if (isAuthenticated) {
     next(); // allow to enter route
   } else {
     next('/login'); // go to '/login';
   }
 }
+router.beforeEach(() => {
+  Get('/auth/status').then(res => {
+    if (res.status != 403) {
+      const userStore = useUserStore();
+      const { isAuthenticated } = storeToRefs(userStore);
+      isAuthenticated.value = true;
+    }
+  });
+});
 
 export default router;
