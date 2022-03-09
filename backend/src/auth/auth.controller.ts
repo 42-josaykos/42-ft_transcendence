@@ -24,14 +24,14 @@ export class AuthController {
    * This is the redirect URL the OAuth2 provider will call
    */
   @Get('redirect')
-  @Redirect('/game')
+  @Redirect('/')
   @UseGuards(FortyTwoAuthGuard)
   async redirect() {
     return;
   }
 
   @Get('redirect/github')
-  @Redirect('/game')
+  @Redirect('/')
   @UseGuards(GithubGuard)
   async redirectGithub() {
     return;

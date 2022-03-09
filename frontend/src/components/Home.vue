@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import Login from './Login.vue';
+import { useUserStore } from '@/stores/user';
+import { storeToRefs } from 'pinia';
+
+const userStore = useUserStore();
+const { isAuthenticated } = storeToRefs(userStore);
 </script>
 
 <template>
   <div class="containers-fluid">
     <div class="d-flex justify-content-center align-items-center pong">
-      PONG 42
+      PONG
+      <img src="../assets/42_Logo.svg" alt="42-logo" width="100" />
     </div>
     <div>
       <p>Expliquer l'appli Pong + image ??</p>
@@ -16,8 +22,7 @@ import Login from './Login.vue';
         visualiser la partie
       </p>
     </div>
-    <div>
-      Login avec 42 API pour accèder aux autres pages
+    <div v-if="!isAuthenticated">
       <Login />
     </div>
   </div>

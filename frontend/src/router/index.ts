@@ -6,6 +6,8 @@ import PageNotFound from '@/components/PageNotFound.vue';
 import Login from '@/components/Login.vue';
 import Chat from '@/components/Chat.vue';
 import { useUserStore } from '@/stores/user';
+import { Get } from '@/services/requests';
+import { storeToRefs } from 'pinia';
 
 const routes = [
   {
@@ -56,5 +58,14 @@ function routeGuard(to: any, from: any, next: any) {
     next('/login'); // go to '/login';
   }
 }
+router.beforeEach(() => {
+  Get('/auth/status').then(res => {
+    if (res.status != 403) {
+      const userStore = useUserStore();
+      const { isAuthenticated } = storeToRefs(userStore);
+      isAuthenticated.value = true;
+    }
+  });
+});
 
 export default router;
