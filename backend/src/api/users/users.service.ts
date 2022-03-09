@@ -29,7 +29,9 @@ export class UsersService {
       relations: [
         'stats',
         'messages',
-        'matches',
+        // Below: For DEBUG
+        'playedMatches',
+        'winMatches',
         'ownerChannels',
         'adminChannels',
         'memberChannels',
