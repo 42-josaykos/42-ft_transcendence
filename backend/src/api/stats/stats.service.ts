@@ -13,12 +13,16 @@ export class StatsService {
 
   //Basic GET routes
   async getAllStats(): Promise<Stats[]> {
-    return await this.statsRepository.find({ order: { user: 'ASC' } });
+    return await this.statsRepository.find({
+      order: { user: 'ASC' },
+      relations: ['user'],
+    });
   }
 
   async getStatsByID(userID: number): Promise<Stats> {
     const stats = await this.statsRepository.findOne({
       where: { user: userID },
+      relations: ['user'],
     });
     if (!stats) throw new NotFoundException('Stats not found (id not correct)');
     return stats;

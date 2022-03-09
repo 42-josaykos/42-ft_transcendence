@@ -29,7 +29,6 @@ class User {
   public avatar: string;
 
   @OneToOne((type) => Stats, (stats) => stats.user)
-  @JoinColumn()
   public stats: Stats;
 
   // Match related relations
