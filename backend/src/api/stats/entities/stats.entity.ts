@@ -5,7 +5,6 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
   JoinColumn,
-  OneToMany,
 } from 'typeorm';
 import User from 'src/api/users/entities/user.entity';
 
@@ -30,7 +29,7 @@ class Stats {
   @Column()
   public lose: number;
 
-  @Column()
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   public ratio: number;
 }
 

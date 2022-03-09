@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import Stats from './entities/stats.entity';
 import User from '../users/entities/user.entity';
+import { UpdateStatsDTO } from './dto/update-stats.dto';
 
 @Injectable()
 export class StatsService {
@@ -14,53 +15,67 @@ export class StatsService {
   //Basic GET routes
   async getAllStats(): Promise<Stats[]> {
     return await this.statsRepository.find({
-      order: { user: 'ASC' },
+      order: { id: 'ASC' },
       relations: ['user'],
     });
   }
 
-  async getStatsByID(userID: number): Promise<Stats> {
+  async getStatsByID(statsID: number): Promise<Stats> {
     const stats = await this.statsRepository.findOne({
-      where: { user: userID },
+      where: { id: statsID },
       relations: ['user'],
     });
     if (!stats) throw new NotFoundException('Stats not found (id not correct)');
     return stats;
   }
 
-  async getStatPlayed(userID: number): Promise<number> {
+  async getStatPlayed(statsID: number): Promise<number> {
     try {
-      const stats = await this.getStatsByID(userID);
+      const stats = await this.getStatsByID(statsID);
       return stats.played;
     } catch (error) {
       throw error;
     }
   }
 
-  async getStatWin(userID: number): Promise<number> {
+  async getStatWin(statsID: number): Promise<number> {
     try {
-      const stats = await this.getStatsByID(userID);
+      const stats = await this.getStatsByID(statsID);
       return stats.win;
     } catch (error) {
       throw error;
     }
   }
 
-  async getStatLose(userID: number): Promise<number> {
+  async getStatLose(statsID: number): Promise<number> {
     try {
-      const stats = await this.getStatsByID(userID);
+      const stats = await this.getStatsByID(statsID);
       return stats.lose;
     } catch (error) {
       throw error;
     }
   }
 
-  async getStatRatio(userID: number): Promise<number> {
+  async getStatRatio(statsID: number): Promise<number> {
     try {
-      const stats = await this.getStatsByID(userID);
+      const stats = await this.getStatsByID(statsID);
       return stats.ratio;
     } catch (error) {
       throw error;
+    }
+  }
+
+  async updateStats(
+    statsID: number,
+    updatedStats: UpdateStatsDTO,
+  ): Promise<Stats> {
+    const stats = await this.statsRepository.findOne({
+      where: { id: statsID },
+    });
+    if (!stats) throw new NotFoundException('Stats not found (id incorrect)');
+    else {
+      await this.statsRepository.update(statsID, updatedStats);
+      return this.getStatsByID(statsID);
     }
   }
 }

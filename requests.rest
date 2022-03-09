@@ -3,22 +3,21 @@
 @port = 4000
 @host = {{hostname}}:{{port}}
 @contentType = application/json
-@userLogin = lchapren
 
 ###
 
-// Get all users
+// #############
+// Users requests
+// #############
+
 GET http://{{host}}/users
 
 ###
 
-// Get specific user
-# @userLogin = 11
-GET http://{{host}}/users/{{userLogin}}
+GET http://{{host}}/users/1
 
 ###
 
-// Post a new user
 POST http://{{host}}/users
 Content-Type: {{contentType}}
 
@@ -37,11 +36,37 @@ Content-Type: {{contentType}}
 
 ###
 
-// Delete a specific user
-# @userLogin = 6
-DELETE http://{{host}}/users/4
+DELETE http://{{host}}/users/1
 
 ###
+
+// ##############
+// Stats requests
+// ##############
+
+GET http://{{host}}/stats
+
+###
+
+GET http://{{host}}/stats/1
+
+###
+
+PATCH http://{{host}}/stats/2
+Content-Type: {{contentType}}
+
+{
+    "played": 1,
+    "win": 2,
+    "lose": 1,
+    "ratio": 1.5
+}
+
+###
+
+// #################
+// Messages requests
+// #################
 
 POST http://{{host}}/messages
 Content-Type: {{contentType}}
@@ -57,6 +82,10 @@ Content-Type: {{contentType}}
 DELETE http://{{host}}/messages/1
 
 ###
+
+// #################
+// Channels requests
+// #################
 
 POST http://{{host}}/channels
 Content-Type: {{contentType}}
@@ -76,6 +105,10 @@ Content-Type: {{contentType}}
 DELETE http://{{host}}/channels/6
 
 ###
+
+// ################
+// Matches requests
+// ################
 
 POST http://{{host}}/matches
 Content-Type: {{contentType}}
