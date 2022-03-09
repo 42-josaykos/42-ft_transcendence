@@ -5,5 +5,5 @@ export interface Message {
     id: number;
     author: User;
     data: string;
-    channel: number;
+    channel: Channel;
 }

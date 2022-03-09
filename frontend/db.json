@@ -85,14 +85,6 @@
           "data": "message_3",
           "channel": 1,
           "id": 3
-        },
-        {
-          "author": {
-            "id": 1,
-            "username": "user1"
-          },
-          "data": "message_8",
-          "channel": 1
         }
       ]
     },
@@ -189,15 +181,6 @@
       "data": "message_6",
       "id": 6,
       "channel": 2
-    },
-    {
-      "author": {
-        "id": 1,
-        "username": "user1"
-      },
-      "data": "message_8",
-      "channel": 1,
-      "id": 7
     }
   ]
 }

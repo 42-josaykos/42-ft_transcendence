@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 export interface Input {
   search: string;
   create: string;
+  create_channel: string;
   update_username: string;
   update_channel_name: string;
   user_id: string;
@@ -30,6 +31,7 @@ export const useInputStore = defineStore('input', {
       input: {
         search: '',
         create: '',
+        create_channel: '',
         update_username: '',
         update_channel_name: '',
         user_id: '',

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Get } from '@/services/requests';
+import { useUserStore } from '@/stores/user';
 import { useMessageStore } from '@/stores/message';
 import { useChannelStore } from '@/stores/channel';
 import type { Channel } from '@/models/channel.model'
@@ -8,11 +9,14 @@ import { useInputStore } from '@/stores/input';
 import { storeToRefs} from 'pinia';
 import { io } from 'socket.io-client';
 import { onMounted, ref } from 'vue';
-import { Post, Put } from '@/services/requests';
+import { Post, Put, Patch } from '@/services/requests';
 
 const socket = io("http://localhost:4000");
 
 const msg = document.getElementById('msg');
+
+const userStore = useUserStore();
+const { loggedUser } = storeToRefs(userStore);
 
 const messageStore = useMessageStore();
 const { messages } = storeToRefs(messageStore);
@@ -29,20 +33,21 @@ const { channel } = storeToRefs(channelStore);
 const baseUrl = 'http://localhost:3000/messages';
 const baseUrlChat = 'http://localhost:3000/channels';
 
-const handleSubmitNewMessage = async () => {
+const handleSubmitNewMessage = () => {
   if (input.value.create !== '')
   {
     if (channel.value !== undefined) {
       const newMessage = {
-          author: {
-            "id": 1,
-            "username": "user1"
-          },
+          author: loggedUser.value,
           data: input.value.create,
-          channel: channel.value?.id
+          channel: channel.value
         };
+        console.log("newMessage => ", newMessage)
         channelStore.addMessage(channel.value?.id, newMessage);
-        Put(baseUrlChat + '/' + channel.value?.id.toString(), channelStore.getChannelByID(channel.value?.id - 1))
+        console.log("channels.value = ", channels.value)
+        console.log("channel.value = ", channel.value)
+console.log("********* = ", channelStore.getChannelByID(channel.value?.id - 1))
+        Put(baseUrlChat + '/' + channel.value.id.toString(), channelStore.getChannelByID(channel.value?.id - 1))
         .then(res => console.log("Put RES => ", res))
         socket.emit('msgToServer', newMessage)
         Post(baseUrl, newMessage)
@@ -67,7 +72,7 @@ const handleSubmitNewMessage = async () => {
  };*/
 
 socket.on('msgToClient', (newMessage: Message) => {
-  channelStore.addMessage(newMessage.channel, newMessage);
+  channelStore.addMessage(newMessage.channel.id, newMessage);
   Get(baseUrlChat).then(res => {
       messages.value = res.data[channel.value?.id - 1].messages;
   })
@@ -88,6 +93,38 @@ const displayMessages = (id: number) => {
   });
 }
 
+const handleSubmitNewChannel = () => {
+  if (input.value.create_channel !== '')
+  {
+   // if (channel.value !== undefined) {
+      const newChannel = {
+          name: input.value.create_channel,
+          isPrivate: false,
+          password: '',
+          messages: [],
+          owner: loggedUser.value,
+      };
+      Post(baseUrlChat, newChannel).then(res => {
+        if (res.status == 201) {
+          channelStore.createChannel(res.data);
+          channel.value = res.data;
+          messages.value = [];
+          console.log("After Post channel.value = ", channel.value)
+        }
+      })
+       /* channelStore.addMessage(channel.value?.id, newMessage);
+        Put(baseUrlChat + '/' + channel.value?.id.toString(), channelStore.getChannelByID(channel.value?.id - 1))
+        .then(res => console.log("Put RES => ", res))
+        socket.emit('msgToServer', newMessage)
+        Post(baseUrl, newMessage)
+        .then(res => console.log("Post RES => ", res))*/
+   // }
+   // else
+    //  console.log("Channel NULL");
+    inputStore.$reset();
+  }
+}
+
 onMounted(() => {
   Get(baseUrlChat).then(res => channels.value = res.data);
   //Get(baseUrl).then(res => (messages.value = res.data));
@@ -105,6 +142,12 @@ onMounted(() => {
           <ul v-for="item in channels" :key="item.id" class="list-group">
           <button @click="displayMessages(item.id)" type="button" class="btn btn-secondary btn-channel"> {{item.name}} </button>
           </ul>
+        </div>
+        <div>
+          <form @submit.prevent.trim.lazy="handleSubmitNewChannel" method="POST" id="form">
+            <input v-model="input.create_channel" type="text" id="input"/>
+            <input type="submit" value="Create" id="send"/>
+          </form>
         </div>
       </div>
     </div>
