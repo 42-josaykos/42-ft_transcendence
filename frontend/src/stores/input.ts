@@ -9,6 +9,7 @@ export interface Input {
   user_id: string;
   match_id: string;
   channel_id: string;
+  channel_user_id: string;
   p1: string;
   p2: string;
   s1: string;
@@ -37,6 +38,7 @@ export const useInputStore = defineStore('input', {
         user_id: '',
         match_id: '',
         channel_id: '',
+        channel_user_id: '',
         p1: '',
         p2: '',
         s1: '',

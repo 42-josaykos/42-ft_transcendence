@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateChannelDTO } from './dto/create-channel.dto';
 import User from 'src/api/users/entities/user.entity';
 import Channel from './entities/channel.entity';
+import Message from 'src/api/messages/entities/message.entity';
 
 @Injectable()
 export class ChannelsService {
@@ -62,6 +63,15 @@ export class ChannelsService {
     try {
       const channel = await this.getChannelByID(channelID);
       return channel.password;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getChannelMessages(channelID: number): Promise<Message[]> {
+    try {
+      const channel = await this.getChannelByID(channelID);
+      return channel.messages;
     } catch (error) {
       throw error;
     }

@@ -14,10 +14,13 @@ export const useChannelStore = defineStore('channel', () => {
 
     const addMessage = (id: number, newMessage: Message) => {
          channels.value[id - 1].messages.push(newMessage);
-    }
+    } 
 
     const getChannelByID = (id: number): Channel => {
-        return channels.value[id];
+      const index = channels.value.findIndex(
+        (el: Channel) => el.id === id
+      );
+        return channels.value[index];
     }
 
     const deleteChannel = (id: number) => {

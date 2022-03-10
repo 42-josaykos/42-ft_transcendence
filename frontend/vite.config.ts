@@ -17,6 +17,12 @@ export default defineConfig({
       },
       '/auth': {
         target: 'http://localhost:4000'
+      },
+      '/channels': {
+        target: 'http://localhost:4000'
+      },
+      '/messages': {
+        target: 'http://localhost:4000'
       }
     }
   },

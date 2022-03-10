@@ -5,10 +5,8 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
   JoinColumn,
-  OneToMany,
 } from 'typeorm';
-import Match from '../../matches/entities/matches.entity';
-import User from '../../users/entities/user.entity';
+import User from 'src/api/users/entities/user.entity';
 
 @Entity()
 class Stats {
@@ -16,8 +14,10 @@ class Stats {
   public id: number;
 
   @OneToOne((type) => User, (user) => user.stats, {
+    cascade: true,
     onDelete: 'CASCADE',
   })
+  @JoinColumn()
   public user: User;
 
   @Column()
@@ -29,7 +29,7 @@ class Stats {
   @Column()
   public lose: number;
 
-  @Column()
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   public ratio: number;
 }
 

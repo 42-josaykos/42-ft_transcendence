@@ -6,6 +6,8 @@ import { storeToRefs } from 'pinia';
 import { useChannelStore } from '@/stores/channel';
 //import type { Channel } from '@/models/channel.model';
 import type { Input, InputStore } from '@/stores/input';
+//import { useUserStore } from '@/stores/user';
+//import type { User } from '@/models/user.model';
 
 // Props
 const props = defineProps<{
@@ -15,10 +17,13 @@ const props = defineProps<{
 }>();
 
 // Request url to API
-const baseUrl = 'http://localhost:3000/channels';
+const baseUrl = '/channels';
 
 // Single element
 //const user = ref<User | null>(null);
+
+//const userStore = useUserStore();
+//const { loggedUser } = storeToRefs(userStore);
 
 // Stores
 const channelStore = useChannelStore();
@@ -35,8 +40,13 @@ const getChannel = () => {
   });
 };
 
-const createChannel = () => {
-  Post(baseUrl, { name: props.input.create, password: '', messages: [] }).then(res => {
+const createChannel =  () => {
+  const newChannel = {
+    name: props.input.create,
+    owner: {id: Number(props.input.channel_user_id)},
+    members: [{id: Number(props.input.channel_user_id)}]
+  }
+  Post(baseUrl, newChannel).then(res => {
     if (res.status == 201) {
       channelStore.createChannel(res.data);
       // Get(baseUrl).then(res => (channels.value = res.data));
@@ -82,6 +92,8 @@ onMounted(() => {
 
   <h4>Create Channel</h4>
   <form @submit.prevent.trim.lazy="createChannel" method="POST">
+    <label for="name">Id user:</label>
+    <input v-model="input.channel_user_id" name="name" type="text" />
     <label for="name">Name:</label>
     <input v-model="input.create" name="name" type="text" />
     <input type="submit" value="Submit" />
