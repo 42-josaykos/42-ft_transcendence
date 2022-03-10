@@ -8,6 +8,7 @@ import ChatIcon from './icons/ChatIcon.vue';
 
 defineProps<{
   isAuthenticated: boolean;
+  loggedUser: any;
 }>();
 </script>
 
@@ -28,7 +29,7 @@ defineProps<{
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <router-link to="/">
+            <router-link class="nav-link" to="/">
               <HomeItem>
                 <template #icon>
                   <HomeIcon />
@@ -38,7 +39,7 @@ defineProps<{
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/game">
+            <router-link class="nav-link" to="/game">
               <HomeItem>
                 <template #icon>
                   <GamePadIcon />
@@ -48,7 +49,7 @@ defineProps<{
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/chat">
+            <router-link class="nav-link" to="/chat">
               <HomeItem>
                 <template #icon>
                   <ChatIcon />
@@ -58,7 +59,7 @@ defineProps<{
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/debug">
+            <router-link class="nav-link" to="/debug">
               <HomeItem>
                 <template #icon>
                   <BugIcon />
@@ -68,7 +69,7 @@ defineProps<{
             </router-link>
           </li>
         </ul>
-        <router-link to="/login">
+        <router-link class="nav-link" to="/login">
           <HomeItem>
             <template #icon>
               <LoginIcon />
@@ -80,6 +81,9 @@ defineProps<{
       </div>
     </div>
   </nav>
+  <p v-if="isAuthenticated" class="text-lg-left">
+    Hello {{ loggedUser.username }} !
+  </p>
 </template>
 
 <style>
@@ -102,6 +106,10 @@ defineProps<{
 @media (min-width: 992px) {
   .navbar-expand-lg .nav-toggler {
     display: none;
+  }
+
+  .nav-link:hover {
+    background-color: lightblue;
   }
 }
 </style>

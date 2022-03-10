@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { AuthModule } from './auth/auth.module';
 import * as session from 'express-session';
 import * as passport from 'passport';
 import { getRepository } from 'typeorm';
@@ -43,11 +42,15 @@ async function bootstrap() {
     session({
       secret: 'oihgwoihreuewhvevrek',
       cookie: {
-        maxAge: 3600000,
+        maxAge: 86400000,
       },
       resave: false,
       saveUninitialized: false,
-      store: new TypeormStore().connect(sessionRepo),
+      store: new TypeormStore({
+        cleanupLimit: 2,
+        limitSubquery: false,
+        ttl: 86400000,
+      }).connect(sessionRepo),
     }),
   );
   api.use(passport.initialize());

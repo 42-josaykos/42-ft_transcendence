@@ -1,11 +1,12 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserDetails } from 'src/utils/types';
 import { Repository } from 'typeorm';
 import { AuthenticationProvider } from './auth.interface';
 import User from 'src/api/users/entities/user.entity';
 import { Inject, Injectable } from '@nestjs/common';
 import { PassportSerializer } from '@nestjs/passport';
-import { Done } from 'src/utils/types';
+import { Done } from './auth.interface';
+import { UsersService } from 'src/api/users/users.service';
+import { CreateUserDTO } from 'src/api/users/dto/create-user.dto';
 
 /**
  * Create a new student user if not found in database
@@ -14,11 +15,13 @@ import { Done } from 'src/utils/types';
 @Injectable()
 export class AuthService implements AuthenticationProvider {
   constructor(
+    @Inject('USERS_SERVICE')
+    private usersService: UsersService,
     @InjectRepository(User)
     private userRepo: Repository<User>,
   ) {}
 
-  async validateUser(details: UserDetails) {
+  async validateUser(details: CreateUserDTO) {
     const { student_id } = details;
     const user = await this.userRepo.findOne({ student_id });
     console.log(user);
@@ -27,14 +30,22 @@ export class AuthService implements AuthenticationProvider {
     return await this.createUser(details);
   }
 
-  createUser(details: UserDetails) {
-    console.log('Creating User');
-    const user = this.userRepo.create(details);
-    return this.userRepo.save(user);
+  async validateUserGithub(details: CreateUserDTO) {
+    const { github_id } = details;
+    const user = await this.userRepo.findOne({ github_id });
+    console.log(user);
+
+    if (user) return user;
+    return await this.createUser(details);
   }
 
-  findUser(student_id: string) {
-    return this.userRepo.findOne({ student_id });
+  createUser(details: CreateUserDTO) {
+    console.log('Creating User');
+    return this.usersService.createUser(details);
+  }
+
+  findUser(id: number) {
+    return this.userRepo.findOne({ id });
   }
 }
 
@@ -56,7 +67,7 @@ export class SessionSerializer extends PassportSerializer {
   }
 
   async deserializeUser(user: User, done: Done) {
-    const userDB = await this.authService.findUser(user.student_id);
+    const userDB = await this.authService.findUser(user.id);
     return userDB ? done(null, userDB) : done(null, null);
   }
 }
