@@ -2,6 +2,7 @@ import { Strategy } from 'passport-42';
 import { PassportStrategy } from '@nestjs/passport';
 import { Inject, Injectable } from '@nestjs/common';
 import { AuthenticationProvider } from '../auth.interface';
+import { CreateUserDTO } from 'src/api/users/dto/create-user.dto';
 
 // Invoke the 42 API Authentication Service
 @Injectable()
@@ -26,7 +27,7 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy) {
     console.log('Logged User:', student_id, username, avatar);
     console.log('Access Token:', accessToken);
     ///////////////////////////////////////////////////////////////////
-    const details = { username, student_id, avatar };
+    const details: CreateUserDTO = { username, student_id, avatar };
 
     return await this.authService.validateUser(details);
   }
