@@ -15,16 +15,17 @@ class Match {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @ManyToMany((type) => User, (user) => user.matches, {
+  @ManyToMany((type) => User, (user) => user.playedMatches, {
     eager: true,
     cascade: true,
   })
+  @JoinTable()
   public players: User[];
 
   @Column('int', { array: true })
   public score: number[];
 
-  @ManyToOne((type) => User, (user) => user.matches, {
+  @ManyToOne((type) => User, (user) => user.winMatches, {
     eager: true,
     cascade: true,
   })

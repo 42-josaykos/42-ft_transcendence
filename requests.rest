@@ -3,22 +3,21 @@
 @port = 4000
 @host = {{hostname}}:{{port}}
 @contentType = application/json
-@userLogin = lchapren
 
 ###
 
-// Get all users
+// #############
+// Users requests
+// #############
+
 GET http://{{host}}/users
 
 ###
 
-// Get specific user
-# @userLogin = 11
-GET http://{{host}}/users/{{userLogin}}
+GET http://{{host}}/users/1
 
 ###
 
-// Post a new user
 POST http://{{host}}/users
 Content-Type: {{contentType}}
 
@@ -37,28 +36,62 @@ Content-Type: {{contentType}}
 
 ###
 
-// Delete a specific user
-# @userLogin = 6
-DELETE http://{{host}}/users/4
+DELETE http://{{host}}/users/1
 
 ###
+
+// ##############
+// Stats requests
+// ##############
+
+GET http://{{host}}/stats
+
+###
+
+GET http://{{host}}/stats/1
+
+###
+
+PATCH http://{{host}}/stats/1
+Content-Type: {{contentType}}
+
+{
+    "played": 1,
+    "win": 2,
+    "lose": 1,
+    "ratio": 1.5
+}
+
+###
+
+// #################
+// Messages requests
+// #################
 
 POST http://{{host}}/messages
 Content-Type: {{contentType}}
 
 {
-    "author": 1,
-    "channel": {"id": 10},
-    "data": "This is just a test message, to see if everything is working"
+    "author": 3,
+    "channel": {"id": 1},
+    "data": "Bouh!"
 }
 
 ###
+
+DELETE http://{{host}}/messages/1
+
+###
+
+// #################
+// Channels requests
+// #################
 
 POST http://{{host}}/channels
 Content-Type: {{contentType}}
 
 {
-    "name": "Channel21",
+    "name": "Channel1",
     "owner": {"id": 1},
     "admins": [{"id": 1}, {"id": 2}],
     "members": [{"id": 1}, {"id": 3}, {"id": 4}],
@@ -69,9 +102,13 @@ Content-Type: {{contentType}}
 
 ###
 
-DELETE http://{{host}}/channels/1
+DELETE http://{{host}}/channels/6
 
 ###
+
+// ################
+// Matches requests
+// ################
 
 POST http://{{host}}/matches
 Content-Type: {{contentType}}
@@ -79,18 +116,19 @@ Content-Type: {{contentType}}
 {
     "players": [{"id": 1}, {"id": 2}],
     "score": [7, 10],
-    "winner": {"id": 4}
+    "winner": {"id": 2}
 }
 
 ###
 
-PATCH http://{{host}}/matches/1
+PATCH http://{{host}}/matches/2
 Content-Type: {{contentType}}
 
 {
-    "players": [{"id": 1}, {"id": 2}]
+    "players": [{"id": 4}, {"id": 5}],
+    "score": [42, 21]
 }
 
 ###
 
-DELETE http://{{host}}/matches/4
+DELETE http://{{host}}/matches/1

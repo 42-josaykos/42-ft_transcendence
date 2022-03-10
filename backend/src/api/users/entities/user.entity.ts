@@ -32,13 +32,16 @@ class User {
   public avatar: string;
 
   @OneToOne((type) => Stats, (stats) => stats.user)
-  @JoinColumn()
   public stats: Stats;
 
+  // Match related relations
   @ManyToMany((type) => Match, (match) => match.players)
-  @JoinTable()
-  public matches: Match[];
+  public playedMatches: Match[];
 
+  @OneToMany((type) => Match, (match) => match.winner)
+  public winMatches: Match[];
+
+  // Message related relations
   @OneToMany((type) => Message, (message) => message.author)
   public messages: Message[];
 
