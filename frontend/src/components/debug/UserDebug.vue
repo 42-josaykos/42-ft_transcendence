@@ -58,7 +58,7 @@ const updateUser = () => {
 
 const deleteUser = (id: number) => {
   Delete(baseUrl + '/' + id.toString()).then(res => {
-    if (res.status == 204) {
+    if (res.status == 200) {
       userStore.deleteUser(id);
       // Get(baseUrl).then(res => (users.value = res.data));
     }
