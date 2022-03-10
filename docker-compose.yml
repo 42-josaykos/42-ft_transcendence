@@ -40,19 +40,19 @@ services:
   #     - dbeaver:/root/.pgadmin-transcendence
   #   restart: unless-stopped
 
-  pgadmin:
-    container_name: pgadmin-transcendence
-    image: dpage/pgadmin4:6
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
-      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
-    ports:
-      - ${PGADMIN_PORT}:80
-    networks:
-      - default
-    volumes:
-      - pgadmin:/root/.pgadmin-transcendence
-    restart: unless-stopped
+  # pgadmin:
+  #   container_name: pgadmin-transcendence
+  #   image: dpage/pgadmin4:6
+  #   environment:
+  #     - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+  #     - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+  #   ports:
+  #     - ${PGADMIN_PORT}:80
+  #   networks:
+  #     - default
+  #   volumes:
+  #     - pgadmin:/root/.pgadmin-transcendence
+  #   restart: unless-stopped
 
   # frontend:
   #   container_name: frontend-transcendence

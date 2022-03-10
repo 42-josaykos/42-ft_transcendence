@@ -31,7 +31,8 @@ PATCH http://{{host}}/users/1
 Content-Type: {{contentType}}
 
 {
-    "username": "Updated"
+    "username": "Updated",
+    "socketID": ""
 }
 
 ###

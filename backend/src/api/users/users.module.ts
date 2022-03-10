@@ -5,21 +5,19 @@ import {
   StatsRedirection,
   UsersController,
 } from './users.controller';
-import { StatsModule } from '../stats/stats.module';
-import { MessagesModule } from '../messages/messages.module';
+import { StatsModule } from 'src/api/stats/stats.module';
+import { MessagesModule } from 'src/api/messages/messages.module';
 import { UsersService } from './users.service';
-import { Utils } from '../../utils.provider';
 import User from './entities/user.entity';
-import Stats from '../stats/entities/stats.entity';
-import Message from '../messages/entities/message.entity';
+import Stats from 'src/api/stats/entities/stats.entity';
 
 @Module({
   imports: [
     StatsModule,
     MessagesModule,
-    TypeOrmModule.forFeature([User, Stats, Message]),
+    TypeOrmModule.forFeature([User, Stats]),
   ],
   controllers: [UsersController, StatsRedirection, MessagesRedirection],
-  providers: [UsersService, Utils],
+  providers: [UsersService],
 })
 export class UsersModule {}

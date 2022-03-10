@@ -12,7 +12,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { MessagesService } from './messages.service';
 import { CreateMessageDTO } from './dto/create-message.dto';
 import { FilterMessageDTO } from './dto/filter-message.dto';
-import { Utils } from 'src/utils.provider';
+import { Utils } from 'src/utils/utils.provider';
 import Message from './entities/message.entity';
 import User from 'src/api/users/entities/user.entity';
 import Channel from 'src/api/channels/entities/channel.entity';

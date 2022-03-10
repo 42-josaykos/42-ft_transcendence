@@ -4,6 +4,7 @@ import {
   HttpException,
   NotFoundException,
   HttpCode,
+  ForbiddenException,
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,6 +15,7 @@ import User from './entities/user.entity';
 import Stats from 'src/api/stats/entities/stats.entity';
 import Match from 'src/api/matches/entities/matches.entity';
 import Channel from 'src/api/channels/entities/channel.entity';
+import { UpdateUserDTO } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -30,7 +32,7 @@ export class UsersService {
       order: { id: 'ASC' },
       relations: [
         'stats',
-        // Below: For DEBUG
+        // Below: For DEBUG, may remove later
         'messages',
         'playedMatches',
         'winMatches',
@@ -45,7 +47,7 @@ export class UsersService {
   }
 
   async getUserByID(
-    id: number,
+    userID: number,
     relations: string[] = [
       'stats',
       'messages',
@@ -59,13 +61,11 @@ export class UsersService {
     ],
   ): Promise<User> {
     const user = await this.usersRepository.findOne({
-      where: { id: id },
+      where: { id: userID },
       relations: relations,
     });
-    if (user) {
-      return user;
-    }
-    throw new NotFoundException('User not found (id incorrect)');
+    if (!user) throw new NotFoundException('User not found (id incorrect)');
+    else return user;
   }
 
   async getUsersByFilter(filter: FilterUserDTO): Promise<User[]> {
@@ -85,13 +85,25 @@ export class UsersService {
     return users;
   }
 
+  async getUserSocketID(userID: number): Promise<string> {
+    try {
+      const user = await this.usersRepository.findOne(userID);
+      return user.socketID;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   @HttpCode(HttpStatus.CREATED)
   async createUser(user: CreateUserDTO): Promise<User> {
-    // Creating and saving new  user
-    const newUser = this.usersRepository.create(user);
-    await this.usersRepository.save(newUser);
+    // If a User with this username already exists
+    const count = await this.usersRepository.count({
+      where: { username: user.username },
+    });
+    if (count > 0) throw new ForbiddenException('Username must be unique');
 
-    // Initializing stats
+    // Creating and new user and it's stats
+    const newUser = this.usersRepository.create(user);
     const stats = this.statsRepository.create(new CreateStatsDTO());
     stats.user = newUser;
     await this.statsRepository.save(stats);
@@ -99,21 +111,19 @@ export class UsersService {
     return newUser;
   }
 
-  async updateUser(id: number, updatedUser: CreateUserDTO): Promise<User> {
+  async updateUser(userID: number, updatedUser: UpdateUserDTO): Promise<User> {
     const user = await this.usersRepository.findOne({
-      where: { id: id },
+      where: { id: userID },
     });
     if (!user) return this.createUser(updatedUser);
-    else await this.usersRepository.update(id, updatedUser);
+    else await this.usersRepository.update(userID, updatedUser);
 
-    return await this.usersRepository.findOne({
-      where: { id: id },
-    });
+    return await this.getUserByID(userID);
   }
 
-  async deleteUser(id: number): Promise<void> {
+  async deleteUser(userID: number): Promise<void> {
     const user = await this.usersRepository.findOne({
-      where: { id: id },
+      where: { id: userID },
     });
     if (!user) throw new NotFoundException('User not found (id incorrect)');
     else await this.usersRepository.remove(user);
