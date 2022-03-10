@@ -6,7 +6,6 @@ import { AppModule } from './app.module';
 import { AuthModule } from './auth/auth.module';
 import * as session from 'express-session';
 import * as passport from 'passport';
-import { appendFile } from 'fs';
 import { getRepository } from 'typeorm';
 import { TypeORMSession } from './auth/entities/session.entity';
 import { TypeormStore } from 'connect-typeorm';
@@ -14,7 +13,12 @@ import { TypeormStore } from 'connect-typeorm';
 async function bootstrap() {
   const api = await NestFactory.create(AppModule);
   api.useGlobalPipes(
-    new ValidationPipe({ transform: true, skipMissingProperties: true }),
+    new ValidationPipe({
+      transform: true,
+      forbidNonWhitelisted: true,
+      whitelist: true,
+      skipMissingProperties: true,
+    }),
   );
   api.enableCors({
     credentials: true,

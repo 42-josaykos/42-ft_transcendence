@@ -7,8 +7,6 @@ import {
   ParseIntPipe,
   Post,
   Query,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MessagesService } from './messages.service';
