@@ -15,8 +15,8 @@ async function bootstrap() {
   api.useGlobalPipes(
     new ValidationPipe({
       transform: true,
-      forbidNonWhitelisted: true,
       whitelist: true,
+      forbidNonWhitelisted: true,
       skipMissingProperties: true,
     }),
   );
