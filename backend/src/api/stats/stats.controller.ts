@@ -1,7 +1,15 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+} from '@nestjs/common';
 import { StatsService } from './stats.service';
 import { ApiTags } from '@nestjs/swagger';
 import Stats from './entities/stats.entity';
+import { UpdateStatsDTO } from './dto/update-stats.dto';
 
 @Controller('stats')
 @ApiTags('stats')
@@ -9,32 +17,51 @@ export class StatsController {
   constructor(private readonly statsService: StatsService) {}
 
   @Get()
-  getAllStats(): Promise<Stats[]> {
-    return this.statsService.getAllStats();
+  async getAllStats(): Promise<Stats[]> {
+    return await this.statsService.getAllStats();
   }
 
   @Get(':id')
-  getStatsByID(@Param('id', ParseIntPipe) userID: number) {
-    return this.statsService.getStatsByID(userID);
+  async getStatsByID(
+    @Param('id', ParseIntPipe) statsID: number,
+  ): Promise<Stats> {
+    return await this.statsService.getStatsByID(statsID);
   }
 
   @Get(':id/played')
-  getStatPlayed(@Param('id', ParseIntPipe) userID: number) {
-    return this.statsService.getStatPlayed(userID);
+  async getStatPlayed(
+    @Param('id', ParseIntPipe) statsID: number,
+  ): Promise<number> {
+    return await this.statsService.getStatPlayed(statsID);
   }
 
   @Get(':id/win')
-  getStatWin(@Param('id', ParseIntPipe) userID: number) {
-    return this.statsService.getStatWin(userID);
+  async getStatWin(
+    @Param('id', ParseIntPipe) statsID: number,
+  ): Promise<number> {
+    return await this.statsService.getStatWin(statsID);
   }
 
   @Get(':id/lose')
-  getStatLose(@Param('id', ParseIntPipe) userID: number) {
-    return this.statsService.getStatLose(userID);
+  async getStatLose(
+    @Param('id', ParseIntPipe) statsID: number,
+  ): Promise<number> {
+    return await this.statsService.getStatLose(statsID);
   }
 
   @Get(':id/ratio')
-  getStatRatio(@Param('id', ParseIntPipe) userID: number) {
-    return this.statsService.getStatRatio(userID);
+  async getStatRatio(
+    @Param('id', ParseIntPipe) statsID: number,
+  ): Promise<number> {
+    return await this.statsService.getStatRatio(statsID);
+  }
+
+  @Patch(':id')
+  async updateStats(
+    @Param('id', ParseIntPipe) statsID: number,
+    @Body() updatedStats: UpdateStatsDTO,
+  ): Promise<Stats> {
+    console.log('Controller DTO: ', updatedStats);
+    return await this.statsService.updateStats(statsID, updatedStats);
   }
 }

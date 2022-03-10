@@ -1,6 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { StatsRedirection, UsersController } from './users.controller';
+import {
+  MessagesRedirection,
+  StatsRedirection,
+  UsersController,
+} from './users.controller';
 import { StatsModule } from '../stats/stats.module';
 import { MessagesModule } from '../messages/messages.module';
 import { UsersService } from './users.service';
@@ -15,7 +19,7 @@ import Message from '../messages/entities/message.entity';
     MessagesModule,
     TypeOrmModule.forFeature([User, Stats, Message]),
   ],
-  controllers: [UsersController, StatsRedirection],
+  controllers: [UsersController, StatsRedirection, MessagesRedirection],
   providers: [UsersService, Utils],
 })
 export class UsersModule {}

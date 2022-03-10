@@ -1,9 +1,20 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Post,
+  Redirect,
+} from '@nestjs/common';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ChannelsService } from './channels.service';
 import { CreateChannelDTO } from './dto/create-channel.dto';
 import Channel from './entities/channel.entity';
 import User from 'src/api/users/entities/user.entity';
+import Message from 'src/api/messages/entities/message.entity';
 
 @Controller('channels')
 @ApiTags('channels')
@@ -16,47 +27,72 @@ export class ChannelsController {
   }
 
   @Get(':id')
-  async getChannelByID(@Param('id') channelID: number): Promise<Channel> {
+  async getChannelByID(
+    @Param('id', ParseIntPipe) channelID: number,
+  ): Promise<Channel> {
     return await this.channelsService.getChannelByID(channelID);
   }
 
   @Get(':id/name')
-  async getChannelName(@Param('id') channelID: number): Promise<string> {
+  async getChannelName(
+    @Param('id', ParseIntPipe) channelID: number,
+  ): Promise<string> {
     return await this.channelsService.getChannelName(channelID);
   }
 
   @Get(':id/privacy')
-  async getChannelPrivacy(@Param('id') channelID: number): Promise<boolean> {
+  async getChannelPrivacy(
+    @Param('id', ParseIntPipe) channelID: number,
+  ): Promise<boolean> {
     return await this.channelsService.getChannelPrivacy(channelID);
   }
 
   @Get(':id/password')
-  async getChannelPassword(@Param('id') channelID: number): Promise<string> {
+  async getChannelPassword(
+    @Param('id', ParseIntPipe) channelID: number,
+  ): Promise<string> {
     return await this.channelsService.getChannelPassword(channelID);
   }
 
+  @Get(':id/messages')
+  async getChannelMessages(
+    @Param('id', ParseIntPipe) channelID: number,
+  ): Promise<Message[]> {
+    return await this.channelsService.getChannelMessages(channelID);
+  }
+
   @Get(':id/owner')
-  async getChannelOwner(@Param('id') channelID: number): Promise<User> {
+  async getChannelOwner(
+    @Param('id', ParseIntPipe) channelID: number,
+  ): Promise<User> {
     return await this.channelsService.getChannelOwner(channelID);
   }
 
   @Get(':id/admins')
-  async getChannelAdmins(@Param('id') channelID: number): Promise<User[]> {
+  async getChannelAdmins(
+    @Param('id', ParseIntPipe) channelID: number,
+  ): Promise<User[]> {
     return await this.channelsService.getChannelAdmins(channelID);
   }
 
   @Get(':id/members')
-  async getChannelMembers(@Param('id') channelID: number): Promise<User[]> {
+  async getChannelMembers(
+    @Param('id', ParseIntPipe) channelID: number,
+  ): Promise<User[]> {
     return await this.channelsService.getChannelMembers(channelID);
   }
 
   @Get(':id/mutes')
-  async getChannelMutes(@Param('id') channelID: number): Promise<User[]> {
+  async getChannelMutes(
+    @Param('id', ParseIntPipe) channelID: number,
+  ): Promise<User[]> {
     return await this.channelsService.getChannelMutes(channelID);
   }
 
   @Get(':id/bans')
-  async getChannelBans(@Param('id') channelID: number): Promise<User[]> {
+  async getChannelBans(
+    @Param('id', ParseIntPipe) channelID: number,
+  ): Promise<User[]> {
     return await this.channelsService.getChannelBans(channelID);
   }
 
@@ -66,7 +102,44 @@ export class ChannelsController {
   }
 
   @Delete(':id')
-  async deleteChannel(@Param('id') channelID: number): Promise<void> {
+  async deleteChannel(
+    @Param('id', ParseIntPipe) channelID: number,
+  ): Promise<void> {
     return await this.channelsService.deleteChannel(channelID);
+  }
+}
+
+@Controller('/channels/:channelID/messages/:messageID')
+@ApiTags('channels')
+@ApiResponse({ status: HttpStatus.SEE_OTHER })
+export class MessageRedirection {
+  @Get()
+  @Redirect('/messages', HttpStatus.SEE_OTHER)
+  async getChannelMessage(@Param('messageID', ParseIntPipe) messageID: number) {
+    return { url: `/messages/${messageID}` };
+  }
+
+  @Get('/author')
+  @Redirect('/messages', HttpStatus.SEE_OTHER)
+  async getChannelMessageAuthor(
+    @Param('messageID', ParseIntPipe) messageID: number,
+  ) {
+    return { url: `/messages/${messageID}/author` };
+  }
+
+  @Get('/channel')
+  @Redirect('/messages', HttpStatus.SEE_OTHER)
+  async getChannelMessageChannel(
+    @Param('messageID', ParseIntPipe) messageID: number,
+  ) {
+    return { url: `/messages/${messageID}/channel` };
+  }
+
+  @Get('/data')
+  @Redirect('/messages', HttpStatus.SEE_OTHER)
+  async getChannelMessageData(
+    @Param('messageID', ParseIntPipe) messageID: number,
+  ) {
+    return { url: `/messages/${messageID}/data` };
   }
 }

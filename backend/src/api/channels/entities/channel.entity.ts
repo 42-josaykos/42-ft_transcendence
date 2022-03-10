@@ -26,34 +26,41 @@ class Channel {
   @Column({ nullable: true })
   public password: string;
 
-  @OneToMany((type) => Message, (message) => message.channel, { cascade: true })
+  @OneToMany((type) => Message, (message) => message.channel, {
+    cascade: true,
+  })
   public messages: Message[];
 
   @ManyToOne((type) => User, (user) => user.ownerChannels, {
     cascade: true,
+    onDelete: 'CASCADE',
   })
   public owner: User;
 
   @ManyToMany((type) => User, (admin) => admin.adminChannels, {
     cascade: true,
+    onDelete: 'CASCADE',
   })
   @JoinTable()
   public admins: User[];
 
   @ManyToMany((type) => User, (user) => user.memberChannels, {
     cascade: true,
+    onDelete: 'CASCADE',
   })
   @JoinTable()
   public members: User[];
 
   @ManyToMany((type) => User, (bans) => bans.muteChannels, {
     cascade: true,
+    onDelete: 'CASCADE',
   })
   @JoinTable()
   public mutes: User[];
 
   @ManyToMany((type) => User, (bans) => bans.banChannels, {
     cascade: true,
+    onDelete: 'CASCADE',
   })
   @JoinTable()
   public bans: User[];
