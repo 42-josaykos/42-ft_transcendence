@@ -13,8 +13,6 @@ import { Post, Put, Patch } from '@/services/requests';
 
 const socket = io("http://localhost:4000");
 
-const msg = document.getElementById('msg');
-
 const userStore = useUserStore();
 const { loggedUser } = storeToRefs(userStore);
 
@@ -24,71 +22,39 @@ const { messages } = storeToRefs(messageStore);
 const inputStore = useInputStore();
 const { input } = storeToRefs(inputStore);
 
-const chan = document.getElementById('chan');
-
 const channelStore = useChannelStore();
 const { channels } = storeToRefs(channelStore);
 const { channel } = storeToRefs(channelStore);
 
-const baseUrl = 'http://localhost:3000/messages';
-const baseUrlChat = 'http://localhost:3000/channels';
+const baseUrl = '/messages';
+const baseUrlChat = '/channels';
 
 const handleSubmitNewMessage = () => {
-  if (input.value.create !== '')
-  {
+  if (input.value.create !== '') {
     if (channel.value !== undefined) {
       const newMessage = {
           author: loggedUser.value,
           data: input.value.create,
           channel: channel.value
         };
-        console.log("newMessage => ", newMessage)
-        channelStore.addMessage(channel.value?.id, newMessage);
-        console.log("channels.value = ", channels.value)
-        console.log("channel.value = ", channel.value)
-console.log("********* = ", channelStore.getChannelByID(channel.value?.id - 1))
-        Put(baseUrlChat + '/' + channel.value.id.toString(), channelStore.getChannelByID(channel.value?.id - 1))
-        .then(res => console.log("Put RES => ", res))
-        socket.emit('msgToServer', newMessage)
         Post(baseUrl, newMessage)
-        .then(res => console.log("Post RES => ", res))
+        .then(res => {
+          socket.emit('msgToServer', newMessage)
+        })
     }
-    else
-      console.log("Channel NULL");
     inputStore.$reset();
   }
 }
 
-
-/* const createMessage = (data: string) => {
-   Post(baseUrl, {sender: 1, text: data}).then(res => {
-     if (res.status == 201) {
-         //Get(baseUrl).then(res => (messages.value = res.data));
-       messageStore.createMessage(res.data);
-     }
-     inputStore.$reset();
-
-   });
- };*/
-
 socket.on('msgToClient', (newMessage: Message) => {
-  channelStore.addMessage(newMessage.channel.id, newMessage);
-  Get(baseUrlChat).then(res => {
-      messages.value = res.data[channel.value?.id - 1].messages;
-  })
+  messageStore.createMessage(newMessage);
 })
 
-/* const builNewMessage = (message: string) => {
-   const li = document.createElement("li");
-   li.appendChild(document.createTextNode(message));
-   return li;
- }*/
-
 const displayMessages = (id: number) => {
-  Get(baseUrlChat).then(res => {
+  Get(baseUrlChat + '/' + id.toString()).then(res => {
     if (res.status == 200) {
-      channel.value = res.data[id - 1];
-      messages.value = res.data[id - 1].messages;
+      channel.value = res.data;
+      messages.value = res.data.messages;
     }
   });
 }
@@ -96,7 +62,6 @@ const displayMessages = (id: number) => {
 const handleSubmitNewChannel = () => {
   if (input.value.create_channel !== '')
   {
-   // if (channel.value !== undefined) {
       const newChannel = {
           name: input.value.create_channel,
           isPrivate: false,
@@ -109,24 +74,17 @@ const handleSubmitNewChannel = () => {
           channelStore.createChannel(res.data);
           channel.value = res.data;
           messages.value = [];
-          console.log("After Post channel.value = ", channel.value)
         }
       })
-       /* channelStore.addMessage(channel.value?.id, newMessage);
-        Put(baseUrlChat + '/' + channel.value?.id.toString(), channelStore.getChannelByID(channel.value?.id - 1))
-        .then(res => console.log("Put RES => ", res))
-        socket.emit('msgToServer', newMessage)
-        Post(baseUrl, newMessage)
-        .then(res => console.log("Post RES => ", res))*/
-   // }
-   // else
-    //  console.log("Channel NULL");
     inputStore.$reset();
   }
 }
 
+
 onMounted(() => {
-  Get(baseUrlChat).then(res => channels.value = res.data);
+  Get('/users/' + loggedUser.value.id + '/channels/member').then(res => channels.value = res.data);
+  console.log("loggedUser", loggedUser.value)
+  socket.emit('createConnection', loggedUser.value);
   //Get(baseUrl).then(res => (messages.value = res.data));
 });
 
