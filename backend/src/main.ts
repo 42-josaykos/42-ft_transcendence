@@ -12,7 +12,12 @@ import { TypeormStore } from 'connect-typeorm';
 async function bootstrap() {
   const api = await NestFactory.create(AppModule);
   api.useGlobalPipes(
-    new ValidationPipe({ transform: true, skipMissingProperties: true }),
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      skipMissingProperties: true,
+    }),
   );
   api.enableCors({
     credentials: true,

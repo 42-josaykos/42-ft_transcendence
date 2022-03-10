@@ -18,32 +18,39 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { FilterUserDTO } from './dto/filter-user.dto';
-import { Utils } from 'src/utils.provider';
 import User from './entities/user.entity';
+import Match from 'src/api/matches/entities/matches.entity';
+import Channel from 'src/api/channels/entities/channel.entity';
+import { UpdateUserDTO } from './dto/update-user.dto';
 
 @Controller('users')
 @ApiTags('users')
 export class UsersController {
-  constructor(
-    private readonly usersService: UsersService,
-    private readonly utilsProvider: Utils,
-  ) {}
+  constructor(private readonly usersService: UsersService) {}
 
+  // CRUD related
   @Get()
-  async getAllUsers(@Query() filter: FilterUserDTO): Promise<User[]> {
-    if (!this.utilsProvider.isEmptyObject(filter))
-      return await this.getUsersbyFilter(filter);
-    else return await this.usersService.getAllUsers();
+  async getAllUsers(): Promise<User[]> {
+    return await this.usersService.getAllUsers();
   }
 
-  @Get()
-  async getUsersbyFilter(filter: FilterUserDTO): Promise<User[]> {
+  @Get('search')
+  async getUsersbyFilter(@Query() filter: FilterUserDTO): Promise<User[]> {
     return await this.usersService.getUsersByFilter(filter);
   }
 
-  @Get(':id')
-  async getUserbyID(@Param('id', ParseIntPipe) id: number): Promise<User> {
-    return await this.usersService.getUserByID(id);
+  @Get(':userID')
+  async getUserbyID(
+    @Param('userID', ParseIntPipe) userID: number,
+  ): Promise<User> {
+    return await this.usersService.getUserByID(userID);
+  }
+
+  @Get(':userID/socketID')
+  async getUserSocketID(
+    @Param('userID', ParseIntPipe) userID: number,
+  ): Promise<string> {
+    return await this.usersService.getUserSocketID(userID);
   }
 
   @Post()
@@ -51,22 +58,73 @@ export class UsersController {
     return await this.usersService.createUser(createUserDTO);
   }
 
-  @Patch(':id')
+  @Patch(':userID')
   async updateUser(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() createUserDTO: CreateUserDTO,
+    @Param('userID', ParseIntPipe) userID: number,
+    @Body() createUserDTO: UpdateUserDTO,
   ): Promise<User> {
-    return await this.usersService.updateUser(id, createUserDTO);
+    return await this.usersService.updateUser(userID, createUserDTO);
   }
 
-  @Delete(':id')
-  async deleteUser(@Param('id') id: number): Promise<void> {
-    return await this.usersService.deleteUser(id);
+  @Delete(':userID')
+  async deleteUser(@Param('userID') userID: number): Promise<void> {
+    return await this.usersService.deleteUser(userID);
+  }
+
+  // Match related
+  @Get(':userID/matches/played')
+  async getUserMatchesPlayed(
+    @Param('userID', ParseIntPipe) userID: number,
+  ): Promise<Match[]> {
+    return await this.usersService.getUserMatchesPlayed(userID);
+  }
+
+  @Get(':userID/matches/won')
+  async getUserMatchesWon(
+    @Param('userID', ParseIntPipe) userID: number,
+  ): Promise<Match[]> {
+    return await this.usersService.getUserMatchesWon(userID);
+  }
+
+  // Channel related
+  @Get(':userID/channels/owned')
+  async getUserChannelsOwned(
+    @Param('userID', ParseIntPipe) userID: number,
+  ): Promise<Channel[]> {
+    return await this.usersService.getUserChannelsOwned(userID);
+  }
+
+  @Get(':userID/channels/admin')
+  async getUserChannelsAdmin(
+    @Param('userID', ParseIntPipe) userID: number,
+  ): Promise<Channel[]> {
+    return await this.usersService.getUserChannelsAdmin(userID);
+  }
+
+  @Get(':userID/channels/member')
+  async getUserChannelsMember(
+    @Param('userID', ParseIntPipe) userID: number,
+  ): Promise<Channel[]> {
+    return await this.usersService.getUserChannelsMember(userID);
+  }
+
+  @Get(':userID/channels/muted')
+  async getUserChannelsMuted(
+    @Param('userID', ParseIntPipe) userID: number,
+  ): Promise<Channel[]> {
+    return await this.usersService.getUserChannelsMuted(userID);
+  }
+
+  @Get(':userID/channels/baned')
+  async getUserChannelsBaned(
+    @Param('userID', ParseIntPipe) userID: number,
+  ): Promise<Channel[]> {
+    return await this.usersService.getUserChannelsBaned(userID);
   }
 }
 
 // Redirections to Stats from '/stats/:id'
-@Controller('users/:id/stats')
+@Controller('users/:userID/stats')
 @ApiTags('users')
 @ApiResponse({ status: HttpStatus.SEE_OTHER })
 export class StatsRedirection {
