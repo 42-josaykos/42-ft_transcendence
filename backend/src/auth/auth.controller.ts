@@ -55,5 +55,6 @@ export class AuthController {
   async logout(@Req() req) {
     req.logOut();
     req.session.cookie.maxAge = 0;
+    req.session.destroy();
   }
 }
