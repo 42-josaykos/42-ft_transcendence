@@ -52,7 +52,7 @@ GET http://{{host}}/stats/1
 
 ###
 
-PATCH http://{{host}}/stats/2
+PATCH http://{{host}}/stats/1
 Content-Type: {{contentType}}
 
 {
@@ -73,7 +73,7 @@ Content-Type: {{contentType}}
 
 {
     "author": 3,
-    "channel": {"id": 6},
+    "channel": {"id": 1},
     "data": "Bouh!"
 }
 
