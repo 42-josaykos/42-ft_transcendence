@@ -28,14 +28,14 @@ export class MessagesController {
   ) {}
 
   @Get()
-  async getAllMessages(@Query() filter: FilterMessageDTO): Promise<Message[]> {
-    if (!this.utilsProvider.isEmptyObject(filter))
-      return await this.getMessagesByFilter(filter);
+  async getAllMessages(): Promise<Message[]> {
     return await this.messagesService.getAllMessages();
   }
 
-  @Get()
-  async getMessagesByFilter(filter: FilterMessageDTO): Promise<Message[]> {
+  @Get('search')
+  async getMessagesByFilter(
+    @Query() filter: FilterMessageDTO,
+  ): Promise<Message[]> {
     return await this.messagesService.getMessagesByFilter(filter);
   }
 

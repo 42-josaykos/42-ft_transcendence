@@ -106,6 +106,12 @@ export class StatsRedirection {
 @ApiTags('users')
 @ApiResponse({ status: HttpStatus.SEE_OTHER })
 export class MessagesRedirection {
+  @Get()
+  @Redirect('/messages', HttpStatus.SEE_OTHER)
+  async getMessages(@Param('userID', ParseIntPipe) userID: number) {
+    return { url: `/messages/search?authorID=${userID}` };
+  }
+
   @Get(':messageID')
   @Redirect('/messages', HttpStatus.SEE_OTHER)
   async getMessageByID(@Param('messageID', ParseIntPipe) messageID: number) {

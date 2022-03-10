@@ -63,6 +63,7 @@ export class MessagesService {
     const query = this.messagesRepository
       .createQueryBuilder('messages')
       .leftJoinAndSelect('messages.author', 'author')
+      .leftJoinAndSelect('messages.channel', 'channel')
       .orderBy('messages.id', 'DESC');
 
     if (filter.authorName)
@@ -71,9 +72,13 @@ export class MessagesService {
       });
     if (filter.authorID)
       query.andWhere('author.id = :authorID', { authorID: filter.authorID });
+    if (filter.channelName)
+      query.andWhere('channel.name = :channel', {
+        channel: filter.channelName,
+      });
     if (filter.channelID)
-      query.andWhere('messages.channel = :channel', {
-        channel: filter.channelID,
+      query.andWhere('channel.id = :channelID', {
+        channelID: filter.channelID,
       });
 
     const messages = await query.getMany();

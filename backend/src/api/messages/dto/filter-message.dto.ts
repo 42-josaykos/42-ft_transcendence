@@ -11,6 +11,10 @@ export class FilterMessageDTO {
   readonly authorName: string;
 
   @ApiProperty({ required: false })
-  @IsString()
+  @IsNumberString()
   readonly channelID: string;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  readonly channelName: string;
 }
