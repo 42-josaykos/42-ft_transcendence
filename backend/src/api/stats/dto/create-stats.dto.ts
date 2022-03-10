@@ -1,27 +1,31 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt } from 'class-validator';
+import { IsDecimal, IsDefined, IsInt, IsNotEmpty } from 'class-validator';
 import { Double } from 'typeorm';
 import User from '../../users/entities/user.entity';
 
 export class CreateStatsDTO {
-  @ApiProperty({ required: false })
-  readonly id: number;
-
-  @ApiProperty({ required: true })
+  @IsNotEmpty()
+  @IsDefined()
   readonly user: User;
 
-  @ApiProperty({ required: true })
   @IsInt()
+  @IsNotEmpty()
+  @IsDefined()
   readonly played: number = 0;
 
-  @ApiProperty({ required: true })
   @IsInt()
+  @IsNotEmpty()
+  @IsDefined()
   readonly win: number = 0;
 
-  @ApiProperty({ required: true })
   @IsInt()
+  @IsNotEmpty()
+  @IsDefined()
   readonly lose: number = 0;
 
-  @ApiProperty({ required: true, type: 'decimal' })
+  @ApiProperty({ type: 'decimal' })
+  @IsDecimal()
+  @IsNotEmpty()
+  @IsDefined()
   readonly ratio: number = 0.0;
 }

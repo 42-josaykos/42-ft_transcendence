@@ -7,14 +7,12 @@ import {
   ParseIntPipe,
   Post,
   Query,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MessagesService } from './messages.service';
 import { CreateMessageDTO } from './dto/create-message.dto';
 import { FilterMessageDTO } from './dto/filter-message.dto';
-import { Utils } from 'src/utils.provider';
+import { Utils } from 'src/utils/utils.provider';
 import Message from './entities/message.entity';
 import User from 'src/api/users/entities/user.entity';
 import Channel from 'src/api/channels/entities/channel.entity';
@@ -28,14 +26,14 @@ export class MessagesController {
   ) {}
 
   @Get()
-  async getAllMessages(@Query() filter: FilterMessageDTO): Promise<Message[]> {
-    if (!this.utilsProvider.isEmptyObject(filter))
-      return await this.getMessagesByFilter(filter);
+  async getAllMessages(): Promise<Message[]> {
     return await this.messagesService.getAllMessages();
   }
 
-  @Get()
-  async getMessagesByFilter(filter: FilterMessageDTO): Promise<Message[]> {
+  @Get('search')
+  async getMessagesByFilter(
+    @Query() filter: FilterMessageDTO,
+  ): Promise<Message[]> {
     return await this.messagesService.getMessagesByFilter(filter);
   }
 

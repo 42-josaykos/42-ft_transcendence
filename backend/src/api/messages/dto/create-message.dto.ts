@@ -1,20 +1,19 @@
-import { IsInt, IsString } from 'class-validator';
+import { IsDefined, IsInt, IsNotEmpty, IsString } from 'class-validator';
 import User from 'src/api/users/entities/user.entity';
 import Channel from 'src/api/channels/entities/channel.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateMessageDTO {
-  @ApiProperty({ required: false })
-  @IsInt()
-  readonly id: number;
-
-  @ApiProperty({ required: true })
+  @IsNotEmpty()
+  @IsDefined()
   readonly author: User;
 
-  @ApiProperty({ required: true })
+  @IsNotEmpty()
+  @IsDefined()
   readonly channel: Channel;
 
-  @ApiProperty({ required: true })
   @IsString()
+  @IsNotEmpty()
+  @IsDefined()
   readonly data: string;
 }

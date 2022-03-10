@@ -9,8 +9,8 @@ import {
   JoinTable,
   JoinColumn,
 } from 'typeorm';
-import Stats from '../../stats/entities/stats.entity';
-import Message from '../../messages/entities/message.entity';
+import Stats from 'src/api/stats/entities/stats.entity';
+import Message from 'src/api/messages/entities/message.entity';
 import Channel from 'src/api/channels/entities/channel.entity';
 import Match from 'src/api/matches/entities/matches.entity';
 
@@ -33,6 +33,9 @@ class User {
 
   @OneToOne((type) => Stats, (stats) => stats.user)
   public stats: Stats;
+
+  @Column({ nullable: true, length: 20 })
+  public socketID: string | null;
 
   // Match related relations
   @ManyToMany((type) => Match, (match) => match.players)

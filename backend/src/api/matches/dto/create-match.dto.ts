@@ -1,17 +1,24 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt } from 'class-validator';
+import {
+  IsArray,
+  IsDefined,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+} from 'class-validator';
 import User from 'src/api/users/entities/user.entity';
 
 export class CreateMatchDTO {
-  @ApiProperty({ required: false })
-  readonly id: number;
-
-  @ApiProperty({ required: true, isArray: true })
+  @IsArray()
+  @IsNotEmpty()
+  @IsDefined()
   readonly players: User[];
 
-  @ApiProperty({ required: true, isArray: true })
+  @IsArray()
+  @IsNotEmpty()
+  @IsDefined()
   readonly score: number[];
 
-  @ApiProperty({ required: false })
+  @IsOptional()
   readonly winner: User;
 }
