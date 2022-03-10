@@ -59,7 +59,7 @@ Content-Type: {{contentType}}
     "played": 1,
     "win": 2,
     "lose": 1,
-    "ratio": 1.5
+    "ratio": "1.5"
 }
 
 ###
@@ -95,9 +95,7 @@ Content-Type: {{contentType}}
     "owner": {"id": 1},
     "admins": [{"id": 1}, {"id": 2}],
     "members": [{"id": 1}, {"id": 3}, {"id": 4}],
-    "mutes": [{"id": 4}],
-    "bans": [{"id": 5}]
-
+    "mutes": [{"id": 4}]
 }
 
 ###
@@ -115,8 +113,7 @@ Content-Type: {{contentType}}
 
 {
     "players": [{"id": 1}, {"id": 2}],
-    "score": [7, 10],
-    "winner": {"id": 2}
+    "score": [7, 10]
 }
 
 ###
@@ -126,7 +123,8 @@ Content-Type: {{contentType}}
 
 {
     "players": [{"id": 4}, {"id": 5}],
-    "score": [42, 21]
+    "score": [42, 21],
+    "winner": {"id": 4}
 }
 
 ###

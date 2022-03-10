@@ -1,35 +1,46 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsDefined,
+  IsInt,
+  IsNotEmpty,
+  IsObject,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import User from 'src/api/users/entities/user.entity';
 
 export class CreateChannelDTO {
-  @ApiProperty({ required: false })
-  @IsInt()
-  readonly id: number;
-
-  @ApiProperty({ required: true })
   @IsString()
+  @IsNotEmpty()
+  @IsDefined()
   readonly name: string;
 
-  @ApiProperty({ nullable: true, required: false })
+  @IsBoolean()
   readonly isPrivate: boolean | false;
 
-  @ApiProperty({ nullable: true, required: true })
   @IsString()
   readonly password: string | null;
 
-  @ApiProperty({ required: true })
+  @IsNotEmpty()
+  @IsDefined()
   readonly owner: User;
 
-  @ApiProperty({ required: false })
+  @IsArray()
+  @IsOptional()
   readonly admins: User[];
 
-  @ApiProperty({ required: true })
+  @IsArray()
+  @IsNotEmpty()
+  @IsDefined()
   readonly members: User[];
 
-  @ApiProperty({ required: false })
+  @IsArray()
+  @IsOptional()
   readonly mutes: User[];
 
-  @ApiProperty({ required: false })
+  @IsArray()
+  @IsOptional()
   readonly bans: User[];
 }
