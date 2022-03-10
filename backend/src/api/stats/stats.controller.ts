@@ -61,7 +61,6 @@ export class StatsController {
     @Param('id', ParseIntPipe) statsID: number,
     @Body() updatedStats: UpdateStatsDTO,
   ): Promise<Stats> {
-    console.log('Controller DTO: ', updatedStats);
     return await this.statsService.updateStats(statsID, updatedStats);
   }
 }

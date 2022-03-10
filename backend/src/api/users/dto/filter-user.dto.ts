@@ -1,9 +1,14 @@
-import { IsNumberString, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNumberString, IsOptional, IsString } from 'class-validator';
 
 export class FilterUserDTO {
+  @ApiProperty({ required: false })
   @IsNumberString()
+  @IsOptional()
   readonly id: number;
 
+  @ApiProperty({ required: false })
   @IsString()
+  @IsOptional()
   readonly username: string;
 }
