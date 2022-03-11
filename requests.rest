@@ -22,7 +22,7 @@ POST http://{{host}}/users
 Content-Type: {{contentType}}
 
 {
-    "username": "josayko"
+    "username": "test"
 }
 
 ###
