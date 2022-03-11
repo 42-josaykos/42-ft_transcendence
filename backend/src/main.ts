@@ -49,7 +49,6 @@ async function bootstrap() {
       store: new TypeormStore({
         cleanupLimit: 2,
         limitSubquery: false,
-        ttl: 86400000,
       }).connect(sessionRepo),
     }),
   );

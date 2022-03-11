@@ -12,7 +12,7 @@ backend:
 	-cd backend && npm run dev
 
 database:
-	-docker-compose up -d postgres pgadmin
+	-docker-compose up -d postgres
 
 
 ### Prod environment ###
@@ -39,6 +39,9 @@ ps:
 
 images:
 	-docker-compose images
+
+exec:
+	-docker exec -it postgres-transcendence bash
 
 
 .PHONY: frontend backend
