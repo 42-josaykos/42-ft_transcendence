@@ -33,9 +33,9 @@ const handleSubmitNewMessage = () => {
   if (input.value.create !== '') {
     if (channel.value !== undefined) {
       const newMessage = {
-          author: loggedUser.value,
-          data: input.value.create,
-          channel: channel.value
+          author: loggedUser.value?.id,
+          channel: {id: channel.value.id},
+          data: input.value.create
         };
         Post(baseUrl, newMessage)
         .then(res => {
@@ -64,10 +64,8 @@ const handleSubmitNewChannel = () => {
   {
       const newChannel = {
           name: input.value.create_channel,
-          isPrivate: false,
-          password: '',
-          messages: [],
-          owner: loggedUser.value,
+          owner: { id: loggedUser.value?.id },
+          members: [{ id: loggedUser.value?.id }]
       };
       Post(baseUrlChat, newChannel).then(res => {
         if (res.status == 201) {
@@ -85,6 +83,7 @@ onMounted(() => {
   Get('/users/' + loggedUser.value.id + '/channels/member').then(res => channels.value = res.data);
   console.log("loggedUser", loggedUser.value)
   socket.emit('createConnection', loggedUser.value);
+  console.log("LoggedUser => ", loggedUser.value)
   //Get(baseUrl).then(res => (messages.value = res.data));
 });
 
@@ -102,9 +101,9 @@ onMounted(() => {
           </ul>
         </div>
         <div>
-          <form @submit.prevent.trim.lazy="handleSubmitNewChannel" method="POST" id="form">
-            <input v-model="input.create_channel" type="text" id="input"/>
-            <input type="submit" value="Create" id="send"/>
+          <form @submit.prevent.trim.lazy="handleSubmitNewChannel" method="POST" class="form">
+            <input v-model="input.create_channel" type="text" class="input"/>
+            <input type="submit" value="Create" class="send"/>
           </form>
         </div>
       </div>
@@ -120,9 +119,9 @@ onMounted(() => {
               Message: {{ item.data }}
             </ul>
           </div>
-          <form @submit.prevent.trim.lazy="handleSubmitNewMessage" method="POST" id="form">
-            <input v-model="input.create" type="text" id="input"/>
-            <input type="submit" value="Send" id="send"/>
+          <form @submit.prevent.trim.lazy="handleSubmitNewMessage" method="POST" class="form">
+            <input v-model="input.create" type="text" class="input"/>
+            <input type="submit" value="Send" class="send"/>
           </form>
         </div>
        </div>
@@ -195,7 +194,7 @@ onMounted(() => {
   height: 100%;
 }
 
-#form {
+.form {
   background: rgba(0, 0, 0, 0.15);
   padding: 0.25rem;
 
@@ -208,7 +207,7 @@ onMounted(() => {
   backdrop-filter: blur(10px);
 }
 
-#input {
+.input {
   border: none;
   padding: 0 1rem;
   flex-grow: 1;
@@ -216,7 +215,7 @@ onMounted(() => {
   margin: 0.25rem;
 }
 
-#send {
+.send {
   background: #333;
   border: none; padding: 0 1rem;
   margin: 0.25rem; border-radius: 3px;

@@ -8,7 +8,7 @@ export const useChannelStore = defineStore('channel', () => {
     const channels = ref<Channel[]>([]);
     const channel = ref<Channel>();
 
-    const createChannel = (newChannel: Channel) => {
+    const createChannel = async (newChannel: Channel) => {
         channels.value.push(newChannel);
     }
 

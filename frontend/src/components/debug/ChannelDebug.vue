@@ -7,7 +7,7 @@ import { useChannelStore } from '@/stores/channel';
 //import type { Channel } from '@/models/channel.model';
 import type { Input, InputStore } from '@/stores/input';
 //import { useUserStore } from '@/stores/user';
-//import type { User } from '@/models/user.model';
+import type { User } from '@/models/user.model';
 
 // Props
 const props = defineProps<{
@@ -44,7 +44,7 @@ const createChannel =  () => {
   const newChannel = {
     name: props.input.create,
     owner: {id: Number(props.input.channel_user_id)},
-    members: [{id: Number(props.input.channel_user_id)}]
+    members: [{id: Number(props.input.channel_user_id)}/*, {id: 4}*/]
   }
   Post(baseUrl, newChannel).then(res => {
     if (res.status == 201) {
@@ -73,6 +73,28 @@ const deleteChannel = (id: number) => {
     }
   });
 };
+
+/*const addMember = async (channelId: number) => {
+  let members: User[];
+ // let user: User;
+ // await Get('/users/' + props.input.user_id).then(res => user = res.data);
+  await Get(baseUrl + '/' + channelId.toString() + '/members').then(res =>{
+    members = res.data
+    //members.push(user) //= [...members, user]
+  });
+  const updatedChannel = {
+    members: [{id: Number(props.input.user_id)}]
+  }
+
+  await Patch(baseUrl + '/' + channelId.toString(), {updatedChannel })
+  .then(res => {
+    if (res.status == 200) {
+      channelStore.updateChannel(res.data.id, res.data);
+      // Get(baseUrl).then(res => (users.value = res.data));
+    }
+    props.inputStore.$reset();
+  });
+}*/
 
 onMounted(() => {
   Get(baseUrl).then(res => (channels.value = res.data));
@@ -113,6 +135,9 @@ onMounted(() => {
     <li v-for="item in channels" :key="item.id">
       Id: {{ item.id }}, Name: {{ item.name }}
       <button @click="deleteChannel(item.id)">delete</button>
+      <!--<label for="name"> Id user:</label>
+      <input v-model="input.user_id" name="username" type="text" />
+      <button @click="addMember(item.id)">Add Member</button>-->
     </li>
   </ul>
   <p v-else>Not Found</p>
