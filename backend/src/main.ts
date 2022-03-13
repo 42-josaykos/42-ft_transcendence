@@ -30,7 +30,10 @@ async function bootstrap() {
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(api, config);
-  SwaggerModule.setup('/', api, document);
+  SwaggerModule.setup('/', api, document, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'API Definition',
+  });
 
   // Starting up API service
   const configService = api.get(ConfigService);

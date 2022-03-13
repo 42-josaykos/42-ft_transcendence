@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateMessageDTO } from './dto/create-message.dto';
@@ -6,12 +10,17 @@ import { FilterMessageDTO } from './dto/filter-message.dto';
 import Message from './entities/message.entity';
 import User from 'src/api/users/entities/user.entity';
 import Channel from 'src/api/channels/entities/channel.entity';
+import { UpdateMessageDTO } from './dto/update-message.dto';
 
 @Injectable()
 export class MessagesService {
   constructor(
     @InjectRepository(Message)
     private readonly messagesRepository: Repository<Message>,
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
+    @InjectRepository(Channel)
+    private readonly channelsRepository: Repository<Channel>,
   ) {}
 
   async getAllMessages(): Promise<Message[]> {
@@ -23,12 +32,13 @@ export class MessagesService {
   }
 
   async getMessageByID(messageID: number): Promise<Message> {
-    const message = this.messagesRepository.findOne({
+    const message = await this.messagesRepository.findOne({
       where: { id: messageID },
       relations: ['author', 'channel'],
     });
     if (!message)
       throw new NotFoundException('Message not found (id not correct)');
+
     return message;
   }
 
@@ -88,18 +98,43 @@ export class MessagesService {
   }
 
   async createMessage(message: CreateMessageDTO): Promise<Message> {
+    if ((await this.usersRepository.count(message.author)) === 0)
+      throw new ForbiddenException(
+        "Can't create message (author does not exists)",
+      );
+    if ((await this.channelsRepository.count(message.channel)) === 0)
+      throw new ForbiddenException(
+        "Can't create message (channel does not exists)",
+      );
+
     const newMessage = this.messagesRepository.create(message);
     await this.messagesRepository.save(newMessage);
     return newMessage;
   }
 
+  async updateMessage(
+    messageID: number,
+    updatedMessage: UpdateMessageDTO,
+  ): Promise<Message> {
+    try {
+      const message = await this.getMessageByID(messageID);
+      //Checking what is updated
+      if (updatedMessage.author) message.author = updatedMessage.author;
+      if (updatedMessage.channel) message.channel = updatedMessage.channel;
+      if (updatedMessage.data) message.data = updatedMessage.data;
+      await this.messagesRepository.save(message);
+      return message;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async deleteMessage(messageID: number): Promise<void> {
-    const message = await this.messagesRepository.findOne({
-      where: { id: messageID },
-      relations: ['author', 'channel'],
-    });
-    if (!message)
-      throw new NotFoundException('Message not found (id incorrect)');
-    else await this.messagesRepository.remove(message);
+    try {
+      const message = await this.getMessageByID(messageID);
+      await this.messagesRepository.remove(message);
+    } catch (error) {
+      throw error;
+    }
   }
 }

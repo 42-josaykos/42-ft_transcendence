@@ -25,7 +25,7 @@ export class StatsService {
       where: { id: statsID },
       relations: ['user'],
     });
-    if (!stats) throw new NotFoundException('Stats not found (id not correct)');
+    if (!stats) throw new NotFoundException('Stats not found (id incorrect)');
     return stats;
   }
 
@@ -69,13 +69,12 @@ export class StatsService {
     statsID: number,
     updatedStats: UpdateStatsDTO,
   ): Promise<Stats> {
-    const stats = await this.statsRepository.findOne({
-      where: { id: statsID },
-    });
-    if (!stats) throw new NotFoundException('Stats not found (id incorrect)');
-    else {
+    try {
+      const stats = await this.getStatsByID(statsID);
       await this.statsRepository.update(statsID, updatedStats);
       return this.getStatsByID(statsID);
+    } catch (error) {
+      throw error;
     }
   }
 }
