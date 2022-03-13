@@ -25,7 +25,7 @@ export class StatsService {
       where: { id: statsID },
       relations: ['user'],
     });
-    if (!stats) throw new NotFoundException('Stats not found (id not correct)');
+    if (!stats) throw new NotFoundException('Stats not found (id incorrect)');
     return stats;
   }
 

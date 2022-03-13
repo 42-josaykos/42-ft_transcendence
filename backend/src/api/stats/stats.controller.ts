@@ -21,44 +21,44 @@ export class StatsController {
     return await this.statsService.getAllStats();
   }
 
-  @Get(':id')
+  @Get(':statsID')
   async getStatsByID(
-    @Param('id', ParseIntPipe) statsID: number,
+    @Param('statsID', ParseIntPipe) statsID: number,
   ): Promise<Stats> {
     return await this.statsService.getStatsByID(statsID);
   }
 
-  @Get(':id/played')
+  @Get(':statsID/played')
   async getStatPlayed(
-    @Param('id', ParseIntPipe) statsID: number,
+    @Param('statsID', ParseIntPipe) statsID: number,
   ): Promise<number> {
     return await this.statsService.getStatPlayed(statsID);
   }
 
-  @Get(':id/win')
+  @Get(':statsID/win')
   async getStatWin(
-    @Param('id', ParseIntPipe) statsID: number,
+    @Param('statsID', ParseIntPipe) statsID: number,
   ): Promise<number> {
     return await this.statsService.getStatWin(statsID);
   }
 
-  @Get(':id/lose')
+  @Get(':statsID/lose')
   async getStatLose(
-    @Param('id', ParseIntPipe) statsID: number,
+    @Param('statsID', ParseIntPipe) statsID: number,
   ): Promise<number> {
     return await this.statsService.getStatLose(statsID);
   }
 
-  @Get(':id/ratio')
+  @Get(':statsID/ratio')
   async getStatRatio(
-    @Param('id', ParseIntPipe) statsID: number,
+    @Param('statsID', ParseIntPipe) statsID: number,
   ): Promise<number> {
     return await this.statsService.getStatRatio(statsID);
   }
 
-  @Patch(':id')
+  @Patch(':statsID')
   async updateStats(
-    @Param('id', ParseIntPipe) statsID: number,
+    @Param('statsID', ParseIntPipe) statsID: number,
     @Body() updatedStats: UpdateStatsDTO,
   ): Promise<Stats> {
     return await this.statsService.updateStats(statsID, updatedStats);
