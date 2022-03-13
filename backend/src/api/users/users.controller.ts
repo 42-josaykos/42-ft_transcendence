@@ -61,9 +61,9 @@ export class UsersController {
   @Patch(':userID')
   async updateUser(
     @Param('userID', ParseIntPipe) userID: number,
-    @Body() createUserDTO: UpdateUserDTO,
+    @Body() updatedUser: UpdateUserDTO,
   ): Promise<User> {
-    return await this.usersService.updateUser(userID, createUserDTO);
+    return await this.usersService.updateUser(userID, updatedUser);
   }
 
   @Delete(':userID')

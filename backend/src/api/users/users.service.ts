@@ -34,6 +34,7 @@ export class UsersService {
         'stats',
         // Below: For DEBUG, may remove later
         'messages',
+        'messages.channel',
         'playedMatches',
         'winMatches',
         'ownerChannels',
@@ -51,6 +52,7 @@ export class UsersService {
     relations: string[] = [
       'stats',
       'messages',
+      'messages.channel',
       'playedMatches',
       'winMatches',
       'ownerChannels',

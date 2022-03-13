@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
@@ -16,6 +17,7 @@ import { Utils } from 'src/utils/utils.provider';
 import Message from './entities/message.entity';
 import User from 'src/api/users/entities/user.entity';
 import Channel from 'src/api/channels/entities/channel.entity';
+import { UpdateMessageDTO } from './dto/update-message.dto';
 
 @Controller('messages')
 @ApiTags('messages')
@@ -68,6 +70,14 @@ export class MessagesController {
   @Post()
   async createMessage(@Body() message: CreateMessageDTO): Promise<Message> {
     return await this.messagesService.createMessage(message);
+  }
+
+  @Patch(':messageID')
+  async updateMessage(
+    @Param('messageID', ParseIntPipe) messageID: number,
+    @Body() updatedMessage: UpdateMessageDTO,
+  ): Promise<Message> {
+    return await this.messagesService.updateMessage(messageID, updatedMessage);
   }
 
   @Delete(':messageID')

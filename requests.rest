@@ -14,10 +14,6 @@ GET http://{{host}}/users
 
 ###
 
-GET http://{{host}}/users/1
-
-###
-
 POST http://{{host}}/users
 Content-Type: {{contentType}}
 
@@ -48,10 +44,6 @@ GET http://{{host}}/stats
 
 ###
 
-GET http://{{host}}/stats/1
-
-###
-
 PATCH http://{{host}}/stats/1
 Content-Type: {{contentType}}
 
@@ -68,18 +60,32 @@ Content-Type: {{contentType}}
 // Messages requests
 // #################
 
+GET http://{{host}}/messages
+
+###
+
 POST http://{{host}}/messages
 Content-Type: {{contentType}}
 
 {
     "author": {"id": 1},
-    "channel": {"id": 1},
+    "channel": {"id": 3},
     "data": "Bouh!"
 }
 
 ###
 
-DELETE http://{{host}}/messages/1
+PATCH http://{{host}}/messages/5
+Content-Type: {{contentType}}
+
+{
+    "author": {"id": 3},
+    "data": "Bouh Me!!"
+}
+
+###
+
+DELETE http://{{host}}/messages/4
 
 ###
 
@@ -91,7 +97,7 @@ POST http://{{host}}/channels
 Content-Type: {{contentType}}
 
 {
-    "name": "Channel1",
+    "name": "Channel2",
     "owner": {"id": 1},
     "admins": [{"id": 1}, {"id": 2}],
     "members": [{"id": 1}, {"id": 3}, {"id": 4}],
