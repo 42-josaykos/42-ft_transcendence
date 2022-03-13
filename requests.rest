@@ -31,8 +31,7 @@ PATCH http://{{host}}/users/1
 Content-Type: {{contentType}}
 
 {
-    "username": "Updated",
-    "socketID": ""
+    "username": "Updated"
 }
 
 ###
@@ -73,7 +72,7 @@ POST http://{{host}}/messages
 Content-Type: {{contentType}}
 
 {
-    "author": 1,
+    "author": {"id": 1},
     "channel": {"id": 1},
     "data": "Bouh!"
 }

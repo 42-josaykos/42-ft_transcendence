@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateMessageDTO } from './dto/create-message.dto';
@@ -12,6 +16,10 @@ export class MessagesService {
   constructor(
     @InjectRepository(Message)
     private readonly messagesRepository: Repository<Message>,
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
+    @InjectRepository(Channel)
+    private readonly channelsRepository: Repository<Channel>,
   ) {}
 
   async getAllMessages(): Promise<Message[]> {
@@ -88,6 +96,15 @@ export class MessagesService {
   }
 
   async createMessage(message: CreateMessageDTO): Promise<Message> {
+    if ((await this.usersRepository.count(message.author)) === 0)
+      throw new ForbiddenException(
+        "Can't create message (author does not exists)",
+      );
+    if ((await this.channelsRepository.count(message.channel)) === 0)
+      throw new ForbiddenException(
+        "Can't create message (channel does not exists)",
+      );
+
     const newMessage = this.messagesRepository.create(message);
     await this.messagesRepository.save(newMessage);
     return newMessage;
