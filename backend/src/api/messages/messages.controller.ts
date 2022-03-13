@@ -37,30 +37,30 @@ export class MessagesController {
     return await this.messagesService.getMessagesByFilter(filter);
   }
 
-  @Get(':id')
+  @Get(':messageID')
   async getMessageByID(
-    @Param('id', ParseIntPipe) messageID: number,
+    @Param('messageID', ParseIntPipe) messageID: number,
   ): Promise<Message> {
     return await this.messagesService.getMessageByID(messageID);
   }
 
-  @Get(':id/author')
+  @Get(':messageID/author')
   async getMessageAuthor(
-    @Param('id', ParseIntPipe) messageID: number,
+    @Param('messageID', ParseIntPipe) messageID: number,
   ): Promise<User> {
     return await this.messagesService.getMessageAuthor(messageID);
   }
 
-  @Get(':id/channel')
+  @Get(':messageID/channel')
   async getMessageChannel(
-    @Param('id', ParseIntPipe) messageID: number,
+    @Param('messageID', ParseIntPipe) messageID: number,
   ): Promise<Channel> {
     return await this.messagesService.getMessageChannel(messageID);
   }
 
-  @Get(':id/data')
+  @Get(':messageID/data')
   async getMessageData(
-    @Param('id', ParseIntPipe) messageID: number,
+    @Param('messageID', ParseIntPipe) messageID: number,
   ): Promise<string> {
     return await this.messagesService.getMessageData(messageID);
   }
@@ -70,8 +70,8 @@ export class MessagesController {
     return await this.messagesService.createMessage(message);
   }
 
-  @Delete(':id')
-  async deleteMessage(@Param('id') messageID: number) {
+  @Delete(':messageID')
+  async deleteMessage(@Param('messageID') messageID: number) {
     return await this.messagesService.deleteMessage(messageID);
   }
 }
