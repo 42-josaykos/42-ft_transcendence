@@ -93,7 +93,7 @@ services:
 
 volumes:
   postgres:
-  pgadmin:
+  # pgadmin:
   # dbeaver:
 
 networks:
