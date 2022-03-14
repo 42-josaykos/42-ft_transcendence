@@ -1,19 +1,22 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import type { Channel } from '@/models/channel.model';
-import type { Message} from '@/models/message.model';
+import type { Message } from '@/models/message.model';
 import type { Input } from './input';
 
 export const useChannelStore = defineStore('channel', () => {
+    const allChannels = ref<Channel[]>([]);
     const channels = ref<Channel[]>([]);
     const channel = ref<Channel>();
 
     const createChannel = async (newChannel: Channel) => {
         channels.value.push(newChannel);
+        allChannels.value.push(newChannel);
     }
 
     const addMessage = (id: number, newMessage: Message) => {
          channels.value[id - 1].messages.push(newMessage);
+         allChannels.value[id - 1].messages.push(newMessage);
     } 
 
     const getChannelByID = (id: number): Channel => {
@@ -26,6 +29,7 @@ export const useChannelStore = defineStore('channel', () => {
     const deleteChannel = (id: number) => {
         const index = channels.value.findIndex((el: Channel) => el.id === id);
         channels.value.splice(index, 1);
+        allChannels.value.splice(index, 1);
     }
 
     const getChannelUpdates = (input: Input): Channel | null => {
@@ -50,7 +54,18 @@ export const useChannelStore = defineStore('channel', () => {
         channels.value.splice(index, 1, { ...channels.value[index], ...updatedData });
     }
 
+    const getMemberChannelByID = (channel_item: Channel, userId: number): boolean => {
+
+      const { members} = channel_item;
+      for (const member of members) {
+        if (member.id === userId){
+        return true;}
+      }
+      return false
+    }
+
     return {
+        allChannels,
         channels,
         channel,
         createChannel,
@@ -58,6 +73,7 @@ export const useChannelStore = defineStore('channel', () => {
         getChannelByID,
         deleteChannel,
         updateChannel,
-        getChannelUpdates
+        getChannelUpdates,
+        getMemberChannelByID
     };
 });

@@ -5,11 +5,13 @@ import { useMessageStore } from '@/stores/message';
 import { useChannelStore } from '@/stores/channel';
 import type { Channel } from '@/models/channel.model'
 import type { Message } from '@/models/message.model'
+import type { User } from '@/models/user.model'
 import { useInputStore } from '@/stores/input';
 import { storeToRefs} from 'pinia';
 import { io } from 'socket.io-client';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { Post, Put, Patch } from '@/services/requests';
+import ButtonChannel from './ButtonChannel.vue'
 
 const socket = io("http://localhost:4000");
 
@@ -23,6 +25,7 @@ const inputStore = useInputStore();
 const { input } = storeToRefs(inputStore);
 
 const channelStore = useChannelStore();
+const { allChannels } = storeToRefs(channelStore);
 const { channels } = storeToRefs(channelStore);
 const { channel } = storeToRefs(channelStore);
 
@@ -50,13 +53,29 @@ socket.on('msgToClient', (newMessage: Message) => {
   messageStore.createMessage(newMessage);
 })
 
-const displayMessages = (id: number) => {
-  Get(baseUrlChat + '/' + id.toString()).then(res => {
+let isMember = ref(true);
+
+const displayMessages = (channel_item: Channel) => {
+  //member = isMember(channel_item);
+  Get(baseUrlChat + '/' + channel_item.id.toString()).then(res => {
     if (res.status == 200) {
       channel.value = res.data;
       messages.value = res.data.messages;
     }
   });
+  console.log('Messages => ', messages.value)
+}
+
+const displayMyChannels = () => {
+  isMember.value = true
+  Get('/users/' + loggedUser.value.id + '/channels/member')
+  .then(res => channels.value = res.data);
+}
+
+const displayAllChannels = () => {
+  isMember.value = false;
+  Get('/channels')
+  .then(res => allChannels.value = res.data);
 }
 
 const handleSubmitNewChannel = () => {
@@ -65,7 +84,7 @@ const handleSubmitNewChannel = () => {
       const newChannel = {
           name: input.value.create_channel,
           owner: { id: loggedUser.value?.id },
-          members: [{ id: loggedUser.value?.id }]
+          members: [{ id: loggedUser.value?.id }, {id: 6}]
       };
       Post(baseUrlChat, newChannel).then(res => {
         if (res.status == 201) {
@@ -78,14 +97,83 @@ const handleSubmitNewChannel = () => {
   }
 }
 
+const isMember2 = (channel_item: Channel) => {
+  //member = true;
+  Get(baseUrlChat + '/' + channel_item.id.toString()).then(res => {
+    if (res.status == 200) {
+      console.log("res.data => ", res.data)
+      const user_id = channelStore.getMemberChannelByID(res.data, loggedUser.value?.id);
+      
+      console.log("2 - user_id => ", user_id)
+      isMember.value = true;
+      return user_id;
+     /* if (user_id == 0)
+      {      console.log("*** FALSE ****")
+        return false
+      }
+      console.log("Channel Item => ", channel_item)
+      console.log("Logged=> ", loggedUser.value)
+      return true*/
+      /*let members: User[] = {...res.data.members};
+      const index = members.findIndex((user: User) => user.id === loggedUser.value?.id)
+      if (index >= 0) {
+        return true;*/
+    }
+    
+  })
+  isMember.value = false;
+  return false;
+  /*let user_member = channelStore.getMemberChannelByID(channel_item, loggedUser.value?.id)
+  if (!user_member)
+    return false
+    console.log("Channel Item => ", channel_item)
+    console.log("Logged=> ", loggedUser.value)
+    return true*/
+}
+
+//const isMember = computed(() =>  {
+ // member = false;
+  /*console.log("Channel_item => ", channel_item)
+  Get(baseUrlChat + '/' + channel_item.id.toString()).then(res => {
+    if (res.status == 200) {
+      console.log("res.data => ", res.data)
+      const user_id = channelStore.getMemberChannelByID(res.data, loggedUser.value?.id);
+      
+      console.log("2 - user_id => ", user_id)
+      return user_id;
+      }
+    
+  })*/
+  //return member;
+//})
+
+/*async function isMember3(channel_item: Channel): Promise<boolean> {
+await Get(baseUrlChat + '/' + channel_item.id.toString()).then(res => {
+    if (res.status == 200) {
+      console.log("res.data => ", res.data)
+      const user_id = channelStore.getMemberChannelByID(res.data, loggedUser.value?.id);
+      
+      console.log("2 - user_id => ", user_id)
+      member = true;
+    }
+    else{member = false}
+}
+  )
+      return member;
+}*/
 
 onMounted(() => {
   Get('/users/' + loggedUser.value.id + '/channels/member').then(res => channels.value = res.data);
+  Get('/channels').then(res => allChannels.value = res.data);
   console.log("loggedUser", loggedUser.value)
   socket.emit('createConnection', loggedUser.value);
   console.log("LoggedUser => ", loggedUser.value)
   //Get(baseUrl).then(res => (messages.value = res.data));
 });
+
+const btn_channels = ref('Channels')
+const btn_all_channels = ref('All Channels')
+const display = ref(true) 
 
 </script>
 
@@ -94,12 +182,26 @@ onMounted(() => {
   <div class="container-fluid chat">
 
     <div class="chatMenu">
-      <div class="chatMenuWrapper">Channels
+      <div class="chatMenuWrapper">
+        <ButtonChannel @clic="() => displayMyChannels()" @displayMsg="(item) => displayMessages(item)" :display="display" :text="btn_channels" />
+        <ButtonChannel @clic="() => displayAllChannels()" :display="!display" :text="btn_all_channels" />
+       <!-- <button @click="displayMyChannels" type="button" class="btn btn-secondary send">Channels</button>
+        <button @click="displayAllChannels" type="button" class="btn btn-secondary send">All channels</button>
         <div v-if="channels" id="chatMenu">
-          <ul v-for="item in channels" :key="item.id" class="list-group">
-          <button @click="displayMessages(item.id)" type="button" class="btn btn-secondary btn-channel"> {{item.name}} </button>
+          <ul v-for="item of channels" :key="item.id" class="list-group">-->
+            <!--<div v-if="isMember">Ici : {{isMember}}
+              <button  @click="displayMessages(item)" type="button" class="btn btn-secondary btn-channel"> {{item.name}} </button>
+            </div>
+            <div v-else>La : {{isMember}}
+              <button type="button" class="btn btn-secondary btn-channel">
+              {{item.name}}  <span class="badge bg-dark">Join</span>
+              </button>-->
+
+              <!--<button type="button" class="btn btn-secondary btn-channel"> {{item.name}} </button>
+            </div>-->
+          <!--<button v-else  type="button" class="btn btn-secondary btn-channel"> {{item.name}} </button>
           </ul>
-        </div>
+        </div>-->
         <div>
           <form @submit.prevent.trim.lazy="handleSubmitNewChannel" method="POST" class="form">
             <input v-model="input.create_channel" type="text" class="input"/>
@@ -113,6 +215,7 @@ onMounted(() => {
 
     <div class="chatBox">
       <div class="chatBoxWrapper">{{channel?.name ? channel.name : "Message"}}
+      <!--<div v-if="member">-->
         <div v-if="channel != undefined">
           <div v-if="messages" class="scroller">
             <ul id="msg" v-for="item in messages" :key="item.id">
@@ -124,7 +227,8 @@ onMounted(() => {
             <input type="submit" value="Send" class="send"/>
           </form>
         </div>
-       </div>
+      <!--</div>-->
+      </div>
     </div>
 
     <span class="vertical-line"></span>
