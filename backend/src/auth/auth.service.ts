@@ -7,6 +7,7 @@ import { PassportSerializer } from '@nestjs/passport';
 import { Done } from './auth.interface';
 import { UsersService } from 'src/api/users/users.service';
 import { CreateUserDTO } from 'src/api/users/dto/create-user.dto';
+import { FilterUserDTO } from 'src/api/users/dto/filter-user.dto';
 
 /**
  * Create a new student user if not found in database
@@ -37,6 +38,17 @@ export class AuthService implements AuthenticationProvider {
 
     if (user) return user;
     return await this.createUser(details);
+  }
+
+  async validateUserLocal(username: string, password: string) {
+    const filter: FilterUserDTO = { username: username };
+    const [user] = await this.usersService.getUsersByFilter(filter);
+
+    if (user && user.password === password) {
+      const { password, ...rest } = user;
+      return rest;
+    }
+    return null;
   }
 
   createUser(details: CreateUserDTO) {

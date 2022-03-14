@@ -47,7 +47,6 @@ if (process.env.ENVIRONMENT === 'PRODUCTION') {
     MessagesModule,
     ChannelsModule,
     AuthModule,
-    PassportModule.register({ session: true }),
   ],
   controllers: [AppController],
   providers: [AppService],

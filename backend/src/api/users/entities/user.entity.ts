@@ -22,10 +22,13 @@ class User {
   @Column({ unique: true })
   public username: string;
 
-  @Column({ nullable: true, unique: true })
+  @Column({ nullable: true, select: false })
+  public password: string;
+
+  @Column({ nullable: true, unique: true, select: false })
   public student_id: string;
 
-  @Column({ nullable: true, unique: true })
+  @Column({ nullable: true, unique: true, select: false })
   public github_id: string;
 
   @Column({ nullable: true })
