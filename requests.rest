@@ -106,6 +106,15 @@ Content-Type: {{contentType}}
 
 ###
 
+PATCH http://{{host}}/channels/1
+Content-Type: {{contentType}}
+
+{
+    "addAdmins": [{"id": 1}, {"id": 2}]
+}
+
+###
+
 DELETE http://{{host}}/channels/1
 
 ###

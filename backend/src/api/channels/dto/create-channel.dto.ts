@@ -28,6 +28,7 @@ export class CreateChannelDTO {
   readonly owner: User;
 
   @IsArray()
+  @IsNotEmpty()
   @IsOptional()
   readonly admins: User[];
 
@@ -37,10 +38,12 @@ export class CreateChannelDTO {
   readonly members: User[];
 
   @IsArray()
+  @IsNotEmpty()
   @IsOptional()
   readonly mutes: User[];
 
   @IsArray()
+  @IsNotEmpty()
   @IsOptional()
   readonly bans: User[];
 }
