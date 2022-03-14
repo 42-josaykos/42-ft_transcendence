@@ -13,7 +13,7 @@ class Message {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @ManyToOne((type) => User, (user) => user.id)
+  @ManyToOne((type) => User, (user) => user.messages)
   public author: User;
 
   @ManyToOne((type) => Channel, (channel) => channel.messages, {

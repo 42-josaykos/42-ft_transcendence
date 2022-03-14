@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateChannelDTO } from './dto/create-channel.dto';
@@ -122,29 +126,65 @@ export class ChannelsService {
     }
   }
 
-  async createChannel(channel: CreateChannelDTO): Promise<Channel> {
-    const newChannel = this.channelsRepository.create(channel);
-    const owner = await this.usersRepository.findOne({
-      where: newChannel.owner,
-    });
-
-    if (!owner)
-      throw new NotFoundException(
+  async validateChannel(newChannel: Channel): Promise<void> {
+    // Checking if owner exists
+    if ((await this.usersRepository.count(newChannel.owner)) === 0)
+      throw new ForbiddenException(
         "Can't create channel (owner does not exists)",
       );
-    else {
+    // Checking if all admins exist
+    if (newChannel.admins) {
+      for (const admin of newChannel.admins) {
+        if ((await this.usersRepository.count(admin)) === 0)
+          throw new ForbiddenException(
+            "Can't create channel (admin does not exists)",
+          );
+      }
+    }
+    // Checking if all members exist
+    for (const member of newChannel.members) {
+      if ((await this.usersRepository.count(member)) === 0)
+        throw new ForbiddenException(
+          "Can't create channel (member does not exists)",
+        );
+    }
+    // Checking if all mutes exist
+    if (newChannel.mutes) {
+      for (const mute of newChannel.mutes) {
+        if ((await this.usersRepository.count(mute)) === 0)
+          throw new ForbiddenException(
+            "Can't create channel (muted member does not exists)",
+          );
+      }
+    }
+    // Checking if all bans exist
+    if (newChannel.bans) {
+      for (const ban of newChannel.bans) {
+        if ((await this.usersRepository.count(ban)) === 0)
+          throw new ForbiddenException(
+            "Can't create channel (baned member does not exists)",
+          );
+      }
+    }
+  }
+
+  async createChannel(channel: CreateChannelDTO): Promise<Channel> {
+    try {
+      const newChannel = this.channelsRepository.create(channel);
+      await this.validateChannel(newChannel);
       await this.channelsRepository.save(newChannel);
       return newChannel;
+    } catch (error) {
+      throw error;
     }
   }
 
   async deleteChannel(channelID: number): Promise<void> {
-    const channel = await this.channelsRepository.findOne({
-      where: { id: channelID },
-      relations: ['messages', 'owner', 'admins', 'members', 'mutes', 'bans'],
-    });
-    if (!channel)
-      throw new NotFoundException('Channel not found (id incorrect)');
-    else await this.channelsRepository.remove(channel);
+    try {
+      const channel = await this.getChannelByID(channelID);
+      await this.channelsRepository.remove(channel);
+    } catch (error) {
+      throw error;
+    }
   }
 }

@@ -34,6 +34,7 @@ export class UsersService {
         'stats',
         // Below: For DEBUG, may remove later
         'messages',
+        'messages.channel',
         'playedMatches',
         'winMatches',
         'ownerChannels',
@@ -51,6 +52,7 @@ export class UsersService {
     relations: string[] = [
       'stats',
       'messages',
+      'messages.channel',
       'playedMatches',
       'winMatches',
       'ownerChannels',
@@ -100,7 +102,10 @@ export class UsersService {
     const count = await this.usersRepository.count({
       where: { username: user.username },
     });
-    if (count > 0) throw new ForbiddenException('Username must be unique');
+    if (count > 0)
+      throw new ForbiddenException(
+        "Can't create new User (username must be unique)",
+      );
 
     // Creating and new user and it's stats
     const newUser = this.usersRepository.create(user);
@@ -115,7 +120,7 @@ export class UsersService {
     const user = await this.usersRepository.findOne({
       where: { id: userID },
     });
-    if (!user) return this.createUser(updatedUser);
+    if (!user) throw new NotFoundException('User not found (id incorrect)');
     else await this.usersRepository.update(userID, updatedUser);
 
     return await this.getUserByID(userID);

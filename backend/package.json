@@ -55,6 +55,7 @@
     "@types/express-session": "^1.17.4",
     "@types/jest": "27.0.2",
     "@types/node": "^16.0.0",
+    "@types/passport-github2": "^1.2.5",
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",

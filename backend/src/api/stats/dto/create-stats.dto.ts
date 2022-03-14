@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDecimal, IsDefined, IsInt, IsNotEmpty } from 'class-validator';
-import { Double } from 'typeorm';
-import User from '../../users/entities/user.entity';
+import User from 'src/api/users/entities/user.entity';
 
 export class CreateStatsDTO {
   @IsNotEmpty()

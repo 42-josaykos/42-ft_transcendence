@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { getRepository, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import Match from './entities/matches.entity';
@@ -87,6 +91,14 @@ export class MatchesService {
   }
 
   async createMatch(match: CreateMatchDTO): Promise<Match> {
+    if ((await this.usersRepository.count(match.players[0])) === 0)
+      throw new ForbiddenException(
+        "Can't create match (playerOne does not exists)",
+      );
+    if ((await this.usersRepository.count(match.players[1])) === 0)
+      throw new ForbiddenException(
+        "Can't create match (playerTwo does not exists)",
+      );
     const newMatch = this.matchesRepository.create(match);
 
     // Deciding winner if no 'winner' key in body
@@ -104,17 +116,34 @@ export class MatchesService {
     matchID: number,
     updatedMatch: UpdateMatchDTO,
   ): Promise<Match> {
-    const match = await this.matchesRepository.findOne({
-      where: { id: matchID },
-    });
-    if (!match) throw new NotFoundException('Match not found (id incorrect)');
-    else {
+    try {
+      const match = await this.getMatchByID(matchID);
       //Checking what is updated
-      if (updatedMatch.players) match.players = updatedMatch.players;
+      if (updatedMatch.players) {
+        if ((await this.usersRepository.count(updatedMatch.players[0])) == 0)
+          throw new ForbiddenException(
+            "Can't update match (playerOne does not exists)",
+          );
+        else if (
+          (await this.usersRepository.count(updatedMatch.players[1])) == 0
+        )
+          throw new ForbiddenException(
+            "Can't update match (playerTwo does not exists)",
+          );
+        else match.players = updatedMatch.players;
+      }
       if (updatedMatch.score) match.score = updatedMatch.score;
-      if (updatedMatch.winner) match.winner = updatedMatch.winner;
+      if (updatedMatch.winner) {
+        if ((await this.usersRepository.count(updatedMatch.winner)) == 0)
+          throw new ForbiddenException(
+            "Can't update match (winner does not exists)",
+          );
+        match.winner = updatedMatch.winner;
+      }
       await this.matchesRepository.save(match);
-      return await this.getMatchByID(matchID);
+      return match;
+    } catch (error) {
+      throw error;
     }
   }
 
