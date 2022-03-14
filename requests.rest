@@ -99,7 +99,7 @@ Content-Type: {{contentType}}
 {
     "name": "Channel1",
     "owner": {"id": 1},
-    "admins": [{"id": 1}, {"id": 2}],
+    "admins": [{"id": 1}, {"id": 2},],
     "members": [{"id": 1}, {"id": 3}, {"id": 4}],
     "mutes": [{"id": 4}]
 }
@@ -110,7 +110,9 @@ PATCH http://{{host}}/channels/1
 Content-Type: {{contentType}}
 
 {
-    "addAdmins": [{"id": 1}, {"id": 2}]
+    "addAdmins": [{"id": 1}, {"id": 2}, {"id": 3}],
+    "addBans": [{"id": 1}, {"id": 2}, {"id": 3}],
+    "addMembers": [{"id": 1}, {"id": 2}, {"id": 3}]
 }
 
 ###

@@ -220,8 +220,8 @@ export class ChannelsService {
   }
 
   async removeUsersFromArray(toRemove: User[], array: User[]) {
-    array = array.filter((admin) =>
-      toRemove.findIndex((remove) => remove.id !== admin.id),
+    array = array.filter(
+      (user) => !toRemove.find((remove) => remove.id === user.id),
     );
     return array;
   }
