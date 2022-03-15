@@ -69,9 +69,6 @@ function loginLocal() {
         </a>
       </div>
     </div>
-    <div v-else>
-      <a class="btn btn-danger" href="/auth/logout">Logout</a>
-    </div>
   </div>
 </template>
 
