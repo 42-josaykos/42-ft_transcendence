@@ -56,7 +56,7 @@ function loginLocal() {
         <button class="btn btn-lg btn-primary btn-block my-2" type="submit">
           Login
         </button>
-        <div>Doesn't have an account ?</div>
+        <div>Don't have an account ?</div>
         <router-link to="/register">Register</router-link>
       </form>
       <hr />
