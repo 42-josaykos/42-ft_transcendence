@@ -12,7 +12,6 @@ import { MatchesModule } from './api/matches/matches.module';
 import { StatsModule } from './api/stats/stats.module';
 import { ChannelsModule } from './api/channels/channels.module';
 import { AuthModule } from './auth/auth.module';
-import { PassportModule } from '@nestjs/passport';
 
 const envSchema = Joi.object({
   POSTGRES_HOST: Joi.string().required(),
