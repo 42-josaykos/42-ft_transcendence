@@ -14,7 +14,6 @@ import {
 import { ChannelsService } from 'src/api/channels/channels.service';
 import { UsersService } from 'src/api/users/users.service';
 import { UpdateUserDTO } from 'src/api/users/dto/update-user.dto';
-import { Request } from 'express';
  
  @WebSocketGateway({  //donne accès à la fonctionnalité socket.io
    cors: {
@@ -46,7 +45,11 @@ import { Request } from 'express';
    const members = await this.channelsService.getChannelMembers(channel.id);
    for (const member of members)
     this.server.to(member.socketID).emit('msgToClient', message);
-   //this.server.emit('msgToClient', message); // on envoit les données à tous les clients connectés au serveur
+  }
+
+  @SubscribeMessage('channelToServer') // permet d'écouter l'évènement "msgToServer"
+  async handleChannel(client: Socket, channel: Channel) {
+   this.server.emit('channelToClient', channel); // on envoit les données à tous les clients connectés au serveur
   }
  
   afterInit(server: Server) {

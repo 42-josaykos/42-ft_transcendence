@@ -12,5 +12,5 @@ export interface Channel {
     members: User[];
     mutes: User[];
     bans: User[];
-    
+    isMember: boolean;
 }

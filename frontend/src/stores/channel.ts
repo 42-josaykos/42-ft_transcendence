@@ -1,23 +1,46 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import type { Channel } from '@/models/channel.model';
-import type { Message } from '@/models/message.model';
+//import type { Message } from '@/models/message.model';
 import type { Input } from './input';
 
 export const useChannelStore = defineStore('channel', () => {
     const allChannels = ref<Channel[]>([]);
     const channels = ref<Channel[]>([]);
     const channel = ref<Channel>();
+    const channelsJoin = ref<boolean>();
 
-    const createChannel = async (newChannel: Channel) => {
-        channels.value.push(newChannel);
-        allChannels.value.push(newChannel);
+    const createChannel = (newChannel: Channel) => {
+      allChannels.value.push(newChannel);
     }
 
-    const addMessage = (id: number, newMessage: Message) => {
-         channels.value[id - 1].messages.push(newMessage);
-         allChannels.value[id - 1].messages.push(newMessage);
-    } 
+    const joinChannel = (newChannel: Channel) => {
+      newChannel.isMember = true;
+      channels.value.push(newChannel);
+    }
+
+    const updateMember = () => {
+      for (const chan of allChannels.value) {
+        const index =  channels.value.findIndex((el: Channel) => el.id === chan.id);
+        if (index != -1) {
+          chan.isMember = true;
+        }
+        else {
+          chan.isMember = false;
+        }
+      }
+    }
+
+    /*const addMessage = (id: number, newMessage: Message) => {
+      let index = channels.value.findIndex((el: Channel) => el.id === id);
+      if (index != -1) {
+         channels.value[index].messages.push(newMessage);
+      }
+      index = allChannels.value.findIndex((el: Channel) => el.id === id);
+      if (index != -1) {
+         allChannels.value[index].messages.push(newMessage);
+      }
+    }*/ 
 
     const getChannelByID = (id: number): Channel => {
       const index = channels.value.findIndex(
@@ -68,8 +91,11 @@ export const useChannelStore = defineStore('channel', () => {
         allChannels,
         channels,
         channel,
+        channelsJoin,
         createChannel,
-        addMessage,
+        joinChannel,
+        updateMember,
+       // addMessage,
         getChannelByID,
         deleteChannel,
         updateChannel,
