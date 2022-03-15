@@ -6,11 +6,8 @@ import {
   Param,
   Post,
   Patch,
-  Put,
   Query,
-  Res,
   Redirect,
-  HttpCode,
   HttpStatus,
   ParseIntPipe,
 } from '@nestjs/common';

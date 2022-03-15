@@ -43,6 +43,7 @@ export class AuthService implements AuthenticationProvider {
   async validateUserLocal(username: string, password: string) {
     const filter: FilterUserDTO = { username: username };
     const [user] = await this.usersService.getUsersByFilter(filter);
+    console.log('filer User:', user);
 
     if (user && user.password === password) {
       const { password, ...rest } = user;

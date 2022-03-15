@@ -6,8 +6,6 @@ import {
   OneToOne,
   ManyToMany,
   PrimaryGeneratedColumn,
-  JoinTable,
-  JoinColumn,
 } from 'typeorm';
 import Stats from 'src/api/stats/entities/stats.entity';
 import Message from 'src/api/messages/entities/message.entity';
@@ -22,13 +20,13 @@ class User {
   @Column({ unique: true })
   public username: string;
 
-  @Column({ nullable: true, select: false })
+  @Column({ nullable: true })
   public password: string;
 
-  @Column({ nullable: true, unique: true, select: false })
+  @Column({ nullable: true, unique: true })
   public student_id: string;
 
-  @Column({ nullable: true, unique: true, select: false })
+  @Column({ nullable: true, unique: true })
   public github_id: string;
 
   @Column({ nullable: true })

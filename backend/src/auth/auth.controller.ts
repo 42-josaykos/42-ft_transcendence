@@ -44,14 +44,14 @@ export class AuthController {
    */
   @Get('redirect')
   @Redirect('/')
-  @UseGuards(AuthenticatedGuard)
+  @UseGuards(FortyTwoAuthGuard)
   async redirect() {
     return;
   }
 
   @Get('redirect/github')
   @Redirect('/')
-  @UseGuards(AuthenticatedGuard)
+  @UseGuards(GithubGuard)
   async redirectGithub() {
     return;
   }
