@@ -5,7 +5,6 @@ import {
   Redirect,
   Req,
   UseGuards,
-  Request,
 } from '@nestjs/common';
 import {
   AuthenticatedGuard,
@@ -34,8 +33,8 @@ export class AuthController {
 
   @Post('login/local')
   @UseGuards(LocalAuthGuard)
-  loginLocal() {
-    return { msg: 'logged in!' };
+  loginLocal(@Req() req) {
+    return req.user;
   }
 
   /**
@@ -54,12 +53,6 @@ export class AuthController {
   @UseGuards(GithubGuard)
   async redirectGithub() {
     return;
-  }
-
-  @Get('redirect/local')
-  @UseGuards(AuthenticatedGuard)
-  redirectLocal(@Request() req): string {
-    return req.user;
   }
 
   /**
