@@ -1,16 +1,20 @@
 {
   "users": [
     {
-      "id": 4,
-      "username": "user4"
+      "id": 1,
+      "username": "user1"
     },
     {
-      "username": "user5",
-      "id": 5
+      "username": "user2",
+      "id": 2
     },
     {
-      "username": "user7",
-      "id": 7
+      "username": "user3",
+      "id": 3
+    },
+    {
+      "username": "user4",
+      "id": 4
     }
   ],
   "matches": [
@@ -43,6 +47,140 @@
         2,
         19
       ]
+    }
+  ],
+  "channels": [
+    {
+      "id": 1,
+      "name": "channel1",
+      "passeword": "password1",
+      "owner": {
+        "id": 1,
+        "username": "user1"
+      },
+      "messages": [
+        {
+          "author": {
+            "id": 1,
+            "username": "user1"
+          },
+          "data": "message_1",
+          "channel": 1,
+          "id": 1
+        },
+        {
+          "author": {
+            "id": 2,
+            "username": "user2"
+          },
+          "data": "message_2",
+          "channel": 1,
+          "id": 2
+        },
+        {
+          "author": {
+            "id": 1,
+            "username": "user1"
+          },
+          "data": "message_3",
+          "channel": 1,
+          "id": 3
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "channel2",
+      "passeword": "password2",
+      "owner": {
+        "id": 2,
+        "username": "user2"
+      },
+      "messages": [
+        {
+          "author": {
+            "id": 2,
+            "username": "user2"
+          },
+          "data": "message_4",
+          "channel": 2,
+          "id": 4
+        },
+        {
+          "author": {
+            "id": 1,
+            "username": "user1"
+          },
+          "data": "message_5",
+          "channel": 2,
+          "id": 5
+        },
+        {
+          "author": {
+            "id": 2,
+            "username": "user2"
+          },
+          "data": "message_6",
+          "channel": 2,
+          "id": 6
+        }
+      ]
+    }
+  ],
+  "messages": [
+    {
+      "author": {
+        "id": 1,
+        "username": "user1"
+      },
+      "data": "message_1",
+      "id": 1,
+      "channel": 1
+    },
+    {
+      "author": {
+        "id": 2,
+        "username": "user2"
+      },
+      "data": "message_2",
+      "id": 2,
+      "channel": 1
+    },
+    {
+      "author": {
+        "id": 1,
+        "username": "user1"
+      },
+      "data": "message_3",
+      "id": 3,
+      "channel": 1
+    },
+    {
+      "author": {
+        "id": 2,
+        "username": "user2"
+      },
+      "data": "message_4",
+      "id": 4,
+      "channel": 2
+    },
+    {
+      "author": {
+        "id": 1,
+        "username": "user1"
+      },
+      "data": "message_5",
+      "id": 5,
+      "channel": 2
+    },
+    {
+      "author": {
+        "id": 2,
+        "username": "user2"
+      },
+      "data": "message_6",
+      "id": 6,
+      "channel": 2
     }
   ]
 }

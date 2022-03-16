@@ -11,6 +11,7 @@ import * as Joi from 'joi';
 import { MatchesModule } from './api/matches/matches.module';
 import { StatsModule } from './api/stats/stats.module';
 import { ChannelsModule } from './api/channels/channels.module';
+import { ChatGateway } from './gateway/chat.gateway';
 import { AuthModule } from './auth/auth.module';
 
 const envSchema = Joi.object({
@@ -48,6 +49,6 @@ if (process.env.ENVIRONMENT === 'PRODUCTION') {
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ChatGateway],
 })
 export class AppModule {}

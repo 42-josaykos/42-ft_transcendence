@@ -19,5 +19,6 @@ import Stats from 'src/api/stats/entities/stats.entity';
   ],
   controllers: [UsersController, StatsRedirection, MessagesRedirection],
   providers: [UsersService],
+  exports: [UsersService]
 })
 export class UsersModule {}
