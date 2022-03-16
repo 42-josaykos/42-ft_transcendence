@@ -9,6 +9,11 @@ export class CreateUserDTO {
   @IsString()
   @IsNotEmpty()
   @IsOptional()
+  readonly password?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
   readonly student_id?: string;
 
   @IsString()

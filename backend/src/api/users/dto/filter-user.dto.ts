@@ -5,10 +5,10 @@ export class FilterUserDTO {
   @ApiProperty({ required: false })
   @IsNumberString()
   @IsOptional()
-  readonly id: number;
+  readonly id?: number;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  readonly username: string;
+  readonly username?: string;
 }

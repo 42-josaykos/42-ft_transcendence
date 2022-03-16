@@ -43,9 +43,9 @@ async function bootstrap() {
   const sessionRepo = getRepository(TypeORMSession);
   api.use(
     session({
-      secret: 'oihgwoihreuewhvevrek',
+      secret: 'oihgwoihreuewhvevrek', // We need to put this in an ENV
       cookie: {
-        maxAge: 86400000,
+        maxAge: 3600000,
       },
       resave: false,
       saveUninitialized: false,

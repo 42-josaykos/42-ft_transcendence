@@ -8,6 +8,7 @@ import Chat from '@/components/Chat.vue';
 import { useUserStore } from '@/stores/user';
 import { Get } from '@/services/requests';
 import { storeToRefs } from 'pinia';
+import Register from '@/components/Register.vue';
 
 const routes = [
   {
@@ -30,6 +31,11 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: Register
   },
   {
     path: '/chat',
