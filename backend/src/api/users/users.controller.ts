@@ -130,31 +130,31 @@ export class UsersController {
 export class StatsRedirection {
   @Get()
   @Redirect('/stats', HttpStatus.SEE_OTHER)
-  async getStats(@Param('id', ParseIntPipe) userID: number) {
+  async getStats(@Param('userID', ParseIntPipe) userID: number) {
     return { url: `/stats/${userID}` };
   }
 
   @Get('/played')
   @Redirect('/stats', HttpStatus.SEE_OTHER)
-  async getStatPlayed(@Param('id', ParseIntPipe) userID: number) {
+  async getStatPlayed(@Param('userID', ParseIntPipe) userID: number) {
     return { url: `/stats/${userID}/played` };
   }
 
   @Get('/win')
   @Redirect('/stats', HttpStatus.SEE_OTHER)
-  async getStatWin(@Param('id', ParseIntPipe) userID: number) {
+  async getStatWin(@Param('userID', ParseIntPipe) userID: number) {
     return { url: `/stats/${userID}/win` };
   }
 
   @Get('/lose')
   @Redirect('/stats', HttpStatus.SEE_OTHER)
-  async getStatLose(@Param('id', ParseIntPipe) userID: number) {
+  async getStatLose(@Param('userID', ParseIntPipe) userID: number) {
     return { url: `/stats/${userID}/lose` };
   }
 
   @Get('/ratio')
   @Redirect('/stats', HttpStatus.SEE_OTHER)
-  async getStatRatio(@Param('id', ParseIntPipe) userID: number) {
+  async getStatRatio(@Param('userID', ParseIntPipe) userID: number) {
     return { url: `/stats/${userID}/ratio` };
   }
 }
