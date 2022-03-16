@@ -86,6 +86,7 @@ const handleSubmitNewChannel = () => {
   {
       const newChannel = {
           name: input.value.create_channel,
+          isPrivate: input.value.is_private,
           owner: { id: loggedUser.value?.id },
           members: [{ id: loggedUser.value?.id }],
       };
@@ -115,40 +116,48 @@ socket.on('channelToClient', (newChannel: Channel) => {
 <template>
   <h2>Chat</h2>
   <div class="container-fluid chat">
-
     <div class="chatMenu">
       <div class="chatMenuWrapper">
         <button @click="channelsJoin = true" type="button" class="btn btn-secondary send">Channels</button>
         <button @click="channelsJoin = false, channelStore.updateMember()" type="button" class="btn btn-secondary send">All Channels</button>
         <div v-if="channelsJoin">
-          <div v-if="channels" id="chatMenu">
+          <div v-if="channels">
             <ul v-for="(item, index) in channels" :key="index" class="list-group">
               <button @click="displayMessages(item)" type="button" class="btn btn-secondary btn-channel"> {{item.name}} </button>
             </ul>
           </div>
         </div>
         <div v-else>
-          <div v-if="allChannels" id="chatMenu">
+          <div v-if="allChannels">
             <ul v-for="(item, index) in  allChannels" :key="index" class="list-group">
                 <div>{{item.isMember}}</div>
                 <div v-if="item.isMember">
-                  <button @click="displayMessages(item)" type="button" class="btn btn-secondary btn-channel"> {{item.name}} 
-                    <span class="badge bg-dark">Leave</span>
+                  <button @click="displayMessages(item)" type="button" class="btn btn-secondary btn-channel">
+                    <span v-if="item.isPrivate" class="badge bg-success">P</span>
+                    {{item.name}} 
+                    <span class="badge bg-danger">Leave</span>
                   </button>
                 </div>
                 <div v-else>
-                  <button type="button" class="btn btn-secondary btn-channel"> {{item.name}}
-                    <span class="badge bg-dark">Join</span>
+                  <button type="button" class="btn btn-secondary btn-channel">
+                    <span v-if="item.isPrivate" class="badge bg-success">P</span>
+                    {{item.name}} 
+                    <span class="badge bg-primary">Join</span>
                   </button>
                 </div>
             </ul>
           </div>
         </div>
         <div>
-          <form @submit.prevent.trim.lazy="handleSubmitNewChannel" method="POST" class="form">
+          <!--<form @submit.prevent.trim.lazy="handleSubmitNewChannel" method="POST" class="form">
             <input v-model="input.create_channel" type="text" class="input"/>
             <input type="submit" value="Create" class="send"/>
-          </form>
+          </form>-->
+          <!-- Button trigger modal -->
+          <button type="button" class="send" data-bs-toggle="modal" data-bs-target="#newChannel">
+            New Channel
+          </button>
+
         </div>
       </div>
     </div>
@@ -180,6 +189,43 @@ socket.on('channelToClient', (newChannel: Channel) => {
         <input type="text" placeholder="search for friends" class="chatFriendsInput" />
       </div>
     </div>
+
+          <!-- Modal -->
+          <div class="modal fade modal-dialog-scrollable" id="newChannel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="staticBackdropLabel">New Channel</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  
+                  <div class="form form-new-channel">
+                    <label for="name">Channel name:</label>
+                    <input v-model="input.create_channel" type="text" class="input"/>
+                  </div>
+
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" @click="input.is_private = !input.is_private">
+                    <label class="form-check-label" for="flexSwitchCheckChecked">{{input.is_private ? "Private channel" : "Public channel"}}</label>
+                  </div>
+
+                  <div class="form form-new-channel">
+                    <label for="name">Password:</label>
+                    <input v-model="input.password" type="text" class="input"/>
+                  </div>
+
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                  <button @click="handleSubmitNewChannel" type="submit" class="btn btn-primary" data-bs-dismiss="modal">Create</button>
+                </div>
+              </div>
+            </div>
+            </div>
+
+
   </div>
 </template>
 
@@ -250,6 +296,14 @@ socket.on('channelToClient', (newChannel: Channel) => {
   height: 3rem;
   box-sizing: border-box;
   backdrop-filter: blur(10px);
+
+}
+
+.form-new-channel {
+  color: #fff;
+  background-color: #6c757d;
+  border-color: #6c757d;
+  align-items: center;
 }
 
 .input {
