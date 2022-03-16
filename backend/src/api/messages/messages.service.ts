@@ -77,14 +77,14 @@ export class MessagesService {
       .orderBy('messages.id', 'DESC');
 
     if (filter.authorName)
-      query.andWhere('author.username = :author', {
-        author: filter.authorName,
+      query.andWhere('author.username = :authorName', {
+        authorName: filter.authorName,
       });
     if (filter.authorID)
       query.andWhere('author.id = :authorID', { authorID: filter.authorID });
     if (filter.channelName)
-      query.andWhere('channel.name = :channel', {
-        channel: filter.channelName,
+      query.andWhere('channel.name = :channelName', {
+        channelName: filter.channelName,
       });
     if (filter.channelID)
       query.andWhere('channel.id = :channelID', {

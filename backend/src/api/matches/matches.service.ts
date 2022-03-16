@@ -10,6 +10,7 @@ import User from '../users/entities/user.entity';
 import { CreateMatchDTO } from './dto/create-match.dto';
 import { UpdateMatchDTO } from './dto/update-match.dto';
 import { channel } from 'diagnostics_channel';
+import { FilterMatchDTO } from './dto/filter-match.dto';
 
 @Injectable()
 export class MatchesService {
@@ -89,6 +90,53 @@ export class MatchesService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async getMatchesByFilter(filter: FilterMatchDTO): Promise<Match[]> {
+    const query = this.matchesRepository
+      .createQueryBuilder('matches')
+      .leftJoinAndSelect('matches.players', 'players')
+      .leftJoinAndSelect('matches.winner', 'winner')
+      .orderBy('matches.id', 'DESC');
+
+    if (filter.playerOneID)
+      query.andWhere('players[0].id = :playerOneID', {
+        playerOneID: filter.playerOneID,
+      });
+    if (filter.playerOneName)
+      query.andWhere('players[0].username = :playerOneName', {
+        playerOneName: filter.playerOneName,
+      });
+    if (filter.playerTwoID)
+      query.andWhere('players[1].id = :playerTwoID', {
+        playerTwoID: filter.playerTwoID,
+      });
+    if (filter.playerTwoName)
+      query.andWhere('players[1].username = :playerTwoName', {
+        playerTwoName: filter.playerTwoName,
+      });
+    if (filter.playerOneScore)
+      query.andWhere('score[0] = :playerOneScore', {
+        playerOneScore: filter.playerOneScore,
+      });
+    if (filter.playerTwoScore)
+      query.andWhere('score[1] = :playerTwoScore', {
+        playerTwoScore: filter.playerTwoScore,
+      });
+    if (filter.winnerID)
+      query.andWhere('winner.id = :winnerID', {
+        winnerID: filter.winnerID,
+      });
+    if (filter.winnerName)
+      query.andWhere('winner.username = :winnerName', {
+        winnerName: filter.winnerName,
+      });
+
+    const matches = await query.getMany();
+    if (!matches.length)
+      throw new NotFoundException('Matches not found (filter incorrect)');
+
+    return matches;
   }
 
   async createMatch(match: CreateMatchDTO): Promise<Match> {
