@@ -68,7 +68,7 @@ POST http://{{host}}/messages
 Content-Type: {{contentType}}
 
 {
-    "author": {"id": 1},
+    "author": {"username": "lchapren"},
     "channel": {"id": 1},
     "data": "Bouh!"
 }
@@ -79,8 +79,7 @@ PATCH http://{{host}}/messages/1
 Content-Type: {{contentType}}
 
 {
-    "author": {"id": 1},
-    "data": "Bouh Me!!"
+    "author": {"username": "josyako"}
 }
 
 ###
@@ -97,11 +96,9 @@ POST http://{{host}}/channels
 Content-Type: {{contentType}}
 
 {
-    "name": "Channel1",
+    "name": "Channel2",
     "owner": {"id": 1},
-    "admins": [{"id": 1}, {"id": 2},],
-    "members": [{"id": 1}, {"id": 3}, {"id": 4}],
-    "mutes": [{"id": 4}]
+    "members": [{"id": 1}]
 }
 
 ###
@@ -110,9 +107,9 @@ PATCH http://{{host}}/channels/1
 Content-Type: {{contentType}}
 
 {
-    "addAdmins": [{"id": 1}, {"id": 2}, {"id": 3}],
-    "addBans": [{"id": 1}, {"id": 2}, {"id": 3}],
-    "addMembers": [{"id": 1}, {"id": 2}, {"id": 3}]
+    "addMembers": [{"username": "lchapren"}],
+    "removeAdmins": [{"id": 1}, {"id": 2}, {"id": 3}],
+    "addAdmins": [{"id": 1}, {"id": 2}, {"id": 3}]
 }
 
 ###
