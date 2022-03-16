@@ -50,7 +50,7 @@ export const useInputStore = defineStore('input', {
         update_p2: '',
         update_s1: '',
         update_s2: '',
-        is_private: false,
+        is_private: true,
         password: ''
       } as Input
     } as InputStore;
