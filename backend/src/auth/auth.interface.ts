@@ -4,6 +4,7 @@ import User from 'src/api/users/entities/user.entity';
 export interface AuthenticationProvider {
   validateUser(details: CreateUserDTO);
   validateUserGithub(details: CreateUserDTO);
+  validateUserLocal(username: string, plainPassword: string);
   createUser(details: CreateUserDTO);
   findUser(id: number): Promise<User | undefined>;
 }

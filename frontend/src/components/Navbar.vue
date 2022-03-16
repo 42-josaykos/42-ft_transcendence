@@ -69,15 +69,22 @@ defineProps<{
             </router-link>
           </li>
         </ul>
-        <router-link class="nav-link" to="/login">
+        <router-link v-if="!isAuthenticated" class="nav-link" to="/login">
           <HomeItem>
             <template #icon>
               <LoginIcon />
             </template>
-            <template v-if="!isAuthenticated" #heading>Login</template>
-            <template v-else #heading>Logout</template>
+            <template #heading>Login</template>
           </HomeItem>
         </router-link>
+        <a v-else class="nav-link" href="auth/logout">
+          <HomeItem>
+            <template #icon>
+              <LoginIcon />
+            </template>
+            <template #heading>Logout</template>
+          </HomeItem>
+        </a>
       </div>
     </div>
   </nav>
