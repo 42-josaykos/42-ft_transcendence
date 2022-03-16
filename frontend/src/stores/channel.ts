@@ -3,6 +3,7 @@ import { ref } from "vue";
 import type { Channel } from '@/models/channel.model';
 //import type { Message } from '@/models/message.model';
 import type { Input } from './input';
+import type { User } from "@/models/user.model";
 
 export const useChannelStore = defineStore('channel', () => {
     const allChannels = ref<Channel[]>([]);
@@ -17,6 +18,11 @@ export const useChannelStore = defineStore('channel', () => {
     const joinChannel = (newChannel: Channel) => {
       newChannel.isMember = true;
       channels.value.push(newChannel);
+    }
+
+    const leaveChannel = (newChannel: Channel) => {
+      const index = channels.value.findIndex((el: Channel) => el.id === newChannel.id);
+      channels.value.splice(index, 1);
     }
 
     const updateMember = () => {
@@ -77,15 +83,36 @@ export const useChannelStore = defineStore('channel', () => {
         channels.value.splice(index, 1, { ...channels.value[index], ...updatedData });
     }
 
-    const getMemberChannelByID = (channel_item: Channel, userId: number): boolean => {
+    /*const getMemberChannelByID = (channel_item: Channel, userId: number): boolean => {
 
-      const { members} = channel_item;
+      const { members } = channel_item;
       for (const member of members) {
-        if (member.id === userId){
-        return true;}
+        if (member.id === userId) {
+          return true;
+        }
       }
       return false
     }
+
+    const getAdminChannelByID = (channel_item: Channel, user_id: number): boolean => {
+
+      const admins  = channel_item.admins;
+
+      const index = admins.findIndex((el: User) => el.id === user_id);
+      if (index == -1) {
+        return false;
+      }
+      return true;
+    }
+
+    const getOwnerChannelByID = (channel_item: Channel, user_id: number): boolean => {
+
+      const owner = channel_item;
+      if (owner.id === user_id){
+        return true;
+        }
+      return false
+    }*/
 
     return {
         allChannels,
@@ -94,12 +121,15 @@ export const useChannelStore = defineStore('channel', () => {
         channelsJoin,
         createChannel,
         joinChannel,
+        leaveChannel,
         updateMember,
        // addMessage,
         getChannelByID,
         deleteChannel,
         updateChannel,
-        getChannelUpdates,
-        getMemberChannelByID
+        getChannelUpdates
+       // getMemberChannelByID,
+       // getAdminChannelByID,
+       // getOwnerChannelByID
     };
 });

@@ -54,12 +54,12 @@ const displayMessages = (channel_item: Channel) => {
   });
 }
 
-const handleSubmitNewMessage = () => {
+const handleSubmitNewMessage = (channelId: Number) => {
   if (input.value.create !== '') {
     if (channel.value !== undefined) {
       const newMessage = {
           author: loggedUser.value?.id,
-          channel: {id: channel.value.id},
+          channel: {id: channelId},
           data: input.value.create
         };
         Post(baseUrlMsg, newMessage)
@@ -81,6 +81,7 @@ socket.on('msgToClient', (newMessage: Message) => {
 //  CHANNELS
 ///////////////////////
 
+// Créer un nouveau channel
 const handleSubmitNewChannel = () => {
   if (input.value.create_channel !== '')
   {
@@ -89,6 +90,7 @@ const handleSubmitNewChannel = () => {
           //isPrivate: input.value.is_private,
           password: input.value.password != null ? input.value.password : null,
           owner: { id: loggedUser.value?.id },
+          admins: [{ id: loggedUser.value?.id }],
           members: [{ id: loggedUser.value?.id }],
       };
       Post(baseUrlChat, newChannel).then(res => {
@@ -105,6 +107,7 @@ const handleSubmitNewChannel = () => {
   }
 }
 
+// Permet d'attraper l'information qu'un nouveau channel a été créé
 socket.on('channelToClient', (newChannel: Channel) => {
   channelStore.createChannel(newChannel);
   Get('/channels').then(res => {
@@ -113,6 +116,7 @@ socket.on('channelToClient', (newChannel: Channel) => {
   });
 })
 
+// Rejoindre un channel
 const joinChannel = (channel_item: Channel) => {
   const updateChannel = {
     addMembers: [{id: loggedUser.value?.id}]
@@ -123,8 +127,24 @@ const joinChannel = (channel_item: Channel) => {
     messages.value = res.data.messages;
     channelStore.updateMember();
     input.value.create = `${loggedUser.value?.username} has joined the channel.`;
-    handleSubmitNewMessage()
+    handleSubmitNewMessage(channel_item.id)
   })
+}
+
+// Quitter un channel
+const leaveChannel = (channel_item: Channel) => {
+  const updateChannel = {
+    removeMembers: [{id: loggedUser.value?.id}]
+  };
+  Patch(baseUrlChat + '/' + channel_item.id.toString(), updateChannel).then(res => {
+    input.value.create = `${loggedUser.value?.username} has leaved the channel.`;
+    handleSubmitNewMessage(channel_item.id)
+    channelStore.leaveChannel(res.data);
+    channel.value = channel.value?.id === channel_item.id ? undefined : channel.value;
+    messages.value = channel.value?.id === channel_item.id ? [] : messages.value;
+    channelStore.updateMember();
+
+  }) 
 }
 
 </script>
@@ -161,9 +181,10 @@ const joinChannel = (channel_item: Channel) => {
                   <button @click="displayMessages(item)" type="button" class="btn btn-secondary btn-channel">
                     <span v-if="item.isPrivate" class="badge bg-success">P</span>
                     <span v-if="item.password != ''" class="badge bg-warning">Pwd : {{item.password}}</span>
-                    {{item.name}} 
-                    <span class="badge bg-danger">Leave</span>
-                  </button>
+                    {{item.name}}
+                  </button> 
+                  <button type="button" class="btn btn-danger btn-channel" @click="leaveChannel(item)" >Leave</button>
+                  
                 </div>
 
                 <!--Permet de bloquer l'accès aux messages appartenant au channel selectionné si je ne suis pas membre du channel-->
@@ -171,9 +192,10 @@ const joinChannel = (channel_item: Channel) => {
                   <button type="button" class="btn btn-secondary btn-channel">
                     <span v-if="item.isPrivate" class="badge bg-success">P</span>
                     <span v-if="item.password != ''" class="badge bg-warning">Pwd : {{item.password}}</span>
-                    {{item.name}} 
-                    <span class="badge bg-primary" @click="joinChannel(item)" >Join</span>
-                  </button>
+                    {{item.name}}
+                  </button> 
+                  <button type="button" class="btn btn-primary btn-channel" @click="joinChannel(item)" >Join</button>
+
                 </div>
             </ul>
           </div>
@@ -203,7 +225,7 @@ const joinChannel = (channel_item: Channel) => {
           </div>
 
           <!--Permet d'envoyer un nouveau message dans le channel selectionné'-->
-          <form @submit.prevent.trim.lazy="handleSubmitNewMessage" method="POST" class="form">
+          <form @submit.prevent.trim.lazy="handleSubmitNewMessage(channel?.id)" method="POST" class="form">
             <input v-model="input.create" type="text" class="input"/>
             <input type="submit" value="Send" class="send"/>
           </form>
