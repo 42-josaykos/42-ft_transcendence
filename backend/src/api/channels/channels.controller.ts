@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Redirect,
 } from '@nestjs/common';
@@ -15,6 +16,7 @@ import { CreateChannelDTO } from './dto/create-channel.dto';
 import Channel from './entities/channel.entity';
 import User from 'src/api/users/entities/user.entity';
 import Message from 'src/api/messages/entities/message.entity';
+import { UpdateChannelDTO } from './dto/update-channel.dto';
 
 @Controller('channels')
 @ApiTags('channels')
@@ -26,72 +28,72 @@ export class ChannelsController {
     return await this.channelsService.getAllChannels();
   }
 
-  @Get(':id')
+  @Get(':channelID')
   async getChannelByID(
-    @Param('id', ParseIntPipe) channelID: number,
+    @Param('channelID', ParseIntPipe) channelID: number,
   ): Promise<Channel> {
     return await this.channelsService.getChannelByID(channelID);
   }
 
-  @Get(':id/name')
+  @Get(':channelID/name')
   async getChannelName(
-    @Param('id', ParseIntPipe) channelID: number,
+    @Param('channelID', ParseIntPipe) channelID: number,
   ): Promise<string> {
     return await this.channelsService.getChannelName(channelID);
   }
 
-  @Get(':id/privacy')
+  @Get(':channelID/privacy')
   async getChannelPrivacy(
-    @Param('id', ParseIntPipe) channelID: number,
+    @Param('channelID', ParseIntPipe) channelID: number,
   ): Promise<boolean> {
     return await this.channelsService.getChannelPrivacy(channelID);
   }
 
-  @Get(':id/password')
+  @Get(':channelID/password')
   async getChannelPassword(
-    @Param('id', ParseIntPipe) channelID: number,
+    @Param('channelID', ParseIntPipe) channelID: number,
   ): Promise<string> {
     return await this.channelsService.getChannelPassword(channelID);
   }
 
-  @Get(':id/messages')
+  @Get(':channelID/messages')
   async getChannelMessages(
-    @Param('id', ParseIntPipe) channelID: number,
+    @Param('channelID', ParseIntPipe) channelID: number,
   ): Promise<Message[]> {
     return await this.channelsService.getChannelMessages(channelID);
   }
 
-  @Get(':id/owner')
+  @Get(':channelID/owner')
   async getChannelOwner(
-    @Param('id', ParseIntPipe) channelID: number,
+    @Param('channelID', ParseIntPipe) channelID: number,
   ): Promise<User> {
     return await this.channelsService.getChannelOwner(channelID);
   }
 
-  @Get(':id/admins')
+  @Get(':channelID/admins')
   async getChannelAdmins(
-    @Param('id', ParseIntPipe) channelID: number,
+    @Param('channelID', ParseIntPipe) channelID: number,
   ): Promise<User[]> {
     return await this.channelsService.getChannelAdmins(channelID);
   }
 
-  @Get(':id/members')
+  @Get(':channelID/members')
   async getChannelMembers(
-    @Param('id', ParseIntPipe) channelID: number,
+    @Param('channelID', ParseIntPipe) channelID: number,
   ): Promise<User[]> {
     return await this.channelsService.getChannelMembers(channelID);
   }
 
-  @Get(':id/mutes')
+  @Get(':channelID/mutes')
   async getChannelMutes(
-    @Param('id', ParseIntPipe) channelID: number,
+    @Param('channelID', ParseIntPipe) channelID: number,
   ): Promise<User[]> {
     return await this.channelsService.getChannelMutes(channelID);
   }
 
-  @Get(':id/bans')
+  @Get(':channelID/bans')
   async getChannelBans(
-    @Param('id', ParseIntPipe) channelID: number,
+    @Param('channelID', ParseIntPipe) channelID: number,
   ): Promise<User[]> {
     return await this.channelsService.getChannelBans(channelID);
   }
@@ -101,9 +103,17 @@ export class ChannelsController {
     return await this.channelsService.createChannel(channel);
   }
 
-  @Delete(':id')
+  @Patch(':channelID')
+  async updateChannel(
+    @Param('channelID', ParseIntPipe) channelID: number,
+    @Body() updatedChannel: UpdateChannelDTO,
+  ): Promise<Channel> {
+    return await this.channelsService.updateChannel(channelID, updatedChannel);
+  }
+
+  @Delete(':channelID')
   async deleteChannel(
-    @Param('id', ParseIntPipe) channelID: number,
+    @Param('channelID', ParseIntPipe) channelID: number,
   ): Promise<void> {
     return await this.channelsService.deleteChannel(channelID);
   }

@@ -9,12 +9,12 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { CreateStatsDTO } from '../stats/dto/create-stats.dto';
+import { UpdateUserDTO } from './dto/update-user.dto';
 import { FilterUserDTO } from './dto/filter-user.dto';
 import User from './entities/user.entity';
 import Stats from 'src/api/stats/entities/stats.entity';
 import Match from 'src/api/matches/entities/matches.entity';
 import Channel from 'src/api/channels/entities/channel.entity';
-import { UpdateUserDTO } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -113,7 +113,8 @@ export class UsersService {
       const hash = await bcrypt.hash(user.password, 10);
       userData.password = hash;
     }
-    // Creating and new user and it's stats
+
+    // Creating a new user and it's stats
     const newUser = this.usersRepository.create(userData);
     const stats = this.statsRepository.create(new CreateStatsDTO());
     stats.user = newUser;

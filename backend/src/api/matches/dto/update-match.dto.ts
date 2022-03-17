@@ -9,11 +9,15 @@ export class UpdateMatchDTO {
   @IsOptional()
   readonly players: User[];
 
-  // @ApiProperty({ required: false })
-  // readonly playerOne: User;
+  @ApiProperty({ required: false })
+  @IsNotEmpty()
+  @IsOptional()
+  readonly playerOne: User;
 
-  // @ApiProperty({ required: false })
-  // readonly playerTwo: User;
+  @ApiProperty({ required: false })
+  @IsNotEmpty()
+  @IsOptional()
+  readonly playerTwo: User;
 
   @ApiProperty({ required: false })
   @IsArray()
@@ -21,13 +25,17 @@ export class UpdateMatchDTO {
   @IsOptional()
   readonly score: number[];
 
-  // @ApiProperty({ required: false })
-  // @IsInt()
-  // readonly scorePlayerOne: number;
+  @ApiProperty({ required: false })
+  @IsInt()
+  @IsNotEmpty()
+  @IsOptional()
+  readonly scorePlayerOne: number;
 
-  // @ApiProperty({ required: false })
-  // @IsInt()
-  // readonly scorePlayerTwo: number;
+  @ApiProperty({ required: false })
+  @IsInt()
+  @IsNotEmpty()
+  @IsOptional()
+  readonly scorePlayerTwo: number;
 
   @ApiProperty({ required: false })
   @IsNotEmpty()
