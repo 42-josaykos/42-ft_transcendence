@@ -11,47 +11,47 @@ export class FilterMatchDTO {
   @IsNumberString()
   @IsNotEmpty()
   @IsOptional()
-  readonly playerOneID: number;
+  readonly playerOneID?: number;
 
   @ApiProperty({ required: false })
   @IsNumberString()
   @IsNotEmpty()
   @IsOptional()
-  readonly playerTwoID: number;
+  readonly playerTwoID?: number;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsNotEmpty()
   @IsOptional()
-  readonly playerOneName: string;
+  readonly playerOneName?: string;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsNotEmpty()
   @IsOptional()
-  readonly playerTwoName: string;
+  readonly playerTwoName?: string;
 
   @ApiProperty({ required: false })
   @IsNumberString()
   @IsNotEmpty()
   @IsOptional()
-  readonly playerOneScore: number;
+  readonly playerOneScore?: number;
 
   @ApiProperty({ required: false })
   @IsNumberString()
   @IsNotEmpty()
   @IsOptional()
-  readonly playerTwoScore: number;
+  readonly playerTwoScore?: number;
 
   @ApiProperty({ required: false })
   @IsNumberString()
   @IsNotEmpty()
   @IsOptional()
-  readonly winnerID: number;
+  readonly winnerID?: number;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsNotEmpty()
   @IsOptional()
-  readonly winnerName: string;
+  readonly winnerName?: string;
 }

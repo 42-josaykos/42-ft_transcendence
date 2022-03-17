@@ -19,15 +19,15 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(accessToken: string, refreshToken: string, profile: any) {
-    const { id: student_id, username, photos } = profile;
+    const { id: studentID, username, photos } = profile;
     const { value: avatar } = photos[0];
 
     /////////////////////////////////////// DEBUG
     console.log(profile);
-    console.log('Logged User:', student_id, username, avatar);
+    console.log('Logged User:', studentID, username, avatar);
     console.log('Access Token:', accessToken);
     ///////////////////////////////////////////////////////////////////
-    const details: CreateUserDTO = { username, student_id, avatar };
+    const details: CreateUserDTO = { username, studentID, avatar };
 
     return await this.authService.validateUser(details);
   }

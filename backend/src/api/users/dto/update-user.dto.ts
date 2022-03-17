@@ -6,23 +6,17 @@ export class UpdateUserDTO {
   @IsString()
   @IsNotEmpty()
   @IsOptional()
-  readonly username: string;
+  readonly username?: string;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsNotEmpty()
   @IsOptional()
-  readonly student_id: string;
-
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsNotEmpty()
-  @IsOptional()
-  readonly avatar: string;
+  readonly avatar?: string;
 
   @ApiProperty({ required: false, maxLength: 20 })
   @IsString()
   @IsOptional()
   @MaxLength(20)
-  readonly socketID: string;
+  readonly socketID?: string;
 }

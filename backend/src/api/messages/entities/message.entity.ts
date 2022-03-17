@@ -13,7 +13,7 @@ class Message {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @ManyToOne((type) => User, (user) => user.messages)
+  @ManyToOne((type) => User, (user) => user.messages, { onDelete: 'SET NULL' })
   public author: User;
 
   @ManyToOne((type) => Channel, (channel) => channel.messages, {

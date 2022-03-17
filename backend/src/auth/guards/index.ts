@@ -3,7 +3,7 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
 export class FortyTwoAuthGuard extends AuthGuard('42') {
-  async canActivate(context: ExecutionContext): Promise<any> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const activate = (await super.canActivate(context)) as boolean;
     const request = context.switchToHttp().getRequest();
     await super.logIn(request);
@@ -13,7 +13,7 @@ export class FortyTwoAuthGuard extends AuthGuard('42') {
 
 @Injectable()
 export class GithubGuard extends AuthGuard('github') {
-  async canActivate(context: ExecutionContext): Promise<any> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const activate = (await super.canActivate(context)) as boolean;
     const request = context.switchToHttp().getRequest();
     await super.logIn(request);
@@ -23,7 +23,7 @@ export class GithubGuard extends AuthGuard('github') {
 
 @Injectable()
 export class LocalAuthGuard extends AuthGuard('local') {
-  async canActivate(context: ExecutionContext): Promise<any> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const activate = (await super.canActivate(context)) as boolean;
     const request = context.switchToHttp().getRequest();
     await super.logIn(request);

@@ -17,13 +17,13 @@ export class CreateUserDTO {
   @IsString()
   @IsNotEmpty()
   @IsOptional()
-  readonly student_id?: string;
+  readonly studentID?: string;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsNotEmpty()
   @IsOptional()
-  readonly github_id?: string;
+  readonly githubID?: string;
 
   @ApiProperty({ required: false })
   @IsString()
