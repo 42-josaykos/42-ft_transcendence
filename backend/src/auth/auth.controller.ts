@@ -1,5 +1,17 @@
-import { Controller, Get, Redirect, Req, UseGuards } from '@nestjs/common';
-import { AuthenticatedGuard, FortyTwoAuthGuard, GithubGuard } from './guards';
+import {
+  Controller,
+  Get,
+  Post,
+  Redirect,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  AuthenticatedGuard,
+  FortyTwoAuthGuard,
+  GithubGuard,
+  LocalAuthGuard,
+} from './guards';
 
 @Controller('auth')
 export class AuthController {
@@ -19,6 +31,12 @@ export class AuthController {
     return;
   }
 
+  @Post('login/local')
+  @UseGuards(LocalAuthGuard)
+  loginLocal(@Req() req) {
+    return req.user;
+  }
+
   /**
    * GET /auth/redirect
    * This is the redirect URL the OAuth2 provider will call
@@ -36,6 +54,7 @@ export class AuthController {
   async redirectGithub() {
     return;
   }
+
   /**
    * GET /auth/status
    * Retrieve the auth status

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import MatchDebug from './MatchDebug.vue';
 import UserDebug from './UserDebug.vue';
+import ChannelDebug from './ChannelDebug.vue';
 
 import { storeToRefs } from 'pinia';
 import { useInputStore } from '@/stores/input';
@@ -19,6 +20,11 @@ const { input } = storeToRefs(inputStore);
   />
   <MatchDebug
     title="Tests GET requests to backend API => MATCH"
+    :inputStore="inputStore"
+    :input="input"
+  />
+  <ChannelDebug
+    title="Tests GET requests to backend API => CHANNEL"
     :inputStore="inputStore"
     :input="input"
   />

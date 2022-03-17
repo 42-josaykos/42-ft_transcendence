@@ -1,7 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { SwaggerModule, DocumentBuilder, ApiParam } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import * as session from 'express-session';
 import * as passport from 'passport';
@@ -43,9 +43,9 @@ async function bootstrap() {
   const sessionRepo = getRepository(TypeORMSession);
   api.use(
     session({
-      secret: 'oihgwoihreuewhvevrek',
+      secret: 'oihgwoihreuewhvevrek', // We need to put this in an ENV
       cookie: {
-        maxAge: 86400000,
+        maxAge: 3600000,
       },
       resave: false,
       saveUninitialized: false,

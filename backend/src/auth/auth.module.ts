@@ -9,10 +9,13 @@ import { TypeORMSession } from './entities/session.entity';
 import { GithubStrategy } from './strategies/github.strategy';
 import { UsersService } from 'src/api/users/users.service';
 import Stats from 'src/api/stats/entities/stats.entity';
+import { PassportModule } from '@nestjs/passport';
+import { LocalStrategy } from './strategies/local.strategy';
 
 @Module({
   imports: [
     HttpModule,
+    PassportModule.register({ session: true }),
     TypeOrmModule.forFeature([User, Stats, TypeORMSession]),
   ],
   exports: [
@@ -31,6 +34,7 @@ import Stats from 'src/api/stats/entities/stats.entity';
     UsersService,
     FortyTwoStrategy,
     GithubStrategy,
+    LocalStrategy,
     SessionSerializer,
     {
       provide: 'AUTH_SERVICE',

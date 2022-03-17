@@ -1,46 +1,281 @@
 <script setup lang="ts">
- /* import { io } from 'socket.io-client';
-  import { ref } from 'vue';
 
-  const socket = io("http://localhost:3001/chat");
+import { onMounted } from 'vue';
 
-  const message = ref<string>('')
-  //document.getElementById('message');
-  const messages = document.getElementById('messages');
+import { storeToRefs} from 'pinia';
 
-  const handleSubmitNewMessage = () => {
-    console.log("SUBMIT");
-    console.log("Message => ", message)
-    console.log("Message.value => ", message.value)
-    socket.emit('message', { data: message.value })
+import { useUserStore } from '@/stores/user';
+import { useMessageStore } from '@/stores/message';
+import { useChannelStore } from '@/stores/channel';
+import { useInputStore } from '@/stores/input';
+
+import type { Channel } from '@/models/channel.model';
+import type { Message } from '@/models/message.model';
+import type { User } from '@/models/user.model';
+
+import { Get, Post } from '@/services/requests';
+
+import { io } from 'socket.io-client';
+
+const socket = io("http://localhost:4000");
+
+const userStore = useUserStore();
+const { loggedUser } = storeToRefs(userStore);
+
+const messageStore = useMessageStore();
+const { messages } = storeToRefs(messageStore);
+
+const inputStore = useInputStore();
+const { input } = storeToRefs(inputStore);
+
+const channelStore = useChannelStore();
+const { allChannels, channels, channel, channelsJoin } = storeToRefs(channelStore);
+
+const baseUrlMsg = '/messages';
+const baseUrlChat = '/channels';
+
+onMounted(async () => {
+  Get('/users/' + loggedUser.value?.id + '/channels/member').then(res => channels.value = res.data);
+  Get('/channels').then(res => allChannels.value = res.data);
+  socket.emit('createConnection', loggedUser.value);
+  channelsJoin.value = true;
+});
+
+///////////////////////
+//  MESSAGES
+///////////////////////
+
+const displayMessages = (channel_item: Channel) => {
+  Get(baseUrlChat + '/' + channel_item.id.toString()).then(res => {
+    if (res.status == 200) {
+      channel.value = res.data;
+      messages.value = res.data.messages;
+    }
+  });
+}
+
+const handleSubmitNewMessage = () => {
+  if (input.value.create !== '') {
+    if (channel.value !== undefined) {
+      const newMessage = {
+          author: loggedUser.value?.id,
+          channel: {id: channel.value.id},
+          data: input.value.create
+        };
+        Post(baseUrlMsg, newMessage)
+        .then(res => {
+          socket.emit('msgToServer', newMessage)
+        })
+    }
+    inputStore.$reset();
   }
+}
 
-  socket.on('message', ({data}) => {
-    console.log("Data = ", data)
-    handleNewMessage(data);
-  })
+socket.on('msgToClient', (newMessage: Message) => {
+ if (channel.value != undefined && channel.value.id == newMessage.channel.id) {
+   messageStore.createMessage(newMessage);
+ }
+})
 
-  const handleNewMessage = (message: string) => {
-    messages.appendChild(builNewMessage(message));
+///////////////////////
+//  CHANNELS
+///////////////////////
+
+const handleSubmitNewChannel = () => {
+  if (input.value.create_channel !== '')
+  {
+      const newChannel = {
+          name: input.value.create_channel,
+          owner: { id: loggedUser.value?.id },
+          members: [{ id: loggedUser.value?.id }],
+      };
+      Post(baseUrlChat, newChannel).then(res => {
+        if (res.status == 201) {
+          channelStore.joinChannel(res.data);
+          socket.emit('channelToServer', newChannel);
+          channel.value = res.data;
+          messages.value = [];
+
+        }
+      })
+    inputStore.$reset();
   }
+}
 
-  const builNewMessage = (message: string) => {
-    const li = document.createElement("li");
-    li.appendChild(document.createTextNode(message));
-    return li;
-  }*/
+socket.on('channelToClient', (newChannel: Channel) => {
+  channelStore.createChannel(newChannel);
+  Get('/channels').then(res => {
+    allChannels.value = res.data;
+    channelStore.updateMember();
+  });
+})
 
 </script>
- 
+
 <template>
   <h2>Chat</h2>
- <!-- <div>
-    <ul id="messages"></ul>
-  </div>
+  <div class="container-fluid chat">
 
-  <div>
-    <input v-model="message" type="text"/>
-    <button @click="handleSubmitNewMessage">Submit</button>
+    <div class="chatMenu">
+      <div class="chatMenuWrapper">
+        <button @click="channelsJoin = true" type="button" class="btn btn-secondary send">Channels</button>
+        <button @click="channelsJoin = false, channelStore.updateMember()" type="button" class="btn btn-secondary send">All Channels</button>
+        <div v-if="channelsJoin">
+          <div v-if="channels" id="chatMenu">
+            <ul v-for="(item, index) in channels" :key="index" class="list-group">
+              <button @click="displayMessages(item)" type="button" class="btn btn-secondary btn-channel"> {{item.name}} </button>
+            </ul>
+          </div>
+        </div>
+        <div v-else>
+          <div v-if="allChannels" id="chatMenu">
+            <ul v-for="(item, index) in  allChannels" :key="index" class="list-group">
+                <div>{{item.isMember}}</div>
+                <div v-if="item.isMember">
+                  <button @click="displayMessages(item)" type="button" class="btn btn-secondary btn-channel"> {{item.name}} 
+                    <span class="badge bg-dark">Leave</span>
+                  </button>
+                </div>
+                <div v-else>
+                  <button type="button" class="btn btn-secondary btn-channel"> {{item.name}}
+                    <span class="badge bg-dark">Join</span>
+                  </button>
+                </div>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <form @submit.prevent.trim.lazy="handleSubmitNewChannel" method="POST" class="form">
+            <input v-model="input.create_channel" type="text" class="input"/>
+            <input type="submit" value="Create" class="send"/>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <span class="vertical-line"></span>
+
+    <div class="chatBox">
+      <div class="chatBoxWrapper">{{channel?.name ? channel.name : "Message"}}
+     <!--<div v-if="member">-->
+        <div v-if="channel != undefined">
+          <div v-if="messages" class="scroller">
+            <ul id="msg" v-for="item in messages" :key="item.id">
+              Message: {{ item.data }}
+            </ul>
+          </div>
+          <form @submit.prevent.trim.lazy="handleSubmitNewMessage" method="POST" class="form">
+            <input v-model="input.create" type="text" class="input"/>
+            <input type="submit" value="Send" class="send"/>
+          </form>
+        </div>
+      <!--</div>-->
+      </div>
+    </div>
+
+    <span class="vertical-line"></span>
+
+    <div class="chatFriends">
+      <div class="chatFriendsWrapper">
+        <input type="text" placeholder="search for friends" class="chatFriendsInput" />
+      </div>
+    </div>
   </div>
--->
 </template>
+
+<style>
+.chat {
+  height: calc(100vh - 70px);
+  display: flex;
+}
+
+.chatMenu {
+  flex: 2;
+  text-align: center;
+}
+
+.btn-channel {
+  margin-bottom: 5px;
+}
+
+.chatBox {
+  flex: 6;
+  text-align: center;
+}
+
+.chatFriends {
+  flex: 2;
+  text-align: center;
+}
+
+.chatFriendsInput {
+  width: 90%;
+  padding: 10px 0;
+  border: none;
+  border-bottom: 1px solid rgb(168, 164, 164);
+  background-color: rgba(209, 209, 208, 0.542);
+}
+
+.chatBoxWrapper {
+  height: 100%;
+}
+
+.chatMenuWrapper,
+.chatFriendsWrapper{
+  padding: 10px;
+  height: 100%;
+}
+
+.vertical-line{
+	border-left: 2px solid rgba(170, 170, 167, 0.542);
+	display: inline-block;
+	height: 100%;
+  flex: 0;
+	}
+
+.scroller {
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  height: 100%;
+}
+
+.form {
+  background: rgba(0, 0, 0, 0.15);
+  padding: 0.25rem;
+
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  height: 3rem;
+  box-sizing: border-box;
+  backdrop-filter: blur(10px);
+}
+
+.input {
+  border: none;
+  padding: 0 1rem;
+  flex-grow: 1;
+  border-radius: 2rem;
+  margin: 0.25rem;
+}
+
+.send {
+  background: #333;
+  border: none; padding: 0 1rem;
+  margin: 0.25rem; border-radius: 3px;
+  outline: none;
+  color: #fff;
+}
+
+#msg {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  padding: 0.5rem 1rem;
+  margin-bottom: 5px;
+  background: #efefef;
+  border-radius: 2rem;
+}
+
+</style>

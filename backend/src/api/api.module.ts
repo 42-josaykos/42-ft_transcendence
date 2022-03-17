@@ -17,5 +17,14 @@ import { UsersModule } from './users/users.module';
     ChannelsModule,
     AuthModule,
   ],
+  exports: [
+    DatabaseModule,
+    UsersModule,
+    StatsModule,
+    MatchesModule,
+    MessagesModule,
+    ChannelsModule,
+    AuthModule,
+  ],
 })
 export class ApiModule {}

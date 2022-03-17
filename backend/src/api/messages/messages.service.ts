@@ -7,10 +7,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateMessageDTO } from './dto/create-message.dto';
 import { FilterMessageDTO } from './dto/filter-message.dto';
+import { UpdateMessageDTO } from './dto/update-message.dto';
 import Message from './entities/message.entity';
 import User from 'src/api/users/entities/user.entity';
 import Channel from 'src/api/channels/entities/channel.entity';
-import { UpdateMessageDTO } from './dto/update-message.dto';
 
 @Injectable()
 export class MessagesService {

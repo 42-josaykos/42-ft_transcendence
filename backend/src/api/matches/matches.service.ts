@@ -3,14 +3,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { getRepository, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import Match from './entities/matches.entity';
-import User from '../users/entities/user.entity';
 import { CreateMatchDTO } from './dto/create-match.dto';
 import { UpdateMatchDTO } from './dto/update-match.dto';
-import { channel } from 'diagnostics_channel';
 import { FilterMatchDTO } from './dto/filter-match.dto';
+import Match from './entities/matches.entity';
+import User from '../users/entities/user.entity';
 
 @Injectable()
 export class MatchesService {

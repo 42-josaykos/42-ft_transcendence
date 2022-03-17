@@ -6,6 +6,7 @@ import * as Joi from 'joi';
 import { PassportModule } from '@nestjs/passport';
 import { ApiModule } from './api/api.module';
 import { DatabaseModule } from './database/database.module';
+import { ChatGateway } from './gateway/chat.gateway';
 
 const envSchema = Joi.object({
   POSTGRES_HOST: Joi.string().required(),
@@ -35,6 +36,6 @@ if (process.env.ENVIRONMENT === 'PRODUCTION') {
     PassportModule.register({ session: true }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ChatGateway],
 })
 export class AppModule {}
