@@ -14,10 +14,13 @@ import {
 import { ChannelsService } from 'src/api/channels/channels.service';
 import { UsersService } from 'src/api/users/users.service';
 import { UpdateUserDTO } from 'src/api/users/dto/update-user.dto';
+import { getRepository } from 'typeorm';
+import { TypeORMSession } from 'src/auth/entities/session.entity';
  
  @WebSocketGateway({  //donne accès à la fonctionnalité socket.io
    cors: {
-     origin: '*',
+     origin: 'http://localhost:3001',
+     credentials: true
    },
  })
  export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect { //pour enregistrer certains états clés de notre application. Par exemple, nous enregistrons lorsqu'un nouveau client se connecte au serveur ou lorsqu'un client actuel se déconnecte
@@ -26,18 +29,6 @@ import { UpdateUserDTO } from 'src/api/users/dto/update-user.dto';
 
   @WebSocketServer() server: Server; //donne accès à l'instance du serveur websockets
   private logger: Logger = new Logger('ChatGateway');
-
-  @SubscribeMessage('createConnection')
-  async handleCreateConnection(client: Socket, user: User): Promise<void> {
-   this.logger.log(`Client arg: ${user.username}`);
-   this.logger.log(`Client arg: ${client.data.user}`);
-   this.logger.log(`Client id: ${client.id}`);
-   const {username, student_id, avatar} = user;
-   const updateUser: UpdateUserDTO = { username: username, student_id: student_id, avatar: avatar, socketID: client.id}
-  await this.usersService.updateUser(user.id, updateUser)
-
-   console.log("User => ", user)
-  }
 
   @SubscribeMessage('msgToServer') // permet d'écouter l'évènement "msgToServer"
   async handleMessage(client: Socket, message: Message) {
@@ -60,8 +51,21 @@ import { UpdateUserDTO } from 'src/api/users/dto/update-user.dto';
    this.logger.log(`Client disconnected: ${client.id}`);
   }
  
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket) {
    this.logger.log(`Client connected: ${client.id}`);
+
+   //recuperer le cookie
+   let cookie = client.handshake.headers['cookie'].split('.')[1].substring(8)
+   console.log("cookie => ", cookie)
+
+   //recuperer dans la DB la session correspondante
+   const sessionRepo = getRepository(TypeORMSession);
+   const cookie_json = await sessionRepo.findByIds([cookie]);
+   const user = JSON.parse(cookie_json[0].json).passport.user;
+
+   //mettre a jour le socketId du user
+   const updateUser: UpdateUserDTO = {socketID: client.id}
+   await this.usersService.updateUser(user.id, updateUser)
 
    // a chaque connexion sur la page /chat un nouvel identifiant socket est créé
    // le stocker dans le user en question pour pouvoir émettre les info vers celui ci si concerné
