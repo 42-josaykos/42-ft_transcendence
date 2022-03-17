@@ -13,11 +13,13 @@ import type { Channel } from '@/models/channel.model';
 import type { Message } from '@/models/message.model';
 import type { User } from '@/models/user.model';
 
-import { Get, Patch, Post } from '@/services/requests';
+import { Delete, Get, Patch, Post } from '@/services/requests';
 
 import { io } from 'socket.io-client';
 
-const socket = io("http://localhost:4000");
+const socket = io("http://localhost:4000", {
+  withCredentials: true
+});
 
 const userStore = useUserStore();
 const { loggedUser } = storeToRefs(userStore);
@@ -29,15 +31,15 @@ const inputStore = useInputStore();
 const { input } = storeToRefs(inputStore);
 
 const channelStore = useChannelStore();
-const { allChannels, channels, channel, channelsJoin } = storeToRefs(channelStore);
+const { allChannels, channels, channel, channelsJoin} = storeToRefs(channelStore);
 
 const baseUrlMsg = '/messages';
-const baseUrlChat = '/channels';
+const baseUrlChannel = '/channels';
 
 onMounted(async () => {
   Get('/users/' + loggedUser.value?.id + '/channels/member').then(res => channels.value = res.data);
   Get('/channels').then(res => allChannels.value = res.data);
-  socket.emit('createConnection', loggedUser.value);
+  //socket.emit('createConnection', loggedUser.value);
   channelsJoin.value = true;
 });
 
@@ -46,7 +48,7 @@ onMounted(async () => {
 ///////////////////////
 
 const displayMessages = (channel_item: Channel) => {
-  Get(baseUrlChat + '/' + channel_item.id.toString()).then(res => {
+  Get(baseUrlChannel + '/' + channel_item.id.toString()).then(res => {
     if (res.status == 200) {
       channel.value = res.data;
       messages.value = res.data.messages;
@@ -88,12 +90,12 @@ const handleSubmitNewChannel = () => {
       const newChannel = {
           name: input.value.create_channel,
           //isPrivate: input.value.is_private,
-          password: input.value.password != null ? input.value.password : null,
+          //password: input.value.password != null ? input.value.password : null,
           owner: { id: loggedUser.value?.id },
           admins: [{ id: loggedUser.value?.id }],
           members: [{ id: loggedUser.value?.id }],
       };
-      Post(baseUrlChat, newChannel).then(res => {
+      Post(baseUrlChannel, newChannel).then(res => {
         if (res.status == 201) {
           channelStore.joinChannel(res.data);
           socket.emit('channelToServer', res.data);
@@ -105,6 +107,7 @@ const handleSubmitNewChannel = () => {
 
     inputStore.$reset();
   }
+  console.log("loggedUser => ", loggedUser.value)
 }
 
 // Permet d'attraper l'information qu'un nouveau channel a été créé
@@ -121,7 +124,7 @@ const joinChannel = (channel_item: Channel) => {
   const updateChannel = {
     addMembers: [{id: loggedUser.value?.id}]
   };
-  Patch(baseUrlChat + '/' + channel_item.id.toString(), updateChannel).then(res => {
+  Patch(baseUrlChannel + '/' + channel_item.id.toString(), updateChannel).then(res => {
     channelStore.joinChannel(res.data);
     channel.value = channelStore.getChannelByID(res.data.id);
     messages.value = res.data.messages;
@@ -133,18 +136,72 @@ const joinChannel = (channel_item: Channel) => {
 
 // Quitter un channel
 const leaveChannel = (channel_item: Channel) => {
-  const updateChannel = {
-    removeMembers: [{id: loggedUser.value?.id}]
-  };
-  Patch(baseUrlChat + '/' + channel_item.id.toString(), updateChannel).then(res => {
-    input.value.create = `${loggedUser.value?.username} has leaved the channel.`;
-    handleSubmitNewMessage(channel_item.id)
-    channelStore.leaveChannel(res.data);
-    channel.value = channel.value?.id === channel_item.id ? undefined : channel.value;
-    messages.value = channel.value?.id === channel_item.id ? [] : messages.value;
-    channelStore.updateMember();
+  let updateChannel: any ;
+  Get(baseUrlChannel + '/' + channel_item.id.toString()).then(res => {
+    console.log("res.data = ", res.data)
+    if (loggedUser.value != null) {
+      //if (res.data.members.length() == 1) {
+        //Delete()
+        //Supprime de tous les allChannels
+      //}
+      //else {
+       // const isAdmin = channelStore.isAdmin(res.data, loggedUser.value.id)
+        //console.log("isAdmin = ", isAdmin)
 
-  }) 
+       // const isOwner = channelStore.isOwner(res.data, loggedUser.value.id)
+        //console.log("isOwner = ", isOwner)
+
+        //if (isOwner == true || isAdmin == true ) {
+          //const newAdmin = channelStore.findNewAdmin(res.data, loggedUser.value.id)
+
+          //if (isOwner == true ) {
+            // on supprime en tant que owner
+            // cherche un nouveau owner parmis les admins sinon les members sinon les mutes et si pas d'admin le nouvel owner devient admin
+          //}
+
+          if (channelStore.isAdmin(res.data, loggedUser.value.id) == true ) {
+            // on supprime en tant que admin
+            updateChannel = {
+              removeAdmins: [{id: loggedUser.value?.id}],
+              removeMembers: [{id: loggedUser.value?.id}]
+            };
+            console.log("ADMIN")
+          }
+          else {
+            if (channelStore.isBan(res.data, loggedUser.value.id) == true) {
+              updateChannel = {
+                removeBans: [{id: loggedUser.value?.id}]
+              };
+              console.log("BAN")
+            }
+            else if (channelStore.isMute(res.data, loggedUser.value.id) == true) {
+              updateChannel = {
+                removeMutes: [{id: loggedUser.value?.id}],
+                removeMembers: [{id: loggedUser.value?.id}]
+              };
+              console.log("MUTE")
+            }
+            else {
+              updateChannel = {
+                removeMembers: [{id: loggedUser.value?.id}]
+              };
+              console.log("MEMBER")
+
+            }
+          }
+          console.log("updateChaannel = ", updateChannel)
+
+      Patch(baseUrlChannel + '/' + channel_item.id.toString(), updateChannel).then(res => {
+        input.value.create = `${loggedUser.value?.username} has leaved the channel.`;
+        handleSubmitNewMessage(channel_item.id)
+        channelStore.leaveChannel(res.data);
+        channel.value = channel.value?.id === channel_item.id ? undefined : channel.value;
+        messages.value = channel.value?.id === channel_item.id ? [] : messages.value;
+        channelStore.updateMember();
+
+      }) 
+    }
+  })
 }
 
 </script>

@@ -92,26 +92,48 @@ export const useChannelStore = defineStore('channel', () => {
         }
       }
       return false
-    }
+    }*/
 
-    const getAdminChannelByID = (channel_item: Channel, user_id: number): boolean => {
-
+    const isAdmin = (channel_item: Channel, userID: number ) => {
       const admins  = channel_item.admins;
-
-      const index = admins.findIndex((el: User) => el.id === user_id);
+      const index = admins.findIndex((el: User) => el.id === userID);
       if (index == -1) {
         return false;
       }
       return true;
     }
 
-    const getOwnerChannelByID = (channel_item: Channel, user_id: number): boolean => {
+    const isOwner = (channel_item: Channel, userID: number) => {
 
-      const owner = channel_item;
-      if (owner.id === user_id){
+      const owner = channel_item.owner;
+      if (owner.id === userID){
         return true;
         }
       return false
+    }
+
+    const isBan = (channel_item: Channel, userID: number) => {
+
+      const bans = channel_item.bans;
+      const index = bans.findIndex((el: User) => el.id === userID);
+      if (index == -1) {
+        return false;
+      }
+      return true;
+    }
+
+    const isMute = (channel_item: Channel, userID: number) => {
+
+      const mutes = channel_item.mutes;
+      const index = mutes.findIndex((el: User) => el.id === userID);
+      if (index == -1) {
+        return false;
+      }
+      return true;
+    }
+
+    /*const findNewOwner = () => {
+
     }*/
 
     return {
@@ -127,9 +149,12 @@ export const useChannelStore = defineStore('channel', () => {
         getChannelByID,
         deleteChannel,
         updateChannel,
-        getChannelUpdates
+        getChannelUpdates,
        // getMemberChannelByID,
-       // getAdminChannelByID,
-       // getOwnerChannelByID
+        isAdmin,
+        isOwner,
+        isBan,
+        isMute
+        //findNewOwner
     };
 });

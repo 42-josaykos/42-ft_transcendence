@@ -9,7 +9,6 @@ import {
  import { Logger } from '@nestjs/common';
  import { Socket, Server } from 'socket.io';
  import Message from '../api/messages/entities/message.entity';
- import User from 'src/api/users/entities/user.entity';
  import Channel from 'src/api/channels/entities/channel.entity';
 import { ChannelsService } from 'src/api/channels/channels.service';
 import { UsersService } from 'src/api/users/users.service';
