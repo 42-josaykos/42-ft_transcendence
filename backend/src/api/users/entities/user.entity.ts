@@ -29,7 +29,7 @@ class User {
   @Column({ nullable: true, unique: true, select: false })
   public githubID: string;
 
-  @Column({ nullable: true, select: false, length: 20 })
+  @Column({ nullable: true, length: 20 })
   public socketID: string | null;
 
   @Column({ nullable: true })
