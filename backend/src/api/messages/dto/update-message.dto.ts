@@ -7,15 +7,15 @@ export class UpdateMessageDTO {
   @ApiProperty({ required: false })
   @IsNotEmpty()
   @IsOptional()
-  readonly author: User;
+  readonly author?: User;
 
   @ApiProperty({ required: false })
   @IsNotEmpty()
   @IsOptional()
-  readonly channel: Channel;
+  readonly channel?: Channel;
 
   @ApiProperty({ required: false })
   @IsNotEmpty()
   @IsOptional()
-  readonly data: string;
+  readonly data?: string;
 }

@@ -20,23 +20,23 @@ class User {
   @Column({ unique: true })
   public username: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, select: false })
   public password: string;
 
-  @Column({ nullable: true, unique: true })
-  public student_id: string;
+  @Column({ nullable: true, unique: true, select: false })
+  public studentID: string;
 
-  @Column({ nullable: true, unique: true })
-  public github_id: string;
+  @Column({ nullable: true, unique: true, select: false })
+  public githubID: string;
+
+  @Column({ nullable: true, length: 20 })
+  public socketID: string | null;
 
   @Column({ nullable: true })
   public avatar: string;
 
   @OneToOne((type) => Stats, (stats) => stats.user)
   public stats: Stats;
-
-  @Column({ nullable: true, length: 20 })
-  public socketID: string | null;
 
   // Match related relations
   @ManyToMany((type) => Match, (match) => match.players)

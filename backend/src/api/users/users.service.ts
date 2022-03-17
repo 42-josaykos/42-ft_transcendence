@@ -70,11 +70,15 @@ export class UsersService {
     else return user;
   }
 
-  async getUsersByFilter(filter: FilterUserDTO): Promise<User[]> {
+  async getUsersByFilter(
+    filter: FilterUserDTO,
+    showPassword: boolean = false,
+  ): Promise<User[]> {
     const query = this.usersRepository
       .createQueryBuilder('users')
       .orderBy('id', 'ASC');
 
+    if (showPassword) query.addSelect('users.password');
     if (filter.id) query.andWhere('users.id = :id', { id: filter.id });
     if (filter.username)
       query.andWhere('users.username = :username', {

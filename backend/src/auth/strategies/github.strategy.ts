@@ -18,15 +18,15 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(accessToken: string, refreshToken: string, profile: any) {
-    const { id: github_id, username, photos } = profile;
+    const { id: githubID, username, photos } = profile;
     const { value: avatar } = photos[0];
 
     /////////////////////////////////////// DEBUG
     console.log(profile);
-    console.log('Logged User:', github_id, username, avatar);
+    console.log('Logged User:', githubID, username, avatar);
     console.log('Access Token:', accessToken);
     ///////////////////////////////////////////////////////////////////
-    const details = { username, github_id, avatar };
+    const details = { username, githubID, avatar };
 
     return await this.authService.validateUserGithub(details);
   }

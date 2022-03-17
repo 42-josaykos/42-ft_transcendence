@@ -24,8 +24,8 @@ export class AuthService implements AuthenticationProvider {
   ) {}
 
   async validateUser(details: CreateUserDTO) {
-    const { student_id } = details;
-    const user = await this.userRepo.findOne({ student_id });
+    const { studentID } = details;
+    const user = await this.userRepo.findOne({ studentID });
     console.log(user);
 
     if (user) return user;
@@ -33,8 +33,8 @@ export class AuthService implements AuthenticationProvider {
   }
 
   async validateUserGithub(details: CreateUserDTO) {
-    const { github_id } = details;
-    const user = await this.userRepo.findOne({ github_id });
+    const { githubID } = details;
+    const user = await this.userRepo.findOne({ githubID });
     console.log(user);
 
     if (user) return user;
@@ -44,7 +44,7 @@ export class AuthService implements AuthenticationProvider {
   async validateUserLocal(username: string, plainPassword: string) {
     try {
       const filter: FilterUserDTO = { username: username };
-      const [user] = await this.usersService.getUsersByFilter(filter);
+      const [user] = await this.usersService.getUsersByFilter(filter, true);
       const isPasswordMatching = await bcrypt.compare(
         plainPassword,
         user.password,
