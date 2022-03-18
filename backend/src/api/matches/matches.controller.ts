@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MatchesService } from './matches.service';
@@ -14,6 +15,7 @@ import { CreateMatchDTO } from './dto/create-match.dto';
 import Match from './entities/matches.entity';
 import User from '../users/entities/user.entity';
 import { UpdateMatchDTO } from './dto/update-match.dto';
+import { FilterMatchDTO } from './dto/filter-match.dto';
 
 @Controller('matches')
 @ApiTags('matches')
@@ -23,6 +25,11 @@ export class MatchesController {
   @Get()
   async getAllMatches(): Promise<Match[]> {
     return await this.matchesService.getAllMatches();
+  }
+
+  @Get('search')
+  async getMatchesByFilter(@Query() filter: FilterMatchDTO): Promise<Match[]> {
+    return await this.matchesService.getMatchesByFilter(filter);
   }
 
   @Get(':matchID')

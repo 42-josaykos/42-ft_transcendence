@@ -1,20 +1,9 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
-import * as Joi from 'joi';
-// import { ServeStaticModule } from '@nestjs/serve-static';
-// import { join } from 'path/posix';
-import { UsersModule } from './api/users/users.module';
-import { MessagesModule } from './api/messages/messages.module';
-import { MatchesModule } from './api/matches/matches.module';
-import { StatsModule } from './api/stats/stats.module';
-import { ChannelsModule } from './api/channels/channels.module';
-import { ChatGateway } from './gateway/chat.gateway';
-import { AuthModule } from './auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
 import { ApiModule } from './api/api.module';
-import { DatabaseModule } from './database/database.module';
+import { ChatGateway } from './gateway/chat.gateway';
+import * as Joi from 'joi';
 
 const envSchema = Joi.object({
   POSTGRES_HOST: Joi.string().required(),
@@ -25,31 +14,16 @@ const envSchema = Joi.object({
   POR: Joi.string(),
 });
 
-// Choose environment by setting $ENVIRONMENT to 'DEVELOPMENT' or 'PRODUDCTION'
-let envFilePath = '.env.development';
-const mode = process.env.ENVIRONMENT ? process.env.ENVIRONMENT : 'DEVELOPMENT';
-console.log(`Running in ${mode}`);
-if (process.env.ENVIRONMENT === 'PRODUCTION') {
-  envFilePath = '.env.production';
-}
-
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: envFilePath,
+      envFilePath: '../.env',
       validationSchema: envSchema,
     }),
-    DatabaseModule,
-    UsersModule,
-    StatsModule,
-    MatchesModule,
-    MessagesModule,
-    ChannelsModule,
-    AuthModule,
     ApiModule,
     PassportModule.register({ session: true }),
   ],
-  controllers: [AppController],
-  providers: [AppService, ChatGateway],
+  controllers: [],
+  providers: [ChatGateway],
 })
 export class AppModule {}

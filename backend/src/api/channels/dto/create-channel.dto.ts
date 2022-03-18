@@ -18,10 +18,10 @@ export class CreateChannelDTO {
   readonly name: string;
 
   @IsBoolean()
-  readonly isPrivate: boolean | false;
+  readonly isPrivate?: boolean | false;
 
   @IsString()
-  readonly password: string | null;
+  readonly password?: string | null;
 
   @IsNotEmpty()
   @IsDefined()
@@ -30,7 +30,7 @@ export class CreateChannelDTO {
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly admins: User[];
+  readonly admins?: User[];
 
   @IsArray()
   @IsNotEmpty()
@@ -40,10 +40,10 @@ export class CreateChannelDTO {
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly mutes: User[];
+  readonly mutes?: User[];
 
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly bans: User[];
+  readonly bans?: User[];
 }

@@ -9,12 +9,12 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { CreateStatsDTO } from '../stats/dto/create-stats.dto';
+import { UpdateUserDTO } from './dto/update-user.dto';
 import { FilterUserDTO } from './dto/filter-user.dto';
 import User from './entities/user.entity';
 import Stats from 'src/api/stats/entities/stats.entity';
 import Match from 'src/api/matches/entities/matches.entity';
 import Channel from 'src/api/channels/entities/channel.entity';
-import { UpdateUserDTO } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -70,11 +70,15 @@ export class UsersService {
     else return user;
   }
 
-  async getUsersByFilter(filter: FilterUserDTO): Promise<User[]> {
+  async getUsersByFilter(
+    filter: FilterUserDTO,
+    showPassword: boolean = false,
+  ): Promise<User[]> {
     const query = this.usersRepository
       .createQueryBuilder('users')
       .orderBy('id', 'ASC');
 
+    if (showPassword) query.addSelect('users.password');
     if (filter.id) query.andWhere('users.id = :id', { id: filter.id });
     if (filter.username)
       query.andWhere('users.username = :username', {
@@ -113,7 +117,8 @@ export class UsersService {
       const hash = await bcrypt.hash(user.password, 10);
       userData.password = hash;
     }
-    // Creating and new user and it's stats
+
+    // Creating a new user and it's stats
     const newUser = this.usersRepository.create(userData);
     const stats = this.statsRepository.create(new CreateStatsDTO());
     stats.user = newUser;

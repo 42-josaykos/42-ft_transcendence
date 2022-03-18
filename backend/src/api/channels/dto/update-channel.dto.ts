@@ -14,97 +14,97 @@ export class UpdateChannelDTO {
   @IsString()
   @IsNotEmpty()
   @IsOptional()
-  readonly name: string;
+  readonly name?: string;
 
   @ApiProperty({ required: false })
   @IsBoolean()
   @IsNotEmpty()
   @IsOptional()
-  readonly isPrivate: boolean | false;
+  readonly isPrivate?: boolean | false;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsNotEmpty()
   @IsOptional()
-  readonly password: string | null;
+  readonly password?: string | null;
 
   @ApiProperty({ required: false })
   @IsNotEmpty()
   @IsNotEmpty()
   @IsOptional()
-  readonly owner: User;
+  readonly owner?: User;
 
   // Updating with theses will need full User arrays to be send in body
   @ApiProperty({ required: false })
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly admins: User[];
+  readonly admins?: User[];
 
   @ApiProperty({ required: false })
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly members: User[];
+  readonly members?: User[];
 
   @ApiProperty({ required: false })
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly mutes: User[];
+  readonly mutes?: User[];
 
   @ApiProperty({ required: false })
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly bans: User[];
+  readonly bans?: User[];
 
   // Updating with theses will just need Users you want to add or remove int the arrays
   @ApiProperty({ required: false })
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly addAdmins: User[];
+  readonly addAdmins?: User[];
 
   @ApiProperty({ required: false })
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly removeAdmins: User[];
+  readonly removeAdmins?: User[];
 
   @ApiProperty({ required: false })
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly addMembers: User[];
+  readonly addMembers?: User[];
 
   @ApiProperty({ required: false })
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly removeMembers: User[];
+  readonly removeMembers?: User[];
 
   @ApiProperty({ required: false })
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly addMutes: User[];
+  readonly addMutes?: User[];
 
   @ApiProperty({ required: false })
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly removeMutes: User[];
+  readonly removeMutes?: User[];
 
   @ApiProperty({ required: false })
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly addBans: User[];
+  readonly addBans?: User[];
 
   @ApiProperty({ required: false })
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly removeBans: User[];
+  readonly removeBans?: User[];
 }

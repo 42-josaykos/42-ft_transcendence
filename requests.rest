@@ -32,7 +32,7 @@ Content-Type: {{contentType}}
 
 ###
 
-DELETE http://{{host}}/users/1
+DELETE http://{{host}}/users/5
 
 ###
 
@@ -68,8 +68,8 @@ POST http://{{host}}/messages
 Content-Type: {{contentType}}
 
 {
-    "author": {"username": "lchapren"},
-    "channel": {"id": 1},
+    "author": {"id": 5},
+    "channel": {"id": 2},
     "data": "Bouh!"
 }
 
@@ -96,7 +96,7 @@ POST http://{{host}}/channels
 Content-Type: {{contentType}}
 
 {
-    "name": "Channel2",
+    "name": "Channel1",
     "owner": {"id": 1},
     "members": [{"id": 1}]
 }
@@ -107,7 +107,7 @@ PATCH http://{{host}}/channels/1
 Content-Type: {{contentType}}
 
 {
-    "addMembers": [{"username": "lchapren"}],
+    "addMembers": [{"id": 1}],
     "removeAdmins": [{"id": 1}, {"id": 2}, {"id": 3}],
     "addAdmins": [{"id": 1}, {"id": 2}, {"id": 3}]
 }
@@ -126,7 +126,7 @@ POST http://{{host}}/matches
 Content-Type: {{contentType}}
 
 {
-    "players": [{"id": 1}, {"id": 2}],
+    "players": [{"id": 2}, {"id": 1}],
     "score": [7, 10]
 }
 
@@ -136,9 +136,7 @@ PATCH http://{{host}}/matches/1
 Content-Type: {{contentType}}
 
 {
-    "players": [{"id": 3}, {"id": 2}],
-    "score": [42, 21],
-    "winner": {"id": 3}
+    "winner": {"id": 2}
 }
 
 ###

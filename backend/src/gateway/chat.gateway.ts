@@ -31,23 +31,23 @@ import { TypeORMSession } from 'src/auth/entities/session.entity';
 
   @SubscribeMessage('msgToServer') // permet d'écouter l'évènement "msgToServer"
   async handleMessage(client: Socket, message: Message) {
-   const channel = message.channel;
-   const members = await this.channelsService.getChannelMembers(channel.id);
-   for (const member of members)
-    this.server.to(member.socketID).emit('msgToClient', message);
+    const channel = message.channel;
+    const members = await this.channelsService.getChannelMembers(channel.id);
+    for (const member of members)
+      this.server.to(member.socketID).emit('msgToClient', message);
   }
 
   @SubscribeMessage('channelToServer') // permet d'écouter l'évènement "msgToServer"
   async handleChannel(client: Socket, channel: Channel) {
-   this.server.emit('channelToClient', channel); // on envoit les données à tous les clients connectés au serveur
+    this.server.emit('channelToClient', channel); // on envoit les données à tous les clients connectés au serveur
   }
- 
+
   afterInit(server: Server) {
-   this.logger.log('Init');
+    this.logger.log('Init');
   }
- 
+
   handleDisconnect(client: Socket) {
-   this.logger.log(`Client disconnected: ${client.id}`);
+    this.logger.log(`Client disconnected: ${client.id}`);
   }
  
   async handleConnection(client: Socket) {
@@ -70,4 +70,4 @@ import { TypeORMSession } from 'src/auth/entities/session.entity';
    // le stocker dans le user en question pour pouvoir émettre les info vers celui ci si concerné
    // attention checker la déconexion avec le changement de page car crée un nouveau socket sans fermer l'ancien
   }
- }
+}
