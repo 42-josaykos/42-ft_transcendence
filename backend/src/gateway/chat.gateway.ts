@@ -42,6 +42,17 @@ import { TypeORMSession } from 'src/auth/entities/session.entity';
     this.server.emit('channelToClient', channel); // on envoit les données à tous les clients connectés au serveur
   }
 
+  @SubscribeMessage('deleteChannelToServer') // permet d'écouter l'évènement "msgToServer"
+  async deleteChannel(client: Socket, channelID: number) {
+    this.server.emit('deleteChannelToClient', channelID); // on envoit les données à tous les clients connectés au serveur
+  }
+
+  @SubscribeMessage('newOwnerToServer') // permet d'écouter l'évènement "msgToServer"
+  async newOwner(client: Socket, ownerID: number) {
+    const user = await this.usersService.getUserByID(ownerID);
+    this.server.to(user.socketID).emit('newOwnerToClient', ownerID);
+  }
+
   afterInit(server: Server) {
     this.logger.log('Init');
   }
