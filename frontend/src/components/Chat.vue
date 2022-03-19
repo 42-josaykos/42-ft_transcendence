@@ -31,7 +31,7 @@ const inputStore = useInputStore();
 const { input } = storeToRefs(inputStore);
 
 const channelStore = useChannelStore();
-const { allChannels, channels, channel, channelsJoin, channelLeave, newOwner} = storeToRefs(channelStore);
+const { allChannels, channels, channel, channelsJoin, channelLeave, channelUpdate, newOwner} = storeToRefs(channelStore);
 
 const baseUrlMsg = '/messages';
 const baseUrlChannel = '/channels';
@@ -242,6 +242,26 @@ socket.on('deleteChannelToClient', (channelID: number) => {
   channelStore.deleteChannel(channelID)
 })
 
+// Mettre à jour un channel
+const updateChannel = () => {
+  const updateChannel = {
+    name: input.value.update_channel_name
+  }
+  console.log("update == ", updateChannel)
+  Patch(baseUrlChannel + '/' + input.value.channel_id, updateChannel).then(res => {
+    if (res.status == 200) {
+      socket.emit('updateChannelToServer', res.data)
+    }
+    inputStore.$reset();
+  });
+};
+
+socket.on('updateChannelToClient', (channel: Channel) => {
+  if (loggedUser.value != null) {
+    channelStore.updateChannel(channel.id, channel, loggedUser.value.id);
+  }
+})
+
 </script>
 
 <template>
@@ -280,12 +300,15 @@ socket.on('deleteChannelToClient', (channelID: number) => {
                   </button>
                   <div v-if="item.isOwner">
                     <!--<button type="button" class="btn btn-danger btn-channel" @click="leaveChannelIfOwner(item)" >Leave Owner</button>-->
-                    <button type="button" class="btn btn-danger btn-channel" @click="Get(baseUrlChannel + '/' + item.id.toString()).then(res => channelLeave = res.data)" data-bs-toggle="modal" data-bs-target="#leaveChannel">
+                    <button type="button" class="btn btn-danger btn-channel btn-sm" @click="Get(baseUrlChannel + '/' + item.id.toString()).then(res => channelLeave = res.data)" data-bs-toggle="modal" data-bs-target="#leaveChannel">
                       Leave Owner
+                    </button>
+                    <button type="button" class="btn btn-success btn-channel btn-sm" @click="Get(baseUrlChannel + '/' + item.id.toString()).then(res => {channelUpdate = res.data; input.update_channel_name = res.data.name, input.channel_id = res.data.id})" data-bs-toggle="modal" data-bs-target="#updateChannel">
+                      Update Channel
                     </button>
                   </div>
                   <div v-else>
-                    <button type="button" class="btn btn-danger btn-channel" @click="leaveChannelIfNotOwner(item)" >Leave</button>
+                    <button type="button" class="btn btn-danger btn-channel btn-sm" @click="leaveChannelIfNotOwner(item)" >Leave</button>
                   </div>
                 </div>
 
@@ -296,7 +319,7 @@ socket.on('deleteChannelToClient', (channelID: number) => {
                     <span v-if="item.password != ''" class="badge bg-warning">Pwd : {{item.password}}</span>
                     {{item.name}}
                   </button> 
-                  <button type="button" class="btn btn-primary btn-channel" @click="joinChannel(item)" >Join</button>
+                  <button type="button" class="btn btn-primary btn-channel btn-sm" @click="joinChannel(item)" >Join</button>
 
                 </div>
             </ul>
@@ -435,6 +458,44 @@ socket.on('deleteChannelToClient', (channelID: number) => {
               <button @click="leaveChannelIfOwner" type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">Yes</button>
               <button @click="newOwner = -1" type="button" class="btn btn-danger btn-sm"  data-bs-toggle="modal" data-bs-target="#leaveChannel">No</button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!--Formulaire pour modifier un channel-->
+    <div class="modal fade modal-dialog-scrollable" id="updateChannel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">Update : {{ input.update_channel_name }}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body">
+     
+            <div class="form form-new-channel">
+              <label for="name">Channel name:</label>
+              <input v-model="input.update_channel_name" type="text" class="input"/>
+            </div>
+
+            <!--<div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked @click="input.is_private = !input.is_private">
+              <label class="form-check-label" for="flexSwitchCheckChecked">{{input.is_private ? "Private channel" : "Public channel"}} {{input.is_private}}</label>
+            </div>-->
+
+            <div class="form form-new-channel">
+              <label for="name">Password:</label>
+              <input v-model="input.password" type="text" class="input"/>
+            </div>
+
+          </div>
+
+          <div class="modal-footer">
+            <button @click="inputStore.$reset(); channelUpdate = undefined" type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+            <button @click="updateChannel" type="submit" class="btn btn-primary" data-bs-dismiss="modal">Update</button>
+          </div>
+
         </div>
       </div>
     </div>

@@ -12,6 +12,7 @@ export const useChannelStore = defineStore('channel', () => {
     const channel = ref<Channel>();
     const channelLeave = ref<Channel>();
     const channelsJoin = ref<boolean>();
+    const channelUpdate = ref<Channel>();
     const newOwner = ref<number>();
 
     const createChannel = (newChannel: Channel) => {
@@ -86,7 +87,7 @@ export const useChannelStore = defineStore('channel', () => {
       }
     }
 
-    const getChannelUpdates = (input: Input): Channel | null => {
+    /*const getChannelUpdate = (input: Input): Channel | null => {
         const index = channels.value.findIndex(
           (el: Channel) => el.id === +input.channel_id
         );
@@ -101,11 +102,15 @@ export const useChannelStore = defineStore('channel', () => {
         console.log('updated channel:', updates);
     
         return updates;
-      };
+      };*/
 
-    const updateChannel = (id: number, updatedData: Channel) => {
+    const updateChannel = (id: number, updatedData: Channel, userID: number) => {
+      if (isMember(updatedData, userID)) {
         const index = channels.value.findIndex((el: Channel) => el.id === id);
         channels.value.splice(index, 1, { ...channels.value[index], ...updatedData });
+      }
+      const index = allChannels.value.findIndex((el: Channel) => el.id === id);
+      allChannels.value.splice(index, 1, { ...allChannels.value[index], ...updatedData });
     }
 
     /*const getMemberChannelByID = (channel_item: Channel, userId: number): boolean => {
@@ -120,8 +125,6 @@ export const useChannelStore = defineStore('channel', () => {
     }*/
 
     const isAdmin = (channel_item: Channel, userID: number ) => {
-      console.log("userID = ", userID)
-      console.log("channel_item= ", channel_item)
       const admins  = channel_item.admins;
       const index = admins.findIndex((el: User) => el.id === userID);
       if (index == -1) {
@@ -139,8 +142,16 @@ export const useChannelStore = defineStore('channel', () => {
       return false
     }
 
-    const isBan = (channel_item: Channel, userID: number) => {
+    const isMember = (channel_item: Channel, userID: number ) => {
+      const members  = channel_item.members;
+      const index = members.findIndex((el: User) => el.id === userID);
+      if (index == -1) {
+        return false;
+      }
+      return true;
+    }
 
+    const isBan = (channel_item: Channel, userID: number) => {
       const bans = channel_item.bans;
       const index = bans.findIndex((el: User) => el.id === userID);
       if (index == -1) {
@@ -150,7 +161,6 @@ export const useChannelStore = defineStore('channel', () => {
     }
 
     const isMute = (channel_item: Channel, userID: number) => {
-
       const mutes = channel_item.mutes;
       const index = mutes.findIndex((el: User) => el.id === userID);
       if (index == -1) {
@@ -169,6 +179,7 @@ export const useChannelStore = defineStore('channel', () => {
         channel,
         channelsJoin,
         channelLeave,
+        channelUpdate,
         newOwner,
         createChannel,
         joinChannel,
@@ -179,10 +190,11 @@ export const useChannelStore = defineStore('channel', () => {
         getChannelByID,
         deleteChannel,
         updateChannel,
-        getChannelUpdates,
+        //getChannelUpdate,
        // getMemberChannelByID,
         isAdmin,
         isOwner,
+        isMember,
         isBan,
         isMute
         //findNewOwner

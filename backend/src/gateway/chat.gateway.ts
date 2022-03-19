@@ -53,6 +53,11 @@ import { TypeORMSession } from 'src/auth/entities/session.entity';
     this.server.to(user.socketID).emit('newOwnerToClient', ownerID);
   }
 
+  @SubscribeMessage('updateChannelToServer') // permet d'écouter l'évènement "msgToServer"
+  async updateChannel(client: Socket, channel: Channel) {
+    this.server.emit('updateChannelToClient', channel); // on envoit les données à tous les clients connectés au serveur
+  }
+
   afterInit(server: Server) {
     this.logger.log('Init');
   }
