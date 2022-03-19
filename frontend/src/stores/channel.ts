@@ -3,12 +3,16 @@ import { ref } from "vue";
 import type { Channel } from '@/models/channel.model';
 //import type { Message } from '@/models/message.model';
 import type { Input } from './input';
+import type { User } from "@/models/user.model";
+import { Get } from "@/services/requests";
 
 export const useChannelStore = defineStore('channel', () => {
     const allChannels = ref<Channel[]>([]);
     const channels = ref<Channel[]>([]);
     const channel = ref<Channel>();
+    const channelLeave = ref<Channel>();
     const channelsJoin = ref<boolean>();
+    const newOwner = ref<number>();
 
     const createChannel = (newChannel: Channel) => {
       allChannels.value.push(newChannel);
@@ -17,6 +21,11 @@ export const useChannelStore = defineStore('channel', () => {
     const joinChannel = (newChannel: Channel) => {
       newChannel.isMember = true;
       channels.value.push(newChannel);
+    }
+
+    const leaveChannel = (newChannel: Channel) => {
+      const index = channels.value.findIndex((el: Channel) => el.id === newChannel.id);
+      channels.value.splice(index, 1);
     }
 
     const updateMember = () => {
@@ -28,6 +37,23 @@ export const useChannelStore = defineStore('channel', () => {
         else {
           chan.isMember = false;
         }
+      }
+    }
+
+    const updateOwner = (userID: number) => {
+      if (userID != -1) {
+        Get('/users/' + userID.toString()).then(res => {
+          const ownerChannels = res.data.ownerChannels;
+          for (const chan of allChannels.value) {
+            const index = ownerChannels.findIndex((el: Channel) => el.id === chan.id)
+            if (index != -1) {
+              chan.isOwner = true;
+            }
+            else {
+              chan.isOwner= false;
+            }
+          }
+        })
       }
     }
 
@@ -50,9 +76,14 @@ export const useChannelStore = defineStore('channel', () => {
     }
 
     const deleteChannel = (id: number) => {
-        const index = channels.value.findIndex((el: Channel) => el.id === id);
+      let index = channels.value.findIndex((el: Channel) => el.id === id);
+      if (index != -1) {
         channels.value.splice(index, 1);
+      }
+      index = allChannels.value.findIndex((el: Channel) => el.id === id);
+      if (index != -1) {
         allChannels.value.splice(index, 1);
+      }
     }
 
     const getChannelUpdates = (input: Input): Channel | null => {
@@ -77,29 +108,83 @@ export const useChannelStore = defineStore('channel', () => {
         channels.value.splice(index, 1, { ...channels.value[index], ...updatedData });
     }
 
-    const getMemberChannelByID = (channel_item: Channel, userId: number): boolean => {
+    /*const getMemberChannelByID = (channel_item: Channel, userId: number): boolean => {
 
-      const { members} = channel_item;
+      const { members } = channel_item;
       for (const member of members) {
-        if (member.id === userId){
-        return true;}
+        if (member.id === userId) {
+          return true;
+        }
       }
       return false
+    }*/
+
+    const isAdmin = (channel_item: Channel, userID: number ) => {
+      console.log("userID = ", userID)
+      console.log("channel_item= ", channel_item)
+      const admins  = channel_item.admins;
+      const index = admins.findIndex((el: User) => el.id === userID);
+      if (index == -1) {
+        return false;
+      }
+      return true;
     }
+
+    const isOwner = (channel_item: Channel, userID: number) => {
+
+      const owner = channel_item.owner;
+      if (owner.id === userID){
+        return true;
+        }
+      return false
+    }
+
+    const isBan = (channel_item: Channel, userID: number) => {
+
+      const bans = channel_item.bans;
+      const index = bans.findIndex((el: User) => el.id === userID);
+      if (index == -1) {
+        return false;
+      }
+      return true;
+    }
+
+    const isMute = (channel_item: Channel, userID: number) => {
+
+      const mutes = channel_item.mutes;
+      const index = mutes.findIndex((el: User) => el.id === userID);
+      if (index == -1) {
+        return false;
+      }
+      return true;
+    }
+
+    /*const findNewOwner = () => {
+
+    }*/
 
     return {
         allChannels,
         channels,
         channel,
         channelsJoin,
+        channelLeave,
+        newOwner,
         createChannel,
         joinChannel,
+        leaveChannel,
         updateMember,
+        updateOwner,
        // addMessage,
         getChannelByID,
         deleteChannel,
         updateChannel,
         getChannelUpdates,
-        getMemberChannelByID
+       // getMemberChannelByID,
+        isAdmin,
+        isOwner,
+        isBan,
+        isMute
+        //findNewOwner
     };
 });
