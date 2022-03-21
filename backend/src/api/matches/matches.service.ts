@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateMatchDTO } from './dto/create-match.dto';
 import { UpdateMatchDTO } from './dto/update-match.dto';
@@ -99,27 +99,27 @@ export class MatchesService {
       .orderBy('matches.id', 'DESC');
 
     if (filter.playerOneID)
-      query.andWhere('players[0].id = :playerOneID', {
+      query.andWhere('players.id = :playerOneID', {
         playerOneID: filter.playerOneID,
       });
     if (filter.playerOneName)
-      query.andWhere('players[0].username = :playerOneName', {
+      query.andWhere('players.username = :playerOneName', {
         playerOneName: filter.playerOneName,
       });
     if (filter.playerTwoID)
-      query.andWhere('players[1].id = :playerTwoID', {
+      query.andWhere('players.id = :playerTwoID', {
         playerTwoID: filter.playerTwoID,
       });
     if (filter.playerTwoName)
-      query.andWhere('players[1].username = :playerTwoName', {
+      query.andWhere('players.username = :playerTwoName', {
         playerTwoName: filter.playerTwoName,
       });
     if (filter.playerOneScore)
-      query.andWhere('score[0] = :playerOneScore', {
-        playerOneScore: filter.playerOneScore,
+      query.andWhere('matches.score[0] = :playerOneScore', {
+        playerOneScore: [filter.playerOneScore],
       });
     if (filter.playerTwoScore)
-      query.andWhere('score[1] = :playerTwoScore', {
+      query.andWhere('matches.score[1] = :playerTwoScore', {
         playerTwoScore: filter.playerTwoScore,
       });
     if (filter.winnerID)
