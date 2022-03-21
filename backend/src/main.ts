@@ -8,6 +8,7 @@ import * as passport from 'passport';
 import { getRepository } from 'typeorm';
 import { TypeORMSession } from './auth/entities/session.entity';
 import { TypeormStore } from 'connect-typeorm';
+import { UploadModule } from './upload/upload.module';
 
 async function bootstrap() {
   const api = await NestFactory.create(AppModule);
@@ -63,5 +64,8 @@ async function bootstrap() {
 
   // const authApp = await NestFactory.create(AuthModule);
   // await authApp.listen(5000);
+
+  const fileUpload = await NestFactory.create(UploadModule);
+  await fileUpload.listen(9090);
 }
 bootstrap();
