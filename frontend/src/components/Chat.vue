@@ -256,9 +256,10 @@ const updateChannel = () => {
   });
 };
 
-socket.on('updateChannelToClient', (channel: Channel) => {
+socket.on('updateChannelToClient', (updateChannel: Channel) => {
   if (loggedUser.value != null) {
-    channelStore.updateChannel(channel.id, channel, loggedUser.value.id);
+    channelStore.updateChannel(updateChannel.id, updateChannel, loggedUser.value.id);
+    channel.value = channel.value?.id === updateChannel.id ? updateChannel : channel.value;
   }
 })
 
