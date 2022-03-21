@@ -19,6 +19,8 @@ export interface Input {
   update_p2: string;
   update_s1: string;
   update_s2: string;
+  is_private: boolean;
+  password: string;
 }
 
 export interface InputStore {
@@ -47,7 +49,9 @@ export const useInputStore = defineStore('input', {
         update_p1: '',
         update_p2: '',
         update_s1: '',
-        update_s2: ''
+        update_s2: '',
+        is_private: true,
+        password: ''
       } as Input
     } as InputStore;
   }

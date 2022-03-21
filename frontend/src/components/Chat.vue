@@ -13,11 +13,13 @@ import type { Channel } from '@/models/channel.model';
 import type { Message } from '@/models/message.model';
 import type { User } from '@/models/user.model';
 
-import { Get, Post } from '@/services/requests';
+import { Delete, Get, Patch, Post } from '@/services/requests';
 
 import { io } from 'socket.io-client';
 
-const socket = io("http://localhost:4000");
+const socket = io("http://localhost:4000", {
+  withCredentials: true
+});
 
 const userStore = useUserStore();
 const { loggedUser } = storeToRefs(userStore);
@@ -29,16 +31,16 @@ const inputStore = useInputStore();
 const { input } = storeToRefs(inputStore);
 
 const channelStore = useChannelStore();
-const { allChannels, channels, channel, channelsJoin } = storeToRefs(channelStore);
+const { allChannels, channels, channel, channelsJoin, channelLeave, newOwner} = storeToRefs(channelStore);
 
 const baseUrlMsg = '/messages';
-const baseUrlChat = '/channels';
+const baseUrlChannel = '/channels';
 
 onMounted(async () => {
   Get('/users/' + loggedUser.value?.id + '/channels/member').then(res => channels.value = res.data);
   Get('/channels').then(res => allChannels.value = res.data);
-  socket.emit('createConnection', loggedUser.value);
   channelsJoin.value = true;
+  newOwner.value = -1;
 });
 
 ///////////////////////
@@ -46,7 +48,7 @@ onMounted(async () => {
 ///////////////////////
 
 const displayMessages = (channel_item: Channel) => {
-  Get(baseUrlChat + '/' + channel_item.id.toString()).then(res => {
+  Get(baseUrlChannel + '/' + channel_item.id.toString()).then(res => {
     if (res.status == 200) {
       channel.value = res.data;
       messages.value = res.data.messages;
@@ -54,19 +56,19 @@ const displayMessages = (channel_item: Channel) => {
   });
 }
 
-const handleSubmitNewMessage = () => {
+const handleSubmitNewMessage = (channelId: Number) => {
   if (input.value.create !== '') {
-    if (channel.value !== undefined) {
+   // if (channel.value !== undefined) {
       const newMessage = {
           author: loggedUser.value?.id,
-          channel: {id: channel.value.id},
+          channel: {id: channelId},
           data: input.value.create
         };
         Post(baseUrlMsg, newMessage)
         .then(res => {
           socket.emit('msgToServer', newMessage)
         })
-    }
+    //}
     inputStore.$reset();
   }
 }
@@ -81,33 +83,163 @@ socket.on('msgToClient', (newMessage: Message) => {
 //  CHANNELS
 ///////////////////////
 
+// Créer un nouveau channel
 const handleSubmitNewChannel = () => {
   if (input.value.create_channel !== '')
   {
-      const newChannel = {
-          name: input.value.create_channel,
-          owner: { id: loggedUser.value?.id },
-          members: [{ id: loggedUser.value?.id }],
-      };
-      Post(baseUrlChat, newChannel).then(res => {
-        if (res.status == 201) {
-          channelStore.joinChannel(res.data);
-          socket.emit('channelToServer', newChannel);
-          channel.value = res.data;
-          messages.value = [];
-
-        }
-      })
+    const newChannel = {
+      name: input.value.create_channel,
+      //isPrivate: input.value.is_private,
+      //password: input.value.password != null ? input.value.password : null,
+      owner: { id: loggedUser.value?.id },
+      admins: [{ id: loggedUser.value?.id }],
+      members: [{ id: loggedUser.value?.id }],
+    };
+    Post(baseUrlChannel, newChannel).then(res => {
+      if (res.status == 201) {
+        channelStore.joinChannel(res.data);
+        socket.emit('channelToServer', res.data);
+        channel.value = res.data;
+        messages.value = [];
+      }
+    })
     inputStore.$reset();
   }
 }
 
+// Permet d'attraper l'information qu'un nouveau channel a été créé
 socket.on('channelToClient', (newChannel: Channel) => {
-  channelStore.createChannel(newChannel);
-  Get('/channels').then(res => {
-    allChannels.value = res.data;
+  if (loggedUser.value != undefined) {
+    channelStore.createChannel(newChannel);
     channelStore.updateMember();
+    channelStore.updateOwner(loggedUser.value.id)
+  }
+})
+
+// Rejoindre un channel
+const joinChannel = (channel_item: Channel) => {
+  const updateChannel = {
+    addMembers: [{id: loggedUser.value?.id}]
+  };
+  Patch(baseUrlChannel + '/' + channel_item.id.toString(), updateChannel).then(res => {
+    channelStore.joinChannel(res.data);
+    channel.value = channelStore.getChannelByID(res.data.id);
+    messages.value = res.data.messages;
+    channelStore.updateMember();
+    input.value.create = `${loggedUser.value?.username} has joined the channel.`;
+    handleSubmitNewMessage(channel_item.id)
+  })
+}
+
+// Quitter un channel si pas Owner
+const leaveChannelIfNotOwner = (channel_item: Channel) => {
+  let updateChannel: any ;
+  Get(baseUrlChannel + '/' + channel_item.id.toString()).then(res => {
+    console.log("res.data = ", res.data)
+    if (loggedUser.value != null) {
+      if (channelStore.isAdmin(res.data, loggedUser.value.id) == true ) {
+        updateChannel = {
+          removeAdmins: [{id: loggedUser.value?.id}],
+          removeMembers: [{id: loggedUser.value?.id}]
+        };
+      }
+      else {
+        if (channelStore.isBan(res.data, loggedUser.value.id) == true) {
+          updateChannel = {
+            removeBans: [{id: loggedUser.value?.id}]
+          };
+        }
+        else if (channelStore.isMute(res.data, loggedUser.value.id) == true) {
+          updateChannel = {
+            removeMutes: [{id: loggedUser.value?.id}],
+            removeMembers: [{id: loggedUser.value?.id}]
+          };
+        }
+        else {
+          updateChannel = {
+            removeMembers: [{id: loggedUser.value?.id}]
+          };
+        }
+      }
+      Patch(baseUrlChannel + '/' + channel_item.id.toString(), updateChannel).then(res => {
+        input.value.create = `${loggedUser.value?.username} has leaved the channel.`;
+        handleSubmitNewMessage(channel_item.id)
+        channelStore.leaveChannel(res.data);
+        channel.value = channel.value?.id === channel_item.id ? undefined : channel.value;
+        messages.value = channel.value?.id === channel_item.id ? [] : messages.value;
+        channelStore.updateMember();
+      }) 
+    }
+  })
+}
+
+// Quitter un channel si Owner
+const leaveChannelIfOwner = () => {
+  let updateChannel: any ;
+  if (loggedUser.value != null) {
+    if (channelLeave.value!== undefined) {
+      if (channelStore.isAdmin(channelLeave.value, newOwner.value != undefined ? newOwner.value : -1) == true) {
+        updateChannel = {
+          owner: {id: newOwner.value},
+          removeAdmins: [{id: loggedUser.value?.id}],
+          removeMembers: [{id: loggedUser.value?.id}],
+        }
+      }
+      else {
+        if (channelStore.isMute(channelLeave.value, newOwner.value != undefined ? newOwner.value : -1) == true) {
+          updateChannel = {
+            owner: {id: newOwner.value},
+            addAdmins: [{id: newOwner.value}],
+            removeMutes: [{id: newOwner.value}],
+            removeAdmins: [{id: loggedUser.value?.id}],
+            removeMembers: [{id: loggedUser.value?.id}],
+   
+          }
+        }
+        else {
+          updateChannel = {
+            owner: {id: newOwner.value},
+            removeAdmins: [{id: loggedUser.value?.id}],
+            addAdmins: [{id: newOwner.value}],
+            removeMembers: [{id: loggedUser.value?.id}],
+          }
+        }
+      }
+      Patch(baseUrlChannel + '/' + channelLeave.value.id.toString(), updateChannel).then(res => {
+        input.value.create = `${loggedUser.value?.username} the channel owner is leave - - ${res.data.owner.username} becomes the owner.`;
+        handleSubmitNewMessage(res.data.id)
+        channelStore.leaveChannel(res.data);
+        channel.value = channel.value?.id === channelLeave.value?.id ? undefined : channel.value;
+        messages.value = channel.value?.id === channelLeave.value?.id ? [] : messages.value;
+        channelStore.updateMember();
+        channelStore.updateOwner(loggedUser.value != null ? loggedUser.value.id : -1)
+        socket.emit('newOwnerToServer', res.data.owner.id)
+      }) 
+    }
+  }
+}
+
+socket.on('newOwnerToClient', (newOwnerID: number) => {
+  if (loggedUser.value?.id === newOwnerID) {
+    channelStore.updateOwner(newOwnerID);
+  }
+})
+
+// Supprimer un channel
+const deleteChannel = () => {
+  Delete(baseUrlChannel + '/' + channelLeave.value?.id.toString()).then(res => {
+    if (res.status == 200) {
+      socket.emit('deleteChannelToServer', channelLeave.value?.id)
+    }
   });
+}
+
+socket.on('deleteChannelToClient', (channelID: number) => {
+  if (channel.value?.id == channelID) {
+    channel.value = undefined;
+    messages.value = [];
+  }
+  channelStore.deleteChannel(channelID)
 })
 
 </script>
@@ -115,40 +247,68 @@ socket.on('channelToClient', (newChannel: Channel) => {
 <template>
   <h2>Chat</h2>
   <div class="container-fluid chat">
-
     <div class="chatMenu">
       <div class="chatMenuWrapper">
+
+        <!--Permet d'afficher mes channels-->
         <button @click="channelsJoin = true" type="button" class="btn btn-secondary send">Channels</button>
-        <button @click="channelsJoin = false, channelStore.updateMember()" type="button" class="btn btn-secondary send">All Channels</button>
+        <!--Permet d'afficher tous les channels-->
+        <button @click="channelsJoin = false, channelStore.updateMember(), channelStore.updateOwner(loggedUser != null ? loggedUser.id : -1)" type="button" class="btn btn-secondary send">All Channels</button>
+
+        <!--Affichage de mes channels-->
         <div v-if="channelsJoin">
-          <div v-if="channels" id="chatMenu">
+          <div v-if="channels">
             <ul v-for="(item, index) in channels" :key="index" class="list-group">
+              <!--Permet d'afficher les messages appartenant au channel selectionné-->
               <button @click="displayMessages(item)" type="button" class="btn btn-secondary btn-channel"> {{item.name}} </button>
             </ul>
           </div>
         </div>
+
+        <!--Affichage de tous les channels-->
         <div v-else>
-          <div v-if="allChannels" id="chatMenu">
+          <div v-if="allChannels">
             <ul v-for="(item, index) in  allChannels" :key="index" class="list-group">
-                <div>{{item.isMember}}</div>
+
+                <div>Is member : {{item.isMember}}</div>
+                <!--Permet d'afficher les messages appartenant au channel selectionné si je suis membre du channel-->
                 <div v-if="item.isMember">
-                  <button @click="displayMessages(item)" type="button" class="btn btn-secondary btn-channel"> {{item.name}} 
-                    <span class="badge bg-dark">Leave</span>
+                  <button @click="displayMessages(item)" type="button" class="btn btn-secondary btn-channel">
+                    <span v-if="item.isPrivate" class="badge bg-success">P</span>
+                    <span v-if="item.password != ''" class="badge bg-warning">Pwd : {{item.password}}</span>
+                    {{item.name}}
                   </button>
+                  <div v-if="item.isOwner">
+                    <!--<button type="button" class="btn btn-danger btn-channel" @click="leaveChannelIfOwner(item)" >Leave Owner</button>-->
+                    <button type="button" class="btn btn-danger btn-channel" @click="Get(baseUrlChannel + '/' + item.id.toString()).then(res => channelLeave = res.data)" data-bs-toggle="modal" data-bs-target="#leaveChannel">
+                      Leave Owner
+                    </button>
+                  </div>
+                  <div v-else>
+                    <button type="button" class="btn btn-danger btn-channel" @click="leaveChannelIfNotOwner(item)" >Leave</button>
+                  </div>
                 </div>
+
+                <!--Permet de bloquer l'accès aux messages appartenant au channel selectionné si je ne suis pas membre du channel-->
                 <div v-else>
-                  <button type="button" class="btn btn-secondary btn-channel"> {{item.name}}
-                    <span class="badge bg-dark">Join</span>
-                  </button>
+                  <button type="button" class="btn btn-secondary btn-channel">
+                    <span v-if="item.isPrivate" class="badge bg-success">P</span>
+                    <span v-if="item.password != ''" class="badge bg-warning">Pwd : {{item.password}}</span>
+                    {{item.name}}
+                  </button> 
+                  <button type="button" class="btn btn-primary btn-channel" @click="joinChannel(item)" >Join</button>
+
                 </div>
             </ul>
           </div>
         </div>
         <div>
-          <form @submit.prevent.trim.lazy="handleSubmitNewChannel" method="POST" class="form">
-            <input v-model="input.create_channel" type="text" class="input"/>
-            <input type="submit" value="Create" class="send"/>
-          </form>
+
+        <!--Permet de créer un nouveau channel-->
+        <button type="button" class="send" data-bs-toggle="modal" data-bs-target="#newChannel">
+          New Channel
+        </button>
+
         </div>
       </div>
     </div>
@@ -157,30 +317,130 @@ socket.on('channelToClient', (newChannel: Channel) => {
 
     <div class="chatBox">
       <div class="chatBoxWrapper">{{channel?.name ? channel.name : "Message"}}
-     <!--<div v-if="member">-->
+
+        <!--Affichage des messages du channel selectionné-->
         <div v-if="channel != undefined">
           <div v-if="messages" class="scroller">
             <ul id="msg" v-for="item in messages" :key="item.id">
               Message: {{ item.data }}
             </ul>
           </div>
-          <form @submit.prevent.trim.lazy="handleSubmitNewMessage" method="POST" class="form">
+
+          <!--Permet d'envoyer un nouveau message dans le channel selectionné'-->
+          <form @submit.prevent.trim.lazy="handleSubmitNewMessage(channel?.id)" method="POST" class="form">
             <input v-model="input.create" type="text" class="input"/>
             <input type="submit" value="Send" class="send"/>
           </form>
+
         </div>
-      <!--</div>-->
+
       </div>
     </div>
 
     <span class="vertical-line"></span>
 
+    <!--Permettra de visualiser les amis??-->
     <div class="chatFriends">
       <div class="chatFriendsWrapper">
         <input type="text" placeholder="search for friends" class="chatFriendsInput" />
       </div>
     </div>
+
+    <!-- Modal -->
+    <!--Formulaire pour créer un nouveau channel-->
+    <div class="modal fade modal-dialog-scrollable" id="newChannel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">New Channel</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body">
+     
+            <div class="form form-new-channel">
+              <label for="name">Channel name:</label>
+              <input v-model="input.create_channel" type="text" class="input"/>
+            </div>
+
+            <!--<div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked @click="input.is_private = !input.is_private">
+              <label class="form-check-label" for="flexSwitchCheckChecked">{{input.is_private ? "Private channel" : "Public channel"}} {{input.is_private}}</label>
+            </div>-->
+
+            <div class="form form-new-channel">
+              <label for="name">Password:</label>
+              <input v-model="input.password" type="text" class="input"/>
+            </div>
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+            <button @click="handleSubmitNewChannel" type="submit" class="btn btn-primary" data-bs-dismiss="modal">Create</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+
+    <!--Formulaire pour détruire un channel ou définir un nouveau Owner-->
+    <div class="modal fade modal-dialog-scrollable" id="leaveChannel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">Leave channel : {{channelLeave?.name}}</h5>
+              <button @click="newOwner = -1" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body">
+            Click here if you want to permanently delete this channel :
+            <div class="d-grid gap-2">
+              <button @click="deleteChannel" type="button" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+            </div>
+            <br>
+            <div v-if="channelLeave?.members.length != 1">
+                Otherwise choose a new channel owner :
+                <div v-if="channelLeave?.members" class="scroller">
+                  <div class="list-group" v-for="item in channelLeave.members" :key="item.id">
+                    <div v-if="item.id != loggedUser?.id">
+                      <a  class="list-group-item list-group-item-action"> {{item.username}} =>
+                        <button @click="newOwner = item.id" type="button" class="btn btn-danger btn-channel" data-bs-toggle="modal" data-bs-target="#validateNewOwner">
+                            New Owner                
+                        </button>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button @click="newOwner = -1" type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!--Formulaire pour valider le nouveau Owner-->
+    <div class="modal fade modal-dialog-scrollable" id="validateNewOwner" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            Are you sure ?
+              <button @click="leaveChannelIfOwner" type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">Yes</button>
+              <button @click="newOwner = -1" type="button" class="btn btn-danger btn-sm"  data-bs-toggle="modal" data-bs-target="#leaveChannel">No</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
+
 </template>
 
 <style>
@@ -250,6 +510,14 @@ socket.on('channelToClient', (newChannel: Channel) => {
   height: 3rem;
   box-sizing: border-box;
   backdrop-filter: blur(10px);
+
+}
+
+.form-new-channel {
+  color: #fff;
+  background-color: #6c757d;
+  border-color: #6c757d;
+  align-items: center;
 }
 
 .input {
