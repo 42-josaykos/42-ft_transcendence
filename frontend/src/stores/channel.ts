@@ -12,8 +12,11 @@ export const useChannelStore = defineStore('channel', () => {
     const channel = ref<Channel>();
     const channelLeave = ref<Channel>();
     const channelsJoin = ref<boolean>();
+    const channelJoin = ref<Channel>();
+    const channelsInvite = ref<Channel[]>([]);
     const channelUpdate = ref<Channel>();
     const newOwner = ref<number>();
+    const usersInvite = ref<User[]>([]);
 
     const createChannel = (newChannel: Channel) => {
       allChannels.value.push(newChannel);
@@ -169,6 +172,19 @@ export const useChannelStore = defineStore('channel', () => {
       return true;
     }
 
+    const addUserInvite = (user: User) => {
+      usersInvite.value.push(user);
+    }
+
+    const deleteUserInvite = (index: number) => {
+      usersInvite.value?.splice(index, 1);
+
+    }
+
+    const addChannelInvite = (channel: Channel) => {
+      channelsInvite.value.push(channel);
+    }
+
     /*const findNewOwner = () => {
 
     }*/
@@ -178,9 +194,12 @@ export const useChannelStore = defineStore('channel', () => {
         channels,
         channel,
         channelsJoin,
+        channelJoin,
         channelLeave,
+        channelsInvite,
         channelUpdate,
         newOwner,
+        usersInvite,
         createChannel,
         joinChannel,
         leaveChannel,
@@ -196,7 +215,10 @@ export const useChannelStore = defineStore('channel', () => {
         isOwner,
         isMember,
         isBan,
-        isMute
+        isMute,
+        addUserInvite,
+        deleteUserInvite,
+        addChannelInvite,
         //findNewOwner
     };
 });

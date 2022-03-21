@@ -10,6 +10,7 @@ import {
  import { Socket, Server } from 'socket.io';
  import Message from '../api/messages/entities/message.entity';
  import Channel from 'src/api/channels/entities/channel.entity';
+ import User from 'src/api/users/entities/user.entity';
 import { ChannelsService } from 'src/api/channels/channels.service';
 import { UsersService } from 'src/api/users/users.service';
 import { UpdateUserDTO } from 'src/api/users/dto/update-user.dto';
@@ -56,6 +57,19 @@ import { TypeORMSession } from 'src/auth/entities/session.entity';
   @SubscribeMessage('updateChannelToServer') // permet d'écouter l'évènement "msgToServer"
   async updateChannel(client: Socket, channel: Channel) {
     this.server.emit('updateChannelToClient', channel); // on envoit les données à tous les clients connectés au serveur
+  }
+
+  @SubscribeMessage('inviteJoinChannelToServer') // permet d'écouter l'évènement "msgToServer"
+  async inviteChannel(client: Socket, data: any[]) {
+    const channel = data[0]
+    //console.log("channelInvite => ", channel)
+    data.splice(0, 1)
+    data.forEach(async (el: any) => {
+      //console.log("user => ", el)
+    const user = await this.usersService.getUserByID(el.id);
+    this.server.to(user.socketID).emit('inviteJoinChannelToClient', channel);
+    })
+    //this.server.emit('inviteJoinChannelToClient', data); // on envoit les données à tous les clients connectés au serveur
   }
 
   afterInit(server: Server) {

@@ -16,13 +16,14 @@ import type { User } from '@/models/user.model';
 import { Delete, Get, Patch, Post } from '@/services/requests';
 
 import { io } from 'socket.io-client';
+import UserDebugVue from './debug/UserDebug.vue';
 
 const socket = io("http://localhost:4000", {
   withCredentials: true
 });
 
 const userStore = useUserStore();
-const { loggedUser } = storeToRefs(userStore);
+const { loggedUser, users } = storeToRefs(userStore);
 
 const messageStore = useMessageStore();
 const { messages } = storeToRefs(messageStore);
@@ -31,7 +32,7 @@ const inputStore = useInputStore();
 const { input } = storeToRefs(inputStore);
 
 const channelStore = useChannelStore();
-const { allChannels, channels, channel, channelsJoin, channelLeave, channelUpdate, newOwner} = storeToRefs(channelStore);
+const { allChannels, channels, channel, channelsJoin, channelJoin, channelLeave, channelsInvite, channelUpdate, newOwner, usersInvite} = storeToRefs(channelStore);
 
 const baseUrlMsg = '/messages';
 const baseUrlChannel = '/channels';
@@ -89,8 +90,8 @@ const handleSubmitNewChannel = () => {
   {
     const newChannel = {
       name: input.value.create_channel,
-      //isPrivate: input.value.is_private,
-      //password: input.value.password != null ? input.value.password : null,
+      isPrivate: input.value.channel_type == 2 ? true : false,
+      password: input.value.channel_type == 3 ? input.value.password : null,
       owner: { id: loggedUser.value?.id },
       admins: [{ id: loggedUser.value?.id }],
       members: [{ id: loggedUser.value?.id }],
@@ -101,6 +102,9 @@ const handleSubmitNewChannel = () => {
         socket.emit('channelToServer', res.data);
         channel.value = res.data;
         messages.value = [];
+        if (res.data.isPrivate == true) {
+          socket.emit('inviteJoinChannelToServer', res.data, ...usersInvite.value)
+        }
       }
     })
     inputStore.$reset();
@@ -116,19 +120,48 @@ socket.on('channelToClient', (newChannel: Channel) => {
   }
 })
 
+socket.on('inviteJoinChannelToClient', (inviteChannel: Channel) => {
+  console.log("channelInvite => ", inviteChannel);
+  channelStore.addChannelInvite(inviteChannel)
+})
+
+// Mettre à jour jour un tableau de users qui recevront une invitation à un channel
+const updateUsersInvite = (user: User) => {
+  if (usersInvite.value != undefined) {
+    const index =  usersInvite?.value.findIndex((el: User) => el.id === user.id);
+    if (index != -1) {
+      channelStore.deleteUserInvite(index);
+    }
+    else {
+      channelStore.addUserInvite(user);
+    }
+  }
+  console.log("updateUSerImvite => ", usersInvite.value)
+}
+
 // Rejoindre un channel
-const joinChannel = (channel_item: Channel) => {
+const joinChannel = () => {
   const updateChannel = {
     addMembers: [{id: loggedUser.value?.id}]
   };
-  Patch(baseUrlChannel + '/' + channel_item.id.toString(), updateChannel).then(res => {
-    channelStore.joinChannel(res.data);
-    channel.value = channelStore.getChannelByID(res.data.id);
-    messages.value = res.data.messages;
-    channelStore.updateMember();
-    input.value.create = `${loggedUser.value?.username} has joined the channel.`;
-    handleSubmitNewMessage(channel_item.id)
-  })
+  if (channelJoin.value != undefined) {
+    if (channelJoin.value.password != null) {
+      if (channelJoin.value.password !== input.value.password) {
+        console.log("WRONG PASSWORD")
+        inputStore.$reset();
+        return ;
+      }
+    }
+    Patch(baseUrlChannel + '/' + channelJoin.value?.id.toString(), updateChannel).then(res => {
+      channelStore.joinChannel(res.data);
+      channel.value = channelStore.getChannelByID(res.data.id);
+      messages.value = res.data.messages;
+      channelStore.updateMember();
+      input.value.create = `${loggedUser.value?.username} has joined the channel.`;
+      handleSubmitNewMessage(channelJoin.value?.id)
+    })
+  }
+  inputStore.$reset();
 }
 
 // Quitter un channel si pas Owner
@@ -275,6 +308,8 @@ socket.on('updateChannelToClient', (updateChannel: Channel) => {
         <button @click="channelsJoin = true" type="button" class="btn btn-secondary send">Channels</button>
         <!--Permet d'afficher tous les channels-->
         <button @click="channelsJoin = false, channelStore.updateMember(), channelStore.updateOwner(loggedUser != null ? loggedUser.id : -1)" type="button" class="btn btn-secondary send">All Channels</button>
+        <!--Permet d'afficher les inviations aux channels-->
+        <button type="button" class="btn btn-secondary send">Invite</button>
 
         <!--Affichage de mes channels-->
         <div v-if="channelsJoin">
@@ -287,7 +322,7 @@ socket.on('updateChannelToClient', (updateChannel: Channel) => {
         </div>
 
         <!--Affichage de tous les channels-->
-        <div v-else>
+        <div v-else-if="channelsJoin == false">
           <div v-if="allChannels">
             <ul v-for="(item, index) in  allChannels" :key="index" class="list-group">
 
@@ -295,8 +330,9 @@ socket.on('updateChannelToClient', (updateChannel: Channel) => {
                 <!--Permet d'afficher les messages appartenant au channel selectionné si je suis membre du channel-->
                 <div v-if="item.isMember">
                   <button @click="displayMessages(item)" type="button" class="btn btn-secondary btn-channel">
-                    <span v-if="item.isPrivate" class="badge bg-success">P</span>
-                    <span v-if="item.password != ''" class="badge bg-warning">Pwd : {{item.password}}</span>
+                    <span v-if="item.isPrivate == true" class="badge bg-success">Private</span>
+                    <span v-if="item.isPrivate == false" class="badge bg-success">Public</span>
+                    <span v-if="item.password != null" class="badge bg-warning">Pass : {{item.password}}</span>
                     {{item.name}}
                   </button>
                   <div v-if="item.isOwner">
@@ -316,20 +352,33 @@ socket.on('updateChannelToClient', (updateChannel: Channel) => {
                 <!--Permet de bloquer l'accès aux messages appartenant au channel selectionné si je ne suis pas membre du channel-->
                 <div v-else>
                   <button type="button" class="btn btn-secondary btn-channel">
-                    <span v-if="item.isPrivate" class="badge bg-success">P</span>
-                    <span v-if="item.password != ''" class="badge bg-warning">Pwd : {{item.password}}</span>
+                    <span v-if="item.isPrivate == true" class="badge bg-success">Private</span>
+                    <span v-if="item.isPrivate == false" class="badge bg-success">Public</span>
+                    <span v-if="item.password != null" class="badge bg-warning">Pass : {{item.password}}</span>
                     {{item.name}}
                   </button> 
-                  <button type="button" class="btn btn-primary btn-channel btn-sm" @click="joinChannel(item)" >Join</button>
+                  <button type="button" class="btn btn-primary btn-channel btn-sm" @click="channelJoin = item" data-bs-toggle="modal" data-bs-target="#joinChannel" >Join</button> <!--@click="joinChannel(item)"-->
 
                 </div>
             </ul>
           </div>
         </div>
+
+        <div v-else>
+          <div v-if="channelsInvite">
+            <ul v-for="(item, index) in  channelsInvite" :key="index" class="list-group">
+              <button type="button" class="btn btn-secondary btn-channel">
+                {{item.name}}
+              </button> 
+              <button type="button" class="btn btn-primary btn-channel btn-sm" @click="channelJoin = item" data-bs-toggle="modal" data-bs-target="#joinChannel" >Join</button>
+            </ul>
+        </div>
+                </div>
+
         <div>
 
         <!--Permet de créer un nouveau channel-->
-        <button type="button" class="send" data-bs-toggle="modal" data-bs-target="#newChannel">
+        <button @click="Get('/users').then(res => users = res.data); usersInvite = []" type="button" class="send" data-bs-toggle="modal" data-bs-target="#newChannel">
           New Channel
         </button>
 
@@ -388,14 +437,40 @@ socket.on('updateChannelToClient', (updateChannel: Channel) => {
               <input v-model="input.create_channel" type="text" class="input"/>
             </div>
 
-            <!--<div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked @click="input.is_private = !input.is_private">
-              <label class="form-check-label" for="flexSwitchCheckChecked">{{input.is_private ? "Private channel" : "Public channel"}} {{input.is_private}}</label>
-            </div>-->
+            <div class="form-check form-check-inline">
+              <input @click="input.channel_type = 1" class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" checked>
+              <label class="form-check-label" for="inlineRadio1">Public</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input @click="input.channel_type = 2" class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2">
+              <label class="form-check-label" for="inlineRadio2">Private</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input @click="input.channel_type = 3" class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2">
+              <label class="form-check-label" for="inlineRadio2">Protected</label>
+            </div>
 
-            <div class="form form-new-channel">
-              <label for="name">Password:</label>
-              <input v-model="input.password" type="text" class="input"/>
+            <div v-if="input.channel_type == 3">
+              <div class="form form-new-channel">
+                <label for="name">Password:</label>
+                <input v-model="input.password" type="text" class="input"/>
+              </div>
+            </div>
+            <div v-else-if="input.channel_type == 2">
+              <div v-if="users.length != 1">
+                  Choose users :
+                  <div class="scroller">
+                    <div class="list-group" v-for="user in users" :key="user.id">
+                      <div v-if="user.id != loggedUser?.id">
+                        <a  class="list-group-item list-group-item-action"> {{user.username}} =>
+                          <button @click="updateUsersInvite(user)" type="button" class="btn btn-success btn-channel btn-sm">
+                              Invite               
+                          </button>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+              </div>
             </div>
 
           </div>
@@ -403,6 +478,36 @@ socket.on('updateChannelToClient', (updateChannel: Channel) => {
           <div class="modal-footer">
             <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
             <button @click="handleSubmitNewChannel" type="submit" class="btn btn-primary" data-bs-dismiss="modal">Create</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!--Formulaire pour rejoindre un channel-->
+    <div class="modal fade modal-dialog-scrollable" id="joinChannel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">Join : {{ channelJoin?.name}}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div v-if="channelJoin?.password != null">
+            <div class="modal-body">
+              This channel is protected with a password.
+              <div class="form form-new-channel">
+                <label for="name">Enter Password:</label>
+                <input v-model="input.password" type="text" class="input"/>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="modal-footer">
+            <button @click="inputStore.$reset(); channelJoin = undefined" type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+            <button @click="joinChannel()" type="submit" class="btn btn-primary" data-bs-dismiss="modal">Join</button>
           </div>
 
         </div>

@@ -21,6 +21,7 @@ export interface Input {
   update_s2: string;
   is_private: boolean;
   password: string;
+  channel_type: number;
 }
 
 export interface InputStore {
@@ -51,7 +52,8 @@ export const useInputStore = defineStore('input', {
         update_s1: '',
         update_s2: '',
         is_private: true,
-        password: ''
+        password: '',
+        channel_type: 0
       } as Input
     } as InputStore;
   }
