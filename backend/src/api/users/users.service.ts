@@ -135,7 +135,7 @@ export class UsersService {
 
   async updateUser(userID: number, updatedUser: UpdateUserDTO): Promise<User> {
     try {
-      // MUST validate users in UpdateUserDTO
+      await this.validateUser(updatedUser);
       const user = await this.getUserByID(userID);
 
       // Checking what is updated
@@ -255,5 +255,34 @@ export class UsersService {
       (user) => !toRemove.find((remove) => remove.id === user.id),
     );
     return array;
+  }
+  async validateUser(user: UpdateUserDTO): Promise<void> {
+    // Checking if all friends exist
+    if ('friends' in user) {
+      for (const friend of user.friends) {
+        if ((await this.usersRepository.count(friend)) === 0)
+          throw new ForbiddenException(
+            "Can't update friends (friend does not exists)",
+          );
+      }
+    }
+    // Checking if all addFriends exist
+    if ('addFriends' in user) {
+      for (const friend of user.addFriends) {
+        if ((await this.usersRepository.count(friend)) === 0)
+          throw new ForbiddenException(
+            "Can't update friends (added friend does not exists)",
+          );
+      }
+    }
+    // Checking if all removeFriends exist
+    if ('removeFriends' in user) {
+      for (const friend of user.removeFriends) {
+        if ((await this.usersRepository.count(friend)) === 0)
+          throw new ForbiddenException(
+            "Can't update friends (removed friend does not exists)",
+          );
+      }
+    }
   }
 }

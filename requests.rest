@@ -27,7 +27,7 @@ PATCH http://{{host}}/users/1
 Content-Type: {{contentType}}
 
 {
-    "friends": [{"id": 2}, {"id": 3}]
+    "addFriends": [{"id": 3}]
 }
 
 ###
