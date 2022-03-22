@@ -32,4 +32,14 @@ export class UpdateUserDTO {
   @IsNotEmpty()
   @IsOptional()
   readonly friends?: User[];
+
+  @ApiProperty({ required: false })
+  @IsNotEmpty()
+  @IsOptional()
+  readonly addFriends?: User[];
+
+  @ApiProperty({ required: false })
+  @IsNotEmpty()
+  @IsOptional()
+  readonly removeFriends?: User[];
 }

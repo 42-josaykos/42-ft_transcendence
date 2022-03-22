@@ -134,19 +134,31 @@ export class UsersService {
   }
 
   async updateUser(userID: number, updatedUser: UpdateUserDTO): Promise<User> {
-    const user = await this.usersRepository.findOne({
-      where: { id: userID },
-    });
-    if (!user) throw new NotFoundException('User not found (id incorrect)');
+    try {
+      // MUST validate users in UpdateUserDTO
+      const user = await this.getUserByID(userID);
 
-    // Checking what is updated
-    if (updatedUser.username) user.username = updatedUser.username;
-    if (updatedUser.avatar) user.avatar = updatedUser.avatar;
-    if (updatedUser.socketID) user.socketID = updatedUser.socketID;
-    if (updatedUser.friends) user.friends = updatedUser.friends;
+      // Checking what is updated
+      if (updatedUser.username) user.username = updatedUser.username;
+      if (updatedUser.avatar) user.avatar = updatedUser.avatar;
+      if (updatedUser.socketID) user.socketID = updatedUser.socketID;
+      if (updatedUser.friends) user.friends = updatedUser.friends;
+      if (updatedUser.addFriends)
+        user.friends = await this.addUsersToArray(
+          updatedUser.addFriends,
+          user.friends,
+        );
+      if (updatedUser.removeFriends)
+        user.friends = await this.removeUsersFromArray(
+          updatedUser.removeFriends,
+          user.friends,
+        );
 
-    await this.usersRepository.save(user);
-    return await this.getUserByID(userID);
+      await this.usersRepository.save(user);
+      return await this.getUserByID(userID);
+    } catch (error) {
+      throw error;
+    }
   }
 
   async deleteUser(userID: number): Promise<void> {
@@ -229,5 +241,19 @@ export class UsersService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async addUsersToArray(toAdd: User[], array: User[]) {
+    toAdd.forEach((user) => {
+      array.push(user);
+    });
+    return array;
+  }
+
+  async removeUsersFromArray(toRemove: User[], array: User[]) {
+    array = array.filter(
+      (user) => !toRemove.find((remove) => remove.id === user.id),
+    );
+    return array;
   }
 }
