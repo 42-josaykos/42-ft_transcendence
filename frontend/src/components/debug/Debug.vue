@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import MatchDebug from './MatchDebug.vue';
-import UserDebug from './UserDebug.vue';
-import ChannelDebug from './ChannelDebug.vue';
+import MatchDebug from "./MatchDebug.vue";
+import UserDebug from "./UserDebug.vue";
+import ChannelDebug from "./ChannelDebug.vue";
+import UploadDebug from "./UploadDebug.vue";
 
-import { storeToRefs } from 'pinia';
-import { useInputStore } from '@/stores/input';
+import { storeToRefs } from "pinia";
+import { useInputStore } from "@/stores/input";
 
 // Inputs
 const inputStore = useInputStore();
@@ -28,6 +29,7 @@ const { input } = storeToRefs(inputStore);
     :inputStore="inputStore"
     :input="input"
   />
+  <UploadDebug title="File uploading test" />
 </template>
 
 <style>

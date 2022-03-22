@@ -27,6 +27,9 @@ export default ({ mode }: any) => {
         "/messages": {
           target: `http://localhost:${process.env.API_PORT}`,
         },
+        "/upload": {
+          target: `http://localhost:7000`,
+        },
       },
     },
     plugins: [vue()],

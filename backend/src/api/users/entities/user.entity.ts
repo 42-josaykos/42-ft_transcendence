@@ -64,6 +64,9 @@ class User {
 
   @ManyToMany((type) => Channel, (channel) => channel.bans)
   public banChannels: Channel[];
+
+  @ManyToMany((type) => Channel, (channel) => channel.invites)
+  public inviteChannels: Channel[];
 }
 
 export default User;

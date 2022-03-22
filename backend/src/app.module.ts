@@ -3,6 +3,8 @@ import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { ApiModule } from './api/api.module';
 import { ChatGateway } from './gateway/chat.gateway';
+import { UploadController } from './upload/upload.controller';
+import { UploadModule } from './upload/upload.module';
 import * as Joi from 'joi';
 
 const envSchema = Joi.object({
@@ -22,8 +24,9 @@ const envSchema = Joi.object({
     }),
     ApiModule,
     PassportModule.register({ session: true }),
+    UploadModule,
   ],
-  controllers: [],
+  controllers: [UploadController],
   providers: [ChatGateway],
 })
 export class AppModule {}
