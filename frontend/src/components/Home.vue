@@ -10,7 +10,7 @@ const { isAuthenticated } = storeToRefs(userStore);
 <template>
   <div class="containers-fluid">
     <div class="d-flex justify-content-center align-items-center pong">
-      PONG
+      <h1 class="GameName">SPACE PONG</h1>
       <img src="../assets/42_Logo.svg" alt="42-logo" width="100" />
     </div>
     <div>
@@ -39,5 +39,17 @@ p.pong {
   margin-left: auto;
   margin-right: auto;
   width: 6em;
+}
+
+.GameName{
+  font-family: "Vibure", cursive;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 60px;
+  line-height: 86px;
+
+  color: #FFFFFF;
+
+  text-shadow: 0px 4px 15px #FFF961, 0px 0px 10px #FFF961;
 }
 </style>
