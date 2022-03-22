@@ -59,6 +59,12 @@ export class UpdateChannelDTO {
   @IsOptional()
   readonly bans?: User[];
 
+  @ApiProperty({ required: false })
+  @IsArray()
+  @IsNotEmpty()
+  @IsOptional()
+  readonly invites?: User[];
+
   // Updating with theses will just need Users you want to add or remove int the arrays
   @ApiProperty({ required: false })
   @IsArray()
@@ -107,4 +113,16 @@ export class UpdateChannelDTO {
   @IsNotEmpty()
   @IsOptional()
   readonly removeBans?: User[];
+
+  @ApiProperty({ required: false })
+  @IsArray()
+  @IsNotEmpty()
+  @IsOptional()
+  readonly addInvites?: User[];
+
+  @ApiProperty({ required: false })
+  @IsArray()
+  @IsNotEmpty()
+  @IsOptional()
+  readonly removeInvites?: User[];
 }

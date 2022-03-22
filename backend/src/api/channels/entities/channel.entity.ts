@@ -65,6 +65,13 @@ class Channel {
   })
   @JoinTable()
   public bans: User[];
+
+  @ManyToMany((type) => User, (bans) => bans.inviteChannels, {
+    cascade: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinTable()
+  public invites: User[];
 }
 
 export default Channel;

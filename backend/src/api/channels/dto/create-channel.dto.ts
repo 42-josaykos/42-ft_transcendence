@@ -46,4 +46,9 @@ export class CreateChannelDTO {
   @IsNotEmpty()
   @IsOptional()
   readonly bans?: User[];
+
+  @IsArray()
+  @IsNotEmpty()
+  @IsOptional()
+  readonly invites?: User[];
 }

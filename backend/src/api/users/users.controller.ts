@@ -118,6 +118,13 @@ export class UsersController {
   ): Promise<Channel[]> {
     return await this.usersService.getUserChannelsBaned(userID);
   }
+
+  @Get(':userID/channels/invites')
+  async getUserChannelsInvites(
+    @Param('userID', ParseIntPipe) userID: number,
+  ): Promise<Channel[]> {
+    return await this.usersService.getUserChannelsInvites(userID);
+  }
 }
 
 // Redirections to Stats from '/stats/:id'

@@ -35,6 +35,7 @@ export class ChannelsService {
       'members',
       'mutes',
       'bans',
+      'invites',
     ],
   ): Promise<Channel> {
     const channel = await this.channelsRepository.findOne({
@@ -127,6 +128,15 @@ export class ChannelsService {
     }
   }
 
+  async getChannelInvites(channelID: number): Promise<User[]> {
+    try {
+      const channel = await this.getChannelByID(channelID, ['invites']);
+      return channel.invites;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async createChannel(channel: CreateChannelDTO): Promise<Channel> {
     try {
       await this.validateChannel(channel);
@@ -155,6 +165,7 @@ export class ChannelsService {
       if (updatedChannel.members) channel.members = updatedChannel.members;
       if (updatedChannel.mutes) channel.mutes = updatedChannel.mutes;
       if (updatedChannel.bans) channel.bans = updatedChannel.bans;
+      if (updatedChannel.invites) channel.invites = updatedChannel.invites;
       if (updatedChannel.addAdmins)
         channel.admins = await this.addUsersToArray(
           updatedChannel.addAdmins,
@@ -194,6 +205,16 @@ export class ChannelsService {
         channel.bans = await this.removeUsersFromArray(
           updatedChannel.removeBans,
           channel.bans,
+        );
+      if (updatedChannel.addInvites)
+        channel.invites = await this.addUsersToArray(
+          updatedChannel.addInvites,
+          channel.invites,
+        );
+      if (updatedChannel.removeInvites)
+        channel.invites = await this.removeUsersFromArray(
+          updatedChannel.removeInvites,
+          channel.invites,
         );
 
       await this.channelsRepository.save(channel);
@@ -273,6 +294,15 @@ export class ChannelsService {
           );
       }
     }
+    // Checking if all invites exist
+    if (channel.invites) {
+      for (const invite of channel.invites) {
+        if ((await this.usersRepository.count(invite)) === 0)
+          throw new ForbiddenException(
+            "Can't create / update channel (invited member does not exists)",
+          );
+      }
+    }
     // Checking if all addAdmins exist
     if ('addAdmins' in channel) {
       for (const admin of channel.addAdmins) {
@@ -342,6 +372,24 @@ export class ChannelsService {
         if ((await this.usersRepository.count(baned)) === 0)
           throw new ForbiddenException(
             "Can't create / update channel (removed baned member does not exists)",
+          );
+      }
+    }
+    // Checking if all addInvites exist
+    if ('addInvites' in channel) {
+      for (const invited of channel.addInvites) {
+        if ((await this.usersRepository.count(invited)) === 0)
+          throw new ForbiddenException(
+            "Can't create / update channel (added invited member does not exists)",
+          );
+      }
+    }
+    // Checking if all removeInvites exist
+    if ('removeInvites' in channel) {
+      for (const invited of channel.removeInvites) {
+        if ((await this.usersRepository.count(invited)) === 0)
+          throw new ForbiddenException(
+            "Can't create / update channel (removed invited member does not exists)",
           );
       }
     }
