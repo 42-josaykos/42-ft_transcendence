@@ -107,7 +107,12 @@ export const useChannelStore = defineStore('channel', () => {
         return updates;
       };*/
 
+
     const updateChannel = (id: number, updatedData: Channel, userID: number) => {
+      if (isInvite(updatedData)) {
+        const index = channelsInvite.value.findIndex((el: Channel) => el.id === id);
+        channelsInvite.value.splice(index, 1, { ...channelsInvite.value[index], ...updatedData });
+      }
       if (isMember(updatedData, userID)) {
         const index = channels.value.findIndex((el: Channel) => el.id === id);
         channels.value.splice(index, 1, { ...channels.value[index], ...updatedData });
@@ -172,22 +177,30 @@ export const useChannelStore = defineStore('channel', () => {
       return true;
     }
 
+    const isInvite = (channel_item: Channel) => {
+      const index = channelsInvite.value.findIndex((el: Channel) => el.id === channel_item.id);
+      if (index == -1) {
+        return false;
+      }
+      return true;
+    }
+
     const addUserInvite = (user: User) => {
       usersInvite.value.push(user);
     }
 
     const deleteUserInvite = (index: number) => {
       usersInvite.value?.splice(index, 1);
-
     }
 
     const addChannelInvite = (channel: Channel) => {
       channelsInvite.value.push(channel);
     }
 
-    /*const findNewOwner = () => {
-
-    }*/
+    const deleteChannelInvite = (channel: Channel) => {
+      const index = channelsInvite.value.findIndex((el: Channel) => el.id === channel.id);
+      channelsInvite.value?.splice(index, 1);
+    }
 
     return {
         allChannels,
@@ -219,6 +232,6 @@ export const useChannelStore = defineStore('channel', () => {
         addUserInvite,
         deleteUserInvite,
         addChannelInvite,
-        //findNewOwner
+        deleteChannelInvite
     };
 });

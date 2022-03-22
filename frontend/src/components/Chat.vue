@@ -158,8 +158,40 @@ const joinChannel = () => {
       messages.value = res.data.messages;
       channelStore.updateMember();
       input.value.create = `${loggedUser.value?.username} has joined the channel.`;
-      handleSubmitNewMessage(channelJoin.value?.id)
+      if (channelJoin.value != undefined) {
+        handleSubmitNewMessage(channelJoin.value?.id)
+      }
     })
+  }
+  inputStore.$reset();
+}
+
+///////////////////////////////////
+// A REFAIRE QUAND ROUTES PRETES //
+///////////////////////////////////
+// Accepter une invitation à rejoindre un channel
+const acceptInviteChannel = () => {
+  console.log(`Accept invitation => ${channelJoin.value?.name}`)
+  /*
+    Supprimer avec une requete PATCH dans la bdd au niveau de inviteChannels
+    Supprimer dans le store => deleteChannelInvite
+  */
+  if (channelJoin.value != undefined) {
+    channelStore.deleteChannelInvite(channelJoin.value)
+    joinChannel()
+  }
+
+}
+
+// Refuser une invitation à rejoindre un channel
+const refuseInviteChannel = () => {
+  console.log(`Refuse invitation => ${channelJoin.value?.name}`)
+  /*
+    Supprimer avec une requete PATCH dans la bdd au niveau de inviteChannels
+    Supprimer dans le store => deleteChannelInvite
+  */
+  if (channelJoin.value != undefined) {
+    channelStore.deleteChannelInvite(channelJoin.value)
   }
   inputStore.$reset();
 }
@@ -309,10 +341,14 @@ socket.on('updateChannelToClient', (updateChannel: Channel) => {
         <!--Permet d'afficher tous les channels-->
         <button @click="channelsJoin = false, channelStore.updateMember(), channelStore.updateOwner(loggedUser != null ? loggedUser.id : -1)" type="button" class="btn btn-secondary send">All Channels</button>
         <!--Permet d'afficher les inviations aux channels-->
-        <button type="button" class="btn btn-secondary send">Invite</button>
+        <button @click="channelsJoin = undefined" type="button" class="btn btn-secondary send">Invite
+        <div v-if="channelsInvite.length > 0">
+          <span class="badge rounded-pill bg-danger">{{channelsInvite.length}}</span>
+        </div>
+        </button>
 
         <!--Affichage de mes channels-->
-        <div v-if="channelsJoin">
+        <div v-if="channelsJoin == true">
           <div v-if="channels">
             <ul v-for="(item, index) in channels" :key="index" class="list-group">
               <!--Permet d'afficher les messages appartenant au channel selectionné-->
@@ -357,8 +393,9 @@ socket.on('updateChannelToClient', (updateChannel: Channel) => {
                     <span v-if="item.password != null" class="badge bg-warning">Pass : {{item.password}}</span>
                     {{item.name}}
                   </button> 
-                  <button type="button" class="btn btn-primary btn-channel btn-sm" @click="channelJoin = item" data-bs-toggle="modal" data-bs-target="#joinChannel" >Join</button> <!--@click="joinChannel(item)"-->
-
+                  <div v-if="item.isPrivate == false">
+                    <button type="button" class="btn btn-primary btn-channel btn-sm" @click="channelJoin = item" data-bs-toggle="modal" data-bs-target="#joinChannel" >Join</button>
+                  </div>
                 </div>
             </ul>
           </div>
@@ -370,10 +407,11 @@ socket.on('updateChannelToClient', (updateChannel: Channel) => {
               <button type="button" class="btn btn-secondary btn-channel">
                 {{item.name}}
               </button> 
-              <button type="button" class="btn btn-primary btn-channel btn-sm" @click="channelJoin = item" data-bs-toggle="modal" data-bs-target="#joinChannel" >Join</button>
+              <button type="button" class="btn btn-primary btn-channel btn-sm" @click="channelJoin = item, acceptInviteChannel()">Join</button>
+              <button type="button" class="btn btn-danger btn-channel btn-sm" @click="channelJoin = item, refuseInviteChannel()">Refuse</button>
             </ul>
+          </div>
         </div>
-                </div>
 
         <div>
 
