@@ -6,6 +6,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import {
   AuthenticatedGuard,
   FortyTwoAuthGuard,
@@ -14,6 +15,7 @@ import {
 } from './guards';
 
 @Controller('auth')
+@ApiTags('auth')
 export class AuthController {
   /**
    * GET /auth/login

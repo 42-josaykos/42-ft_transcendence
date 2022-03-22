@@ -42,6 +42,7 @@ export class UsersService {
         'memberChannels',
         'muteChannels',
         'banChannels',
+        'inviteChannels',
       ],
     });
     return users;
@@ -60,6 +61,7 @@ export class UsersService {
       'memberChannels',
       'muteChannels',
       'banChannels',
+      'inviteChannels',
     ],
   ): Promise<User> {
     const user = await this.usersRepository.findOne({
@@ -205,6 +207,15 @@ export class UsersService {
     try {
       const user = await this.getUserByID(userID, ['banChannels']);
       return user.banChannels;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getUserChannelsInvites(userID: number): Promise<Channel[]> {
+    try {
+      const user = await this.getUserByID(userID, ['inviteChannels']);
+      return user.inviteChannels;
     } catch (error) {
       throw error;
     }

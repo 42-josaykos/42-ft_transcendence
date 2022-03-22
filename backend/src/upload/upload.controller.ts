@@ -5,6 +5,7 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
@@ -28,6 +29,7 @@ function generateFilename(file: Express.Multer.File): string {
 }
 
 @Controller('upload')
+@ApiTags('upload')
 export class UploadController {
   @Get()
   helloWorld() {

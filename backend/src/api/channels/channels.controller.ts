@@ -98,6 +98,13 @@ export class ChannelsController {
     return await this.channelsService.getChannelBans(channelID);
   }
 
+  @Get(':channelID/invites')
+  async getChannelInvites(
+    @Param('channelID', ParseIntPipe) channelID: number,
+  ): Promise<User[]> {
+    return await this.channelsService.getChannelInvites(channelID);
+  }
+
   @Post()
   async createChannel(@Body() channel: CreateChannelDTO): Promise<Channel> {
     return await this.channelsService.createChannel(channel);
