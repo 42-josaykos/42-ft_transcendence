@@ -33,6 +33,8 @@ export class UsersService {
       relations: [
         'stats',
         // Below: For DEBUG, may remove later
+        'friends',
+        'friendsInverse',
         'messages',
         'messages.channel',
         'playedMatches',
@@ -52,6 +54,8 @@ export class UsersService {
     userID: number,
     relations: string[] = [
       'stats',
+      'friends',
+      'friendsInverse',
       'messages',
       'messages.channel',
       'playedMatches',
@@ -134,8 +138,14 @@ export class UsersService {
       where: { id: userID },
     });
     if (!user) throw new NotFoundException('User not found (id incorrect)');
-    else await this.usersRepository.update(userID, updatedUser);
 
+    // Checking what is updated
+    if (updatedUser.username) user.username = updatedUser.username;
+    if (updatedUser.avatar) user.avatar = updatedUser.avatar;
+    if (updatedUser.socketID) user.socketID = updatedUser.socketID;
+    if (updatedUser.friends) user.friends = updatedUser.friends;
+
+    await this.usersRepository.save(user);
     return await this.getUserByID(userID);
   }
 

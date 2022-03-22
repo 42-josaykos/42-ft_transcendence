@@ -6,6 +6,7 @@ import {
   OneToOne,
   ManyToMany,
   PrimaryGeneratedColumn,
+  ManyToOne,
 } from 'typeorm';
 import Stats from 'src/api/stats/entities/stats.entity';
 import Message from 'src/api/messages/entities/message.entity';
@@ -37,6 +38,17 @@ class User {
 
   @OneToOne((type) => Stats, (stats) => stats.user)
   public stats: Stats;
+
+  // User related relations
+  @OneToMany((type) => User, (user) => user.friendsInverse, {
+    cascade: true,
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
+  })
+  public friends: User[]; // Users who I am friends with
+
+  @ManyToOne((type) => User, (user) => user.friends)
+  public friendsInverse: User[]; // Users who are friends with me
 
   // Match related relations
   @ManyToMany((type) => Match, (match) => match.players)
