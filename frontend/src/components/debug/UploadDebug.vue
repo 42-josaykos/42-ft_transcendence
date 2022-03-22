@@ -10,7 +10,7 @@ const props = defineProps<{
 
   <form
     method="post"
-    action="http://localhost:9090/upload"
+    action="http://localhost:7000/upload"
     enctype="multipart/form-data"
   >
     <div>

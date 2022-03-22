@@ -59,13 +59,20 @@ async function bootstrap() {
   api.use(passport.initialize());
   api.use(passport.session());
 
+  // API Module
   await api.listen(port, '0.0.0.0');
-  console.log(`API is listening on: ${await api.getUrl()}`);
+  console.log(`[APIModule] API is listening on: ${await api.getUrl()}`);
 
+  // Auth Module
   // const authApp = await NestFactory.create(AuthModule);
   // await authApp.listen(5000);
 
+  // Upload Module
+  const uploadModulePort = 7000;
   const fileUpload = await NestFactory.create(UploadModule);
-  await fileUpload.listen(9090);
+  await fileUpload.listen(uploadModulePort, '0.0.0.0');
+  console.log(
+    `[UploadModule] Upload service running on: ${await fileUpload.getUrl()}`,
+  );
 }
 bootstrap();
