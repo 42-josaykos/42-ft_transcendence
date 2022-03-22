@@ -169,6 +169,25 @@ export class UsersService {
     else await this.usersRepository.remove(user);
   }
 
+  // User related
+  async getUserFriends(userID: number): Promise<User[]> {
+    try {
+      const user = await this.getUserByID(userID, ['friends']);
+      return user.friends;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getUserFriendsInverse(userID: number): Promise<User[]> {
+    try {
+      const user = await this.getUserByID(userID, ['friendsInverse']);
+      return user.friendsInverse;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   // Match related
   async getUserMatchesPlayed(userID: number): Promise<Match[]> {
     try {
