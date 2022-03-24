@@ -22,11 +22,6 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy) {
     const { id: studentID, username, photos } = profile;
     const { value: avatar } = photos[0];
 
-    /////////////////////////////////////// DEBUG
-    console.log(profile);
-    console.log('Logged User:', studentID, username, avatar);
-    console.log('Access Token:', accessToken);
-    ///////////////////////////////////////////////////////////////////
     const details: CreateUserDTO = { username, studentID, avatar };
 
     return await this.authService.validateUser(details);
