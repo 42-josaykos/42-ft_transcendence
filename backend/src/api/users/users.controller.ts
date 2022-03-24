@@ -68,6 +68,21 @@ export class UsersController {
     return await this.usersService.deleteUser(userID);
   }
 
+  // User related
+  @Get(':userID/friends')
+  async getUserFriends(
+    @Param('userID', ParseIntPipe) userID: number,
+  ): Promise<User[]> {
+    return await this.usersService.getUserFriends(userID);
+  }
+
+  @Get(':userID/friendsInverse')
+  async getUserFriendsInverse(
+    @Param('userID', ParseIntPipe) userID: number,
+  ): Promise<User[]> {
+    return await this.usersService.getUserFriendsInverse(userID);
+  }
+
   // Match related
   @Get(':userID/matches/played')
   async getUserMatchesPlayed(

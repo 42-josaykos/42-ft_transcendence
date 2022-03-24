@@ -33,6 +33,8 @@ export class UsersService {
       relations: [
         'stats',
         // Below: For DEBUG, may remove later
+        'friends',
+        'friendsInverse',
         'messages',
         'messages.channel',
         'playedMatches',
@@ -52,6 +54,8 @@ export class UsersService {
     userID: number,
     relations: string[] = [
       'stats',
+      'friends',
+      'friendsInverse',
       'messages',
       'messages.channel',
       'playedMatches',
@@ -130,13 +134,31 @@ export class UsersService {
   }
 
   async updateUser(userID: number, updatedUser: UpdateUserDTO): Promise<User> {
-    const user = await this.usersRepository.findOne({
-      where: { id: userID },
-    });
-    if (!user) throw new NotFoundException('User not found (id incorrect)');
-    else await this.usersRepository.update(userID, updatedUser);
+    try {
+      await this.validateUser(updatedUser);
+      const user = await this.getUserByID(userID);
 
-    return await this.getUserByID(userID);
+      // Checking what is updated
+      if (updatedUser.username) user.username = updatedUser.username;
+      if (updatedUser.avatar) user.avatar = updatedUser.avatar;
+      if (updatedUser.socketID) user.socketID = updatedUser.socketID;
+      if (updatedUser.friends) user.friends = updatedUser.friends;
+      if (updatedUser.addFriends)
+        user.friends = await this.addUsersToArray(
+          updatedUser.addFriends,
+          user.friends,
+        );
+      if (updatedUser.removeFriends)
+        user.friends = await this.removeUsersFromArray(
+          updatedUser.removeFriends,
+          user.friends,
+        );
+
+      await this.usersRepository.save(user);
+      return await this.getUserByID(userID);
+    } catch (error) {
+      throw error;
+    }
   }
 
   async deleteUser(userID: number): Promise<void> {
@@ -145,6 +167,25 @@ export class UsersService {
     });
     if (!user) throw new NotFoundException('User not found (id incorrect)');
     else await this.usersRepository.remove(user);
+  }
+
+  // User related
+  async getUserFriends(userID: number): Promise<User[]> {
+    try {
+      const user = await this.getUserByID(userID, ['friends']);
+      return user.friends;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getUserFriendsInverse(userID: number): Promise<User[]> {
+    try {
+      const user = await this.getUserByID(userID, ['friendsInverse']);
+      return user.friendsInverse;
+    } catch (error) {
+      throw error;
+    }
   }
 
   // Match related
@@ -218,6 +259,49 @@ export class UsersService {
       return user.inviteChannels;
     } catch (error) {
       throw error;
+    }
+  }
+
+  async addUsersToArray(toAdd: User[], array: User[]) {
+    toAdd.forEach((user) => {
+      array.push(user);
+    });
+    return array;
+  }
+
+  async removeUsersFromArray(toRemove: User[], array: User[]) {
+    array = array.filter(
+      (user) => !toRemove.find((remove) => remove.id === user.id),
+    );
+    return array;
+  }
+  async validateUser(user: UpdateUserDTO): Promise<void> {
+    // Checking if all friends exist
+    if ('friends' in user) {
+      for (const friend of user.friends) {
+        if ((await this.usersRepository.count(friend)) === 0)
+          throw new ForbiddenException(
+            "Can't update friends (friend does not exists)",
+          );
+      }
+    }
+    // Checking if all addFriends exist
+    if ('addFriends' in user) {
+      for (const friend of user.addFriends) {
+        if ((await this.usersRepository.count(friend)) === 0)
+          throw new ForbiddenException(
+            "Can't update friends (added friend does not exists)",
+          );
+      }
+    }
+    // Checking if all removeFriends exist
+    if ('removeFriends' in user) {
+      for (const friend of user.removeFriends) {
+        if ((await this.usersRepository.count(friend)) === 0)
+          throw new ForbiddenException(
+            "Can't update friends (removed friend does not exists)",
+          );
+      }
     }
   }
 }
