@@ -1,4 +1,5 @@
 .star {
+  position: fixed;
   width: 0.1vw;
   height: 0.1vh;
   background: transparent;
