@@ -26,7 +26,7 @@ export class AuthService implements AuthenticationProvider {
   async validateUser(details: CreateUserDTO) {
     const { studentID } = details;
     const user = await this.userRepo.findOne({ studentID });
-    console.log(user);
+    // console.log(user);
 
     if (user) return user;
     return await this.createUser(details);
@@ -35,7 +35,7 @@ export class AuthService implements AuthenticationProvider {
   async validateUserGithub(details: CreateUserDTO) {
     const { githubID } = details;
     const user = await this.userRepo.findOne({ githubID });
-    console.log(user);
+    // console.log(user);
 
     if (user) return user;
     return await this.createUser(details);
@@ -67,7 +67,6 @@ export class AuthService implements AuthenticationProvider {
   }
 
   createUser(details: CreateUserDTO) {
-    console.log('Creating User');
     return this.usersService.createUser(details);
   }
 
