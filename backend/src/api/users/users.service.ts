@@ -130,6 +130,7 @@ export class UsersService {
     stats.user = newUser;
     await this.statsRepository.save(stats);
 
+    console.log('User created: ', newUser);
     return newUser;
   }
 
