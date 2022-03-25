@@ -85,11 +85,19 @@ export class UsersService {
       .orderBy('id', 'ASC');
 
     if (showPassword) query.addSelect('users.password');
-    if (filter.id) query.andWhere('users.id = :id', { id: filter.id });
-    if (filter.username)
+    // Search parameters
+    if ('id' in filter) query.andWhere('users.id = :id', { id: filter.id });
+    if ('username' in filter)
       query.andWhere('users.username = :username', {
         username: filter.username,
       });
+
+    // Show field parameters
+    if ('password' in filter) query.addSelect('users.password');
+    if ('studentID' in filter) query.addSelect('users.studentID');
+    if ('githubID' in filter) query.addSelect('users.githubID');
+    if ('socketID' in filter) query.addSelect('users.socketID');
+    if ('avatar' in filter) query.addSelect('users.avatar');
 
     const users = await query.getMany();
     if (!users.length)
