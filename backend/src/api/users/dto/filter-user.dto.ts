@@ -1,8 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsBoolean,
-  IsBooleanString,
   IsEmpty,
+  IsNotEmpty,
   IsNumberString,
   IsOptional,
   IsString,
@@ -12,11 +11,13 @@ export class FilterUserDTO {
   // Search parameters
   @ApiProperty({ required: false })
   @IsNumberString()
+  @IsNotEmpty()
   @IsOptional()
   readonly id?: number;
 
   @ApiProperty({ required: false })
   @IsString()
+  @IsNotEmpty()
   @IsOptional()
   readonly username?: string;
 

@@ -3,9 +3,7 @@ import {
   IsArray,
   IsBoolean,
   IsDefined,
-  IsInt,
   IsNotEmpty,
-  IsObject,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -37,16 +35,19 @@ export class CreateChannelDTO {
   @IsDefined()
   readonly members: User[];
 
+  @ApiProperty({ required: false })
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
   readonly mutes?: User[];
 
+  @ApiProperty({ required: false })
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
   readonly bans?: User[];
 
+  @ApiProperty({ required: false })
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
