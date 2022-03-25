@@ -30,6 +30,7 @@ export class UsersService {
   async getAllUsers(): Promise<User[]> {
     const users = await this.usersRepository.find({
       order: { id: 'ASC' },
+      select: ['id', 'username', 'avatar', 'studentID', 'githubID', 'socketID'],
       relations: [
         'stats',
         // Below: For DEBUG, may remove later
@@ -70,6 +71,7 @@ export class UsersService {
   ): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { id: userID },
+      select: ['id', 'username', 'avatar', 'studentID', 'githubID', 'socketID'],
       relations: relations,
     });
     if (!user) throw new NotFoundException('User not found (id incorrect)');
@@ -161,7 +163,7 @@ export class UsersService {
     stats.user = newUser;
     await this.statsRepository.save(stats);
 
-    console.log('User created: ', newUser);
+    console.log('New user created: ', newUser);
     return newUser;
   }
 
