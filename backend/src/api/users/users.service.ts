@@ -82,7 +82,7 @@ export class UsersService {
   ): Promise<User[]> {
     const query = this.usersRepository
       .createQueryBuilder('users')
-      .orderBy('id', 'ASC');
+      .orderBy('users.id', 'ASC');
 
     if (showPassword) query.addSelect('users.password');
     // Search parameters
@@ -92,12 +92,35 @@ export class UsersService {
         username: filter.username,
       });
 
-    // Show field parameters
+    // Fetch field parameters
     if ('password' in filter) query.addSelect('users.password');
     if ('studentID' in filter) query.addSelect('users.studentID');
     if ('githubID' in filter) query.addSelect('users.githubID');
     if ('socketID' in filter) query.addSelect('users.socketID');
     if ('avatar' in filter) query.addSelect('users.avatar');
+    if ('stats' in filter) query.leftJoinAndSelect('users.stats', 'stats');
+    if ('friends' in filter)
+      query.leftJoinAndSelect('users.friends', 'friends');
+    if ('friendsInverse' in filter)
+      query.leftJoinAndSelect('users.friendsInverse', 'friendsInverse');
+    if ('playedMatches' in filter)
+      query.leftJoinAndSelect('users.playedMatches', 'playedMatches');
+    if ('winMatches' in filter)
+      query.leftJoinAndSelect('users.winMatches', 'winMatches');
+    if ('messages' in filter)
+      query.leftJoinAndSelect('users.messages', 'messages');
+    if ('ownerChannels' in filter)
+      query.leftJoinAndSelect('users.ownerChannels', 'ownerChannels');
+    if ('adminChannels' in filter)
+      query.leftJoinAndSelect('users.adminChannels', 'adminChannels');
+    if ('memberChannels' in filter)
+      query.leftJoinAndSelect('users.memberChannels', 'memberChannels');
+    if ('muteChannels' in filter)
+      query.leftJoinAndSelect('users.muteChannels', 'muteChannels');
+    if ('banChannels' in filter)
+      query.leftJoinAndSelect('users.banChannels', 'banChannels');
+    if ('inviteChannels' in filter)
+      query.leftJoinAndSelect('users.inviteChannels', 'inviteChannels');
 
     const users = await query.getMany();
     if (!users.length)
