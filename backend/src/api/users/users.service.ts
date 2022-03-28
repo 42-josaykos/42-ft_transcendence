@@ -124,6 +124,11 @@ export class UsersService {
       userData.password = hash;
     }
 
+    // Avatar
+    userData.avatar = `https://avatars.dicebear.com/api/gridy/${
+      userData.username + Math.floor(Math.random() * 100)
+    }.svg`;
+
     // Creating a new user and it's stats
     const newUser = this.usersRepository.create(userData);
     const stats = this.statsRepository.create(new CreateStatsDTO());
