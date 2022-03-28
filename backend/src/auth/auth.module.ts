@@ -11,12 +11,25 @@ import { UsersService } from 'src/api/users/users.service';
 import Stats from 'src/api/stats/entities/stats.entity';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './strategies/local.strategy';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     HttpModule,
     PassportModule.register({ session: true }),
     TypeOrmModule.forFeature([User, Stats, TypeORMSession]),
+    ConfigModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get('JWT_SECRET'),
+        signOptions: {
+          expiresIn: `${configService.get('JWT_EXPIRATION_TIME')}s`,
+        },
+      }),
+    }),
   ],
   exports: [
     {

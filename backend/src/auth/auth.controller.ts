@@ -4,19 +4,28 @@ import {
   Post,
   Redirect,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
+import { RequestWithUser } from './auth.interface';
 import {
   AuthenticatedGuard,
   FortyTwoAuthGuard,
   GithubGuard,
   LocalAuthGuard,
 } from './guards';
+import { AuthenticationProvider } from './auth.interface';
+import { Inject } from '@nestjs/common';
 
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
+  constructor(
+    @Inject('AUTH_SERVICE')
+    private readonly authService: AuthenticationProvider,
+  ) {}
   /**
    * GET /auth/login
    * This is the route user will visit to authenticate
@@ -35,8 +44,12 @@ export class AuthController {
 
   @Post('login/local')
   @UseGuards(LocalAuthGuard)
-  loginLocal(@Req() req) {
-    return req.user;
+  loginLocal(@Req() req: RequestWithUser, @Res() res: Response) {
+    const { user } = req;
+    const cookie = this.authService.getCookieWithJwtToken(user.id);
+    res.setHeader('Set-Cookie', cookie);
+    user.password = undefined;
+    return res.send(user);
   }
 
   /**
