@@ -53,7 +53,7 @@ export const useInputStore = defineStore('input', {
         update_s2: '',
         is_private: true,
         password: '',
-        channel_type: 0
+        channel_type: 1
       } as Input
     } as InputStore;
   }
