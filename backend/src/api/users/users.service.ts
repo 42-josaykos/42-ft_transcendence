@@ -78,7 +78,7 @@ export class UsersService {
 
   async getUsersByFilter(
     filter: FilterUserDTO,
-    showPassword: boolean = false,
+    showPassword = false,
   ): Promise<User[]> {
     const query = this.usersRepository
       .createQueryBuilder('users')

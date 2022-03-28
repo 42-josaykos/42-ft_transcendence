@@ -10,7 +10,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { RequestWithUser } from './auth.interface';
-import {
+import JwtAuthGuard, {
   AuthenticatedGuard,
   FortyTwoAuthGuard,
   GithubGuard,
@@ -80,15 +80,21 @@ export class AuthController {
     return req.user;
   }
 
+  @Get('jwt-status')
+  @UseGuards(JwtAuthGuard)
+  jwtStatus(@Req() req: RequestWithUser) {
+    const { id, username, socketID, avatar } = req.user;
+    return { id, username, socketID, avatar };
+  }
+
   /**
    * GET /auth/logout
    * Logging the user out
    */
   @Get('logout')
   @Redirect('/')
-  async logout(@Req() req) {
+  async logout(@Req() req, @Res() res: Response) {
+    res.setHeader('Set-Cookie', this.authService.getCookieForLogout());
     req.logOut();
-    req.session.cookie.maxAge = 0;
-    req.session.destroy();
   }
 }

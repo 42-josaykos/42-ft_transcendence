@@ -9,6 +9,7 @@ export interface AuthenticationProvider {
   createUser(details: CreateUserDTO);
   findUser(id: number): Promise<User | undefined>;
   getCookieWithJwtToken(userId: number): string;
+  getCookieForLogout();
 }
 
 export type Done = (err: Error, user: User) => void;

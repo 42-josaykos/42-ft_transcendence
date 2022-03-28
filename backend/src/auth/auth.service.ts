@@ -94,6 +94,10 @@ export class AuthService implements AuthenticationProvider {
       'JWT_EXPIRATION_TIME',
     )}`;
   }
+
+  public getCookieForLogout() {
+    return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
+  }
 }
 
 /*******************************************************************************
