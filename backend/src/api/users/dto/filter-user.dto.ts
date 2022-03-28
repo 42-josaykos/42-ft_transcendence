@@ -13,7 +13,7 @@ export class FilterUserDTO {
   @IsNumberString()
   @IsNotEmpty()
   @IsOptional()
-  readonly id?: number;
+  public id?: number;
 
   @ApiProperty({ required: false })
   @IsString()
@@ -21,89 +21,96 @@ export class FilterUserDTO {
   @IsOptional()
   readonly username?: string;
 
+  @ApiProperty({ required: false })
+  @IsNumberString()
+  @IsNotEmpty()
+  @IsOptional()
+  readonly studID?: string;
+
+  @ApiProperty({ required: false })
+  @IsNumberString()
+  @IsNotEmpty()
+  @IsOptional()
+  readonly gitID?: string;
+
   // Fetch field parameters
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly password?: void;
+  readonly password?: boolean;
 
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly studentID?: void;
+  readonly studentID?: boolean;
 
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly githubID?: void;
+  readonly githubID?: boolean;
 
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly socketID?: void;
+  readonly socketID?: boolean;
 
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly stats?: void;
-
-  @ApiProperty({ required: false })
-  @IsEmpty()
-  @IsOptional()
-  readonly avatar?: void;
+  readonly stats?: boolean;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsEmpty()
-  readonly friends?: void;
+  readonly friends?: boolean;
 
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly friendsInverse?: void;
+  readonly friendsInverse?: boolean;
 
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly playedMatches?: void;
+  readonly playedMatches?: boolean;
 
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly winMatches?: void;
+  readonly winMatches?: boolean;
 
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly messages?: void;
+  readonly messages?: boolean;
 
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly ownerChannels?: void;
+  readonly ownerChannels?: boolean;
 
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly adminChannels?: void;
+  readonly adminChannels?: boolean;
 
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly memberChannels?: void;
+  readonly memberChannels?: boolean;
 
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly muteChannels?: void;
+  readonly muteChannels?: boolean;
 
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly banChannels?: void;
+  readonly banChannels?: boolean;
 
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly inviteChannels?: void;
+  readonly inviteChannels?: boolean;
 }

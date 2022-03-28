@@ -78,20 +78,24 @@ export class UsersService {
     else return user;
   }
 
-  async getUsersByFilter(
-    filter: FilterUserDTO,
-    showPassword: boolean = false,
-  ): Promise<User[]> {
+  async getUsersByFilter(filter: FilterUserDTO): Promise<User[]> {
     const query = this.usersRepository
       .createQueryBuilder('users')
       .orderBy('users.id', 'ASC');
 
-    if (showPassword) query.addSelect('users.password');
     // Search parameters
     if ('id' in filter) query.andWhere('users.id = :id', { id: filter.id });
     if ('username' in filter)
       query.andWhere('users.username = :username', {
         username: filter.username,
+      });
+    if ('studID' in filter)
+      query.andWhere('users.studentID = :studID', {
+        studID: filter.studID,
+      });
+    if ('gitID' in filter)
+      query.andWhere('users.githubID = :gitID', {
+        gitID: filter.gitID,
       });
 
     // Fetch field parameters
@@ -99,7 +103,6 @@ export class UsersService {
     if ('studentID' in filter) query.addSelect('users.studentID');
     if ('githubID' in filter) query.addSelect('users.githubID');
     if ('socketID' in filter) query.addSelect('users.socketID');
-    if ('avatar' in filter) query.addSelect('users.avatar');
     if ('stats' in filter) query.leftJoinAndSelect('users.stats', 'stats');
     if ('friends' in filter)
       query.leftJoinAndSelect('users.friends', 'friends');
@@ -163,6 +166,8 @@ export class UsersService {
     stats.user = newUser;
     await this.statsRepository.save(stats);
 
+    delete newUser.socketID;
+    delete newUser.password;
     console.log('New user created: ', newUser);
     return newUser;
   }

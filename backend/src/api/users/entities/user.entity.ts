@@ -34,7 +34,7 @@ class User {
   @Column({ nullable: true, select: false, length: 20 })
   public socketID: string | null;
 
-  @Column({ nullable: true, select: false })
+  @Column({ nullable: true })
   public avatar: string;
 
   @OneToOne((type) => Stats, (stats) => stats.user)
