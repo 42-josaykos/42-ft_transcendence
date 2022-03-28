@@ -15,13 +15,13 @@ export class FilterChannelDTO {
   @IsNumberString()
   @IsNotEmpty()
   @IsOptional()
-  readonly id: number;
+  readonly id?: number;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsNotEmpty()
   @IsOptional()
-  readonly name: string;
+  readonly name?: string;
 
   @ApiProperty({ required: false })
   @IsBoolean()
