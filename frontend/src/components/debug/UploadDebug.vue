@@ -8,17 +8,10 @@ const props = defineProps<{
 <template>
   <h3 class="title">{{ title }}</h3>
 
-  <form
-    method="post"
-    action="http://localhost:7000/upload"
-    enctype="multipart/form-data"
-  >
+  <form method="post" action="/upload" enctype="multipart/form-data">
     <div>
-      <label for="file">Choose a file</label>
       <input type="file" id="file" name="avatarUpload" />
-    </div>
-    <div>
-      <button>Send the files</button>
+      <button>Upload</button>
     </div>
   </form>
 </template>
