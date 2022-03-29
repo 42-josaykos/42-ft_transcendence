@@ -68,7 +68,7 @@ async function bootstrap() {
   // await authApp.listen(5000);
 
   // Upload Module
-  const uploadModulePort = 7000;
+  const uploadModulePort = 7001;
   const fileUpload = await NestFactory.create(UploadModule);
   await fileUpload.listen(uploadModulePort, '0.0.0.0');
   console.log(

@@ -28,7 +28,7 @@ export default ({ mode }: any) => {
           target: `http://localhost:${process.env.API_PORT}`,
         },
         "/upload": {
-          target: `http://localhost:7000`,
+          target: `http://localhost:7001`,
         },
       },
     },
