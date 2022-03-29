@@ -68,8 +68,8 @@ POST http://{{host}}/messages
 Content-Type: {{contentType}}
 
 {
-    "author": {"id": 5},
-    "channel": {"id": 2},
+    "author": {"id": 1},
+    "channel": {"id": 1},
     "data": "Bouh!"
 }
 
