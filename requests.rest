@@ -27,7 +27,7 @@ PATCH http://{{host}}/users/1
 Content-Type: {{contentType}}
 
 {
-    "addFriends": [{"id": 3}]
+    "addFriends": [{"id": 3}, {"id": 2}]
 }
 
 ###
@@ -98,8 +98,7 @@ Content-Type: {{contentType}}
 {
     "name": "Channel1",
     "owner": {"id": 1},
-    "members": [{"id": 1}],
-    "invites": [{"id": 2}]
+    "members": [{"id": 1}, {"id": 2}]
 }
 
 ###
@@ -129,7 +128,7 @@ Content-Type: {{contentType}}
 
 {
     "players": [{"id": 2}, {"id": 1}],
-    "score": [7, 10]
+    "score": [7, 1]
 }
 
 ###
