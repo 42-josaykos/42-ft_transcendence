@@ -67,7 +67,9 @@ export class ChannelsService {
     // Fetch field parameters
     if ('password' in filter) query.addSelect('channels.password');
     if ('messages' in filter)
-      query.leftJoinAndSelect('channels.messages', 'messages');
+      query
+        .leftJoinAndSelect('channels.messages', 'messages')
+        .leftJoinAndSelect('messages.author', 'author');
     if ('owner' in filter)
       query
         .leftJoinAndSelect('channels.owner', 'owner')
