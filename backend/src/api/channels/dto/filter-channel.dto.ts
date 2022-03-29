@@ -15,7 +15,7 @@ export class FilterChannelDTO {
   @IsNumberString()
   @IsNotEmpty()
   @IsOptional()
-  readonly id?: number;
+  public id?: number;
 
   @ApiProperty({ required: false })
   @IsString()
