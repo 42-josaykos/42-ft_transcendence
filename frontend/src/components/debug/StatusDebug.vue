@@ -10,7 +10,12 @@ const socket = io("http://localhost:4000", {
   withCredentials: true,
 });
 
-socket.on("message", (data: any) => {});
+// onMounted(async () => {
+//   socket.emit("message", "Does it work?");
+// });
+
+socket.emit("message", "Does it work?");
+socket.on("message", (data: any) => console.log(data));
 </script>
 
 <template>
