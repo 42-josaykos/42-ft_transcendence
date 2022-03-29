@@ -8,15 +8,17 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   Redirect,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ChannelsService } from './channels.service';
 import { CreateChannelDTO } from './dto/create-channel.dto';
+import { UpdateChannelDTO } from './dto/update-channel.dto';
+import { FilterChannelDTO } from './dto/filter-channel.dto';
 import Channel from './entities/channel.entity';
 import User from 'src/api/users/entities/user.entity';
 import Message from 'src/api/messages/entities/message.entity';
-import { UpdateChannelDTO } from './dto/update-channel.dto';
 
 @Controller('channels')
 @ApiTags('channels')
@@ -26,6 +28,13 @@ export class ChannelsController {
   @Get()
   async getAllChannels(): Promise<Channel[]> {
     return await this.channelsService.getAllChannels();
+  }
+
+  @Get('search')
+  async getChannelsByFilter(
+    @Query() filter: FilterChannelDTO,
+  ): Promise<Channel[]> {
+    return await this.channelsService.getChannelsByFilter(filter);
   }
 
   @Get(':channelID')

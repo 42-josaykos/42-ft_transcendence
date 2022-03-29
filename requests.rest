@@ -99,7 +99,7 @@ Content-Type: {{contentType}}
     "name": "Channel1",
     "owner": {"id": 1},
     "members": [{"id": 1}],
-    "invites": [{"id": 3}]
+    "invites": [{"id": 2}]
 }
 
 ###

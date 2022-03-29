@@ -19,32 +19,41 @@ export class AuthService implements AuthenticationProvider {
   constructor(
     @Inject('USERS_SERVICE')
     private usersService: UsersService,
-    @InjectRepository(User)
-    private userRepo: Repository<User>,
   ) {}
 
   async validateUser(details: CreateUserDTO) {
     const { studentID } = details;
-    const user = await this.userRepo.findOne({ studentID });
-    // console.log(user);
+    try {
+      const [user] = await this.usersService.getUsersByFilter({
+        studID: studentID,
+      });
+      // console.log(user);
 
-    if (user) return user;
-    return await this.createUser(details);
+      return user;
+    } catch (error) {
+      return await this.createUser(details);
+    }
   }
 
   async validateUserGithub(details: CreateUserDTO) {
     const { githubID } = details;
-    const user = await this.userRepo.findOne({ githubID });
-    // console.log(user);
+    try {
+      const [user] = await this.usersService.getUsersByFilter({
+        gitID: githubID,
+      });
+      // console.log(user);
 
-    if (user) return user;
-    return await this.createUser(details);
+      return user;
+    } catch (error) {
+      return await this.createUser(details);
+    }
   }
 
   async validateUserLocal(username: string, plainPassword: string) {
     try {
-      const filter: FilterUserDTO = { username: username };
-      const [user] = await this.usersService.getUsersByFilter(filter, true);
+      const filter: FilterUserDTO = { username: username, password: true };
+      const [user] = await this.usersService.getUsersByFilter(filter);
+
       const isPasswordMatching = await bcrypt.compare(
         plainPassword,
         user.password,
@@ -70,8 +79,9 @@ export class AuthService implements AuthenticationProvider {
     return this.usersService.createUser(details);
   }
 
-  findUser(id: number) {
-    return this.userRepo.findOne({ id });
+  async findUser(id: number) {
+    const [user] = await this.usersService.getUsersByFilter({ id: id });
+    return user;
   }
 }
 
