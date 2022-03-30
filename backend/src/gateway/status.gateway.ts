@@ -1,5 +1,8 @@
 import { Server } from 'socket.io';
 import {
+  MessageBody,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -11,18 +14,23 @@ import {
     credentials: true,
   },
 })
-export class StatusGateway {
+export class StatusGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
   @SubscribeMessage('connection')
-  handleConection(client: any, payload: any) {
-    console.log('Payload: ', payload);
+  handleConnection(@MessageBody() data: string) {
+    console.log('Connection: ');
+  }
+
+  @SubscribeMessage('deconnection')
+  handleDisconnect(@MessageBody() data: string) {
+    console.log('Deconnection: ');
   }
 
   @SubscribeMessage('message')
-  handleMessage(client: any, payload: any) {
-    console.log('Payload: ', payload);
+  handleMessage(@MessageBody() data: string) {
+    console.log('Payload: ', data);
     this.server.sockets.emit('message', 'Hello World!');
   }
 }
