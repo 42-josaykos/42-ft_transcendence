@@ -33,10 +33,20 @@ import { MessagesService } from 'src/api/messages/messages.service';
 
   @SubscribeMessage('msgToServer')
   async handleMessage(client: Socket, data: any) {
+
     const message = data[0]
     const user = data[1]
-    const usersMuted = await this.channelsService.getChannelMutes(message.channel.id);
-    const usersBaned = await this.channelsService.getChannelBans(message.channel.id);
+
+    let channel = message.channel;
+    [channel] = await this.channelsService.getChannelsByFilter({
+      id: channel.id,
+      members: true,
+      mutes: false,
+      bans: false
+    });
+    const members = channel.members;
+    const usersMuted = channel.mutes;
+    const usersBaned = channel.bans;
 
     if (usersMuted.findIndex((el: User) => el.id == user.id) != -1 ||
       usersBaned.findIndex((el: User) => el.id == user.id) != -1) {
@@ -45,8 +55,7 @@ import { MessagesService } from 'src/api/messages/messages.service';
 
     let newMessage = await this.messagesService.createMessage(message)
     newMessage.author = user;
-    const channel = message.channel;
-    const members = await this.channelsService.getChannelMembers(channel.id);
+
     for (const member of members) {
       this.server.to(member.socketID).emit('msgToClient', newMessage);
     }
@@ -64,7 +73,10 @@ import { MessagesService } from 'src/api/messages/messages.service';
 
   @SubscribeMessage('newOwnerToServer')
   async newOwner(client: Socket, ownerID: number) {
-    const user = await this.usersService.getUserByID(ownerID);
+    const [user] = await this.usersService.getUsersByFilter({
+      id: ownerID,
+      socketID: true,
+    });
     this.server.to(user.socketID).emit('newOwnerToClient', ownerID);
   }
 
@@ -82,9 +94,23 @@ import { MessagesService } from 'src/api/messages/messages.service';
       this.server.to(user.socketID).emit('inviteJoinChannelToClient', channel);
     })
   }
- 
+
+  @SubscribeMessage('updateMemberChannelToServer')
+  async leaveChannel(client: Socket, data: any) {
+  
+    let [channel] = await this.channelsService.getChannelsByFilter({
+      id: data.id,
+      members: true,
+    });
+    const members = channel.members;
+
+    for (const member of members) {
+      this.server.to(member.socketID).emit('updateMemberChannelToClient', channel.id);
+    }
+  }
+
   async handleConnection(client: Socket) {
-   this.logger.log(`Client connected: ${client.id}`);
+    this.logger.log(`Client connected: ${client.id}`);
 
    //recuperer le cookie
    if (client.handshake.headers['cookie'] != undefined) {

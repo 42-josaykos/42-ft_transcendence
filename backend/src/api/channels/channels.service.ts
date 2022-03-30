@@ -67,16 +67,33 @@ export class ChannelsService {
     // Fetch field parameters
     if ('password' in filter) query.addSelect('channels.password');
     if ('messages' in filter)
-      query.leftJoinAndSelect('channels.messages', 'messages');
-    if ('owner' in filter) query.leftJoinAndSelect('channels.owner', 'owner');
+      query
+        .leftJoinAndSelect('channels.messages', 'messages')
+        .leftJoinAndSelect('messages.author', 'author');
+    if ('owner' in filter)
+      query
+        .leftJoinAndSelect('channels.owner', 'owner')
+        .addSelect('owner.socketID');
     if ('admins' in filter)
-      query.leftJoinAndSelect('channels.admins', 'admins');
+      query
+        .leftJoinAndSelect('channels.admins', 'admins')
+        .addSelect('admins.socketID');
     if ('members' in filter)
-      query.leftJoinAndSelect('channels.members', 'members');
-    if ('mutes' in filter) query.leftJoinAndSelect('channels.mutes', 'mutes');
-    if ('bans' in filter) query.leftJoinAndSelect('channels.bans', 'bans');
+      query
+        .leftJoinAndSelect('channels.members', 'members')
+        .addSelect('members.socketID');
+    if ('mutes' in filter)
+      query
+        .leftJoinAndSelect('channels.mutes', 'mutes')
+        .addSelect('mutes.socketID');
+    if ('bans' in filter)
+      query
+        .leftJoinAndSelect('channels.bans', 'bans')
+        .addSelect('bans.socketID');
     if ('invites' in filter)
-      query.leftJoinAndSelect('channels.invites', 'invites');
+      query
+        .leftJoinAndSelect('channels.invites', 'invites')
+        .addSelect('invites.socketID');
 
     const channels = await query.getMany();
     if (!channels.length)

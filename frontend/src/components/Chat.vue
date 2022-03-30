@@ -51,9 +51,12 @@ const baseUrlMsg = '/messages';
 const baseUrlChannel = '/channels';
 
 onMounted(async () => {
-  Get('/users/' + loggedUser.value?.id + '/channels/member').then(res => channels.value = res.data);
-  Get('/channels').then(res => allChannels.value = res.data);
-  Get('/users/' + loggedUser.value?.id + '/channels/invites').then(res => channelsInvite.value = res.data)
+  Get('/channels/search?&password').then(res => allChannels.value = res.data);
+  Get('/users/search?id=' + loggedUser.value?.id.toString() + '&memberChannels&inviteChannels').then(res => {
+    channels.value = res.data[0].memberChannels
+    channelsInvite.value = res.data[0].inviteChannels
+  });
+
   channelsJoin.value = true;
   newOwner.value = -1;
   channelType.value = 1;
@@ -67,19 +70,18 @@ onUnmounted(() => {
   socket.off('newOwnerToServer');
   socket.off('updateChannelToServer');
   socket.off('inviteJoinChannelToServer');
+  socket.off('updateMemberChannelToServer');
 })
 
 ///////////////////////
 //  MESSAGES
 ///////////////////////
-
 const displayMessages = (channel_item: Channel) => {
-  Get(baseUrlChannel + '/' + channel_item.id.toString()).then(res => {
-    if (res.status == 200) {
-      channel.value = res.data;
-      messages.value = res.data.messages;
-    }
-  });
+  Get('/channels/search?id=' + channel_item.id.toString() + '&messages&owner&admins&members&mutes&bans').then(res => {
+    channel.value = res.data[0]
+    messages.value = res.data[0].messages
+    usersMembers.value = res.data[0].members
+  })
 }
 
 const handleSubmitNewMessage = (channelId: Number | undefined) => {
@@ -124,9 +126,9 @@ const sendDirectMessage = () => {
         channel.value = res.data;
         messages.value = [];
         socket.emit('msgToServer', {author: loggedUser.value?.id, channel: {id: res.data.id}, data: textDirectMsg.value}, loggedUser.value)
+        textDirectMsg.value = '';
+        Get('/channels/search?id=' + res.data.id.toString() + '&members').then(res => usersMembers.value = res.data[0].members)
       }
-      textDirectMsg.value = '';
-      Get(baseUrlChannel + '/' + res.data.id.toString() + '/members').then(res => usersMembers.value = res.data)
     })
   }
   else {
@@ -168,7 +170,7 @@ const handleSubmitNewChannel = () => {
           socket.emit('inviteJoinChannelToServer', res.data, ...usersInvite.value)
         }
       }
-      Get(baseUrlChannel + '/' + res.data.id.toString() + '/members').then(res => usersMembers.value = res.data)
+      Get('/channels/search?id=' + res.data.id.toString() + '&members').then(res => usersMembers.value = res.data[0].members)
     })
     inputStore.$reset();
   }
@@ -219,6 +221,7 @@ const joinChannel = () => {
     Patch(baseUrlChannel + '/' + channelJoin.value?.id.toString(), updateChannel).then(res => {
       channelStore.joinChannel(res.data);
       channel.value = channelStore.getChannelByID(res.data.id);
+      socket.emit("updateMemberChannelToServer", res.data)
       messages.value = res.data.messages;
       channelStore.updateMember();
       textMsg.value = `${loggedUser.value?.username} has joined the channel.`;
@@ -268,21 +271,23 @@ const refuseInviteChannel = () => {
 // Quitter un channel si pas Owner
 const leaveChannelIfNotOwner = (channel_item: Channel) => {
   let updateChannel: any ;
-  Get(baseUrlChannel + '/' + channel_item.id.toString()).then(res => {
+  Get('/channels/search?id=' + channel_item.id.toString() + '&admins&mutes&bans&members').then(res => {
+    [channelLeave.value] = res.data;
     if (loggedUser.value != null) {
-      if (channelStore.isAdmin(res.data, loggedUser.value.id) == true ) {
+      if (channelStore.isAdmin(channelLeave.value, loggedUser.value.id) == true) {
         updateChannel = {
           removeAdmins: [{id: loggedUser.value?.id}],
           removeMembers: [{id: loggedUser.value?.id}]
         };
       }
       else {
-        if (channelStore.isBan(res.data, loggedUser.value.id) == true) {
+        if (channelStore.isBan(channelLeave.value, loggedUser.value.id) == true) {
           updateChannel = {
-            removeBans: [{id: loggedUser.value?.id}]
+            removeBans: [{id: loggedUser.value?.id}],
+            removeMembers: [{id: loggedUser.value?.id}]
           };
         }
-        else if (channelStore.isMute(res.data, loggedUser.value.id) == true) {
+          else if (channelStore.isMute(channelLeave.value, loggedUser.value.id) == true) {
           updateChannel = {
             removeMutes: [{id: loggedUser.value?.id}],
             removeMembers: [{id: loggedUser.value?.id}]
@@ -297,11 +302,12 @@ const leaveChannelIfNotOwner = (channel_item: Channel) => {
       Patch(baseUrlChannel + '/' + channel_item.id.toString(), updateChannel).then(res => {
         textMsg.value = `${loggedUser.value?.username} has leaved the channel.`;
         handleSubmitNewMessage(channel_item.id)
+        socket.emit("updateMemberChannelToServer", res.data)
         channelStore.leaveChannel(res.data);
         channel.value = channel.value?.id === channel_item.id ? undefined : channel.value;
         messages.value = channel.value?.id === channel_item.id ? [] : messages.value;
         channelStore.updateMember();
-      }) 
+      })
     }
   })
 }
@@ -310,7 +316,7 @@ const leaveChannelIfNotOwner = (channel_item: Channel) => {
 const leaveChannelIfOwner = () => {
   let updateChannel: any ;
   if (loggedUser.value != null) {
-    if (channelLeave.value!== undefined) {
+    if (channelLeave.value !== undefined) {
       if (channelStore.isAdmin(channelLeave.value, newOwner.value != undefined ? newOwner.value : -1) == true) {
         updateChannel = {
           owner: {id: newOwner.value},
@@ -339,14 +345,16 @@ const leaveChannelIfOwner = () => {
         }
       }
       Patch(baseUrlChannel + '/' + channelLeave.value.id.toString(), updateChannel).then(res => {
-        textMsg.value = `${loggedUser.value?.username} the channel owner is leave - - ${res.data.owner.username} becomes the owner.`;
+        textMsg.value = `${loggedUser.value?.username} the channel owner has left the channel - - ${res.data.owner.username} becomes the owner.`;
         handleSubmitNewMessage(res.data.id)
         channelStore.leaveChannel(res.data);
+        
         channel.value = channel.value?.id === channelLeave.value?.id ? undefined : channel.value;
         messages.value = channel.value?.id === channelLeave.value?.id ? [] : messages.value;
         channelStore.updateMember();
         channelStore.updateOwner(loggedUser.value != null ? loggedUser.value.id : -1)
         socket.emit('newOwnerToServer', res.data.owner.id)
+        socket.emit("updateMemberChannelToServer", res.data)
       }) 
     }
   }
@@ -355,6 +363,15 @@ const leaveChannelIfOwner = () => {
 socket.on('newOwnerToClient', (newOwnerID: number) => {
   if (loggedUser.value?.id === newOwnerID) {
     channelStore.updateOwner(newOwnerID);
+  }
+})
+
+socket.on('updateMemberChannelToClient', (channelID: number) => {
+  if (channel.value?.id === channelID) {
+    Get('/channels/search?id=' + channelID.toString() + '&owner&members&admins&mutes&bans').then(res => {
+      channel.value = res.data[0]
+      usersMembers.value = res.data[0].members
+    })
   }
 })
 
@@ -404,7 +421,7 @@ socket.on('updateChannelToClient', (updateChannel: Channel) => {
   if (loggedUser.value != null) {
     channelStore.updateChannel(updateChannel.id, updateChannel, loggedUser.value.id);
     if (channel.value?.id === updateChannel.id) {
-      Get(baseUrlChannel + '/' + channel.value.id.toString() + '/members').then(res => usersMembers.value = res.data)
+      Get('/channels/search?id=' + channel.value.id.toString() + '&members').then(res => usersMembers.value = res.data[0].members)
       channel.value = updateChannel;
     }
   }
@@ -455,7 +472,7 @@ const searchName = (channelItem: Channel | undefined): string=> {
           <div v-if="channels">
             <ul v-for="(item, index) in channels" :key="index" class="list-group">
               <!--Permet d'afficher les messages appartenant au channel selectionné-->
-              <button @click="displayMessages(item), Get(baseUrlChannel + '/' + item.id.toString() + '/members').then(res => usersMembers = res.data)" type="button" class="btn btn-secondary btn-channel">
+              <button @click="displayMessages(item)" type="button" class="btn btn-secondary btn-channel">
               {{searchName(item)}}
               </button>
             </ul>
@@ -473,12 +490,12 @@ const searchName = (channelItem: Channel | undefined): string=> {
                   <span v-if="item.isPrivate == true" class="badge bg-success">Private</span>
                   <span v-else-if="item.password != null" class="badge bg-warning">Pass : {{item.password}}</span>
                   <span v-else class="badge bg-success">Public</span>
-                  {{item.name}}
+                  {{searchName(item)}}
                 </button>
 
                 <div v-if="item.isOwner">
                   <!--Permet de quitter un channel si on est le propriétaire du channel-->
-                  <button type="button" class="btn btn-danger btn-channel btn-sm" @click="Get(baseUrlChannel + '/' + item.id.toString()).then(res => channelLeave = res.data)" data-bs-toggle="modal" data-bs-target="#leaveChannel">
+                  <button type="button" class="btn btn-danger btn-channel btn-sm" @click="Get('channels/search?id=' + item.id.toString() + '&admins&mutes&members').then(res => [channelLeave] = res.data)" data-bs-toggle="modal" data-bs-target="#leaveChannel">
                     Leave Owner
                   </button>
 
@@ -487,12 +504,12 @@ const searchName = (channelItem: Channel | undefined): string=> {
                     type="button"
                     class="btn btn-success btn-channel btn-sm"
                     @click="
-                      Get('/users').then(res => users = res.data);
+                      Get('/users/search').then(res => users = res.data);
                       usersInvite = [];
-                      Get(baseUrlChannel + '/' + item.id.toString()).then(res => {
-                        channelUpdate = res.data;
-                        input.update_channel_name = res.data.name;
-                        input.channel_id = res.data.id;
+                      Get('/channels/search?id=' + item.id.toString() + '&password&members&invites').then(res => {
+                        channelUpdate = res.data[0];
+                        input.update_channel_name = res.data[0].name;
+                        input.channel_id = res.data[0].id;
                       })"
                     data-bs-toggle="modal"
                     data-bs-target="#updateChannel">
@@ -541,7 +558,7 @@ const searchName = (channelItem: Channel | undefined): string=> {
         <div>
 
         <!--Permet de créer un nouveau channel-->
-        <button @click="Get('/users').then(res => users = res.data); usersInvite = []" type="button" class="send" data-bs-toggle="modal" data-bs-target="#newChannel">
+        <button @click="Get('/users/search').then(res => users = res.data); usersInvite = []" type="button" class="send" data-bs-toggle="modal" data-bs-target="#newChannel">
           New Channel
         </button>
 
@@ -778,7 +795,7 @@ const searchName = (channelItem: Channel | undefined): string=> {
               <label for="name">Channel name:</label>
               <input v-model="input.update_channel_name" type="text" class="input"/>
             </div>
-
+{{channelUpdate}}
             <div>Channel : {{channelUpdate?.isPrivate ? "Private" : channelUpdate?.password != null ? "Proteted" : "Public"}}</div>
             <div class="form-check form-check-inline">
               <input @click="channelTypeUpdate = 1" class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" checked>
@@ -867,7 +884,6 @@ const searchName = (channelItem: Channel | undefined): string=> {
             <h5 class="modal-title" id="staticBackdropLabel">Leave channel : {{channelLeave?.name}}</h5>
               <button @click="newOwner = -1" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-
           <div class="modal-body">
             Click here if you want to permanently delete this channel :
             <div class="d-grid gap-2">

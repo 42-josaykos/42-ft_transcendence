@@ -15,7 +15,7 @@ export class FilterChannelDTO {
   @IsNumberString()
   @IsNotEmpty()
   @IsOptional()
-  readonly id?: number;
+  public id?: number;
 
   @ApiProperty({ required: false })
   @IsString()
@@ -32,40 +32,40 @@ export class FilterChannelDTO {
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly password?: void;
+  readonly password?: boolean;
 
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly messages?: void;
+  readonly messages?: boolean;
 
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly owner?: void;
+  readonly owner?: boolean;
 
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly admins?: void;
+  readonly admins?: boolean;
 
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly members?: void;
+  readonly members?: boolean;
 
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly mutes?: void;
+  readonly mutes?: boolean;
 
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly bans?: void;
+  readonly bans?: boolean;
 
   @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
-  readonly invites?: void;
+  readonly invites?: boolean;
 }

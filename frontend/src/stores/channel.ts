@@ -68,8 +68,8 @@ export const useChannelStore = defineStore('channel', () => {
 
     const updateOwner = (userID: number) => {
       if (userID != -1) {
-        Get('/users/' + userID.toString()).then(res => {
-          const ownerChannels = res.data.ownerChannels;
+        Get('/users/search?id=' + userID.toString() + '&ownerChannels').then(res => {
+          const ownerChannels = res.data[0].ownerChannels;
           for (const chan of allChannels.value) {
             const index = ownerChannels.findIndex((el: Channel) => el.id === chan.id)
             if (index != -1) {
@@ -165,12 +165,12 @@ export const useChannelStore = defineStore('channel', () => {
         if (userID != undefined) {
           const bans = channel_item.bans;
           if (bans != undefined) {
-          const index = bans.findIndex((el: User) => el.id === userID);
-          if (index != -1) {
-            return true;
+            const index = bans.findIndex((el: User) => el.id === userID);
+            if (index != -1) {
+              return true;
+            }
           }
         }
-      }
       }
       return false;
     }
@@ -178,9 +178,11 @@ export const useChannelStore = defineStore('channel', () => {
     const isMute = (channel_item: Channel | undefined, userID: number) => {
       if (channel_item != undefined) {
         const mutes = channel_item.mutes;
-        const index = mutes.findIndex((el: User) => el.id === userID);
-        if (index != -1) {
-          return true;
+        if (mutes != undefined) {
+          const index = mutes.findIndex((el: User) => el.id === userID);
+          if (index != -1) {
+            return true;
+          }
         }
       }
       return false;
