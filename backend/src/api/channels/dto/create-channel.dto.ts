@@ -52,4 +52,7 @@ export class CreateChannelDTO {
   @IsNotEmpty()
   @IsOptional()
   readonly invites?: User[];
+
+  @IsBoolean()
+  readonly isDirectMessage?: boolean | false;
 }

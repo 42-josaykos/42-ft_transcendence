@@ -211,9 +211,9 @@ export class ChannelsService {
       const channel = await this.getChannelByID(channelID);
       //Checking what is updated
       if (updatedChannel.name) channel.name = updatedChannel.name;
-      if (updatedChannel.isPrivate)
+      /*if (updatedChannel.isPrivate)*/
         channel.isPrivate = updatedChannel.isPrivate;
-      if (updatedChannel.password) channel.password = updatedChannel.password;
+      /*if (updatedChannel.password) */channel.password = updatedChannel.password;
       if (updatedChannel.owner) channel.owner = updatedChannel.owner;
       if (updatedChannel.admins) channel.admins = updatedChannel.admins;
       if (updatedChannel.members) channel.members = updatedChannel.members;
