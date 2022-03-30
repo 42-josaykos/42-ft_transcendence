@@ -6,12 +6,15 @@ const props = defineProps<{
 
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:4000", {
+const socket = io("ws://localhost:4000", {
   withCredentials: true,
 });
 
 socket.emit("message", "Does it work?");
-socket.on("message", (data: any) => console.log(data));
+socket.on("message", function (data: any) {
+  console.log(data);
+});
+// socket.on("message", (data: any) => console.log(data));
 </script>
 
 <template>

@@ -78,6 +78,8 @@ export class ChatGateway
     this.logger.log(`Client connected: ${client.id}`);
 
     //recuperer le cookie
+    // Failsafe by Lena: there were backend crashes where 'cookie' field did not exists
+    if (!('cookie' in client.handshake.headers)) return;
     let cookie = client.handshake.headers['cookie'].split('.')[1].substring(8);
     console.log('cookie => ', cookie);
 

@@ -1,11 +1,14 @@
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import {
+  ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  WsResponse,
 } from '@nestjs/websockets';
 
 @WebSocketGateway({
@@ -18,19 +21,18 @@ export class StatusGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  @SubscribeMessage('connection')
-  handleConnection(@MessageBody() data: string) {
-    console.log('Connection: ');
+  handleConnection(@ConnectedSocket() client: Socket) {
+    console.log(`Connection: ${client.id}`);
   }
 
-  @SubscribeMessage('deconnection')
-  handleDisconnect(@MessageBody() data: string) {
-    console.log('Deconnection: ');
+  handleDisconnect(@ConnectedSocket() client: Socket) {
+    console.log(`Disconnect: ${client.id}`);
   }
 
   @SubscribeMessage('message')
-  handleMessage(@MessageBody() data: string) {
+  handleMessage(@MessageBody() data: string): WsResponse<string> {
     console.log('Payload: ', data);
-    this.server.sockets.emit('message', 'Hello World!');
+    // this.server.emit('message', 'Hello World!');
+    return { event: 'message', data: 'Hello You!' };
   }
 }
