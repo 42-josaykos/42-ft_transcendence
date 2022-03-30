@@ -210,28 +210,25 @@ const joinChannel = () => {
   const updateChannel = {
     addMembers: [{id: loggedUser.value?.id}]
   };
-  if (channelJoin.value != undefined) {
-    if (channelJoin.value.password != null) {
-      if (channelJoin.value.password !== input.value.password) {
-        console.log("WRONG PASSWORD")
-        inputStore.$reset();
-        return ;
-      }
-    }
-    Patch(baseUrlChannel + '/' + channelJoin.value?.id.toString(), updateChannel).then(res => {
-      channelStore.joinChannel(res.data);
-      channel.value = channelStore.getChannelByID(res.data.id);
-      socket.emit("updateMemberChannelToServer", res.data)
-      messages.value = res.data.messages;
-      channelStore.updateMember();
-      textMsg.value = `${loggedUser.value?.username} has joined the channel.`;
-      if (channelJoin.value != undefined) {
-        handleSubmitNewMessage(channelJoin.value?.id)
-      }
-    })
-  }
+  socket.emit('joinChannelToServer', updateChannel, channelJoin.value, input.value.password)
   inputStore.$reset();
 }
+
+socket.on('joinChannelToClient', (data: any) => {
+  const userID = data.id
+  const joinChannel = data.channel
+  if (loggedUser.value?.id == userID) {
+    channelStore.joinChannel(joinChannel);
+    channel.value = channelStore.getChannelByID(joinChannel.id);
+    socket.emit("updateMemberChannelToServer", joinChannel)
+    messages.value = joinChannel.messages;
+    channelStore.updateMember();
+    textMsg.value = `${loggedUser.value?.username} has joined the channel.`;
+    if (channelJoin.value != undefined) {
+        handleSubmitNewMessage(channelJoin.value?.id)
+    }
+  }
+})
 
 // Accepter une invitation à rejoindre un channel
 const acceptInviteChannel = () => {
@@ -488,7 +485,7 @@ const searchName = (channelItem: Channel | undefined): string=> {
                 <!--Permet d'afficher les messages appartenant au channel selectionné si je suis membre du channel-->
                 <button @click="displayMessages(item)" type="button" class="btn btn-secondary btn-channel">
                   <span v-if="item.isPrivate == true" class="badge bg-success">Private</span>
-                  <span v-else-if="item.password != null" class="badge bg-warning">Pass : {{item.password}}</span>
+                  <span v-else-if="item.password != null" class="badge bg-warning">Password</span>
                   <span v-else class="badge bg-success">Public</span>
                   {{searchName(item)}}
                 </button>

@@ -16,6 +16,7 @@ import { UpdateUserDTO } from 'src/api/users/dto/update-user.dto';
 import { getRepository } from 'typeorm';
 import { TypeORMSession } from 'src/auth/entities/session.entity';
 import { MessagesService } from 'src/api/messages/messages.service';
+import * as bcrypt from 'bcrypt';
  
  @WebSocketGateway({  //donne accès à la fonctionnalité socket.io
    cors: {
@@ -65,6 +66,32 @@ import { MessagesService } from 'src/api/messages/messages.service';
   async handleChannel(client: Socket, channel: Channel) {
     this.server.emit('channelToClient', channel);
   }
+
+  @SubscribeMessage('joinChannelToServer')
+  async joinChannel(client: Socket, data: any) {
+    const updateChannel = data[0];
+    const channel = data[1];
+    const password = data[2]
+
+    if (password) {
+      const isPasswordMatching = await bcrypt.compare(
+        password,
+        channel.password,
+      );
+      if (!isPasswordMatching) {
+        console.log("Password false")
+          return;
+      }
+    }
+    const newChannel = await this.channelsService.updateChannel(channel.id, updateChannel)
+
+    const [user] = await this.usersService.getUsersByFilter({
+      id: updateChannel.addMembers[0].id,
+      socketID: true,
+    });
+
+    this.server.to(user.socketID).emit('joinChannelToClient', {id: user.id, channel: newChannel});
+  } 
 
   @SubscribeMessage('deleteChannelToServer')
   async deleteChannel(client: Socket, channelID: number) {

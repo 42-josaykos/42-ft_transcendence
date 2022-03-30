@@ -11,6 +11,7 @@ import User from 'src/api/users/entities/user.entity';
 import Channel from './entities/channel.entity';
 import Message from 'src/api/messages/entities/message.entity';
 import { FilterChannelDTO } from './dto/filter-channel.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class ChannelsService {
@@ -192,14 +193,25 @@ export class ChannelsService {
   }
 
   async createChannel(channel: CreateChannelDTO): Promise<Channel> {
-    try {
-      await this.validateChannel(channel);
-      const newChannel = this.channelsRepository.create(channel);
-      await this.channelsRepository.save(newChannel);
-      return newChannel;
-    } catch (error) {
-      throw error;
+    const count = await this.channelsRepository.count({
+      where: { name: channel.name },
+    });
+    if (count > 0)
+      throw new ForbiddenException(
+        "Can't create new Channel (name must be unique)",
+      );
+    
+    const channelData = { ...channel };
+    if (channelData.password) {
+      const hash = await bcrypt.hash(channel.password, 10);
+      channelData.password = hash;
     }
+
+    const newChannel = this.channelsRepository.create(channelData);
+    await this.channelsRepository.save(newChannel);
+
+    delete newChannel.password
+    return newChannel;
   }
 
   async updateChannel(
