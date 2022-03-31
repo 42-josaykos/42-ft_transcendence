@@ -1,22 +1,31 @@
 <script setup lang="ts">
 // Props
 const props = defineProps<{
-  title: string;
+  isAuthenticated: boolean;
+  loggedUser: any;
 }>();
 
 import { io } from "socket.io-client";
+import { Get } from "@/services/requests";
 
-const socket = io("ws://localhost:4000", {
-  withCredentials: true,
-});
+// console.log(props.isAuthenticated);
 
-socket.emit("message", "Does it work?");
-socket.on("message", function (data: any) {
-  console.log(data);
+Get("/auth/status").then((response) => {
+  console.log(response);
+  if (response.status === 200) {
+    const socket = io("ws://localhost:4000", {
+      withCredentials: true,
+    });
+
+    // After socker connection, the server needs the logged user id
+    socket.on("requestUserInfo", function (data: any) {
+      socket.emit("connection", props.loggedUser);
+    });
+
+    // Listening for updates on the user list
+    socket.on("update", (data: number[]) => console.log(data));
+  }
 });
-// socket.on("message", (data: any) => console.log(data));
 </script>
 
-<template>
-  <h3 class="title">{{ title }}</h3>
-</template>
+<template></template>

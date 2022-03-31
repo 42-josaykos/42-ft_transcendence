@@ -28,6 +28,6 @@ const envSchema = Joi.object({
     UploadModule,
   ],
   controllers: [UploadController],
-  providers: [ChatGateway, StatusGateway],
+  providers: [StatusGateway],
 })
 export class AppModule {}

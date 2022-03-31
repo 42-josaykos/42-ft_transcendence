@@ -32,7 +32,7 @@ export const isMeteor = ref(false);
 
 <template>
   <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
-  <StatusSystem />;
+  <StatusSystem :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />;
   <div class="routerView">
     <div style="z-index: 0">
       <div class="star"></div>
