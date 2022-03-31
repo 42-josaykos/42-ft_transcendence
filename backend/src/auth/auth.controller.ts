@@ -59,14 +59,22 @@ export class AuthController {
   @Get('redirect')
   @Redirect('/')
   @UseGuards(FortyTwoAuthGuard)
-  async redirect() {
+  async redirect(@Req() req: RequestWithUser, @Res() res: Response) {
+    const { user } = req;
+    const cookie = this.authService.getCookieWithJwtToken(user.id);
+    res.setHeader('Set-Cookie', cookie);
+    user.password = undefined;
     return;
   }
 
   @Get('redirect/github')
   @Redirect('/')
   @UseGuards(GithubGuard)
-  async redirectGithub() {
+  async redirectGithub(@Req() req: RequestWithUser, @Res() res: Response) {
+    const { user } = req;
+    const cookie = this.authService.getCookieWithJwtToken(user.id);
+    res.setHeader('Set-Cookie', cookie);
+    user.password = undefined;
     return;
   }
 

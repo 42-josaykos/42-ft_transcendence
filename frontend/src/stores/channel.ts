@@ -1,18 +1,44 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import type { Channel } from '@/models/channel.model';
-//import type { Message } from '@/models/message.model';
-import type { Input } from './input';
 import type { User } from "@/models/user.model";
 import { Get } from "@/services/requests";
 
 export const useChannelStore = defineStore('channel', () => {
+  // Tous les channels
     const allChannels = ref<Channel[]>([]);
+
+  // Les channels auquels le user appartient
     const channels = ref<Channel[]>([]);
+
+  // Les channels auquels le user a reçu une invitation
+    const channelsInvite = ref<Channel[]>([]);
+
+  // Le chanel sélectionné
     const channel = ref<Channel>();
+
+  // Le channel que le user cherche à quitter
     const channelLeave = ref<Channel>();
+
+  // Le channel que le user cherche à joindre
+    const channelJoin = ref<Channel>();
+
+  // Le channel que le user veut mettre à jour
+    const channelUpdate = ref<Channel>();
+
+  // Les users appartenant au channel selectionné
+    const usersMembers = ref<User[]>([]);
+
+  // Le user à qui on envoit un direct message
+    const userDirectMessage = ref<User>();
+
+  // Les users que l'on souhaite invité dans un channel privé
+    const usersInvite = ref<User[]>([]);
+
     const channelsJoin = ref<boolean>();
     const newOwner = ref<number>();
+    const channelType = ref<number>();
+    const channelTypeUpdate = ref<number>();
 
     const createChannel = (newChannel: Channel) => {
       allChannels.value.push(newChannel);
@@ -42,8 +68,8 @@ export const useChannelStore = defineStore('channel', () => {
 
     const updateOwner = (userID: number) => {
       if (userID != -1) {
-        Get('/users/' + userID.toString()).then(res => {
-          const ownerChannels = res.data.ownerChannels;
+        Get('/users/search?id=' + userID.toString() + '&ownerChannels').then(res => {
+          const ownerChannels = res.data[0].ownerChannels;
           for (const chan of allChannels.value) {
             const index = ownerChannels.findIndex((el: Channel) => el.id === chan.id)
             if (index != -1) {
@@ -57,22 +83,23 @@ export const useChannelStore = defineStore('channel', () => {
       }
     }
 
-    /*const addMessage = (id: number, newMessage: Message) => {
-      let index = channels.value.findIndex((el: Channel) => el.id === id);
-      if (index != -1) {
-         channels.value[index].messages.push(newMessage);
-      }
-      index = allChannels.value.findIndex((el: Channel) => el.id === id);
-      if (index != -1) {
-         allChannels.value[index].messages.push(newMessage);
-      }
-    }*/ 
-
     const getChannelByID = (id: number): Channel => {
       const index = channels.value.findIndex(
         (el: Channel) => el.id === id
       );
         return channels.value[index];
+    }
+
+    const getChannelByName = (channelName: string | undefined): Channel | null => {
+      if (channelName != undefined) {
+        const index = channels.value.findIndex(
+          (el: Channel) => el.name === channelName
+        );
+        if (index != -1) {
+          return channels.value[index];
+        }
+      }
+      return null;
     }
 
     const deleteChannel = (id: number) => {
@@ -86,105 +113,142 @@ export const useChannelStore = defineStore('channel', () => {
       }
     }
 
-    const getChannelUpdates = (input: Input): Channel | null => {
-        const index = channels.value.findIndex(
-          (el: Channel) => el.id === +input.channel_id
-        );
-        console.log('not updated channel:', channels.value[index]);
-        if (index == -1) {
-          return null;
-        }
-        let updates: Channel | any = { ...channels.value[index] };
-        if (input.update_channel_name) {
-          updates.name = input.update_channel_name;
-        }
-        console.log('updated channel:', updates);
-    
-        return updates;
-      };
-
-    const updateChannel = (id: number, updatedData: Channel) => {
+    const updateChannel = (id: number, updatedData: Channel, userID: number) => {
+      if (isInvite(updatedData, userID)) {
+        const index = channelsInvite.value.findIndex((el: Channel) => el.id === id);
+        channelsInvite.value.splice(index, 1, { ...channelsInvite.value[index], ...updatedData });
+      }
+      if (isMember(updatedData, userID)) {
         const index = channels.value.findIndex((el: Channel) => el.id === id);
         channels.value.splice(index, 1, { ...channels.value[index], ...updatedData });
+      }
+      const index = allChannels.value.findIndex((el: Channel) => el.id === id);
+      allChannels.value.splice(index, 1, { ...allChannels.value[index], ...updatedData });
     }
 
-    /*const getMemberChannelByID = (channel_item: Channel, userId: number): boolean => {
+    const isAdmin = (channel_item: Channel | undefined, userID: number | undefined ) => {
+      if (channel_item != undefined) {
+        if (userID != undefined) {
+          const admins  = channel_item.admins;
+          const index = admins.findIndex((el: User) => el.id === userID);
+          if (index != -1) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
 
-      const { members } = channel_item;
-      for (const member of members) {
-        if (member.id === userId) {
+    const isOwner = (channel_item: Channel, userID: number | undefined) => {
+      if (userID != undefined) {
+        const owner = channel_item.owner;
+        if (owner.id === userID){
           return true;
         }
       }
       return false
-    }*/
-
-    const isAdmin = (channel_item: Channel, userID: number ) => {
-      console.log("userID = ", userID)
-      console.log("channel_item= ", channel_item)
-      const admins  = channel_item.admins;
-      const index = admins.findIndex((el: User) => el.id === userID);
-      if (index == -1) {
-        return false;
-      }
-      return true;
     }
 
-    const isOwner = (channel_item: Channel, userID: number) => {
-
-      const owner = channel_item.owner;
-      if (owner.id === userID){
-        return true;
+    const isMember = (channel_item: Channel | undefined, userID: number ) => {
+      if (channel_item != undefined) {
+        const members  = channel_item.members;
+        const index = members.findIndex((el: User) => el.id === userID);
+        if (index != -1) {
+          return true;
         }
-      return false
-    }
-
-    const isBan = (channel_item: Channel, userID: number) => {
-
-      const bans = channel_item.bans;
-      const index = bans.findIndex((el: User) => el.id === userID);
-      if (index == -1) {
-        return false;
       }
-      return true;
+      return false;
     }
 
-    const isMute = (channel_item: Channel, userID: number) => {
-
-      const mutes = channel_item.mutes;
-      const index = mutes.findIndex((el: User) => el.id === userID);
-      if (index == -1) {
-        return false;
+    const isBan = (channel_item: Channel | undefined, userID: number | undefined) => {
+      if (channel_item != undefined) {
+        if (userID != undefined) {
+          const bans = channel_item.bans;
+          if (bans != undefined) {
+            const index = bans.findIndex((el: User) => el.id === userID);
+            if (index != -1) {
+              return true;
+            }
+          }
+        }
       }
-      return true;
+      return false;
     }
 
-    /*const findNewOwner = () => {
+    const isMute = (channel_item: Channel | undefined, userID: number) => {
+      if (channel_item != undefined) {
+        const mutes = channel_item.mutes;
+        if (mutes != undefined) {
+          const index = mutes.findIndex((el: User) => el.id === userID);
+          if (index != -1) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
 
-    }*/
+    const isInvite = (channel_item: Channel | undefined, userID: number) => {
+      if (channel_item != undefined) {
+      const users = channel_item.invites;
+      const index = users.findIndex((el: User) => el.id === userID);
+      if (index != -1) {
+        return true;
+      }
+    }
+    return false;
+    }
+
+    const addUserInvite = (user: User) => {
+      usersInvite.value.push(user);
+    }
+
+    const deleteUserInvite = (index: number) => {
+      usersInvite.value?.splice(index, 1);
+    }
+
+    const addChannelInvite = (channel: Channel) => {
+      channelsInvite.value.push(channel);
+    }
+
+    const deleteChannelInvite = (channel: Channel) => {
+      const index = channelsInvite.value.findIndex((el: Channel) => el.id === channel.id);
+      channelsInvite.value?.splice(index, 1);
+    }
 
     return {
         allChannels,
         channels,
         channel,
         channelsJoin,
+        channelJoin,
         channelLeave,
+        channelsInvite,
+        channelUpdate,
         newOwner,
+        usersMembers,
+        userDirectMessage,
+        usersInvite,
+        channelType,
+        channelTypeUpdate,
         createChannel,
         joinChannel,
         leaveChannel,
         updateMember,
         updateOwner,
-       // addMessage,
         getChannelByID,
+        getChannelByName,
         deleteChannel,
         updateChannel,
-        getChannelUpdates,
-       // getMemberChannelByID,
         isAdmin,
         isOwner,
+        isMember,
         isBan,
-        isMute
-        //findNewOwner
+        isMute,
+        isInvite,
+        addUserInvite,
+        deleteUserInvite,
+        addChannelInvite,
+        deleteChannelInvite
     };
 });

@@ -21,11 +21,15 @@ import Match from 'src/api/matches/entities/matches.entity';
 import Channel from 'src/api/channels/entities/channel.entity';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import JwtAuthGuard from 'src/auth/guards';
+import { Utils } from 'src/utils/utils.provider';
 
 @Controller('users')
 @ApiTags('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly utilsProvider: Utils,
+  ) {}
 
   // CRUD related
   @Get()
@@ -42,8 +46,22 @@ export class UsersController {
   @Get(':userID')
   async getUserbyID(
     @Param('userID', ParseIntPipe) userID: number,
+    @Query() filter: FilterUserDTO,
   ): Promise<User> {
-    return await this.usersService.getUserByID(userID);
+    // Loading the specific relations if there is a filter
+    if (this.utilsProvider.isEmptyObject(filter))
+      return await this.usersService.getUserByID(userID);
+    try {
+      // Removing search parameters, and setting up correct userID
+      const searchParams = { id: '', username: '', gitID: '', studID: '' };
+      for (const key in searchParams) delete filter[key];
+      filter.id = userID;
+
+      const [user] = await this.usersService.getUsersByFilter(filter);
+      return user;
+    } catch (error) {
+      throw error;
+    }
   }
 
   @Get(':userID/socketID')

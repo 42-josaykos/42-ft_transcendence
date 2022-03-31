@@ -2,6 +2,8 @@
 
 all: up
 
+re: down all
+
 ### Dev environment ###
 # dev: database backend frontend
 

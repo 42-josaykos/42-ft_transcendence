@@ -10,6 +10,7 @@ import { MessagesModule } from 'src/api/messages/messages.module';
 import { UsersService } from './users.service';
 import User from './entities/user.entity';
 import Stats from 'src/api/stats/entities/stats.entity';
+import { Utils } from 'src/utils/utils.provider';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import Stats from 'src/api/stats/entities/stats.entity';
     TypeOrmModule.forFeature([User, Stats]),
   ],
   controllers: [UsersController, StatsRedirection, MessagesRedirection],
-  providers: [UsersService],
-  exports: [UsersService]
+  providers: [UsersService, Utils],
+  exports: [UsersService],
 })
 export class UsersModule {}

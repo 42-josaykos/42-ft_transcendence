@@ -12,6 +12,8 @@ export interface Channel {
     members: User[];
     mutes: User[];
     bans: User[];
+    invites: User[];
     isMember: boolean;
     isOwner: boolean;
+    isDirectMessage: boolean;
 }
