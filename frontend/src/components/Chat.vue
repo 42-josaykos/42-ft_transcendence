@@ -51,7 +51,10 @@ const baseUrlMsg = '/messages';
 const baseUrlChannel = '/channels';
 
 onMounted(async () => {
-  Get('/channels/search?&password').then(res => allChannels.value = res.data);
+  Get('/channels/search?&password').then(res => {
+
+      allChannels.value = res.data
+  });
   Get('/users/search?id=' + loggedUser.value?.id.toString() + '&memberChannels&inviteChannels').then(res => {
     channels.value = res.data[0].memberChannels
     channelsInvite.value = res.data[0].inviteChannels
@@ -64,13 +67,73 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  socket.off('msgToServer');
-  socket.off('channelToServer');
-  socket.off('deleteChannelToServer');
+  socket.off('newMessage');
+  socket.off('newChannel');
+  socket.off('deleteChannel');
+  socket.off('joinChannel');
   socket.off('newOwnerToServer');
-  socket.off('updateChannelToServer');
-  socket.off('inviteJoinChannelToServer');
+  socket.off('updateChannel');
+  socket.off('inviteChannel');
   socket.off('updateMemberChannelToServer');
+})
+
+///////////////////////
+//  SOCKET.ON
+///////////////////////
+socket.on('newMessage', (newMessage: Message) => {
+ if (channel.value != undefined && channel.value.id == newMessage.channel.id) {
+   messageStore.createMessage(newMessage);
+ }
+})
+
+socket.on('newChannel', (data: any) => {
+  const { newChannel, message, user } = data
+  if (loggedUser.value != undefined) {
+    if (loggedUser.value?.id === newChannel.owner.id) {
+      channelStore.joinChannel(newChannel);
+      channel.value = newChannel;
+      messages.value = [];
+      if (newChannel.isPrivate == true && newChannel.isDirectChannel == false) {
+        socket.emit('inviteChannel', newChannel, ...usersInvite.value)
+      }
+      Get('/channels/search?id=' + newChannel.id.toString() + '&members').then(res => usersMembers.value = res.data[0].members)
+    }
+    channelStore.createChannel(newChannel);
+    channelStore.updateMember();
+    channelStore.updateOwner(loggedUser.value.id)
+    if (loggedUser.value.id != newChannel.owner.id && newChannel.admins.findIndex((el: User) => el.id === loggedUser.value?.id) != -1) {
+      channelStore.joinChannel(newChannel);
+      socket.emit('newMessage', message, user)
+    }
+  }
+})
+
+socket.on('inviteChannel', (inviteChannel: Channel) => {
+  channelStore.addChannelInvite(inviteChannel)
+})
+
+socket.on('joinChannel', (data: any) => {
+  const userID = data.id
+  const joinChannel = data.channel
+  if (loggedUser.value?.id == userID) {
+    channelStore.joinChannel(joinChannel);
+    channel.value = channelStore.getChannelByID(joinChannel.id);
+    socket.emit("updateMemberChannelToServer", joinChannel)
+    messages.value = joinChannel.messages;
+    channelStore.updateMember();
+    textMsg.value = `${loggedUser.value?.username} has joined the channel.`;
+    if (channelJoin.value != undefined) {
+        sendNewMessage(channelJoin.value?.id)
+    }
+  }
+})
+
+socket.on('deleteChannel', (channelID: number) => {
+  if (channel.value?.id == channelID) {
+    channel.value = undefined;
+    messages.value = [];
+  }
+  channelStore.deleteChannel(channelID)
 })
 
 ///////////////////////
@@ -84,7 +147,7 @@ const displayMessages = (channel_item: Channel) => {
   })
 }
 
-const handleSubmitNewMessage = (channelId: Number | undefined) => {
+const sendNewMessage = (channelId: Number | undefined) => {
   if (channelId != undefined) {
     if (textMsg.value !== '') {
       const newMessage = {
@@ -92,24 +155,18 @@ const handleSubmitNewMessage = (channelId: Number | undefined) => {
         channel: {id: channelId},
         data: textMsg.value
       };
-      socket.emit('msgToServer', newMessage, loggedUser.value)
+      socket.emit('newMessage', newMessage, loggedUser.value)
     }
-   }
-   textMsg.value = '';
+  }
+  textMsg.value = '';
 }
 
-socket.on('msgToClient', (newMessage: Message) => {
- if (channel.value != undefined && channel.value.id == newMessage.channel.id) {
-   messageStore.createMessage(newMessage);
- }
-})
-
 // Créer un nouveau channel entre 2 users si n'existe pas encore et permet d'envoyer des messages privés
-const sendDirectMessage = () => {
+const sendDirectMessage = async () => {
   const name1 = `${userDirectMessage.value?.username} ${loggedUser.value?.username}`;
   const name2 = `${loggedUser.value?.username} ${userDirectMessage.value?.username}`;
   const channelItem = allChannels.value.find((el: Channel) => el.name === name1 || el.name === name2);
-  if (channelItem == null) {
+  if (channelItem == undefined) {
     const newChannel = {
       name: `${userDirectMessage.value?.username} ${loggedUser.value?.username}`,
       isPrivate: true,
@@ -117,22 +174,12 @@ const sendDirectMessage = () => {
       owner: { id: loggedUser.value?.id },
       admins: [{ id: loggedUser.value?.id }, {id: userDirectMessage.value?.id}],
       members: [{ id: loggedUser.value?.id }, {id: userDirectMessage.value?.id}],
-      isDirectMessage: true
+      isDirectChannel: true
     };
-    Post(baseUrlChannel, newChannel).then(res => {
-      if (res.status == 201) {
-        channelStore.joinChannel(res.data);
-        socket.emit('channelToServer', res.data);
-        channel.value = res.data;
-        messages.value = [];
-        socket.emit('msgToServer', {author: loggedUser.value?.id, channel: {id: res.data.id}, data: textDirectMsg.value}, loggedUser.value)
-        textDirectMsg.value = '';
-        Get('/channels/search?id=' + res.data.id.toString() + '&members').then(res => usersMembers.value = res.data[0].members)
-      }
-    })
+    socket.emit('newChannel', newChannel, {author: loggedUser.value?.id, channel: {id: null}, data: textDirectMsg.value}, loggedUser.value)
   }
   else {
-    socket.emit('msgToServer', {author: loggedUser.value?.id, channel: {id: channelItem.id}, data: textDirectMsg.value}, loggedUser.value)
+    socket.emit('newMessage', {author: loggedUser.value?.id, channel: {id: channelItem?.id}, data: textDirectMsg.value}, loggedUser.value)
     textDirectMsg.value = '';
   }
 }
@@ -160,37 +207,10 @@ const handleSubmitNewChannel = () => {
       members: [{ id: loggedUser.value?.id }],
       invites: channelType.value== 2 ? users : []
     };
-    Post(baseUrlChannel, newChannel).then(res => {
-      if (res.status == 201) {
-        channelStore.joinChannel(res.data);
-        socket.emit('channelToServer', res.data);
-        channel.value = res.data;
-        messages.value = [];
-        if (res.data.isPrivate == true) {
-          socket.emit('inviteJoinChannelToServer', res.data, ...usersInvite.value)
-        }
-      }
-      Get('/channels/search?id=' + res.data.id.toString() + '&members').then(res => usersMembers.value = res.data[0].members)
-    })
+    socket.emit('newChannel', newChannel, null ,loggedUser.value?.id)
     inputStore.$reset();
   }
 }
-
-// Permet d'attraper l'information qu'un nouveau channel a été créé
-socket.on('channelToClient', (newChannel: Channel) => {
-  if (loggedUser.value != undefined) {
-    channelStore.createChannel(newChannel);
-    channelStore.updateMember();
-    channelStore.updateOwner(loggedUser.value.id)
-    if (loggedUser.value.id != newChannel.owner.id && newChannel.admins.findIndex((el: User) => el.id === loggedUser.value?.id) != -1) {
-      channelStore.joinChannel(newChannel);
-    }
-  }
-})
-
-socket.on('inviteJoinChannelToClient', (inviteChannel: Channel) => {
-  channelStore.addChannelInvite(inviteChannel)
-})
 
 // Mettre à jour jour un tableau de users qui recevront une invitation à un channel
 const updateUsersInvite = (user: User) => {
@@ -210,25 +230,9 @@ const joinChannel = () => {
   const updateChannel = {
     addMembers: [{id: loggedUser.value?.id}]
   };
-  socket.emit('joinChannelToServer', updateChannel, channelJoin.value, input.value.password)
+  socket.emit('joinChannel', updateChannel, channelJoin.value, input.value.password)
   inputStore.$reset();
 }
-
-socket.on('joinChannelToClient', (data: any) => {
-  const userID = data.id
-  const joinChannel = data.channel
-  if (loggedUser.value?.id == userID) {
-    channelStore.joinChannel(joinChannel);
-    channel.value = channelStore.getChannelByID(joinChannel.id);
-    socket.emit("updateMemberChannelToServer", joinChannel)
-    messages.value = joinChannel.messages;
-    channelStore.updateMember();
-    textMsg.value = `${loggedUser.value?.username} has joined the channel.`;
-    if (channelJoin.value != undefined) {
-        handleSubmitNewMessage(channelJoin.value?.id)
-    }
-  }
-})
 
 // Accepter une invitation à rejoindre un channel
 const acceptInviteChannel = () => {
@@ -238,15 +242,16 @@ const acceptInviteChannel = () => {
     addMembers: [{id: loggedUser.value?.id}]
   };
   if (channelJoin.value != undefined) {
+
     Patch(baseUrlChannel + '/' + channelJoin.value?.id.toString(), updateChannel).then(res => {
       channelStore.deleteChannelInvite(res.data)
       channelStore.joinChannel(res.data)
       channelStore.updateMember()
       textMsg.value = `${loggedUser.value?.username} has joined the channel.`;
       if (channelJoin.value != undefined) {
-        handleSubmitNewMessage(channelJoin.value?.id)
+        sendNewMessage(channelJoin.value?.id)
       }
-      socket.emit('updateChannelToServer', res.data)
+      socket.emit('updateChannel', res.data)
     })
   }
 }
@@ -298,7 +303,7 @@ const leaveChannelIfNotOwner = (channel_item: Channel) => {
       }
       Patch(baseUrlChannel + '/' + channel_item.id.toString(), updateChannel).then(res => {
         textMsg.value = `${loggedUser.value?.username} has leaved the channel.`;
-        handleSubmitNewMessage(channel_item.id)
+        sendNewMessage(channel_item.id)
         socket.emit("updateMemberChannelToServer", res.data)
         channelStore.leaveChannel(res.data);
         channel.value = channel.value?.id === channel_item.id ? undefined : channel.value;
@@ -343,7 +348,7 @@ const leaveChannelIfOwner = () => {
       }
       Patch(baseUrlChannel + '/' + channelLeave.value.id.toString(), updateChannel).then(res => {
         textMsg.value = `${loggedUser.value?.username} the channel owner has left the channel - - ${res.data.owner.username} becomes the owner.`;
-        handleSubmitNewMessage(res.data.id)
+        sendNewMessage(res.data.id)
         channelStore.leaveChannel(res.data);
         
         channel.value = channel.value?.id === channelLeave.value?.id ? undefined : channel.value;
@@ -374,20 +379,8 @@ socket.on('updateMemberChannelToClient', (channelID: number) => {
 
 // Supprimer un channel
 const deleteChannel = () => {
-  Delete(baseUrlChannel + '/' + channelLeave.value?.id.toString()).then(res => {
-    if (res.status == 200) {
-      socket.emit('deleteChannelToServer', channelLeave.value?.id)
-    }
-  });
+  socket.emit('deleteChannel', channelLeave.value?.id)
 }
-
-socket.on('deleteChannelToClient', (channelID: number) => {
-  if (channel.value?.id == channelID) {
-    channel.value = undefined;
-    messages.value = [];
-  }
-  channelStore.deleteChannel(channelID)
-})
 
 // Mettre à jour un channel
 const updateChannel = () => {
@@ -407,14 +400,14 @@ const updateChannel = () => {
     }
     Patch(baseUrlChannel + '/' + input.value.channel_id, updateChannel).then(res => {
       if (res.status == 200) {
-        socket.emit('updateChannelToServer', res.data)
+        socket.emit('updateChannel', res.data)
       }
     });
   }
   inputStore.$reset();
 };
 
-socket.on('updateChannelToClient', (updateChannel: Channel) => {
+socket.on('updateChannel', (updateChannel: Channel) => {
   if (loggedUser.value != null) {
     channelStore.updateChannel(updateChannel.id, updateChannel, loggedUser.value.id);
     if (channel.value?.id === updateChannel.id) {
@@ -427,7 +420,7 @@ socket.on('updateChannelToClient', (updateChannel: Channel) => {
 const updateChan = (updateChannel: any) => {
   Patch(baseUrlChannel + '/' + channel.value?.id, updateChannel).then(res => {
       if (res.status == 200) {
-        socket.emit('updateChannelToServer', res.data)
+        socket.emit('updateChannel', res.data)
 
       }
     });
@@ -435,7 +428,7 @@ const updateChan = (updateChannel: any) => {
 
 const searchName = (channelItem: Channel | undefined): string=> {
   if (channelItem == undefined) {return "Messages"}
-  if (channelItem.isDirectMessage === true) {
+  if (channelItem.isDirectChannel === true) {
     const names = channelItem.name.split(' ');
     if (names[0] === loggedUser.value?.username) {
         return names[1]
@@ -524,7 +517,7 @@ const searchName = (channelItem: Channel | undefined): string=> {
                 <div v-else>
                   <button type="button" class="btn btn-secondary btn-channel">
                     <span v-if="item.isPrivate == true" class="badge bg-success">Private</span>
-                    <span v-else-if="item.password != null" class="badge bg-warning">Pass : {{item.password}}</span>
+                    <span v-else-if="item.password != null" class="badge bg-warning">Password</span>
                     <span v-else class="badge bg-success">Public</span>
                     {{item.name}}
                   </button>
@@ -588,7 +581,7 @@ const searchName = (channelItem: Channel | undefined): string=> {
           </div>
 
           <!--Permet d'envoyer un nouveau message dans le channel selectionné'-->
-          <form @submit.prevent.trim.lazy="handleSubmitNewMessage(channel?.id)" method="POST" class="form">
+          <form @submit.prevent.trim.lazy="sendNewMessage(channel?.id)" method="POST" class="form">
             <input v-model="textMsg" type="text" class="input"/>
             <input type="submit" value="Send" class="send"/>
           </form>
@@ -629,7 +622,7 @@ const searchName = (channelItem: Channel | undefined): string=> {
                       </div>
                     </div>
 
-                    <div v-if="user.id != loggedUser?.id && channel.isDirectMessage == false">
+                    <div v-if="user.id != loggedUser?.id && channel.isDirectChannel == false">
                       <button @click="userDirectMessage = user" type="button" class="btn btn-info btn-channel btn-sm" data-bs-toggle="modal" data-bs-target="#directMessage">
                         Send message
                       </button>
@@ -677,7 +670,7 @@ const searchName = (channelItem: Channel | undefined): string=> {
                       </div>
                     </div>
 
-                    <div v-if="user.id != loggedUser?.id && channel.isDirectMessage == false">
+                    <div v-if="user.id != loggedUser?.id && channel.isDirectChannel == false">
                       <button @click="userDirectMessage = user" type="button" class="btn btn-info btn-channel btn-sm" data-bs-toggle="modal" data-bs-target="#directMessage">
                         Send message
                       </button>

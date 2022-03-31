@@ -1,7 +1,6 @@
 import {
   SubscribeMessage,
   WebSocketGateway,
-  OnGatewayInit,
   WebSocketServer,
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -24,7 +23,7 @@ import * as bcrypt from 'bcrypt';
      credentials: true
    },
  })
- export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect { //pour enregistrer certains états clés de notre application. Par exemple, nous enregistrons lorsqu'un nouveau client se connecte au serveur ou lorsqu'un client actuel se déconnecte
+ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect { //pour enregistrer certains états clés de notre application. Par exemple, nous enregistrons lorsqu'un nouveau client se connecte au serveur ou lorsqu'un client actuel se déconnecte
   constructor(private readonly channelsService: ChannelsService,
               private readonly usersService: UsersService,
               private readonly messagesService: MessagesService) {}
@@ -32,8 +31,40 @@ import * as bcrypt from 'bcrypt';
   @WebSocketServer() server: Server; //donne accès à l'instance du serveur websockets
   private logger: Logger = new Logger('ChatGateway');
 
-  @SubscribeMessage('msgToServer')
-  async handleMessage(client: Socket, data: any) {
+
+  /*
+    Connection
+  */
+  async handleConnection(client: Socket) {
+    this.logger.log(`Client connected: ${client.id}`);
+
+   if (client.handshake.headers['cookie'] != undefined) {
+    let cookie = client.handshake.headers['cookie'].split('.')[1].substring(8)
+    console.log("cookie => ", cookie)
+
+    const sessionRepo = getRepository(TypeORMSession);
+    const cookie_json = await sessionRepo.findByIds([cookie]);
+    const user = JSON.parse(cookie_json[0].json).passport.user;
+
+    const updateUser: UpdateUserDTO = {socketID: client.id}
+    await this.usersService.updateUser(user.id, updateUser)
+   }
+  }
+
+
+  /*
+    Deconnection
+  */
+  handleDisconnect(client: Socket) {
+    this.logger.log(`Client disconnected: ${client.id}`);
+  }
+
+
+  /*
+    New message
+  */
+  @SubscribeMessage('newMessage')
+  async newMessage(client: Socket, data: any) {
 
     const message = data[0]
     const user = data[1]
@@ -58,16 +89,36 @@ import * as bcrypt from 'bcrypt';
     newMessage.author = user;
 
     for (const member of members) {
-      this.server.to(member.socketID).emit('msgToClient', newMessage);
+      this.server.to(member.socketID).emit('newMessage', newMessage);
     }
   }
 
-  @SubscribeMessage('channelToServer')
-  async handleChannel(client: Socket, channel: Channel) {
-    this.server.emit('channelToClient', channel);
+
+  /*
+    New Channel
+  */
+  @SubscribeMessage('newChannel')
+  async newChannel(client: Socket, data: any) {
+    const channel = data[0]
+    const message = data[1]
+    const userID = data[2]
+
+    const newChannel = await this.channelsService.createChannel(channel)
+    if (message != null) {
+      message.channel.id = newChannel.id
+    }
+
+    const [user] = await this.usersService.getUsersByFilter({
+      id: userID.id,
+    });
+    this.server.emit('newChannel', {newChannel, message, user});
   }
 
-  @SubscribeMessage('joinChannelToServer')
+
+  /*
+    Join Channel
+  */
+  @SubscribeMessage('joinChannel')
   async joinChannel(client: Socket, data: any) {
     const updateChannel = data[0];
     const channel = data[1];
@@ -90,13 +141,43 @@ import * as bcrypt from 'bcrypt';
       socketID: true,
     });
 
-    this.server.to(user.socketID).emit('joinChannelToClient', {id: user.id, channel: newChannel});
-  } 
-
-  @SubscribeMessage('deleteChannelToServer')
-  async deleteChannel(client: Socket, channelID: number) {
-    this.server.emit('deleteChannelToClient', channelID);
+    this.server.to(user.socketID).emit('joinChannel', {id: user.id, channel: newChannel});
   }
+
+
+  /*
+    Delete Channel
+  */
+  @SubscribeMessage('deleteChannel')
+  async deleteChannel(client: Socket, channelID: number) {
+    await this.channelsService.deleteChannel(channelID);
+    this.server.emit('deleteChannel', channelID);
+  }
+
+
+  /*
+    Invite Channel
+  */
+  @SubscribeMessage('inviteChannel')
+  async inviteChannel(client: Socket, data: any[]) {
+    const channel = data[0]
+    data.splice(0, 1)
+    data.forEach(async (el: any) => {
+      const user = await this.usersService.getUserByID(el.id);
+      this.server.to(user.socketID).emit('inviteChannel', channel);
+    })
+  }
+
+
+  /*
+    Update Channel
+  */
+  @SubscribeMessage('updateChannel')
+  async updateChannel(client: Socket, channel: Channel) {
+    this.server.emit('updateChannel', channel);
+  }
+
+
 
   @SubscribeMessage('newOwnerToServer')
   async newOwner(client: Socket, ownerID: number) {
@@ -105,21 +186,6 @@ import * as bcrypt from 'bcrypt';
       socketID: true,
     });
     this.server.to(user.socketID).emit('newOwnerToClient', ownerID);
-  }
-
-  @SubscribeMessage('updateChannelToServer')
-  async updateChannel(client: Socket, channel: Channel) {
-    this.server.emit('updateChannelToClient', channel);
-  }
-
-  @SubscribeMessage('inviteJoinChannelToServer')
-  async inviteChannel(client: Socket, data: any[]) {
-    const channel = data[0]
-    data.splice(0, 1)
-    data.forEach(async (el: any) => {
-      const user = await this.usersService.getUserByID(el.id);
-      this.server.to(user.socketID).emit('inviteJoinChannelToClient', channel);
-    })
   }
 
   @SubscribeMessage('updateMemberChannelToServer')
@@ -134,35 +200,5 @@ import * as bcrypt from 'bcrypt';
     for (const member of members) {
       this.server.to(member.socketID).emit('updateMemberChannelToClient', channel.id);
     }
-  }
-
-  async handleConnection(client: Socket) {
-    this.logger.log(`Client connected: ${client.id}`);
-
-   //recuperer le cookie
-   if (client.handshake.headers['cookie'] != undefined) {
-    let cookie = client.handshake.headers['cookie'].split('.')[1].substring(8)
-    console.log("cookie => ", cookie)
-
-    //recuperer dans la DB la session correspondante
-    const sessionRepo = getRepository(TypeORMSession);
-    const cookie_json = await sessionRepo.findByIds([cookie]);
-    const user = JSON.parse(cookie_json[0].json).passport.user;
-
-    //mettre a jour le socketId du user
-    const updateUser: UpdateUserDTO = {socketID: client.id}
-    await this.usersService.updateUser(user.id, updateUser)
-   }
-   // a chaque connexion sur la page /chat un nouvel identifiant socket est créé
-   // le stocker dans le user en question pour pouvoir émettre les info vers celui ci si concerné
-   // attention checker la déconexion avec le changement de page car crée un nouveau socket sans fermer l'ancien
-  }
-
-  afterInit(server: Server) {
-    this.logger.log('Init');
-  }
-
-  handleDisconnect(client: Socket) {
-    this.logger.log(`Client disconnected: ${client.id}`);
   }
 }
