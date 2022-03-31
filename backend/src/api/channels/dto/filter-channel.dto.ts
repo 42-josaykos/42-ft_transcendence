@@ -28,6 +28,11 @@ export class FilterChannelDTO {
   @IsOptional()
   readonly isPrivate?: boolean;
 
+  @ApiProperty({ required: false })
+  @IsBoolean()
+  @IsOptional()
+  readonly isDirectChannel?: boolean;
+
   // Fetch field parameters
   @ApiProperty({ required: false })
   @IsEmpty()

@@ -15,5 +15,5 @@ export interface Channel {
     invites: User[];
     isMember: boolean;
     isOwner: boolean;
-    isDirectMessage: boolean;
+    isDirectChannel: boolean;
 }

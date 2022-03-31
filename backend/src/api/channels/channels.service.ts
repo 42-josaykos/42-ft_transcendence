@@ -64,6 +64,10 @@ export class ChannelsService {
       query.andWhere('channels.isPrivate = :isPrivate', {
         isPrivate: filter.isPrivate,
       });
+      if ('isDirectChannel' in filter)
+      query.andWhere('channels.isDirectChannel = :isDirectChannel', {
+        isDirectChannel: filter.isDirectChannel,
+      });
 
     // Fetch field parameters
     if ('password' in filter) query.addSelect('channels.password');
@@ -193,25 +197,30 @@ export class ChannelsService {
   }
 
   async createChannel(channel: CreateChannelDTO): Promise<Channel> {
-    const count = await this.channelsRepository.count({
-      where: { name: channel.name },
-    });
-    if (count > 0)
-      throw new ForbiddenException(
-        "Can't create new Channel (name must be unique)",
-      );
-    
-    const channelData = { ...channel };
-    if (channelData.password) {
-      const hash = await bcrypt.hash(channel.password, 10);
-      channelData.password = hash;
+    try {
+      await this.validateChannel(channel);
+      const count = await this.channelsRepository.count({
+        where: { name: channel.name },
+      });
+      if (count > 0)
+        throw new ForbiddenException(
+          "Can't create new Channel (name must be unique)",
+        );
+      
+      const channelData = { ...channel };
+      if (channelData.password) {
+        const hash = await bcrypt.hash(channel.password, 10);
+        channelData.password = hash;
+      }
+
+      const newChannel = this.channelsRepository.create(channelData);
+      await this.channelsRepository.save(newChannel);
+
+      delete newChannel.password
+      return newChannel;
+    } catch (error) {
+      throw error;
     }
-
-    const newChannel = this.channelsRepository.create(channelData);
-    await this.channelsRepository.save(newChannel);
-
-    delete newChannel.password
-    return newChannel;
   }
 
   async updateChannel(

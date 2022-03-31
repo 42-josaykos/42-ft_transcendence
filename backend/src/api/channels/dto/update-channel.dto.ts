@@ -23,6 +23,12 @@ export class UpdateChannelDTO {
   readonly isPrivate?: boolean | false;
 
   @ApiProperty({ required: false })
+  @IsBoolean()
+  @IsNotEmpty()
+  @IsOptional()
+  readonly isDirectChannel?: boolean | false;
+
+  @ApiProperty({ required: false })
   @IsString()
   @IsNotEmpty()
   @IsOptional()
