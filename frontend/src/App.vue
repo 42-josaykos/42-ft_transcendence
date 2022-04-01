@@ -17,10 +17,13 @@ const { loggedUser, isAuthenticated, usersOnline } = storeToRefs(statusStore);
 onMounted(() => {
   Get("/auth/status").then((res) => {
     if (res.status == 403) {
+      console.log("[App] isAuthenticated: ", false);
       isAuthenticated.value = false;
     } else {
+      console.log("[App] isAuthenticated: ", true);
       isAuthenticated.value = true;
       loggedUser.value = res.data;
+      console.log("[App] loggedUser: ", res.data);
     }
   });
 });
@@ -36,7 +39,10 @@ export const isMeteor = ref(false);
 
 <template>
   <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
-  <StatusSystem :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />;
+  <div v-if="isAuthenticated">
+    <StatusSystem />
+  </div>
+  <StatusSystem />;
   <div class="routerView">
     <div style="z-index: 0">
       <div class="star"></div>
