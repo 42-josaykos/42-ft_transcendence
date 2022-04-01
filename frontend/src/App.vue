@@ -7,11 +7,11 @@ import { useStatusStore } from "@/stores/status";
 import { onMounted, ref } from "vue";
 import { Get } from "./services/requests";
 
-// const userStore = useUserStore();
-// const { loggedUser, isAuthenticated } = storeToRefs(userStore);
+const userStore = useUserStore();
+const { loggedUser, isAuthenticated } = storeToRefs(userStore);
 
-const statusStore = useStatusStore();
-const { loggedUser, isAuthenticated, usersOnline } = storeToRefs(statusStore);
+// const statusStore = useStatusStore();
+// const { loggedUser, isAuthenticated, usersOnline } = storeToRefs(statusStore);
 
 // Verify if user is already logged
 onMounted(() => {

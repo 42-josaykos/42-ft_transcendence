@@ -1,34 +1,20 @@
 <script setup lang="ts">
-// // Props
-// const props = defineProps<{
-//   isAuthenticated: boolean;
-//   loggedUser: any;
-// }>();
-
 import { io } from "socket.io-client";
 import { storeToRefs } from "pinia";
-// import { useUserStore } from "@/stores/user";
-import { useStatusStore } from "@/stores/status";
+import { useUserStore } from "@/stores/user";
+// import { useStatusStore } from "@/stores/status";
 import { Get } from "@/services/requests";
 
-const statusStore = useStatusStore();
-const { loggedUser, isAuthenticated, usersOnline } = storeToRefs(statusStore);
-
 // const statusStore = useStatusStore();
-// const userStore = useUserStore();
-// const { loggedUser, usersOnline, isAuthenticated } = storeToRefs(userStore);
+// const { loggedUser, isAuthenticated, usersOnline } = storeToRefs(statusStore);
 
-// console.log("Logged User: ", loggedUser);
-// console.log("usersOnline: ", usersOnline);
-// console.log("isAuthenticated: ", isAuthenticated);
+const userStore = useUserStore();
+const { loggedUser, usersOnline, isAuthenticated } = storeToRefs(userStore);
 
 console.log("[StatusStore] isAuthenticated: ", isAuthenticated.value);
 
-// Get("/auth/status").then((response) => {
 if (isAuthenticated.value) {
-  // console.log("Response: ", response);
   console.log("[StatusStore] loggedUser: ", loggedUser.value);
-  // if (response.status === 200) {
   const socket = io("ws://localhost:4000", {
     withCredentials: true,
   });
@@ -45,7 +31,6 @@ if (isAuthenticated.value) {
     console.log("[StatusStore] usersOnline: ", usersOnline.value);
   });
 }
-// });
 </script>
 
 <template></template>
