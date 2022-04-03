@@ -68,7 +68,6 @@ import * as bcrypt from 'bcrypt';
 
     const message = data[0]
     const user = data[1]
-
     let channel = message.channel;
     [channel] = await this.channelsService.getChannelsByFilter({
       id: channel.id,
@@ -87,7 +86,6 @@ import * as bcrypt from 'bcrypt';
 
     let newMessage = await this.messagesService.createMessage(message)
     newMessage.author = user;
-
     for (const member of members) {
       this.server.to(member.socketID).emit('newMessage', newMessage);
     }
@@ -168,6 +166,40 @@ import * as bcrypt from 'bcrypt';
     })
   }
 
+
+  /*
+    Update Channel
+  */
+  @SubscribeMessage('updateMember')
+  async updateMember(client: Socket, data: any) {
+    const channelID = data[0]
+    const updateChannel = data[1]
+    const message = data[2]
+    const user = data[3]
+    const newChannel = await this.channelsService.updateChannel(channelID, updateChannel);
+    let [channel] = await this.channelsService.getChannelsByFilter({
+      id: channelID,
+      members: true,
+    });
+    const members = channel.members;
+    for (const member of members) {
+      this.server.to(member.socketID).emit('updateMember', newChannel);
+    }
+    if (message != null) {
+      this.newMessage(client, [message, user])
+    }
+  }
+
+  /*
+    Update Channel
+  */
+    @SubscribeMessage('updateChannel2')
+    async updateChannel2(client: Socket, data: any) {
+      const channelID = data[0]
+      const updateChannel = data[1]
+      const newChannel = await this.channelsService.updateChannel(channelID, updateChannel);
+      this.server.emit('updateMember', newChannel);
+    }
 
   /*
     Update Channel

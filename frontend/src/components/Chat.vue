@@ -52,8 +52,9 @@ const baseUrlChannel = '/channels';
 
 onMounted(async () => {
   Get('/channels/search?&password').then(res => {
-
+    if (res.status == 200) {
       allChannels.value = res.data
+    }
   });
   Get('/users/search?id=' + loggedUser.value?.id.toString() + '&memberChannels&inviteChannels').then(res => {
     channels.value = res.data[0].memberChannels
@@ -136,6 +137,16 @@ socket.on('deleteChannel', (channelID: number) => {
   channelStore.deleteChannel(channelID)
 })
 
+socket.on('updateMember', (updateChannel: Channel) => {
+  if (loggedUser.value != null) {
+    channelStore.updateChannel(updateChannel.id, updateChannel, loggedUser.value.id);
+    if (channel.value?.id === updateChannel.id) {
+      Get('/channels/search?id=' + channel.value.id.toString() + '&owner&admins&members&mutes&bans').then(res => usersMembers.value = res.data[0].members)
+      channel.value = updateChannel;
+    }
+  }
+})
+
 ///////////////////////
 //  MESSAGES
 ///////////////////////
@@ -189,7 +200,7 @@ const sendDirectMessage = async () => {
 ///////////////////////
 
 // Créer un nouveau channel
-const handleSubmitNewChannel = () => {
+const createChannel = () => {
   if (input.value.create_channel !== '')
   {
     let obj: any = {}
@@ -207,7 +218,7 @@ const handleSubmitNewChannel = () => {
       members: [{ id: loggedUser.value?.id }],
       invites: channelType.value== 2 ? users : []
     };
-    socket.emit('newChannel', newChannel, null ,loggedUser.value?.id)
+    socket.emit('newChannel', newChannel, null ,loggedUser.value)
     inputStore.$reset();
   }
 }
@@ -234,6 +245,12 @@ const joinChannel = () => {
   inputStore.$reset();
 }
 
+// Supprimer un channel
+const deleteChannel = () => {
+  socket.emit('deleteChannel', channelLeave.value?.id)
+}
+
+
 // Accepter une invitation à rejoindre un channel
 const acceptInviteChannel = () => {
   console.log(`Accept invitation => ${channelJoin.value?.name}`)
@@ -242,33 +259,55 @@ const acceptInviteChannel = () => {
     addMembers: [{id: loggedUser.value?.id}]
   };
   if (channelJoin.value != undefined) {
-
-    Patch(baseUrlChannel + '/' + channelJoin.value?.id.toString(), updateChannel).then(res => {
-      channelStore.deleteChannelInvite(res.data)
-      channelStore.joinChannel(res.data)
-      channelStore.updateMember()
-      textMsg.value = `${loggedUser.value?.username} has joined the channel.`;
-      if (channelJoin.value != undefined) {
-        sendNewMessage(channelJoin.value?.id)
-      }
-      socket.emit('updateChannel', res.data)
-    })
+    socket.emit('updateMember', channelJoin.value.id, updateChannel, {author: loggedUser.value?.id, channel: {id: channelJoin.value.id}, data: `${loggedUser.value?.username} has joined the channel.`}, loggedUser.value)
+    channelStore.deleteChannelInvite(channelJoin.value)
+    channelStore.joinChannel(channelJoin.value)
+    channelStore.updateMember()
   }
 }
 
 // Refuser une invitation à rejoindre un channel
 const refuseInviteChannel = () => {
   console.log(`Refuse invitation => ${channelJoin.value?.name}`)
-  const updateChannel = {
-    removeInvites: [{id: loggedUser.value?.id}]
-  };
   if (channelJoin.value != undefined) {
-    Patch(baseUrlChannel + '/' + channelJoin.value?.id.toString(), updateChannel).then(res => {
-      channelStore.deleteChannelInvite(res.data)
-    })
+    socket.emit('updateMember', channelJoin.value.id, {removeInvites: [{id: loggedUser.value?.id}]}, null, loggedUser.value)
+    channelStore.deleteChannelInvite(channelJoin.value)
   }
   inputStore.$reset();
 }
+
+// Mettre à jour un channel
+const updateChannel = () => {
+  if (channelUpdate.value !== undefined)
+  {
+    let obj: any = {}
+    let users: any = []
+    usersInvite.value.forEach((value) => {
+      obj = {id: value.id}
+      users.push(obj)
+    })
+    const updateChannel = {
+      name: input.value.update_channel_name,
+      isPrivate: channelTypeUpdate.value == 2 ? true : false,
+      password: channelTypeUpdate.value == 3 ? input.value.password : null,
+      invites: channelTypeUpdate.value == 2 ? users : []
+    }
+    socket.emit('updateChannel2', input.value.channel_id, updateChannel)
+  }
+  inputStore.$reset();
+};
+
+socket.on('updateChannel', (updateChannel: Channel) => {
+  if (loggedUser.value != null) {
+    channelStore.updateChannel(updateChannel.id, updateChannel, loggedUser.value.id);
+    if (channel.value?.id === updateChannel.id) {
+      Get('/channels/search?id=' + channel.value.id.toString() + '&members').then(res => usersMembers.value = res.data[0].members)
+      channel.value = updateChannel;
+    }
+  }
+})
+
+
 
 // Quitter un channel si pas Owner
 const leaveChannelIfNotOwner = (channel_item: Channel) => {
@@ -277,39 +316,33 @@ const leaveChannelIfNotOwner = (channel_item: Channel) => {
     [channelLeave.value] = res.data;
     if (loggedUser.value != null) {
       if (channelStore.isAdmin(channelLeave.value, loggedUser.value.id) == true) {
-        updateChannel = {
-          removeAdmins: [{id: loggedUser.value?.id}],
-          removeMembers: [{id: loggedUser.value?.id}]
-        };
+        socket.emit('updateMember', channelLeave.value?.id, {removeAdmins: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
+        //updateChannel = {removeAdmins: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]};
       }
       else {
         if (channelStore.isBan(channelLeave.value, loggedUser.value.id) == true) {
-          updateChannel = {
-            removeBans: [{id: loggedUser.value?.id}],
-            removeMembers: [{id: loggedUser.value?.id}]
-          };
+          socket.emit('updateMember', channelLeave.value?.id, {removeBans: [{id: loggedUser.value?.id}], removeMutes: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
+
+          //updateChannel = {removeBans: [{id: loggedUser.value?.id}], removeMutes: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]};
         }
           else if (channelStore.isMute(channelLeave.value, loggedUser.value.id) == true) {
-          updateChannel = {
-            removeMutes: [{id: loggedUser.value?.id}],
-            removeMembers: [{id: loggedUser.value?.id}]
-          };
+            socket.emit('updateMember', channelLeave.value?.id, {removeMutes: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
+          //updateChannel = {removeMutes: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]};
         }
         else {
-          updateChannel = {
-            removeMembers: [{id: loggedUser.value?.id}]
-          };
+          socket.emit('updateMember', channelLeave.value?.id, {removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
+          //updateChannel = {removeMembers: [{id: loggedUser.value?.id}]};
         }
       }
-      Patch(baseUrlChannel + '/' + channel_item.id.toString(), updateChannel).then(res => {
-        textMsg.value = `${loggedUser.value?.username} has leaved the channel.`;
-        sendNewMessage(channel_item.id)
+      //Patch(baseUrlChannel + '/' + channel_item.id.toString(), updateChannel).then(res => {
+        //textMsg.value = `${loggedUser.value?.username} has leaved the channel.`;
+        //sendNewMessage(channel_item.id)
         socket.emit("updateMemberChannelToServer", res.data)
         channelStore.leaveChannel(res.data);
         channel.value = channel.value?.id === channel_item.id ? undefined : channel.value;
         messages.value = channel.value?.id === channel_item.id ? [] : messages.value;
         channelStore.updateMember();
-      })
+      //})
     }
   })
 }
@@ -377,54 +410,18 @@ socket.on('updateMemberChannelToClient', (channelID: number) => {
   }
 })
 
-// Supprimer un channel
-const deleteChannel = () => {
-  socket.emit('deleteChannel', channelLeave.value?.id)
-}
 
-// Mettre à jour un channel
-const updateChannel = () => {
-  if (channelUpdate.value !== undefined)
-  {
-    let obj: any = {}
-    let users: any = []
-    usersInvite.value.forEach((value) => {
-      obj = {id: value.id}
-      users.push(obj)
-    })
-    const updateChannel = {
-      name: input.value.update_channel_name,
-      isPrivate: channelTypeUpdate.value == 2 ? true : false,
-      password: channelTypeUpdate.value == 3 ? input.value.password : null,
-      invites: channelTypeUpdate.value == 2 ? users : []
-    }
-    Patch(baseUrlChannel + '/' + input.value.channel_id, updateChannel).then(res => {
-      if (res.status == 200) {
-        socket.emit('updateChannel', res.data)
-      }
-    });
-  }
-  inputStore.$reset();
-};
 
-socket.on('updateChannel', (updateChannel: Channel) => {
-  if (loggedUser.value != null) {
-    channelStore.updateChannel(updateChannel.id, updateChannel, loggedUser.value.id);
-    if (channel.value?.id === updateChannel.id) {
-      Get('/channels/search?id=' + channel.value.id.toString() + '&members').then(res => usersMembers.value = res.data[0].members)
-      channel.value = updateChannel;
-    }
-  }
-})
 
-const updateChan = (updateChannel: any) => {
+
+/*const updateChan = (updateChannel: any) => {
   Patch(baseUrlChannel + '/' + channel.value?.id, updateChannel).then(res => {
       if (res.status == 200) {
         socket.emit('updateChannel', res.data)
 
       }
     });
-}
+}*/
 
 const searchName = (channelItem: Channel | undefined): string=> {
   if (channelItem == undefined) {return "Messages"}
@@ -607,7 +604,7 @@ const searchName = (channelItem: Channel | undefined): string=> {
                     <div v-if="channelStore.isAdmin(channel, user.id)">
                       Admin
                       <div v-if="channelStore.isOwner(channel, loggedUser?.id) && loggedUser?.id != user.id">
-                        <button @click="updateChan({removeAdmins: [{id: user.id}]})" type="button" class="btn btn-danger btn-channel btn-sm">
+                        <button @click="socket.emit('updateMember', channel?.id, {removeAdmins: [{id: user.id}]}, null, loggedUser)" type="button" class="btn btn-danger btn-channel btn-sm">
                           Remove admin
                         </button>
                       </div>
@@ -616,9 +613,21 @@ const searchName = (channelItem: Channel | undefined): string=> {
                     <div v-else-if="channelStore.isMember(channel, user.id)">
                       Member
                       <div v-if="channelStore.isOwner(channel, loggedUser?.id)">
-                        <button @click="updateChan({addAdmins: [{id: user.id}]})" type="button" class="btn btn-success btn-channel btn-sm">
+                        <button @click="socket.emit('updateMember', channel?.id, {addAdmins: [{id: user.id}]}, null, loggedUser)" type="button" class="btn btn-success btn-channel btn-sm">
                           Add admin
                         </button>
+                      </div>
+                      <div v-if="channelStore.isAdmin(channel, loggedUser?.id)">
+                        <div v-if="!channelStore.isAdmin(channel, user.id) && !channelStore.isBan(channel, user.id)">
+                          <button @click="socket.emit('updateMember', channel?.id, {addBans: [{id: user.id}], addMutes: [{id: user.id}]}, null, loggedUser)" type="button" class="btn btn-warning btn-channel btn-sm">
+                            Ban
+                          </button>
+                        </div>
+                        <div v-if="!channelStore.isAdmin(channel, user.id) && !channelStore.isMute(channel, user.id)">
+                          <button @click="socket.emit('updateMember', channel?.id, {addMutes: [{id: user.id}]}, null, loggedUser)" type="button" class="btn btn-warning btn-channel btn-sm">
+                            Mute
+                          </button>
+                        </div>
                       </div>
                     </div>
 
@@ -628,76 +637,47 @@ const searchName = (channelItem: Channel | undefined): string=> {
                       </button>
                     </div>
 
-                    <div v-if="loggedUser?.id != user.id && !channelStore.isAdmin(channel, user.id) && !channelStore.isMute(channel, user.id)">
-                      <button @click="updateChan({addMutes: [{id: user.id}]})" type="button" class="btn btn-warning btn-channel btn-sm">
-                        Mute
-                      </button>
-                    </div>
-
-                    <div v-if="loggedUser?.id != user.id && !channelStore.isAdmin(channel, user.id) && !channelStore.isBan(channel, user.id)">
-                      <button @click="updateChan({addBans: [{id: user.id}]})" type="button" class="btn btn-warning btn-channel btn-sm">
-                        Ban
-                      </button>
-                    </div>
-
                     <div v-if="loggedUser?.id != user.id && !channelStore.isAdmin(channel, user.id) && channelStore.isMute(channel, user.id)">
-                      <button @click="updateChan({removeMutes: [{id: user.id}]})" type="button" class="btn btn-warning btn-channel btn-sm">
+                      <button @click="socket.emit('updateMember', channel?.id, {removeMutes: [{id: user.id}]}, null, loggedUser)" type="button" class="btn btn-warning btn-channel btn-sm">
                         Remove mute
                       </button>
                     </div>
 
                   </a>
                 </div>
-
-                <div v-else>
-                  *** Users Bans ***
-                  <a  class="list-group-item list-group-item-action"> {{user.username}} =>
-                    <div v-if="channelStore.isAdmin(channel, user.id)">
-                      Admin
-                      <div v-if="channelStore.isOwner(channel, loggedUser?.id) && loggedUser?.id != user.id">
-                        <button @click="updateChan({removeAdmins: [{id: user.id}]})" type="button" class="btn btn-danger btn-channel btn-sm">
-                          Remove admin
-                        </button>
-                      </div>
-                    </div>
-
-                    <div v-else-if="channelStore.isMember(channel, user.id)">
-                      Member
-                      <div v-if="channelStore.isOwner(channel, loggedUser?.id)">
-                        <button @click="updateChan({addAdmins: [{id: user.id}]})" type="button" class="btn btn-success btn-channel btn-sm">
-                          Add admin
-                        </button>
-                      </div>
-                    </div>
-
-                    <div v-if="user.id != loggedUser?.id && channel.isDirectChannel == false">
-                      <button @click="userDirectMessage = user" type="button" class="btn btn-info btn-channel btn-sm" data-bs-toggle="modal" data-bs-target="#directMessage">
-                        Send message
-                      </button>
-                    </div>
-
-                    <div v-if="loggedUser?.id != user.id && !channelStore.isAdmin(channel, user.id) && !channelStore.isMute(channel, user.id)">
-                      <button @click="updateChan({addMutes: [{id: user.id}]})" type="button" class="btn btn-warning btn-channel btn-sm">
-                        Mute
-                      </button>
-                    </div>
-
-                    <div v-if="loggedUser?.id != user.id && !channelStore.isAdmin(channel, user.id) && channelStore.isMute(channel, user.id)">
-                      <button @click="updateChan({removeMutes: [{id: user.id}]})" type="button" class="btn btn-warning btn-channel btn-sm">
-                        Remove mute
-                      </button>
-                    </div>
-
-                    <div v-if="loggedUser?.id != user.id && !channelStore.isAdmin(channel, user.id) && channelStore.isBan(channel, user.id)">
-                      <button @click="updateChan({removeBans: [{id: user.id}]})" type="button" class="btn btn-warning btn-channel btn-sm">
-                        Remove ban
-                      </button>
-                    </div>
-
-                  </a>
-                </div>
-
               </div>
+
+              <div v-if="channel.bans.length > 0">
+                *** Users Bans ***
+              </div>
+              <div class="list-group" v-for="user in usersMembers" :key="user.id">
+                <div v-if="channelStore.isBan(channel, user.id) == true">
+                  <a  class="list-group-item list-group-item-action"> {{user.username}} =>
+
+                    <div v-if="channelStore.isMember(channel, user.id)">
+                      Member
+                      <div v-if="channelStore.isOwner(channel, loggedUser?.id)">
+                        <button @click="socket.emit('updateMember', channel?.id, {addAdmins: [{id: user.id}], removeBans: [{id: user.id}], removeMutes: [{id: user.id}]}, null, loggedUser)" type="button" class="btn btn-success btn-channel btn-sm">
+                          Add admin
+                        </button>
+                      </div>
+                      <div v-if="channelStore.isAdmin(channel, loggedUser?.id)">
+                        <button @click="socket.emit('updateMember', channel?.id, {removeBans: [{id: user.id}], removeMutes: [{id: user.id}]}, null, loggedUser)" type="button" class="btn btn-warning btn-channel btn-sm">
+                          Remove ban
+                        </button>
+                      </div>
+                    </div>
+
+                    <div v-if="user.id != loggedUser?.id && channel.isDirectChannel == false">
+                      <button @click="userDirectMessage = user" type="button" class="btn btn-info btn-channel btn-sm" data-bs-toggle="modal" data-bs-target="#directMessage">
+                        Send message
+                      </button>
+                    </div>
+
+                  </a>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
@@ -762,7 +742,7 @@ const searchName = (channelItem: Channel | undefined): string=> {
 
           <div class="modal-footer">
             <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-            <button @click="handleSubmitNewChannel" type="submit" class="btn btn-primary" data-bs-dismiss="modal">Create</button>
+            <button @click="createChannel" type="submit" class="btn btn-primary" data-bs-dismiss="modal">Create</button>
           </div>
 
         </div>
