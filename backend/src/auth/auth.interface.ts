@@ -8,14 +8,16 @@ export interface AuthenticationProvider {
   validateUserLocal(username: string, plainPassword: string);
   createUser(details: CreateUserDTO);
   findUser(id: number): Promise<User | undefined>;
-  getCookieWithJwtToken(userId: number): string;
+  getCookieWithJwtAccessToken(userID: number): string;
+  getCookieWithJwtRefreshToken(userID: number);
+  // setCurrentRefreshToken(refreshToken: string, userID: number);
   getCookieForLogout();
 }
 
 export type Done = (err: Error, user: User) => void;
 
 export interface TokenPayload {
-  userId: number;
+  userID: number;
 }
 
 export interface RequestWithUser extends Request {

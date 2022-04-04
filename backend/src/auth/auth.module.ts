@@ -13,7 +13,7 @@ import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './strategies/local.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './strategies/jwt.strategy';
+import { JwtAccessStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
@@ -50,7 +50,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     GithubStrategy,
     LocalStrategy,
     SessionSerializer,
-    JwtStrategy,
+    JwtAccessStrategy,
     {
       provide: 'AUTH_SERVICE',
       useClass: AuthService,

@@ -8,7 +8,10 @@ import { Request } from 'express';
 import { TokenPayload } from '../auth.interface';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtAccessStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-access',
+) {
   constructor(
     private readonly configService: ConfigService,
     @Inject('USERS_SERVICE')
@@ -25,6 +28,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: TokenPayload) {
-    return this.userService.getUserByID(payload.userId);
+    return this.userService.getUserByID(payload.userID);
   }
 }

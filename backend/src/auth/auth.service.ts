@@ -101,12 +101,30 @@ export class AuthService implements AuthenticationProvider {
   /*****************************************************************************
    * Jwt
    */
-  public getCookieWithJwtToken(userId: number) {
-    const payload: TokenPayload = { userId };
-    const token = this.jwtService.sign(payload);
+  public getCookieWithJwtAccessToken(userID: number) {
+    const payload: TokenPayload = { userID };
+    const token = this.jwtService.sign(payload, {
+      secret: this.configService.get('JWT_ACCESS_SECRET'),
+      expiresIn: `${this.configService.get('JWT_ACCESS_EXPIRATION_TIME')}s`,
+    });
     return `Authentication=${token}; Secure; Path=/; Max-Age=${this.configService.get(
       'JWT_ACCESS_EXPIRATION_TIME',
     )}`;
+  }
+
+  public getCookieWithJwtRefreshToken(userID: number) {
+    const payload: TokenPayload = { userID };
+    const token = this.jwtService.sign(payload, {
+      secret: this.configService.get('JWT_REFRESH_SECRET'),
+      expiresIn: `${this.configService.get('JWT_REFRESH_EXPIRATION_TIME')}s`,
+    });
+    const cookie = `Refresh=${token}; HttpOnly; Path=/auth/refresh; Max-Age=${this.configService.get(
+      'JWT_REFRESH_EXPIRATION_TIME',
+    )}`;
+    return {
+      cookie,
+      token,
+    };
   }
 
   public getCookieForLogout() {
