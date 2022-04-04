@@ -17,6 +17,8 @@ import { Delete, Get, Patch, Post } from '@/services/requests';
 
 import { io } from 'socket.io-client';
 
+import UserCard from './UserCard.vue';
+
 const socket = io("http://localhost:4000", {
   withCredentials: true
 });
@@ -370,6 +372,8 @@ const searchName = (channelItem: Channel | undefined): string=> {
 
 <template>
   <h2>Chat</h2>
+  <!--<div class="wrapper"> <button class="neons">Hello</button></div>-->
+  <UserCard :user="loggedUser"/>
   <div class="container-fluid chat">
     <div class="chatMenu">
       <div class="chatMenuWrapper">
@@ -959,6 +963,43 @@ const searchName = (channelItem: Channel | undefined): string=> {
   margin-bottom: 5px;
   background: #efefef;
   border-radius: 2rem;
+}
+
+.wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /*height: 100vh;
+    background: black*/
+}
+
+:root {
+    --clr-neon: hsl(317 100% 54%);
+    --clr-bg: hsl(323 21% 16%)
+}
+
+.neons {
+    font-size: 25px;
+    height: 60px;
+    width: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-family: "Balsamiq Sans", cursive;
+    text-decoration: none;
+    color: var(--clr-neon);
+    border: var(--clr-neon) 3px solid;
+    background-color: transparent;
+    border-radius: 0.25em;
+    text-shadow: 0 0 0.125em hsl(0 0% 100% / 0.3), 0 0 0.45em currentColor;
+    box-shadow: inset 0 0 0.5em 0 var(--clr-neon), 0 0 0.5em 0 var(--clr-neon);
+    transition: all 0.5s
+}
+
+.neons:hover {
+    background-color: var(--clr-neon);
+    color: #fff
 }
 
 </style>
