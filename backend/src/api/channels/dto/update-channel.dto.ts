@@ -7,7 +7,8 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import TimedUser from 'src/api/users/entities/timed.user.entity';
+import BanedUser from 'src/api/users/entities/baned.user.entity';
+import MutedUser from 'src/api/users/entities/muted.user.entity';
 import User from 'src/api/users/entities/user.entity';
 
 export class UpdateChannelDTO {
@@ -58,13 +59,13 @@ export class UpdateChannelDTO {
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly mutes?: TimedUser[];
+  readonly mutes?: MutedUser[];
 
   @ApiProperty({ required: false })
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly bans?: TimedUser[];
+  readonly bans?: BanedUser[];
 
   @ApiProperty({ required: false })
   @IsArray()
@@ -101,25 +102,25 @@ export class UpdateChannelDTO {
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly addMutes?: TimedUser[];
+  readonly addMutes?: MutedUser[];
 
   @ApiProperty({ required: false })
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly removeMutes?: TimedUser[];
+  readonly removeMutes?: MutedUser[];
 
   @ApiProperty({ required: false })
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly addBans?: TimedUser[];
+  readonly addBans?: BanedUser[];
 
   @ApiProperty({ required: false })
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly removeBans?: TimedUser[];
+  readonly removeBans?: BanedUser[];
 
   @ApiProperty({ required: false })
   @IsArray()

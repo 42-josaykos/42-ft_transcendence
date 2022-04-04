@@ -13,7 +13,8 @@ import Match from './matches/entities/matches.entity';
 import Message from './messages/entities/message.entity';
 import Stats from './stats/entities/stats.entity';
 import User from './users/entities/user.entity';
-import TimedUser from './users/entities/timed.user.entity';
+import MutedUser from './users/entities/muted.user.entity';
+import BanedUser from './users/entities/baned.user.entity';
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import TimedUser from './users/entities/timed.user.entity';
         database: configService.get('POSTGRES_DB'),
         entities: [
           User,
-          TimedUser,
+          MutedUser,
+          BanedUser,
           Stats,
           Match,
           Message,

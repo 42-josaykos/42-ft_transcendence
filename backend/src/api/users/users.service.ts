@@ -12,6 +12,8 @@ import { CreateStatsDTO } from '../stats/dto/create-stats.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { FilterUserDTO } from './dto/filter-user.dto';
 import User from './entities/user.entity';
+import MutedUser from './entities/muted.user.entity';
+import BanedUser from './entities/baned.user.entity';
 import Stats from 'src/api/stats/entities/stats.entity';
 import Match from 'src/api/matches/entities/matches.entity';
 import Channel from 'src/api/channels/entities/channel.entity';
@@ -46,7 +48,9 @@ export class UsersService {
         'adminChannels',
         'memberChannels',
         'muteChannels',
+        'muteChannels.channel',
         'banChannels',
+        'banChannels.channel',
         'inviteChannels',
       ],
     });
@@ -69,7 +73,9 @@ export class UsersService {
       'adminChannels',
       'memberChannels',
       'muteChannels',
+      'muteChannels.channel',
       'banChannels',
+      'banChannels.channel',
       'inviteChannels',
     ],
   ): Promise<User> {
@@ -315,7 +321,7 @@ export class UsersService {
     }
   }
 
-  async getUserChannelsMuted(userID: number): Promise<Channel[]> {
+  async getUserChannelsMuted(userID: number): Promise<MutedUser[]> {
     try {
       const user = await this.getUserByID(userID, ['muteChannels']);
       return user.muteChannels;
@@ -324,7 +330,7 @@ export class UsersService {
     }
   }
 
-  async getUserChannelsBaned(userID: number): Promise<Channel[]> {
+  async getUserChannelsBaned(userID: number): Promise<BanedUser[]> {
     try {
       const user = await this.getUserByID(userID, ['banChannels']);
       return user.banChannels;

@@ -16,11 +16,12 @@ import { ChannelsService } from './channels.service';
 import { CreateChannelDTO } from './dto/create-channel.dto';
 import { UpdateChannelDTO } from './dto/update-channel.dto';
 import { FilterChannelDTO } from './dto/filter-channel.dto';
-import Channel from './entities/channel.entity';
-import User from 'src/api/users/entities/user.entity';
-import Message from 'src/api/messages/entities/message.entity';
 import { Utils } from 'src/utils/utils.provider';
-import TimedUser from 'src/api/users/entities/timed.user.entity';
+import Channel from './entities/channel.entity';
+import Message from 'src/api/messages/entities/message.entity';
+import User from 'src/api/users/entities/user.entity';
+import BanedUser from '../users/entities/baned.user.entity';
+import MutedUser from '../users/entities/muted.user.entity';
 
 @Controller('channels')
 @ApiTags('channels')
@@ -115,14 +116,14 @@ export class ChannelsController {
   @Get(':channelID/mutes')
   async getChannelMutes(
     @Param('channelID', ParseIntPipe) channelID: number,
-  ): Promise<TimedUser[]> {
+  ): Promise<MutedUser[]> {
     return await this.channelsService.getChannelMutes(channelID);
   }
 
   @Get(':channelID/bans')
   async getChannelBans(
     @Param('channelID', ParseIntPipe) channelID: number,
-  ): Promise<TimedUser[]> {
+  ): Promise<BanedUser[]> {
     return await this.channelsService.getChannelBans(channelID);
   }
 

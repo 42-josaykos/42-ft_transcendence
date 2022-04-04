@@ -8,11 +8,14 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   JoinTable,
+  JoinColumn,
 } from 'typeorm';
 import Stats from 'src/api/stats/entities/stats.entity';
 import Message from 'src/api/messages/entities/message.entity';
 import Channel from 'src/api/channels/entities/channel.entity';
 import Match from 'src/api/matches/entities/matches.entity';
+import MutedUser from './muted.user.entity';
+import BanedUser from './baned.user.entity';
 
 @Entity()
 class User {
@@ -84,11 +87,17 @@ class User {
   @ManyToMany((type) => Channel, (channel) => channel.members)
   public memberChannels: Channel[];
 
-  @ManyToMany((type) => Channel, (channel) => channel.mutes)
-  public muteChannels: Channel[];
+  @OneToMany((type) => MutedUser, (mute) => mute.user, {
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
+  })
+  public muteChannels: MutedUser[];
 
-  @ManyToMany((type) => Channel, (channel) => channel.bans)
-  public banChannels: Channel[];
+  @OneToMany((type) => BanedUser, (ban) => ban.user, {
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
+  })
+  public banChannels: BanedUser[];
 
   @ManyToMany((type) => Channel, (channel) => channel.invites)
   public inviteChannels: Channel[];

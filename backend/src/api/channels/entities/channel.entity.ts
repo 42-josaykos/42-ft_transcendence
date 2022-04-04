@@ -10,8 +10,9 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import User from 'src/api/users/entities/user.entity';
+import MutedUser from 'src/api/users/entities/muted.user.entity';
+import BanedUser from 'src/api/users/entities/baned.user.entity';
 import Message from 'src/api/messages/entities/message.entity';
-import TimedUser from 'src/api/users/entities/timed.user.entity';
 
 @Entity()
 class Channel {
@@ -56,19 +57,19 @@ class Channel {
   @JoinTable()
   public members: User[];
 
-  @ManyToMany((type) => TimedUser, (mutes) => mutes.user, {
+  @ManyToMany((type) => MutedUser, (mutes) => mutes.channel, {
     cascade: true,
     onDelete: 'SET NULL',
   })
   @JoinTable()
-  public mutes: TimedUser[];
+  public mutes: MutedUser[];
 
-  @ManyToMany((type) => TimedUser, (bans) => bans.user, {
+  @ManyToMany((type) => BanedUser, (bans) => bans.channel, {
     cascade: true,
     onDelete: 'SET NULL',
   })
   @JoinTable()
-  public bans: TimedUser[];
+  public bans: BanedUser[];
 
   @ManyToMany((type) => User, (bans) => bans.inviteChannels, {
     cascade: true,

@@ -7,11 +7,12 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateChannelDTO } from './dto/create-channel.dto';
 import { UpdateChannelDTO } from './dto/update-channel.dto';
-import User from 'src/api/users/entities/user.entity';
-import TimedUser from 'src/api/users/entities/timed.user.entity';
+import { FilterChannelDTO } from './dto/filter-channel.dto';
 import Channel from './entities/channel.entity';
 import Message from 'src/api/messages/entities/message.entity';
-import { FilterChannelDTO } from './dto/filter-channel.dto';
+import User from 'src/api/users/entities/user.entity';
+import MutedUser from 'src/api/users/entities/muted.user.entity';
+import BanedUser from 'src/api/users/entities/baned.user.entity';
 
 @Injectable()
 export class ChannelsService {
@@ -36,7 +37,9 @@ export class ChannelsService {
       'admins',
       'members',
       'mutes',
+      'mutes.user',
       'bans',
+      'bans.user',
       'invites',
     ],
   ): Promise<Channel> {
@@ -169,7 +172,7 @@ export class ChannelsService {
     }
   }
 
-  async getChannelMutes(channelID: number): Promise<TimedUser[]> {
+  async getChannelMutes(channelID: number): Promise<MutedUser[]> {
     try {
       const channel = await this.getChannelByID(channelID, ['mutes']);
       return channel.mutes;
@@ -178,7 +181,7 @@ export class ChannelsService {
     }
   }
 
-  async getChannelBans(channelID: number): Promise<TimedUser[]> {
+  async getChannelBans(channelID: number): Promise<BanedUser[]> {
     try {
       const channel = await this.getChannelByID(channelID, ['bans']);
       return channel.bans;
@@ -253,7 +256,7 @@ export class ChannelsService {
           channel.mutes,
         );
       if (updatedChannel.removeMutes)
-        channel.mutes = await this.removeUsersFromArray(
+        channel.mutes = await this.removeTimedUsersFromArray(
           updatedChannel.removeMutes,
           channel.mutes,
         );
@@ -263,7 +266,7 @@ export class ChannelsService {
           channel.bans,
         );
       if (updatedChannel.removeBans)
-        channel.bans = await this.removeUsersFromArray(
+        channel.bans = await this.removeTimedUsersFromArray(
           updatedChannel.removeBans,
           channel.bans,
         );
@@ -304,6 +307,13 @@ export class ChannelsService {
   async removeUsersFromArray(toRemove: any[], array: any[]) {
     array = array.filter(
       (user) => !toRemove.find((remove) => remove.id === user.id),
+    );
+    return array;
+  }
+
+  async removeTimedUsersFromArray(toRemove: any[], array: any[]) {
+    array = array.filter(
+      (user) => !toRemove.find((remove) => remove.user.id === user.id),
     );
     return array;
   }
