@@ -133,7 +133,14 @@ export class AuthService implements AuthenticationProvider {
   }
 
   public getCookieForLogout() {
-    return `Authentication=; Secure; Path=/; Max-Age=0`;
+    return [
+      'Authentication=; HttpOnly; Path=/; Max-Age=0',
+      'Refresh=; HttpOnly; Path=/; Max-Age=0',
+    ];
+  }
+
+  async removeRefreshToken(userID: number) {
+    return this.usersService.removeRefreshToken(userID);
   }
 }
 

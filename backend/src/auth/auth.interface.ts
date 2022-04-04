@@ -12,6 +12,7 @@ export interface AuthenticationProvider {
   getCookieWithJwtRefreshToken(userID: number);
   setCurrentRefreshToken(refreshToken: string, userID: number);
   getCookieForLogout();
+  removeRefreshToken(userID: number);
 }
 
 export type Done = (err: Error, user: User) => void;

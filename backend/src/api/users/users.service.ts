@@ -352,4 +352,24 @@ export class UsersService {
       }
     }
   }
+
+  async getUserIfRefreshToken(refreshToken: string, userID: number) {
+    const [user] = await this.getUsersByFilter({
+      id: userID,
+      refreshToken: true,
+    });
+    const isRefreshTokenMatching = await bcrypt.compare(
+      refreshToken,
+      user.refreshToken,
+    );
+    if (isRefreshTokenMatching) {
+      return user;
+    }
+  }
+
+  async removeRefreshToken(userID: number) {
+    return this.usersRepository.update(userID, {
+      refreshToken: null,
+    });
+  }
 }

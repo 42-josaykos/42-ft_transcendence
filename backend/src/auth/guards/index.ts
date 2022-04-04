@@ -32,7 +32,10 @@ export class LocalAuthGuard extends AuthGuard('local') {
 }
 
 @Injectable()
-export default class JwtAccessGuard extends AuthGuard('jwt-access') {}
+export class JwtAccessGuard extends AuthGuard('jwt-access') {}
+
+@Injectable()
+export class JwtRefreshGuard extends AuthGuard('jwt-refresh') {}
 
 @Injectable()
 export class AuthenticatedGuard implements CanActivate {

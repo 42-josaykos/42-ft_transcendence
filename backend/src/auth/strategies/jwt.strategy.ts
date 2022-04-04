@@ -31,3 +31,30 @@ export class JwtAccessStrategy extends PassportStrategy(
     return this.userService.getUserByID(payload.userID);
   }
 }
+
+@Injectable()
+export class JwtRefreshStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-refresh',
+) {
+  constructor(
+    private readonly configService: ConfigService,
+    @Inject('USERS_SERVICE')
+    private readonly userService: UsersService,
+  ) {
+    super({
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request: Request) => {
+          return request?.cookies?.Refresh;
+        },
+      ]),
+      secretOrKey: configService.get('JWT_REFRESH_SECRET'),
+      passReqToCallback: true,
+    });
+  }
+
+  async validate(request: Request, payload: TokenPayload) {
+    const refreshToken = request.cookies?.Refresh;
+    return this.userService.getUserIfRefreshToken(refreshToken, payload.userID);
+  }
+}

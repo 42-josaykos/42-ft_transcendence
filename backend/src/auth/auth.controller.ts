@@ -10,10 +10,12 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { RequestWithUser } from './auth.interface';
-import JwtAccessGuard, {
+import {
+  JwtAccessGuard,
   AuthenticatedGuard,
   FortyTwoAuthGuard,
   GithubGuard,
+  JwtRefreshGuard,
   LocalAuthGuard,
 } from './guards';
 import { AuthenticationProvider } from './auth.interface';
@@ -104,6 +106,17 @@ export class AuthController {
     return { id, username, avatar };
   }
 
+  @Get('refresh')
+  @UseGuards(JwtRefreshGuard)
+  jwtRefresh(@Req() req: RequestWithUser, @Res() res) {
+    const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
+      req.user.id,
+    );
+    res.setHeader('Set-Cookie', accessTokenCookie);
+    const { id, username, avatar } = req.user;
+    return res.send({ id, username, avatar });
+  }
+
   /**
    * GET /auth/logout
    * Logging the user out
@@ -111,6 +124,7 @@ export class AuthController {
   @Get('logout')
   @Redirect('/')
   async logout(@Req() req, @Res() res: Response) {
+    await this.authService.removeRefreshToken(req.user.id);
     res.setHeader('Set-Cookie', this.authService.getCookieForLogout());
     req.logOut();
   }
