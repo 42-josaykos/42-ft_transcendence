@@ -4,7 +4,7 @@ import {
   WebSocketServer,
   OnGatewayConnection,
   OnGatewayDisconnect,
- } from '@nestjs/websockets';
+} from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import Channel from 'src/api/channels/entities/channel.entity';
@@ -73,18 +73,20 @@ import * as bcrypt from 'bcrypt';
       id: channel.id,
       members: true,
       mutes: false,
-      bans: false
+      bans: false,
     });
     const members = channel.members;
     const usersMuted = channel.mutes;
     const usersBaned = channel.bans;
 
-    if (usersMuted.findIndex((el: User) => el.id == user.id) != -1 ||
-      usersBaned.findIndex((el: User) => el.id == user.id) != -1) {
-        return
+    if (
+      usersMuted.findIndex((el: User) => el.id == user.id) != -1 ||
+      usersBaned.findIndex((el: User) => el.id == user.id) != -1
+    ) {
+      return;
     }
 
-    let newMessage = await this.messagesService.createMessage(message)
+    const newMessage = await this.messagesService.createMessage(message);
     newMessage.author = user;
     for (const member of members) {
       this.server.to(member.socketID).emit('newMessage', newMessage);
@@ -158,8 +160,8 @@ import * as bcrypt from 'bcrypt';
   */
   @SubscribeMessage('inviteChannel')
   async inviteChannel(client: Socket, data: any[]) {
-    const channel = data[0]
-    data.splice(0, 1)
+    const channel = data[0];
+    data.splice(0, 1);
     data.forEach(async (el: any) => {
       const user = await this.usersService.getUserByID(el.id);
       this.server.to(user.socketID).emit('inviteChannel', channel);

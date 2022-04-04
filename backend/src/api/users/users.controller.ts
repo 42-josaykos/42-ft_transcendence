@@ -10,6 +10,7 @@ import {
   Redirect,
   HttpStatus,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
@@ -19,6 +20,7 @@ import User from './entities/user.entity';
 import Match from 'src/api/matches/entities/matches.entity';
 import Channel from 'src/api/channels/entities/channel.entity';
 import { UpdateUserDTO } from './dto/update-user.dto';
+import JwtAuthGuard from 'src/auth/guards';
 import { Utils } from 'src/utils/utils.provider';
 
 @Controller('users')
@@ -31,6 +33,7 @@ export class UsersController {
 
   // CRUD related
   @Get()
+  @UseGuards(JwtAuthGuard)
   async getAllUsers(): Promise<User[]> {
     return await this.usersService.getAllUsers();
   }
