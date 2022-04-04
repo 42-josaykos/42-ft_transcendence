@@ -52,6 +52,17 @@ class User {
   @ManyToMany((type) => User, (user) => user.friends)
   public friendsInverse: User[]; // Users who are friends with me
 
+  @ManyToMany((type) => User, (user) => user.blockedUsersInverse, {
+    cascade: true,
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
+  })
+  @JoinTable()
+  public blockedUsers: User[]; // Users I blocked
+
+  @ManyToMany((type) => User, (user) => user.blockedUsers)
+  public blockedUsersInverse: User[]; // Users who blocked me
+
   // Match related relations
   @ManyToMany((type) => Match, (match) => match.players)
   public playedMatches: Match[];

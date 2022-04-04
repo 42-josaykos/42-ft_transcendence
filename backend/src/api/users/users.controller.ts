@@ -101,6 +101,20 @@ export class UsersController {
     return await this.usersService.getUserFriendsInverse(userID);
   }
 
+  @Get(':userID/blockedUsers')
+  async getUsersBlocked(
+    @Param('userID', ParseIntPipe) userID: number,
+  ): Promise<User[]> {
+    return await this.usersService.getBlockedUsers(userID);
+  }
+
+  @Get(':userID/blockedUsersInverse')
+  async getUsersBlockedInverse(
+    @Param('userID', ParseIntPipe) userID: number,
+  ): Promise<User[]> {
+    return await this.usersService.getBlockedUsersInverse(userID);
+  }
+
   // Match related
   @Get(':userID/matches/played')
   async getUserMatchesPlayed(

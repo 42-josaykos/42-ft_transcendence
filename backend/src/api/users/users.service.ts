@@ -36,6 +36,8 @@ export class UsersService {
         // Below: For DEBUG, may remove later
         'friends',
         'friendsInverse',
+        'blockedUsers',
+        'blockedUsersInverse',
         'messages',
         'messages.channel',
         'playedMatches',
@@ -57,6 +59,8 @@ export class UsersService {
       'stats',
       'friends',
       'friendsInverse',
+      'blockedUsers',
+      'blockedUsersInverse',
       'messages',
       'messages.channel',
       'playedMatches',
@@ -108,6 +112,13 @@ export class UsersService {
       query.leftJoinAndSelect('users.friends', 'friends');
     if ('friendsInverse' in filter)
       query.leftJoinAndSelect('users.friendsInverse', 'friendsInverse');
+    if ('blockedUsers' in filter)
+      query.leftJoinAndSelect('users.blockedUsers', 'blockedUsers');
+    if ('blockedUsersInverse' in filter)
+      query.leftJoinAndSelect(
+        'users.blockedUsersInverse',
+        'blockedUsersInverse',
+      );
     if ('playedMatches' in filter)
       query.leftJoinAndSelect('users.playedMatches', 'playedMatches');
     if ('winMatches' in filter)
@@ -192,6 +203,18 @@ export class UsersService {
           updatedUser.removeFriends,
           user.friends,
         );
+      if (updatedUser.blockedUsers)
+        user.blockedUsers = updatedUser.blockedUsers;
+      if (updatedUser.addBlockedUsers)
+        user.blockedUsers = await this.addUsersToArray(
+          updatedUser.addBlockedUsers,
+          user.blockedUsers,
+        );
+      if (updatedUser.removeBlockedUsers)
+        user.blockedUsers = await this.removeUsersFromArray(
+          updatedUser.blockedUsers,
+          user.blockedUsers,
+        );
 
       await this.usersRepository.save(user);
       return await this.getUserByID(userID);
@@ -222,6 +245,24 @@ export class UsersService {
     try {
       const user = await this.getUserByID(userID, ['friendsInverse']);
       return user.friendsInverse;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getBlockedUsers(userID: number): Promise<User[]> {
+    try {
+      const user = await this.getUserByID(userID, ['usersBlocked']);
+      return user.blockedUsers;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getBlockedUsersInverse(userID: number): Promise<User[]> {
+    try {
+      const user = await this.getUserByID(userID, ['usersBlockedInverse']);
+      return user.blockedUsersInverse;
     } catch (error) {
       throw error;
     }
@@ -339,6 +380,32 @@ export class UsersService {
         if ((await this.usersRepository.count(friend)) === 0)
           throw new ForbiddenException(
             "Can't update friends (removed friend does not exists)",
+          );
+      }
+    }
+    if ('blockedUsers' in user) {
+      for (const blockedUser of user.blockedUsers) {
+        if ((await this.usersRepository.count(blockedUser)) === 0)
+          throw new ForbiddenException(
+            "Can't update blocked users (blocked user does not exists)",
+          );
+      }
+    }
+    // Checking if all addFriends exist
+    if ('addBlockedUsers' in user) {
+      for (const blockedUser of user.addBlockedUsers) {
+        if ((await this.usersRepository.count(blockedUser)) === 0)
+          throw new ForbiddenException(
+            "Can't update blocke users (added blocked user does not exists)",
+          );
+      }
+    }
+    // Checking if all removeFriends exist
+    if ('removeBlockedUsers' in user) {
+      for (const blockedUser of user.removeBlockedUsers) {
+        if ((await this.usersRepository.count(blockedUser)) === 0)
+          throw new ForbiddenException(
+            "Can't update blocked users (removed blocked user does not exists)",
           );
       }
     }
