@@ -11,12 +11,13 @@ import { UsersService } from './users.service';
 import User from './entities/user.entity';
 import Stats from 'src/api/stats/entities/stats.entity';
 import { Utils } from 'src/utils/utils.provider';
+import TimedUser from './entities/timed.user.entity';
 
 @Module({
   imports: [
     StatsModule,
     MessagesModule,
-    TypeOrmModule.forFeature([User, Stats]),
+    TypeOrmModule.forFeature([User, TimedUser, Stats]),
   ],
   controllers: [UsersController, StatsRedirection, MessagesRedirection],
   providers: [UsersService, Utils],

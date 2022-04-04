@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateChannelDTO } from './dto/create-channel.dto';
 import { UpdateChannelDTO } from './dto/update-channel.dto';
 import User from 'src/api/users/entities/user.entity';
+import TimedUser from 'src/api/users/entities/timed.user.entity';
 import Channel from './entities/channel.entity';
 import Message from 'src/api/messages/entities/message.entity';
 import { FilterChannelDTO } from './dto/filter-channel.dto';
@@ -168,7 +169,7 @@ export class ChannelsService {
     }
   }
 
-  async getChannelMutes(channelID: number): Promise<User[]> {
+  async getChannelMutes(channelID: number): Promise<TimedUser[]> {
     try {
       const channel = await this.getChannelByID(channelID, ['mutes']);
       return channel.mutes;
@@ -177,7 +178,7 @@ export class ChannelsService {
     }
   }
 
-  async getChannelBans(channelID: number): Promise<User[]> {
+  async getChannelBans(channelID: number): Promise<TimedUser[]> {
     try {
       const channel = await this.getChannelByID(channelID, ['bans']);
       return channel.bans;
@@ -293,14 +294,14 @@ export class ChannelsService {
     }
   }
 
-  async addUsersToArray(toAdd: User[], array: User[]) {
+  async addUsersToArray(toAdd: any[], array: any[]) {
     toAdd.forEach((user) => {
       array.push(user);
     });
     return array;
   }
 
-  async removeUsersFromArray(toRemove: User[], array: User[]) {
+  async removeUsersFromArray(toRemove: any[], array: any[]) {
     array = array.filter(
       (user) => !toRemove.find((remove) => remove.id === user.id),
     );
@@ -339,7 +340,7 @@ export class ChannelsService {
     // Checking if all mutes exist
     if (channel.mutes) {
       for (const mute of channel.mutes) {
-        if ((await this.usersRepository.count(mute)) === 0)
+        if ((await this.usersRepository.count(mute.user)) === 0)
           throw new ForbiddenException(
             "Can't create / update channel (muted member does not exists)",
           );
@@ -348,7 +349,7 @@ export class ChannelsService {
     // Checking if all bans exist
     if (channel.bans) {
       for (const ban of channel.bans) {
-        if ((await this.usersRepository.count(ban)) === 0)
+        if ((await this.usersRepository.count(ban.user)) === 0)
           throw new ForbiddenException(
             "Can't create / update channel (baned member does not exists)",
           );
@@ -402,7 +403,7 @@ export class ChannelsService {
     // Checking if all addMutes exist
     if ('addMutes' in channel) {
       for (const muted of channel.addMutes) {
-        if ((await this.usersRepository.count(muted)) === 0)
+        if ((await this.usersRepository.count(muted.user)) === 0)
           throw new ForbiddenException(
             "Can't create / update channel (added muted member does not exists)",
           );
@@ -411,7 +412,7 @@ export class ChannelsService {
     // Checking if all removeMutes exist
     if ('removeMutes' in channel) {
       for (const muted of channel.removeMutes) {
-        if ((await this.usersRepository.count(muted)) === 0)
+        if ((await this.usersRepository.count(muted.user)) === 0)
           throw new ForbiddenException(
             "Can't create / update channel (removed muted member does not exists)",
           );
@@ -420,7 +421,7 @@ export class ChannelsService {
     // Checking if all addBans exist
     if ('addBans' in channel) {
       for (const baned of channel.addBans) {
-        if ((await this.usersRepository.count(baned)) === 0)
+        if ((await this.usersRepository.count(baned.user)) === 0)
           throw new ForbiddenException(
             "Can't create / update channel (added baned member does not exists)",
           );
@@ -429,7 +430,7 @@ export class ChannelsService {
     // Checking if all removeBans exist
     if ('removeBans' in channel) {
       for (const baned of channel.removeBans) {
-        if ((await this.usersRepository.count(baned)) === 0)
+        if ((await this.usersRepository.count(baned.user)) === 0)
           throw new ForbiddenException(
             "Can't create / update channel (removed baned member does not exists)",
           );

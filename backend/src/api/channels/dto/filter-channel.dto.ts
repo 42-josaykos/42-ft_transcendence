@@ -8,7 +8,6 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import User from 'src/api/users/entities/user.entity';
 
 export class FilterChannelDTO {
   // Search parameters

@@ -20,6 +20,7 @@ import Channel from './entities/channel.entity';
 import User from 'src/api/users/entities/user.entity';
 import Message from 'src/api/messages/entities/message.entity';
 import { Utils } from 'src/utils/utils.provider';
+import TimedUser from 'src/api/users/entities/timed.user.entity';
 
 @Controller('channels')
 @ApiTags('channels')
@@ -114,14 +115,14 @@ export class ChannelsController {
   @Get(':channelID/mutes')
   async getChannelMutes(
     @Param('channelID', ParseIntPipe) channelID: number,
-  ): Promise<User[]> {
+  ): Promise<TimedUser[]> {
     return await this.channelsService.getChannelMutes(channelID);
   }
 
   @Get(':channelID/bans')
   async getChannelBans(
     @Param('channelID', ParseIntPipe) channelID: number,
-  ): Promise<User[]> {
+  ): Promise<TimedUser[]> {
     return await this.channelsService.getChannelBans(channelID);
   }
 
