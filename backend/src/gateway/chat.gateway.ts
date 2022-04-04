@@ -16,6 +16,7 @@ import { getRepository } from 'typeorm';
 import { TypeORMSession } from 'src/auth/entities/session.entity';
 import { MessagesService } from 'src/api/messages/messages.service';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
  
  @WebSocketGateway({  //donne accès à la fonctionnalité socket.io
    cors: {
@@ -26,7 +27,8 @@ import * as bcrypt from 'bcrypt';
  export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect { //pour enregistrer certains états clés de notre application. Par exemple, nous enregistrons lorsqu'un nouveau client se connecte au serveur ou lorsqu'un client actuel se déconnecte
   constructor(private readonly channelsService: ChannelsService,
               private readonly usersService: UsersService,
-              private readonly messagesService: MessagesService) {}
+              private readonly messagesService: MessagesService,
+              private readonly jwtService: JwtService) {}
 
   @WebSocketServer() server: Server; //donne accès à l'instance du serveur websockets
   private logger: Logger = new Logger('ChatGateway');
@@ -38,17 +40,16 @@ import * as bcrypt from 'bcrypt';
   async handleConnection(client: Socket) {
     this.logger.log(`Client connected: ${client.id}`);
 
-   if (client.handshake.headers['cookie'] != undefined) {
-    let cookie = client.handshake.headers['cookie'].split('.')[1].substring(8)
-    console.log("cookie => ", cookie)
+    if (client.handshake.headers['cookie'] != undefined) {
+      const str = client.handshake.headers['cookie'];
+      let cookie = str.substring(str.indexOf("=") + 1, str.indexOf(";"))
 
-    const sessionRepo = getRepository(TypeORMSession);
-    const cookie_json = await sessionRepo.findByIds([cookie]);
-    const user = JSON.parse(cookie_json[0].json).passport.user;
+      const decodeJwtAccessToken = this.jwtService.decode(cookie)
+      const userId = decodeJwtAccessToken['userId']
 
-    const updateUser: UpdateUserDTO = {socketID: client.id}
-    await this.usersService.updateUser(user.id, updateUser)
-   }
+      const updateUser: UpdateUserDTO = {socketID: client.id}
+      await this.usersService.updateUser(userId, updateUser)
+    }
   }
 
 
