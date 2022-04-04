@@ -18,6 +18,9 @@ export class CreateChannelDTO {
   @IsBoolean()
   readonly isPrivate?: boolean | false;
 
+  @IsBoolean()
+  readonly isProtected?: boolean | false;
+
   @IsString()
   readonly password?: string | null;
 

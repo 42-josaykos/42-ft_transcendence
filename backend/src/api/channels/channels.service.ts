@@ -63,6 +63,10 @@ export class ChannelsService {
       query.andWhere('channels.isPrivate = :isPrivate', {
         isPrivate: filter.isPrivate,
       });
+    if ('isProtected' in filter)
+      query.andWhere('channels.isProtected = :isProtected', {
+        isProtected: filter.isProtected,
+      });
 
     // Fetch field parameters
     if ('password' in filter) query.addSelect('channels.password');
@@ -213,6 +217,8 @@ export class ChannelsService {
       if (updatedChannel.name) channel.name = updatedChannel.name;
       if (updatedChannel.isPrivate)
         channel.isPrivate = updatedChannel.isPrivate;
+      if (updatedChannel.isProtected)
+        channel.isProtected = updatedChannel.isProtected;
       if (updatedChannel.password) channel.password = updatedChannel.password;
       if (updatedChannel.owner) channel.owner = updatedChannel.owner;
       if (updatedChannel.admins) channel.admins = updatedChannel.admins;

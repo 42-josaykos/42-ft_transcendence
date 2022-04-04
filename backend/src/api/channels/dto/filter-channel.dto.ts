@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
+  IsBooleanString,
   IsEmpty,
   IsNotEmpty,
   IsNumberString,
@@ -24,9 +25,14 @@ export class FilterChannelDTO {
   readonly name?: string;
 
   @ApiProperty({ required: false })
-  @IsBoolean()
+  @IsBooleanString()
   @IsOptional()
   readonly isPrivate?: boolean;
+
+  @ApiProperty({ required: false })
+  @IsBooleanString()
+  @IsOptional()
+  readonly isProtected?: boolean;
 
   // Fetch field parameters
   @ApiProperty({ required: false })

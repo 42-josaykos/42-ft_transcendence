@@ -23,6 +23,9 @@ class Channel {
   @Column({ nullable: true, default: false })
   public isPrivate: boolean;
 
+  @Column({ nullable: true, default: false })
+  public isProtected: boolean;
+
   @Column({ nullable: true, select: false })
   public password: string;
 
