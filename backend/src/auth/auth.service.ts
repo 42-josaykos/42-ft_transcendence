@@ -127,6 +127,11 @@ export class AuthService implements AuthenticationProvider {
     };
   }
 
+  async setCurrentRefreshToken(token: string, userID: number) {
+    const refreshToken = await bcrypt.hash(token, 10);
+    await this.usersService.updateUser(userID, { refreshToken });
+  }
+
   public getCookieForLogout() {
     return `Authentication=; Secure; Path=/; Max-Age=0`;
   }

@@ -45,6 +45,7 @@ export class UpdateUserDTO {
 
   @ApiProperty({ required: false })
   @IsString()
+  @IsNotEmpty()
   @IsOptional()
-  readonly currentHashedRefreshToken?: string;
+  readonly refreshToken?: string;
 }

@@ -10,7 +10,7 @@ export interface AuthenticationProvider {
   findUser(id: number): Promise<User | undefined>;
   getCookieWithJwtAccessToken(userID: number): string;
   getCookieWithJwtRefreshToken(userID: number);
-  // setCurrentRefreshToken(refreshToken: string, userID: number);
+  setCurrentRefreshToken(refreshToken: string, userID: number);
   getCookieForLogout();
 }
 

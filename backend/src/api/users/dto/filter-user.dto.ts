@@ -113,4 +113,9 @@ export class FilterUserDTO {
   @IsEmpty()
   @IsOptional()
   readonly inviteChannels?: boolean;
+
+  @ApiProperty({ required: false })
+  @IsEmpty()
+  @IsOptional()
+  readonly refreshToken?: boolean;
 }

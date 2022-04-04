@@ -13,7 +13,6 @@ import Stats from 'src/api/stats/entities/stats.entity';
 import Message from 'src/api/messages/entities/message.entity';
 import Channel from 'src/api/channels/entities/channel.entity';
 import Match from 'src/api/matches/entities/matches.entity';
-import { Exclude } from 'class-transformer';
 
 @Entity()
 class User {
@@ -83,8 +82,8 @@ class User {
   @ManyToMany((type) => Channel, (channel) => channel.invites)
   public inviteChannels: Channel[];
 
-  @Exclude()
-  public currentHashedRefreshToken?: string;
+  @Column({ nullable: true, select: false })
+  public refreshToken?: string;
 }
 
 export default User;

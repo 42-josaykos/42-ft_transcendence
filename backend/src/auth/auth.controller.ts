@@ -50,11 +50,8 @@ export class AuthController {
       user.id,
     );
     const refreshToken = this.authService.getCookieWithJwtRefreshToken(user.id);
-    // await this.authService.setCurrentRefreshToken(refreshToken, user.id);
-    console.log('refreshToken: ', refreshToken);
-
+    await this.authService.setCurrentRefreshToken(refreshToken.token, user.id);
     res.setHeader('Set-Cookie', [accessTokenCookie, refreshToken.cookie]);
-    // user.password = undefined;
     return res.send(user);
   }
 
@@ -67,9 +64,12 @@ export class AuthController {
   @UseGuards(FortyTwoAuthGuard)
   async redirect(@Req() req: RequestWithUser, @Res() res: Response) {
     const { user } = req;
-    const cookie = this.authService.getCookieWithJwtAccessToken(user.id);
-    res.setHeader('Set-Cookie', cookie);
-    user.password = undefined;
+    const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
+      user.id,
+    );
+    const refreshToken = this.authService.getCookieWithJwtRefreshToken(user.id);
+    await this.authService.setCurrentRefreshToken(refreshToken.token, user.id);
+    res.setHeader('Set-Cookie', [accessTokenCookie, refreshToken.cookie]);
     return;
   }
 
@@ -78,9 +78,12 @@ export class AuthController {
   @UseGuards(GithubGuard)
   async redirectGithub(@Req() req: RequestWithUser, @Res() res: Response) {
     const { user } = req;
-    const cookie = this.authService.getCookieWithJwtAccessToken(user.id);
-    res.setHeader('Set-Cookie', cookie);
-    user.password = undefined;
+    const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
+      user.id,
+    );
+    const refreshToken = this.authService.getCookieWithJwtRefreshToken(user.id);
+    await this.authService.setCurrentRefreshToken(refreshToken.token, user.id);
+    res.setHeader('Set-Cookie', [accessTokenCookie, refreshToken.cookie]);
     return;
   }
 

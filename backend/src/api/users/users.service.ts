@@ -126,6 +126,7 @@ export class UsersService {
       query.leftJoinAndSelect('users.banChannels', 'banChannels');
     if ('inviteChannels' in filter)
       query.leftJoinAndSelect('users.inviteChannels', 'inviteChannels');
+    if ('refreshToken' in filter) query.addSelect('users.refreshToken');
 
     const users = await query.getMany();
     if (!users.length)
@@ -173,6 +174,7 @@ export class UsersService {
 
     delete newUser.socketID;
     delete newUser.password;
+    delete newUser.refreshToken;
     console.log('New user created: ', newUser);
     return newUser;
   }
@@ -197,6 +199,8 @@ export class UsersService {
           updatedUser.removeFriends,
           user.friends,
         );
+      if (updatedUser.refreshToken)
+        user.refreshToken = updatedUser.refreshToken;
 
       await this.usersRepository.save(user);
       return await this.getUserByID(userID);
