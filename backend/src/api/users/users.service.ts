@@ -30,6 +30,7 @@ export class UsersService {
   async getAllUsers(): Promise<User[]> {
     const users = await this.usersRepository.find({
       order: { id: 'ASC' },
+      select: ['id', 'username', 'avatar', 'studentID', 'githubID', 'socketID'],
       relations: [
         'stats',
         // Below: For DEBUG, may remove later
@@ -70,26 +71,61 @@ export class UsersService {
   ): Promise<User> {
     const user = await this.usersRepository.findOne({
       where: { id: userID },
+      select: ['id', 'username', 'avatar', 'studentID', 'githubID', 'socketID'],
       relations: relations,
     });
     if (!user) throw new NotFoundException('User not found (id incorrect)');
     else return user;
   }
 
-  async getUsersByFilter(
-    filter: FilterUserDTO,
-    showPassword: boolean = false,
-  ): Promise<User[]> {
+  async getUsersByFilter(filter: FilterUserDTO): Promise<User[]> {
     const query = this.usersRepository
       .createQueryBuilder('users')
-      .orderBy('id', 'ASC');
+      .orderBy('users.id', 'ASC');
 
-    if (showPassword) query.addSelect('users.password');
-    if (filter.id) query.andWhere('users.id = :id', { id: filter.id });
-    if (filter.username)
+    // Search parameters
+    if ('id' in filter) query.andWhere('users.id = :id', { id: filter.id });
+    if ('username' in filter)
       query.andWhere('users.username = :username', {
         username: filter.username,
       });
+    if ('studID' in filter)
+      query.andWhere('users.studentID = :studID', {
+        studID: filter.studID,
+      });
+    if ('gitID' in filter)
+      query.andWhere('users.githubID = :gitID', {
+        gitID: filter.gitID,
+      });
+
+    // Fetch field parameters
+    if ('password' in filter) query.addSelect('users.password');
+    if ('studentID' in filter) query.addSelect('users.studentID');
+    if ('githubID' in filter) query.addSelect('users.githubID');
+    if ('socketID' in filter) query.addSelect('users.socketID');
+    if ('stats' in filter) query.leftJoinAndSelect('users.stats', 'stats');
+    if ('friends' in filter)
+      query.leftJoinAndSelect('users.friends', 'friends');
+    if ('friendsInverse' in filter)
+      query.leftJoinAndSelect('users.friendsInverse', 'friendsInverse');
+    if ('playedMatches' in filter)
+      query.leftJoinAndSelect('users.playedMatches', 'playedMatches');
+    if ('winMatches' in filter)
+      query.leftJoinAndSelect('users.winMatches', 'winMatches');
+    if ('messages' in filter)
+      query.leftJoinAndSelect('users.messages', 'messages');
+    if ('ownerChannels' in filter)
+      query.leftJoinAndSelect('users.ownerChannels', 'ownerChannels');
+    if ('adminChannels' in filter)
+      query.leftJoinAndSelect('users.adminChannels', 'adminChannels');
+    if ('memberChannels' in filter)
+      query.leftJoinAndSelect('users.memberChannels', 'memberChannels');
+    if ('muteChannels' in filter)
+      query.leftJoinAndSelect('users.muteChannels', 'muteChannels');
+    if ('banChannels' in filter)
+      query.leftJoinAndSelect('users.banChannels', 'banChannels');
+    if ('inviteChannels' in filter)
+      query.leftJoinAndSelect('users.inviteChannels', 'inviteChannels');
 
     const users = await query.getMany();
     if (!users.length)
@@ -124,13 +160,20 @@ export class UsersService {
       userData.password = hash;
     }
 
+    // Avatar
+    userData.avatar = `https://avatars.dicebear.com/api/gridy/${
+      userData.username + Math.floor(Math.random() * 100)
+    }.svg`;
+
     // Creating a new user and it's stats
     const newUser = this.usersRepository.create(userData);
     const stats = this.statsRepository.create(new CreateStatsDTO());
     stats.user = newUser;
     await this.statsRepository.save(stats);
 
-    console.log('User created: ', newUser);
+    delete newUser.socketID;
+    delete newUser.password;
+    console.log('New user created: ', newUser);
     return newUser;
   }
 

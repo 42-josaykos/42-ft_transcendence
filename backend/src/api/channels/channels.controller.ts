@@ -8,31 +8,58 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   Redirect,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ChannelsService } from './channels.service';
 import { CreateChannelDTO } from './dto/create-channel.dto';
+import { UpdateChannelDTO } from './dto/update-channel.dto';
+import { FilterChannelDTO } from './dto/filter-channel.dto';
 import Channel from './entities/channel.entity';
 import User from 'src/api/users/entities/user.entity';
 import Message from 'src/api/messages/entities/message.entity';
-import { UpdateChannelDTO } from './dto/update-channel.dto';
+import { Utils } from 'src/utils/utils.provider';
 
 @Controller('channels')
 @ApiTags('channels')
 export class ChannelsController {
-  constructor(private readonly channelsService: ChannelsService) {}
+  constructor(
+    private readonly channelsService: ChannelsService,
+    private readonly utilsProvider: Utils,
+  ) {}
 
   @Get()
   async getAllChannels(): Promise<Channel[]> {
     return await this.channelsService.getAllChannels();
   }
 
+  @Get('search')
+  async getChannelsByFilter(
+    @Query() filter: FilterChannelDTO,
+  ): Promise<Channel[]> {
+    return await this.channelsService.getChannelsByFilter(filter);
+  }
+
   @Get(':channelID')
   async getChannelByID(
     @Param('channelID', ParseIntPipe) channelID: number,
+    @Query() filter: FilterChannelDTO,
   ): Promise<Channel> {
-    return await this.channelsService.getChannelByID(channelID);
+    // Loading the specific relations if there is a filter
+    if (this.utilsProvider.isEmptyObject(filter))
+      return await this.channelsService.getChannelByID(channelID);
+    try {
+      // Removing search parameters, and setting up correct channelID
+      const searchParams = { id: '', name: '' };
+      for (const key in searchParams) delete filter[key];
+      filter.id = channelID;
+
+      const [channel] = await this.channelsService.getChannelsByFilter(filter);
+      return channel;
+    } catch (error) {
+      throw error;
+    }
   }
 
   @Get(':channelID/name')

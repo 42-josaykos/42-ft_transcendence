@@ -10,6 +10,7 @@ import { UpdateChannelDTO } from './dto/update-channel.dto';
 import User from 'src/api/users/entities/user.entity';
 import Channel from './entities/channel.entity';
 import Message from 'src/api/messages/entities/message.entity';
+import { FilterChannelDTO } from './dto/filter-channel.dto';
 
 @Injectable()
 export class ChannelsService {
@@ -45,6 +46,59 @@ export class ChannelsService {
     if (!channel)
       throw new NotFoundException('Channel not found (id incorrect)');
     return channel;
+  }
+
+  async getChannelsByFilter(filter: FilterChannelDTO): Promise<Channel[]> {
+    const query = this.channelsRepository
+      .createQueryBuilder('channels')
+      .orderBy('channels.id', 'ASC');
+
+    // Search parameters
+    if ('id' in filter) query.andWhere('channels.id = :id', { id: filter.id });
+    if ('name' in filter)
+      query.andWhere('channels.name = :name', {
+        name: filter.name,
+      });
+    if ('isPrivate' in filter)
+      query.andWhere('channels.isPrivate = :isPrivate', {
+        isPrivate: filter.isPrivate,
+      });
+
+    // Fetch field parameters
+    if ('password' in filter) query.addSelect('channels.password');
+    if ('messages' in filter)
+      query
+        .leftJoinAndSelect('channels.messages', 'messages')
+        .leftJoinAndSelect('messages.author', 'author');
+    if ('owner' in filter)
+      query
+        .leftJoinAndSelect('channels.owner', 'owner')
+        .addSelect('owner.socketID');
+    if ('admins' in filter)
+      query
+        .leftJoinAndSelect('channels.admins', 'admins')
+        .addSelect('admins.socketID');
+    if ('members' in filter)
+      query
+        .leftJoinAndSelect('channels.members', 'members')
+        .addSelect('members.socketID');
+    if ('mutes' in filter)
+      query
+        .leftJoinAndSelect('channels.mutes', 'mutes')
+        .addSelect('mutes.socketID');
+    if ('bans' in filter)
+      query
+        .leftJoinAndSelect('channels.bans', 'bans')
+        .addSelect('bans.socketID');
+    if ('invites' in filter)
+      query
+        .leftJoinAndSelect('channels.invites', 'invites')
+        .addSelect('invites.socketID');
+
+    const channels = await query.getMany();
+    if (!channels.length)
+      throw new NotFoundException('Channels not found (filter incorrect)');
+    return channels;
   }
 
   async getChannelName(channelID: number): Promise<string> {
@@ -157,9 +211,9 @@ export class ChannelsService {
       const channel = await this.getChannelByID(channelID);
       //Checking what is updated
       if (updatedChannel.name) channel.name = updatedChannel.name;
-      if (updatedChannel.isPrivate)
+      /*if (updatedChannel.isPrivate)*/
         channel.isPrivate = updatedChannel.isPrivate;
-      if (updatedChannel.password) channel.password = updatedChannel.password;
+      /*if (updatedChannel.password) */channel.password = updatedChannel.password;
       if (updatedChannel.owner) channel.owner = updatedChannel.owner;
       if (updatedChannel.admins) channel.admins = updatedChannel.admins;
       if (updatedChannel.members) channel.members = updatedChannel.members;

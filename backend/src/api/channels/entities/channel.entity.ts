@@ -23,7 +23,7 @@ class Channel {
   @Column({ nullable: true, default: false })
   public isPrivate: boolean;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, select: false })
   public password: string;
 
   @OneToMany((type) => Message, (message) => message.channel, {
@@ -72,6 +72,9 @@ class Channel {
   })
   @JoinTable()
   public invites: User[];
+
+  @Column({ nullable: true, default: false })
+  public isDirectMessage: boolean;
 }
 
 export default Channel;
