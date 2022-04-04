@@ -23,7 +23,7 @@ class BanedUser {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
-  // @JoinTable()
+  @JoinTable()
   public channel: Channel;
 
   @CreateDateColumn({ type: 'timestamptz', nullable: false })

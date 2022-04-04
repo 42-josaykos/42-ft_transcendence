@@ -61,14 +61,14 @@ class Channel {
     cascade: true,
     onDelete: 'SET NULL',
   })
-  @JoinTable()
+  // @JoinTable()
   public mutes: MutedUser[];
 
   @ManyToMany((type) => BanedUser, (bans) => bans.channel, {
     cascade: true,
     onDelete: 'SET NULL',
   })
-  @JoinTable()
+  // @JoinTable()
   public bans: BanedUser[];
 
   @ManyToMany((type) => User, (bans) => bans.inviteChannels, {

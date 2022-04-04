@@ -107,10 +107,8 @@ PATCH http://{{host}}/channels/1
 Content-Type: {{contentType}}
 
 {
-    "addMembers": [{"id": 1}],
-    "removeAdmins": [{"id": 1}, {"id": 2}, {"id": 3}],
-    "addAdmins": [{"id": 1}, {"id": 2}, {"id": 3}],
-    "addInvites": [{"id": 2}, {"id": 3}]
+    "addMutes": [{"user": {"id": 1}, "channel": {"id": 1}}],
+    "addBans": [{"user": {"id": 1}, "channel": {"id": 1}}]
 }
 
 ###
