@@ -168,7 +168,7 @@ import * as bcrypt from 'bcrypt';
 
 
   /*
-    Update Channel
+    Update Member Channel
   */
   @SubscribeMessage('updateMember')
   async updateMember(client: Socket, data: any) {
@@ -190,47 +190,15 @@ import * as bcrypt from 'bcrypt';
     }
   }
 
+
   /*
     Update Channel
   */
-    @SubscribeMessage('updateChannel2')
+    @SubscribeMessage('updateChannel')
     async updateChannel2(client: Socket, data: any) {
       const channelID = data[0]
       const updateChannel = data[1]
       const newChannel = await this.channelsService.updateChannel(channelID, updateChannel);
       this.server.emit('updateMember', newChannel);
     }
-
-  /*
-    Update Channel
-  */
-  @SubscribeMessage('updateChannel')
-  async updateChannel(client: Socket, channel: Channel) {
-    this.server.emit('updateChannel', channel);
-  }
-
-
-
-  @SubscribeMessage('newOwnerToServer')
-  async newOwner(client: Socket, ownerID: number) {
-    const [user] = await this.usersService.getUsersByFilter({
-      id: ownerID,
-      socketID: true,
-    });
-    this.server.to(user.socketID).emit('newOwnerToClient', ownerID);
-  }
-
-  @SubscribeMessage('updateMemberChannelToServer')
-  async leaveChannel(client: Socket, data: any) {
-  
-    let [channel] = await this.channelsService.getChannelsByFilter({
-      id: data.id,
-      members: true,
-    });
-    const members = channel.members;
-
-    for (const member of members) {
-      this.server.to(member.socketID).emit('updateMemberChannelToClient', channel.id);
-    }
-  }
 }

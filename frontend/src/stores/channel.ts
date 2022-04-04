@@ -36,7 +36,7 @@ export const useChannelStore = defineStore('channel', () => {
     const usersInvite = ref<User[]>([]);
 
     const channelsJoin = ref<boolean>();
-    const newOwner = ref<number>();
+    const newOwner = ref<User>();
     const channelType = ref<number>();
     const channelTypeUpdate = ref<number>();
 

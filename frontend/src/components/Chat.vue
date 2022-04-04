@@ -62,7 +62,7 @@ onMounted(async () => {
   });
 
   channelsJoin.value = true;
-  newOwner.value = -1;
+  newOwner.value = undefined;
   channelType.value = 1;
   channelTypeUpdate.value = 1;
 });
@@ -72,10 +72,8 @@ onUnmounted(() => {
   socket.off('newChannel');
   socket.off('deleteChannel');
   socket.off('joinChannel');
-  socket.off('newOwnerToServer');
   socket.off('updateChannel');
   socket.off('inviteChannel');
-  socket.off('updateMemberChannelToServer');
 })
 
 ///////////////////////
@@ -92,12 +90,16 @@ socket.on('newChannel', (data: any) => {
   if (loggedUser.value != undefined) {
     if (loggedUser.value?.id === newChannel.owner.id) {
       channelStore.joinChannel(newChannel);
-      channel.value = newChannel;
+      //channel.value = newChannel;
       messages.value = [];
       if (newChannel.isPrivate == true && newChannel.isDirectChannel == false) {
         socket.emit('inviteChannel', newChannel, ...usersInvite.value)
       }
-      Get('/channels/search?id=' + newChannel.id.toString() + '&members').then(res => usersMembers.value = res.data[0].members)
+      Get('/channels/search?id=' + newChannel.id.toString() + '&members&bans&mutes&admins&owner').then(res => {
+        console.log("DATA => ", res.data)
+        channel.value = res.data[0]
+        usersMembers.value = res.data[0].members
+      })
     }
     channelStore.createChannel(newChannel);
     channelStore.updateMember();
@@ -140,6 +142,8 @@ socket.on('deleteChannel', (channelID: number) => {
 socket.on('updateMember', (updateChannel: Channel) => {
   if (loggedUser.value != null) {
     channelStore.updateChannel(updateChannel.id, updateChannel, loggedUser.value.id);
+    channelStore.updateMember();
+    channelStore.updateOwner(loggedUser.value.id)
     if (channel.value?.id === updateChannel.id) {
       Get('/channels/search?id=' + channel.value.id.toString() + '&owner&admins&members&mutes&bans').then(res => usersMembers.value = res.data[0].members)
       channel.value = updateChannel;
@@ -292,136 +296,62 @@ const updateChannel = () => {
       password: channelTypeUpdate.value == 3 ? input.value.password : null,
       invites: channelTypeUpdate.value == 2 ? users : []
     }
-    socket.emit('updateChannel2', input.value.channel_id, updateChannel)
+    socket.emit('updateChannel', input.value.channel_id, updateChannel)
   }
   inputStore.$reset();
 };
 
-socket.on('updateChannel', (updateChannel: Channel) => {
-  if (loggedUser.value != null) {
-    channelStore.updateChannel(updateChannel.id, updateChannel, loggedUser.value.id);
-    if (channel.value?.id === updateChannel.id) {
-      Get('/channels/search?id=' + channel.value.id.toString() + '&members').then(res => usersMembers.value = res.data[0].members)
-      channel.value = updateChannel;
-    }
-  }
-})
-
-
-
 // Quitter un channel si pas Owner
 const leaveChannelIfNotOwner = (channel_item: Channel) => {
-  let updateChannel: any ;
   Get('/channels/search?id=' + channel_item.id.toString() + '&admins&mutes&bans&members').then(res => {
     [channelLeave.value] = res.data;
     if (loggedUser.value != null) {
       if (channelStore.isAdmin(channelLeave.value, loggedUser.value.id) == true) {
         socket.emit('updateMember', channelLeave.value?.id, {removeAdmins: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
-        //updateChannel = {removeAdmins: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]};
       }
       else {
         if (channelStore.isBan(channelLeave.value, loggedUser.value.id) == true) {
           socket.emit('updateMember', channelLeave.value?.id, {removeBans: [{id: loggedUser.value?.id}], removeMutes: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
-
-          //updateChannel = {removeBans: [{id: loggedUser.value?.id}], removeMutes: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]};
         }
           else if (channelStore.isMute(channelLeave.value, loggedUser.value.id) == true) {
             socket.emit('updateMember', channelLeave.value?.id, {removeMutes: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
-          //updateChannel = {removeMutes: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]};
         }
         else {
           socket.emit('updateMember', channelLeave.value?.id, {removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
-          //updateChannel = {removeMembers: [{id: loggedUser.value?.id}]};
         }
       }
-      //Patch(baseUrlChannel + '/' + channel_item.id.toString(), updateChannel).then(res => {
-        //textMsg.value = `${loggedUser.value?.username} has leaved the channel.`;
-        //sendNewMessage(channel_item.id)
-        socket.emit("updateMemberChannelToServer", res.data)
-        channelStore.leaveChannel(res.data);
-        channel.value = channel.value?.id === channel_item.id ? undefined : channel.value;
-        messages.value = channel.value?.id === channel_item.id ? [] : messages.value;
-        channelStore.updateMember();
-      //})
+      channelStore.leaveChannel(channel_item);
+      channel.value = channel.value?.id === channel_item.id ? undefined : channel.value;
+      messages.value = channel.value?.id === channel_item.id ? [] : messages.value;
     }
   })
 }
 
 // Quitter un channel si Owner
 const leaveChannelIfOwner = () => {
-  let updateChannel: any ;
   if (loggedUser.value != null) {
     if (channelLeave.value !== undefined) {
-      if (channelStore.isAdmin(channelLeave.value, newOwner.value != undefined ? newOwner.value : -1) == true) {
-        updateChannel = {
-          owner: {id: newOwner.value},
-          removeAdmins: [{id: loggedUser.value?.id}],
-          removeMembers: [{id: loggedUser.value?.id}],
-        }
+      if (channelStore.isAdmin(channelLeave.value, newOwner.value != undefined ? newOwner.value.id : -1) == true) {
+        socket.emit('updateMember', channelLeave.value.id, {owner: {id: newOwner.value?.id}, removeAdmins: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value.id}, data: `${loggedUser.value?.username} the channel owner has left the channel - - ${newOwner.value?.username} becomes the owner.`}, loggedUser.value)
       }
       else {
-        if (channelStore.isMute(channelLeave.value, newOwner.value != undefined ? newOwner.value : -1) == true) {
-          updateChannel = {
-            owner: {id: newOwner.value},
-            addAdmins: [{id: newOwner.value}],
-            removeMutes: [{id: newOwner.value}],
-            removeAdmins: [{id: loggedUser.value?.id}],
-            removeMembers: [{id: loggedUser.value?.id}],
-   
-          }
+        if (channelStore.isBan(channelLeave.value, loggedUser.value.id) == true) {
+          socket.emit('updateMember', channelLeave.value?.id, {owner: {id: newOwner.value?.id}, addAdmins: [{id: newOwner.value?.id}], removeMutes: [{id: newOwner.value?.id}], removeBans: [{id: loggedUser.value?.id}], removeAdmins: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
+        }
+        else if (channelStore.isMute(channelLeave.value, newOwner.value != undefined ? newOwner.value.id : -1) == true) {
+            socket.emit('updateMember', channelLeave.value?.id, {owner: {id: newOwner.value?.id}, addAdmins: [{id: newOwner.value?.id}], removeMutes: [{id: newOwner.value?.id}], removeAdmins: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
         }
         else {
-          updateChannel = {
-            owner: {id: newOwner.value},
-            removeAdmins: [{id: loggedUser.value?.id}],
-            addAdmins: [{id: newOwner.value}],
-            removeMembers: [{id: loggedUser.value?.id}],
-          }
+          socket.emit('updateMember', channelLeave.value?.id, {owner: {id: newOwner.value?.id}, removeAdmins: [{id: loggedUser.value?.id}], addAdmins: [{id: newOwner.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
         }
       }
-      Patch(baseUrlChannel + '/' + channelLeave.value.id.toString(), updateChannel).then(res => {
-        textMsg.value = `${loggedUser.value?.username} the channel owner has left the channel - - ${res.data.owner.username} becomes the owner.`;
-        sendNewMessage(res.data.id)
-        channelStore.leaveChannel(res.data);
-        
-        channel.value = channel.value?.id === channelLeave.value?.id ? undefined : channel.value;
-        messages.value = channel.value?.id === channelLeave.value?.id ? [] : messages.value;
-        channelStore.updateMember();
-        channelStore.updateOwner(loggedUser.value != null ? loggedUser.value.id : -1)
-        socket.emit('newOwnerToServer', res.data.owner.id)
-        socket.emit("updateMemberChannelToServer", res.data)
-      }) 
+      channelStore.leaveChannel(channelLeave.value);
+      channel.value = channel.value?.id === channelLeave.value?.id ? undefined : channel.value;
+      messages.value = channel.value?.id === channelLeave.value?.id ? [] : messages.value;
+      channelStore.updateMember()
     }
   }
 }
-
-socket.on('newOwnerToClient', (newOwnerID: number) => {
-  if (loggedUser.value?.id === newOwnerID) {
-    channelStore.updateOwner(newOwnerID);
-  }
-})
-
-socket.on('updateMemberChannelToClient', (channelID: number) => {
-  if (channel.value?.id === channelID) {
-    Get('/channels/search?id=' + channelID.toString() + '&owner&members&admins&mutes&bans').then(res => {
-      channel.value = res.data[0]
-      usersMembers.value = res.data[0].members
-    })
-  }
-})
-
-
-
-
-
-/*const updateChan = (updateChannel: any) => {
-  Patch(baseUrlChannel + '/' + channel.value?.id, updateChannel).then(res => {
-      if (res.status == 200) {
-        socket.emit('updateChannel', res.data)
-
-      }
-    });
-}*/
 
 const searchName = (channelItem: Channel | undefined): string=> {
   if (channelItem == undefined) {return "Messages"}
@@ -852,7 +782,7 @@ const searchName = (channelItem: Channel | undefined): string=> {
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="staticBackdropLabel">Leave channel : {{channelLeave?.name}}</h5>
-              <button @click="newOwner = -1" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              <button @click="newOwner = undefined" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             Click here if you want to permanently delete this channel :
@@ -866,7 +796,7 @@ const searchName = (channelItem: Channel | undefined): string=> {
                   <div class="list-group" v-for="item in channelLeave.members" :key="item.id">
                     <div v-if="item.id != loggedUser?.id">
                       <a  class="list-group-item list-group-item-action"> {{item.username}} =>
-                        <button @click="newOwner = item.id" type="button" class="btn btn-danger btn-channel" data-bs-toggle="modal" data-bs-target="#validateNewOwner">
+                        <button @click="newOwner = item" type="button" class="btn btn-danger btn-channel" data-bs-toggle="modal" data-bs-target="#validateNewOwner">
                             New Owner                
                         </button>
                       </a>
@@ -877,7 +807,7 @@ const searchName = (channelItem: Channel | undefined): string=> {
           </div>
 
           <div class="modal-footer">
-            <button @click="newOwner = -1" type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+            <button @click="newOwner = undefined" type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
           </div>
 
         </div>
@@ -891,7 +821,7 @@ const searchName = (channelItem: Channel | undefined): string=> {
           <div class="modal-header">
             Are you sure ?
               <button @click="leaveChannelIfOwner" type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">Yes</button>
-              <button @click="newOwner = -1" type="button" class="btn btn-danger btn-sm"  data-bs-toggle="modal" data-bs-target="#leaveChannel">No</button>
+              <button @click="newOwner = undefined" type="button" class="btn btn-danger btn-sm"  data-bs-toggle="modal" data-bs-target="#leaveChannel">No</button>
           </div>
         </div>
       </div>
