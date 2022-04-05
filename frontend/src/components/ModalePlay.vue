@@ -1,7 +1,7 @@
 <script>
     export default {
         name: 'ModalePlay',
-        props: ['revelePlay', 'toggleModalePlay', 'draw']
+        props: ['revelePlay', 'toggleModalePlay', 'launch']
     }
 </script>
 

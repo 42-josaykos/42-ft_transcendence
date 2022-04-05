@@ -15,151 +15,173 @@
 
 		data: function() {
 			return {
-				canvas: { width: 750, height: 500 },
-				paddle: { width: 15, height: 100 },
-				bound: 25,
-				
-				leftPos: {},
-				rightPos: {},
-				ballPos: {},
-
+				canvas: { w: 1000, h: 600}, // à voir pour mettre juste un ratio et faire réactive
 				paddle: {},
-				leftPlayer: {},
-				rightPlayer: {},
+				bound: 25,
+				player_L: {},
+				player_R: {},
 				ball: {},
 			}
 		},
-		
+		/*
+		** 
+		*/
 		computed: {
-			getPaddle: function() {
-				this.paddle.height = 0.2*this.canvas.height;
-				this.paddle.width = 0.15*this.paddle.height;
-				return this.paddle;
+			getPaddle: function () {
+				this.paddle.h = 0.2 * this.canvas.h;
+				this.paddle.w = 0.2 * this.paddle.h;
+				// this.paddle.speed = 5;
+				return (this.paddle);
 			},
-			getLeftPos: function() {
-				this.leftPos.x = this.bound;
-				this.leftPos.y = 0;
-				return this.leftPos;
+			getPlayerL: function() {
+				this.player_L.x = this.bound;
+				this.player_L.y = 0;
+        this.player_L.Xmin = this.player_L.x
+        this.player_L.Xmax = this.player_L.x + this.paddle.w;
+				this.player_L.Ymin = this.player_L.y;
+				this.player_L.Ymax = this.player_L.y + this.paddle.h;
+				this.player_L.color = "blue";
+				this.player_L.score = 0;
+				return (this.player_L);
 			},
-			getRightPos: function() {
-				this.rightPos.x = this.canvas.width - this.bound - this.paddle.width;
-				this.rightPos.y = 0;
-				return this.rightPos;
-			},
-			getBallPos: function() {
-				this.ballPos.x = this.canvas.width / 2 - this.paddle.width / 2;
-				this.ballPos.y = this.canvas.height / 2 - this.paddle.width / 2;
-				return this.ballPos;
-			},
-			getLeftPlayer: function() {
-				this.leftPlayer.paddle = this.getPaddle;
-				this.leftPlayer.xBound = this.bound;
-				this.leftPlayer.color = "red";
-				this.leftPlayer.position = this.getLeftPos;
-				this.leftPlayer.score = 0;
-				return this.leftPlayer;
-			},
-			getRightPlayer: function() {
-				this.rightPlayer.paddle = this.getPaddle;
-				this.rightPlayer.xBound = 710;
-				this.rightPlayer.color = "red";
-				this.rightPlayer.position = this.getRightPos;
-				this.rightPlayer.score = 0;
-				return this.rightPlayer;
+			getPlayerR: function() {
+				this.player_R.x = this.canvas.w - this.bound - this.paddle.w;
+				this.player_R.y = 0;
+				this.player_R.Xmin = this.player_R.x
+        this.player_R.Xmax = this.player_R.x + this.paddle.w;
+				this.player_R.Ymin = this.player_R.y;
+				this.player_R.Ymax = this.player_R.y + this.paddle.h;
+				this.player_R.color = "pink";
+				this.player_R.score = 0;
+				return (this.player_R);
 			},
 			getBall: function() {
-				this.ball.size = this.paddle.width;
+				this.ball.x = this.canvas.w / 2;
+				this.ball.y = this.canvas.h / 2;
+				this.ball.Xmin = this.ball.x
+        this.ball.Xmax = this.ball.x + this.paddle.w;
+				this.ball.Ymin = this.ball.y;
+				this.ball.Ymax = this.ball.y + this.paddle.w;
+				this.ball.size = this.paddle.w;
 				this.ball.color = "yellow";
-				this.ball.position = this.getBallPos;
-				return this.ball;
+				this.ball.speed = 5;
+				this.ball.velocityX = 5;
+				this.ball.velocityY = 5; //velocity = speed & dir
+				return (this.ball);
 			},
 		},
-
-
+		/*
+		** 
+		*/
 		created() {
-			window.addEventListener('keydown', this.doCommand); //keypress does not work for arrows
+			window.addEventListener('keydown', this.move); //keypress does not work for arrows
 		},
 		mounted() {
-			this.draw();
+			let gamePaddle = this.getPaddle;
+			let playerLeft = this.getPlayerL;
+			let playerRight = this.getPlayerR;
+			let gameBall = this.getBall;
+
+			this.render(playerLeft, playerRight);
 		},
 		destroyed() {
-			window.removeEventListener('keydown', this.doCommand);
+			window.removeEventListener('keydown', this.move);
 		},
-
-
-
-
-
+		/*
+		** 
+		*/
 		methods: {
-			doCommand(e) {
+			move(e) {
 				if (e.keyCode == 37)
-				{
-					console.log("37 leeeeeft");
 					this.moveLeft();
-				}
 				else if (e.keyCode == 39)
-				{   
-					console.log("39 riiiight");   
 					this.moveRight();
-				}
 			},
-			draw: function() {
-				console.log("HEM ???");
-				this.drawLeftPlayer();
-				this.drawRightPlayer();
-				this.drawBall();
+			game: function() {
+				this.render(this.getPlayerL, this.getPlayerR);
+			},
+			launch: function() {
+				setInterval(this.game(), 1000/50)
+				// this.game();
+			},
+			render: function(leftPlayer, rightPlayer) {
+				this.drawPlayer(leftPlayer, this.getPaddle);
+				this.drawPlayer(rightPlayer, this.getPaddle);
+				// this.drawPlayer(this.getPlayerL, this.getPaddle);
+				// this.drawPlayer(this.getPlayerR, this.getPaddle);
+				this.drawBall(this.getBall);
+        this.drawScore(leftPlayer, rightPlayer);
+			},
+			// update: function() {
+			// 		// this.$set(this.getBall.x, 10);
+			// 		// this.getBall.x += this.getBall.velocityX;
+			// 		// this.getBall.y += this.getBall.velocityY;
+			// 		// if (this.getBall.y + this.getBall.size > this.canvas.h ||
+			// 		// 		this.getBall.y - this.getBall.size < 0)
+			// 		// this.getBall.velocityY *= -1;
+			// 		// console.log("UPDATE x: " + this.getBall.pos.x + " y: " + this.getBall.pos.y);
+			// },
+			// collision: function() {
+			// 	if (this.ball.ballPos.x < (this.canvas.w / 2)) { //left player collision
+
+			// 	}
+			// 	else
+
+					
+			// },
+
+			drawPlayer: function(player, paddle) {
+				let canvas = document.getElementById('Pong');
+				if (canvas.getContext) {
+					let context = canvas.getContext('2d');
+					context.fillStyle = player.color;
+					context.fillRect(player.x, player.y, paddle.w, paddle.h);
+				}
 			},
 			drawBall: function() {
-				var canvas = document.getElementById('Pong');
+				let canvas = document.getElementById('Pong');
 				if (canvas.getContext) {
-					var context = canvas.getContext('2d');
+					let context = canvas.getContext('2d');
 					context.fillStyle="yellow";
-					context.arc(this.getBall.position.x, this.getBall.position.y, this.getBall.size, 0, Math.PI*2, false);
+					context.arc(this.ball.x, this.ball.y, this.ball.size, 0, Math.PI*2, false);
 					context.fill();
 				}
 			},
-			drawLeftPlayer: function() {
-				var canvas = document.getElementById('Pong');
+			drawScore: function(leftPlayer, rightPlayer) {
+				let canvas = document.getElementById('Pong');
 				if (canvas.getContext) {
-					var context = canvas.getContext('2d');
-					context.fillStyle="red";
-					context.fillRect(this.getLeftPlayer.position.x, this.getLeftPlayer.position.y, this.getLeftPlayer.paddle.width, this.getLeftPlayer.paddle.height);
-				}
-			},
-			drawRightPlayer: function() {
-				var canvas = document.getElementById('Pong');
-				if (canvas.getContext) {
-					var context = canvas.getContext('2d');
-					context.fillStyle="pink";
-					context.fillRect(this.getRightPlayer.position.x, this.getRightPlayer.position.y, this.getRightPlayer.paddle.width, this.getRightPlayer.paddle.height);
+					let context = canvas.getContext('2d');
+					context.fillStyle = "yellow";
+					let size = 0.2 * this.canvas.h; // diff let/var
+					context.font = size + "px Impact";
+					let xLeft = this.canvas.w/4;
+					let xRight = 3 * this.canvas.w/4 - (size/2);
+					context.fillText(leftPlayer.score, xLeft, this.canvas.h/5);
+					context.fillText(rightPlayer.score, xRight, this.canvas.h/5);
 				}
 			},
 			moveRight: function() {
-				if (this.rightPlayer.position.y + this.rightPlayer.paddle.height + 5 <= this.canvas.height)
-					this.rightPlayer.position.y += 5;
-
-				var canvas = document.getElementById('Pong');
+				if (this.player_L.y + this.paddle.h + 5 <= this.canvas.h) {
+					this.player_L.y += 5;
+				}
+				let canvas = document.getElementById('Pong');
 				if (canvas.getContext) {
-					var context = canvas.getContext('2d');
-					context.fillStyle="pink";
-					context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-					context.fillRect(this.rightPlayer.position.x, this.rightPlayer.position.y, this.rightPlayer.paddle.width, this.rightPlayer.paddle.height);
-					this.drawLeftPlayer();
-					this.drawBall();
+					let context = canvas.getContext('2d');
+					// context.fillStyle = "blue";
+					context.clearRect(0, 0, this.canvas.w, this.canvas.h);
+					this.render(this.player_L, this.player_R);
 				}
 			},
 			moveLeft: function() {
-				if (this.rightPlayer.position.y - 5 >= 0)
-					this.rightPlayer.position.y -= 5;
-
-				var canvas = document.getElementById('Pong');
+				if (this.player_L.y - 5 >= 0) {
+					this.player_L.y -= 5;
+				}
+				let canvas = document.getElementById('Pong');
 				if (canvas.getContext) {
-					var context = canvas.getContext('2d');
-					context.fillStyle="pink";
-					context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-					context.fillRect(this.rightPlayer.position.x, this.rightPlayer.position.y, this.rightPlayer.paddle.width, this.rightPlayer.paddle.height);
-					this.drawLeftPlayer();
-					this.drawBall();
+					let context = canvas.getContext('2d');
+					// context.fillStyle = "blue";
+					context.clearRect(0, 0, this.canvas.w, this.canvas.h);
+					this.render(this.player_L, this.player_R);
 				}
 			},
 		},
@@ -169,9 +191,9 @@
 <template>
 	<div class=PongGame>
 				<!-- {{ revelePlay }} -->
-		<canvas ref="Pong" class="Pong" id="Pong" :width="canvas.width" :height="canvas.height" v-on:click="draw"> </canvas>
+		<canvas ref="Pong" class="Pong" id="Pong" :width="canvas.w" :height="canvas.h" v-on:click="launch"> </canvas>
 				<!-- <input v-on:keyup.enter="draw()"> -->
-				<!-- <canvas ref="Pong" class="Pong" id="Pong" :width=750 :height=500 v-on:click="draw"> {{ revelPlay }} </canvas> -->
+				<!-- <canvas ref="Pong" class="Pong" id="Pong" :w=750 :h=500 v-on:click="draw"> {{ revelPlay }} </canvas> -->
 				<!-- <button v-on:click="moveLeft"> P2: Left </button> -->
 				<!-- <button v-on:click="moveRight"> P2: Right </button> -->
 
