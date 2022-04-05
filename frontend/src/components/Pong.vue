@@ -15,12 +15,14 @@
 
 		data: function() {
 			return {
-				canvas: { w: 1000, h: 600}, // à voir pour mettre juste un ratio et faire réactive
+				canvas: { w: 1000, h: 600 }, // à voir pour mettre juste un ratio et faire réactive
 				paddle: {},
 				bound: 25,
 				player_L: {},
 				player_R: {},
 				ball: {},
+
+				gameplay: false,
 			}
 		},
 		/*
@@ -64,9 +66,9 @@
 				this.ball.Ymax = this.ball.y + this.paddle.w;
 				this.ball.size = this.paddle.w;
 				this.ball.color = "yellow";
-				this.ball.speed = 5;
-				this.ball.velocityX = 5;
-				this.ball.velocityY = 5; //velocity = speed & dir
+				this.ball.speed = 15;
+				this.ball.velocityX = 15;
+				this.ball.velocityY = 15; //velocity = speed & dir
 				return (this.ball);
 			},
 		},
@@ -78,11 +80,14 @@
 		},
 		mounted() {
 			let gamePaddle = this.getPaddle;
-			let playerLeft = this.getPlayerL;
-			let playerRight = this.getPlayerR;
+			let leftPlayer = this.getPlayerL;
+			let rightPlayer = this.getPlayerR;
 			let gameBall = this.getBall;
 
-			this.render(playerLeft, playerRight);
+			this.render();
+			// this.launch(leftPlayer, rightPlayer);
+			this.launch();
+
 		},
 		destroyed() {
 			window.removeEventListener('keydown', this.move);
@@ -97,55 +102,66 @@
 				else if (e.keyCode == 39)
 					this.moveRight();
 			},
-			game: function() {
-				this.render(this.getPlayerL, this.getPlayerR);
-			},
 			launch: function() {
-				setInterval(this.game(), 1000/50)
-				// this.game();
+				if (this.gameplay == false) {
+					this.gameplay = true;
+				}
+				setInterval(this.game, 2000);
 			},
-			render: function(leftPlayer, rightPlayer) {
-				this.drawPlayer(leftPlayer, this.getPaddle);
-				this.drawPlayer(rightPlayer, this.getPaddle);
-				// this.drawPlayer(this.getPlayerL, this.getPaddle);
-				// this.drawPlayer(this.getPlayerR, this.getPaddle);
-				this.drawBall(this.getBall);
-        this.drawScore(leftPlayer, rightPlayer);
+			game: function() {
+				this.update();
+				// this.render();
+				return ;
 			},
-			// update: function() {
-			// 		// this.$set(this.getBall.x, 10);
-			// 		// this.getBall.x += this.getBall.velocityX;
-			// 		// this.getBall.y += this.getBall.velocityY;
-			// 		// if (this.getBall.y + this.getBall.size > this.canvas.h ||
-			// 		// 		this.getBall.y - this.getBall.size < 0)
-			// 		// this.getBall.velocityY *= -1;
-			// 		// console.log("UPDATE x: " + this.getBall.pos.x + " y: " + this.getBall.pos.y);
-			// },
-			// collision: function() {
-			// 	if (this.ball.ballPos.x < (this.canvas.w / 2)) { //left player collision
 
-			// 	}
-			// 	else
-
-					
-			// },
-
-			drawPlayer: function(player, paddle) {
+			update: function()
+			{
+				this.runWild();
+				return ;
+			},
+			render: function() {
+				console.log("Good morning!");
+				this.drawPlayerLeft(this.getPaddle);
+				this.drawPlayerRight(this.getPaddle);
+				this.drawBall();
+        this.drawScore(this.player_L, this.player_R);
+				return ;
+			},
+			drawPlayerLeft: function(paddle) {
 				let canvas = document.getElementById('Pong');
 				if (canvas.getContext) {
 					let context = canvas.getContext('2d');
-					context.fillStyle = player.color;
-					context.fillRect(player.x, player.y, paddle.w, paddle.h);
+					context.fillStyle = this.player_L.color;
+					context.fillRect(this.player_L.x, this.player_L.y, paddle.w, paddle.h);
 				}
+				return ;
 			},
+			drawPlayerRight: function(paddle) {
+				let canvas = document.getElementById('Pong');
+				if (canvas.getContext) {
+					let context = canvas.getContext('2d');
+					context.fillStyle = this.player_R.color;
+					context.fillRect(this.player_R.x, this.player_R.y, paddle.w, paddle.h);
+				}
+				return ;
+			},
+			// drawPlayer: function(player, paddle) {
+			// 	let canvas = document.getElementById('Pong');
+			// 	if (canvas.getContext) {
+			// 		let context = canvas.getContext('2d');
+			// 		context.fillStyle = player.color;
+			// 		context.fillRect(player.x, player.y, paddle.w, paddle.h);
+			// 	}
+			// },
 			drawBall: function() {
 				let canvas = document.getElementById('Pong');
 				if (canvas.getContext) {
 					let context = canvas.getContext('2d');
-					context.fillStyle="yellow";
+					context.fillStyle = "yellow";
 					context.arc(this.ball.x, this.ball.y, this.ball.size, 0, Math.PI*2, false);
 					context.fill();
 				}
+				return ;
 			},
 			drawScore: function(leftPlayer, rightPlayer) {
 				let canvas = document.getElementById('Pong');
@@ -159,30 +175,49 @@
 					context.fillText(leftPlayer.score, xLeft, this.canvas.h/5);
 					context.fillText(rightPlayer.score, xRight, this.canvas.h/5);
 				}
+				return ;
 			},
 			moveRight: function() {
+				let oldY = this.player_L.y; // ne recourvir que le paddle ?
 				if (this.player_L.y + this.paddle.h + 5 <= this.canvas.h) {
 					this.player_L.y += 5;
 				}
 				let canvas = document.getElementById('Pong');
 				if (canvas.getContext) {
 					let context = canvas.getContext('2d');
-					// context.fillStyle = "blue";
-					context.clearRect(0, 0, this.canvas.w, this.canvas.h);
-					this.render(this.player_L, this.player_R);
+					// context.clearRect(0, 0, this.canvas.w, this.canvas.h);
+					context.clearRect(this.player_L.x, oldY, this.paddle.w, this.paddle.h);
+					this.drawPlayerLeft(this.paddle);
+					// this.render();
 				}
+				return ;
 			},
 			moveLeft: function() {
+				let oldY = this.player_L.y;
 				if (this.player_L.y - 5 >= 0) {
 					this.player_L.y -= 5;
 				}
 				let canvas = document.getElementById('Pong');
 				if (canvas.getContext) {
 					let context = canvas.getContext('2d');
-					// context.fillStyle = "blue";
-					context.clearRect(0, 0, this.canvas.w, this.canvas.h);
-					this.render(this.player_L, this.player_R);
+					// context.clearRect(0, 0, this.canvas.w, this.canvas.h);
+					context.clearRect(this.player_L.x, oldY, this.paddle.w, this.paddle.h);
+					this.drawPlayerLeft(this.paddle);
+					// this.render();
 				}
+				return ;
+			},
+			runWild: function() {
+				this.ball.x += this.ball.velocityX;
+				this.ball.y += this.ball.velocityY;
+			
+				let canvas = document.getElementById('Pong');
+				if (canvas.getContext) {
+					let context = canvas.getContext('2d');
+					// context.clearRect(0, 0, this.canvas.w, this.canvas.h);
+					// this.render();
+				}
+				return ;
 			},
 		},
 	}
@@ -191,19 +226,9 @@
 <template>
 	<div class=PongGame>
 				<!-- {{ revelePlay }} -->
-		<canvas ref="Pong" class="Pong" id="Pong" :width="canvas.w" :height="canvas.h" v-on:click="launch"> </canvas>
-				<!-- <input v-on:keyup.enter="draw()"> -->
-				<!-- <canvas ref="Pong" class="Pong" id="Pong" :w=750 :h=500 v-on:click="draw"> {{ revelPlay }} </canvas> -->
-				<!-- <button v-on:click="moveLeft"> P2: Left </button> -->
-				<!-- <button v-on:click="moveRight"> P2: Right </button> -->
-
-				<!-- <input @keyup.left="moveLeft" style="display: none;">
-				<input @keyup.right="moveRight" style="display: none;">  -->
-				<!-- 
-				-->
-<!--       
-
-				<button class="UpAndDown" v-on:click="draw"> - </button> -->
+		<canvas ref="Pong" class="Pong" id="Pong" :width="canvas.w" :height="canvas.h"> </canvas>
+		<!-- <canvas ref="Pong" class="Pong" id="Pong" :width="canvas.w" :height="canvas.h" v-on:click="launch"> </canvas> -->
+		
 	</div>
 </template>
 
