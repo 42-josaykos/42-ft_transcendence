@@ -38,10 +38,6 @@
 			getPlayerL: function() {
 				this.player_L.x = this.bound;
 				this.player_L.y = 0;
-        this.player_L.Xmin = this.player_L.x
-        this.player_L.Xmax = this.player_L.x + this.paddle.w;
-				this.player_L.Ymin = this.player_L.y;
-				this.player_L.Ymax = this.player_L.y + this.paddle.h;
 				this.player_L.color = "blue";
 				this.player_L.score = 0;
 				return (this.player_L);
@@ -49,10 +45,6 @@
 			getPlayerR: function() {
 				this.player_R.x = this.canvas.w - this.bound - this.paddle.w;
 				this.player_R.y = 0;
-				this.player_R.Xmin = this.player_R.x
-        this.player_R.Xmax = this.player_R.x + this.paddle.w;
-				this.player_R.Ymin = this.player_R.y;
-				this.player_R.Ymax = this.player_R.y + this.paddle.h;
 				this.player_R.color = "pink";
 				this.player_R.score = 0;
 				return (this.player_R);
@@ -60,15 +52,11 @@
 			getBall: function() {
 				this.ball.x = this.canvas.w / 2;
 				this.ball.y = this.canvas.h / 2;
-				this.ball.Xmin = this.ball.x;
-        this.ball.Xmax = this.ball.x + this.paddle.w;
-				this.ball.Ymin = this.ball.y;
-				this.ball.Ymax = this.ball.y + this.paddle.w;
 				this.ball.size = this.paddle.w;
 				this.ball.color = "yellow";
-				this.ball.speed = 50;
-				this.ball.velocityX = 1;
-				this.ball.velocityY = 1; //velocity = speed & dir
+				this.ball.speed = 7;
+				this.ball.velocityX = 1 * this.ball.speed;
+				this.ball.velocityY = 1 * this.ball.speed; //velocity = speed & dir
 				return (this.ball);
 			},
 		},
@@ -111,17 +99,28 @@
 			},
 			game: function() {
 				this.update();
-				// this.render();
+				this.render();
 				return ;
 			},
 
 			update: function()
 			{
 				this.runWild();
+				let player = (this.ball.x + this.ball.size < this.canvas.w/2) ? this.player_L : this.player_R;
+				if (this.collision(this.ball, player))
+				{	
+        	let collisionPoint = (this.ball.y - (player.y + this.paddle.h/2));
+        	collisionPoint = collisionPoint / (this.paddle.h/2);
+        
+					let angleRad = (Math.PI/4) * collisionPoint;
+					let direction = (this.ball.x + this.ball.size < this.canvas.w/2) ? 1 : -1;
+					
+					this.ball.velocityX = direction * this.ball.speed * Math.cos(angleRad);
+					this.ball.velocityY = this.ball.speed * Math.sin(angleRad);
+				}
 				return ;
 			},
 			render: function() {
-				console.log("Good morning!");
 				this.drawPlayerLeft(this.getPaddle);
 				this.drawPlayerRight(this.getPaddle);
 				this.drawBall();
@@ -162,11 +161,12 @@
 				let canvas = document.getElementById('Pong');
 				if (canvas.getContext) {
 					let context = canvas.getContext('2d');
-					context.fillStyle = "yellow";
-					let size = 0.2 * this.canvas.h; // diff let/var
+					let size = 0.2 * this.canvas.h;
 					context.font = size + "px Impact";
 					let xLeft = this.canvas.w/4;
 					let xRight = 3 * this.canvas.w/4 - (size/2);
+
+					context.fillStyle = "green";
 					context.fillText(leftPlayer.score, xLeft, this.canvas.h/5);
 					context.fillText(rightPlayer.score, xRight, this.canvas.h/5);
 				}
@@ -182,7 +182,7 @@
 					let context = canvas.getContext('2d');
 					context.clearRect(this.player_L.x, oldY, this.paddle.w, this.paddle.h);
 				}
-				this.drawPlayerLeft(this.paddle);
+				// this.drawPlayerLeft(this.paddle); // Si j'enlève ça fait vibrer les paddles
 				return ;
 			},
 			moveLeft: function() {
@@ -195,8 +195,18 @@
 					let context = canvas.getContext('2d');
 					context.clearRect(this.player_L.x, oldY, this.paddle.w, this.paddle.h);
 				}
-				this.drawPlayerLeft(this.paddle);
+				// this.drawPlayerLeft(this.paddle);
 				return ;
+			},
+			updateScore: function() {
+				if (this.ball.Xmin <= 0) {
+					this.player_R.score++;
+					this.ball.velocityX *= -1;
+				}
+				else if (this.ball.Xmax >= this.canvas.w || this.ball.Xmin <= 0) {
+					this.ball.velocityX *= -1;
+					this.player_L.score++;
+				}
 			},
 			runWild: function() {
 				let oldX = this.ball.x;
@@ -209,31 +219,47 @@
 				this.ball.Ymin = this.ball.y - this.ball.size;
 				this.ball.Ymax = this.ball.y + this.ball.size;
 
-				console.log("this.ball.x : " + this.ball.x);
-				console.log("this.ball.y : " + this.ball.y);
+				this.updateScore();
+				// if (this.ball.Xmin <= 0) {
+				// 	this.player_R.score++;
+				// 	this.ball.velocityX *= -1;
+				// 	// comScore.play();
+				// 	// this.ball = this.getBall;
+				// 	// resetBall();
+    		// }
+				// else if (this.ball.Xmax >= this.canvas.w || this.ball.Xmin <= 0) {
+				// 	// this.ball = this.getBall;
+				// 	this.ball.velocityX *= -1;
+				// 	this.player_L.score++;
+				// 	// resetBall();
+				// }
 
-
-				console.log("this.ball.X min : " + this.ball.Xmin);
-				console.log("this.ball.Y min : " + this.ball.Ymin);
-				console.log("this.ball.X max : " + this.ball.Xmax);
-				console.log("this.ball.Y min : " + this.ball.Ymax);
-
-				console.log("this.canvas.h : " + this.canvas.h);
-
-				if (this.ball.Xmax >= this.canvas.w || this.ball.Xmin <= 0)
-					this.ball.velocityX *= -1;
 				if (this.ball.Ymax >= this.canvas.h || this.ball.Ymin <= 0)
 					this.ball.velocityY *= -1;
 				let canvas = document.getElementById('Pong');
 				if (canvas.getContext) {
 					let context = canvas.getContext('2d');
-					context.clearRect(oldX - this.ball.size, oldY - this.ball.size, this.ball.size * 2, this.ball.size * 2);
+					context.clearRect(oldX - this.ball.size - 1, oldY - this.ball.size - 1, (this.ball.size * 2) + 2, (this.ball.size * 2) + 2);
 				}
-				this.drawBall();
+				// this.drawBall();
 				return ;
 			},
+
+			collision: function (ball, player){
+				player.Xmin = player.x;
+      	player.Xmax = player.x + this.paddle.w;
+				player.Ymin = player.y;
+				player.Ymax = player.y + this.paddle.h;
+
+				ball.Xmin = ball.x - ball.size;
+				ball.Xmax = ball.x + ball.size;
+				ball.Ymin = ball.y - ball.size;
+				ball.Ymax = ball.y + ball.size;
+
+				return (player.Xmin < ball.Xmax && player.Ymin < ball.Ymax && player.Xmax > ball.Xmin && player.Ymax > ball.Ymin);
 		},
 	}
+}
 </script>
 
 <template>
