@@ -3,16 +3,13 @@
 
 	export default {
 		name: 'Pong',
-
 		props: {
 			msg: String,
 			revelePlay: Boolean,
 		},
-
 		components: {
 			'modale-play': ModalePlay, 
 		},
-
 		data: function() {
 			return {
 				canvas: { w: 1000, h: 600 }, // à voir pour mettre juste un ratio et faire réactive
@@ -25,9 +22,7 @@
 				gameplay: false,
 			}
 		},
-		/*
-		** 
-		*/
+		// COMPUTED DATA
 		computed: {
 			getPaddle: function () {
 				this.paddle.h = 0.2 * this.canvas.h;
@@ -60,66 +55,45 @@
 				return (this.ball);
 			},
 		},
-		/*
-		** 
-		*/
+		// LIFECYCLE HOOKS
 		created() {
-			window.addEventListener('keydown', this.move); //keypress does not work for arrows
+			window.addEventListener('keydown', this.move);
+			return ; //keypress does not work for arrows
 		},
 		mounted() {
 			let gamePaddle = this.getPaddle;
 			let leftPlayer = this.getPlayerL;
 			let rightPlayer = this.getPlayerR;
 			let gameBall = this.getBall;
-
 			this.render();
-			// this.launch(leftPlayer, rightPlayer);
 			this.launch();
-
+			return ;
 		},
 		destroyed() {
 			window.removeEventListener('keydown', this.move);
+			return ;
 		},
-		/*
-		** 
-		*/
+		// METHODS
 		methods: {
-			move(e) {
-				if (e.keyCode == 37)
-					this.moveLeft();
-				else if (e.keyCode == 39)
-					this.moveRight();
-			},
 			launch: function() {
 				const framePerSec = 50;
 				if (this.gameplay == false) {
 					this.gameplay = true;
 				}
 				setInterval(this.game, 1000/framePerSec);
+				return ;
 			},
 			game: function() {
 				this.update();
+				let canvas = document.getElementById('Pong');
+				if (canvas.getContext) {
+					let context = canvas.getContext('2d');
+					context.clearRect(0, 0, this.canvas.w, this.canvas.h);
+				}
 				this.render();
 				return ;
 			},
-
-			update: function()
-			{
-				this.runWild();
-				let player = (this.ball.x + this.ball.size < this.canvas.w/2) ? this.player_L : this.player_R;
-				if (this.collision(this.ball, player))
-				{	
-        	let collisionPoint = (this.ball.y - (player.y + this.paddle.h/2));
-        	collisionPoint = collisionPoint / (this.paddle.h/2);
-        
-					let angleRad = (Math.PI/4) * collisionPoint;
-					let direction = (this.ball.x + this.ball.size < this.canvas.w/2) ? 1 : -1;
-					
-					this.ball.velocityX = direction * this.ball.speed * Math.cos(angleRad);
-					this.ball.velocityY = this.ball.speed * Math.sin(angleRad);
-				}
-				return ;
-			},
+			// ELEMENTS RENDERING
 			render: function() {
 				this.drawPlayerLeft(this.getPaddle);
 				this.drawPlayerRight(this.getPaddle);
@@ -172,17 +146,19 @@
 				}
 				return ;
 			},
+			// KEYBOARD EVENT MANAGEMENT
+			move(event) {
+				if (event.keyCode == 37)
+					this.moveLeft();
+				else if (event.keyCode == 39)
+					this.moveRight();
+				return ;
+			},
 			moveRight: function() {
-				let oldY = this.player_L.y; // ne recourvir que le paddle ?
+				let oldY = this.player_L.y;
 				if (this.player_L.y + this.paddle.h + this.paddle.speed <= this.canvas.h) {
 					this.player_L.y += this.paddle.speed;
 				}
-				let canvas = document.getElementById('Pong');
-				if (canvas.getContext) {
-					let context = canvas.getContext('2d');
-					context.clearRect(this.player_L.x, oldY, this.paddle.w, this.paddle.h);
-				}
-				// this.drawPlayerLeft(this.paddle); // Si j'enlève ça fait vibrer les paddles
 				return ;
 			},
 			moveLeft: function() {
@@ -190,27 +166,48 @@
 				if (this.player_L.y - this.paddle.speed >= 0) {
 					this.player_L.y -= this.paddle.speed;
 				}
-				let canvas = document.getElementById('Pong');
-				if (canvas.getContext) {
-					let context = canvas.getContext('2d');
-					context.clearRect(this.player_L.x, oldY, this.paddle.w, this.paddle.h);
-				}
-				// this.drawPlayerLeft(this.paddle);
+				return ;
+			},
+			// UPDATING DATA AND ADJUSTING
+			update: function() {
+				this.runWild();
+
+				if (this.ball.Xmax >= this.canvas.w || this.ball.Xmin <= 0)
+					this.updateScore();
+				if (this.ball.Ymax >= this.canvas.h || this.ball.Ymin <= 0)
+					this.ball.velocityY *= -1;
+
+				let player = (this.ball.x + this.ball.size < this.canvas.w/2) ? this.player_L : this.player_R;
+				if (this.collision(this.ball, player))
+					this.updateVelocity(player);
+				return ;
+			},
+			updateVelocity: function(player) {
+				let collisionPoint = (this.ball.y - (player.y + this.paddle.h/2));
+				collisionPoint = collisionPoint / (this.paddle.h/2);
+			
+				let angleRad = (Math.PI/4) * collisionPoint;
+				let direction = (this.ball.x + this.ball.size < this.canvas.w/2) ? 1 : -1;
+				
+				this.ball.velocityX = direction * this.ball.speed * Math.cos(angleRad);
+				this.ball.velocityY = this.ball.speed * Math.sin(angleRad);
 				return ;
 			},
 			updateScore: function() {
-				if (this.ball.Xmin <= 0) {
+				if (this.ball.Xmin <= 0)
 					this.player_R.score++;
-					this.ball.velocityX *= -1;
-				}
-				else if (this.ball.Xmax >= this.canvas.w || this.ball.Xmin <= 0) {
-					this.ball.velocityX *= -1;
+				else
 					this.player_L.score++;
-				}
+				this.resetBall();
+				return ;
+			},
+			resetBall: function() {
+				this.ball.x = this.canvas.w / 2;
+				this.ball.y = this.canvas.h / 2;
+				this.ball.velocityX *= -1;				
+
 			},
 			runWild: function() {
-				let oldX = this.ball.x;
-				let oldY = this.ball.y;
 				this.ball.x += this.ball.velocityX;
 				this.ball.y += this.ball.velocityY;
 
@@ -218,33 +215,8 @@
 				this.ball.Xmax = this.ball.x + this.ball.size;
 				this.ball.Ymin = this.ball.y - this.ball.size;
 				this.ball.Ymax = this.ball.y + this.ball.size;
-
-				this.updateScore();
-				// if (this.ball.Xmin <= 0) {
-				// 	this.player_R.score++;
-				// 	this.ball.velocityX *= -1;
-				// 	// comScore.play();
-				// 	// this.ball = this.getBall;
-				// 	// resetBall();
-    		// }
-				// else if (this.ball.Xmax >= this.canvas.w || this.ball.Xmin <= 0) {
-				// 	// this.ball = this.getBall;
-				// 	this.ball.velocityX *= -1;
-				// 	this.player_L.score++;
-				// 	// resetBall();
-				// }
-
-				if (this.ball.Ymax >= this.canvas.h || this.ball.Ymin <= 0)
-					this.ball.velocityY *= -1;
-				let canvas = document.getElementById('Pong');
-				if (canvas.getContext) {
-					let context = canvas.getContext('2d');
-					context.clearRect(oldX - this.ball.size - 1, oldY - this.ball.size - 1, (this.ball.size * 2) + 2, (this.ball.size * 2) + 2);
-				}
-				// this.drawBall();
 				return ;
 			},
-
 			collision: function (ball, player){
 				player.Xmin = player.x;
       	player.Xmax = player.x + this.paddle.w;
@@ -257,9 +229,9 @@
 				ball.Ymax = ball.y + ball.size;
 
 				return (player.Xmin < ball.Xmax && player.Ymin < ball.Ymax && player.Xmax > ball.Xmin && player.Ymax > ball.Ymin);
-		},
+			},
+		}
 	}
-}
 </script>
 
 <template>
