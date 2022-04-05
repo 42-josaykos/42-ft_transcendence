@@ -32,7 +32,7 @@
 			getPaddle: function () {
 				this.paddle.h = 0.2 * this.canvas.h;
 				this.paddle.w = 0.2 * this.paddle.h;
-				// this.paddle.speed = 5;
+				this.paddle.speed = 10;
 				return (this.paddle);
 			},
 			getPlayerL: function() {
@@ -60,15 +60,15 @@
 			getBall: function() {
 				this.ball.x = this.canvas.w / 2;
 				this.ball.y = this.canvas.h / 2;
-				this.ball.Xmin = this.ball.x
+				this.ball.Xmin = this.ball.x;
         this.ball.Xmax = this.ball.x + this.paddle.w;
 				this.ball.Ymin = this.ball.y;
 				this.ball.Ymax = this.ball.y + this.paddle.w;
 				this.ball.size = this.paddle.w;
 				this.ball.color = "yellow";
-				this.ball.speed = 15;
-				this.ball.velocityX = 15;
-				this.ball.velocityY = 15; //velocity = speed & dir
+				this.ball.speed = 50;
+				this.ball.velocityX = 1;
+				this.ball.velocityY = 1; //velocity = speed & dir
 				return (this.ball);
 			},
 		},
@@ -103,10 +103,11 @@
 					this.moveRight();
 			},
 			launch: function() {
+				const framePerSec = 50;
 				if (this.gameplay == false) {
 					this.gameplay = true;
 				}
-				setInterval(this.game, 2000);
+				setInterval(this.game, 1000/framePerSec);
 			},
 			game: function() {
 				this.update();
@@ -145,20 +146,14 @@
 				}
 				return ;
 			},
-			// drawPlayer: function(player, paddle) {
-			// 	let canvas = document.getElementById('Pong');
-			// 	if (canvas.getContext) {
-			// 		let context = canvas.getContext('2d');
-			// 		context.fillStyle = player.color;
-			// 		context.fillRect(player.x, player.y, paddle.w, paddle.h);
-			// 	}
-			// },
 			drawBall: function() {
 				let canvas = document.getElementById('Pong');
 				if (canvas.getContext) {
 					let context = canvas.getContext('2d');
 					context.fillStyle = "yellow";
+					context.beginPath();
 					context.arc(this.ball.x, this.ball.y, this.ball.size, 0, Math.PI*2, false);
+					context.closePath();
 					context.fill();
 				}
 				return ;
@@ -179,44 +174,62 @@
 			},
 			moveRight: function() {
 				let oldY = this.player_L.y; // ne recourvir que le paddle ?
-				if (this.player_L.y + this.paddle.h + 5 <= this.canvas.h) {
-					this.player_L.y += 5;
+				if (this.player_L.y + this.paddle.h + this.paddle.speed <= this.canvas.h) {
+					this.player_L.y += this.paddle.speed;
 				}
 				let canvas = document.getElementById('Pong');
 				if (canvas.getContext) {
 					let context = canvas.getContext('2d');
-					// context.clearRect(0, 0, this.canvas.w, this.canvas.h);
 					context.clearRect(this.player_L.x, oldY, this.paddle.w, this.paddle.h);
-					this.drawPlayerLeft(this.paddle);
-					// this.render();
 				}
+				this.drawPlayerLeft(this.paddle);
 				return ;
 			},
 			moveLeft: function() {
 				let oldY = this.player_L.y;
-				if (this.player_L.y - 5 >= 0) {
-					this.player_L.y -= 5;
+				if (this.player_L.y - this.paddle.speed >= 0) {
+					this.player_L.y -= this.paddle.speed;
 				}
 				let canvas = document.getElementById('Pong');
 				if (canvas.getContext) {
 					let context = canvas.getContext('2d');
-					// context.clearRect(0, 0, this.canvas.w, this.canvas.h);
 					context.clearRect(this.player_L.x, oldY, this.paddle.w, this.paddle.h);
-					this.drawPlayerLeft(this.paddle);
-					// this.render();
 				}
+				this.drawPlayerLeft(this.paddle);
 				return ;
 			},
 			runWild: function() {
+				let oldX = this.ball.x;
+				let oldY = this.ball.y;
 				this.ball.x += this.ball.velocityX;
 				this.ball.y += this.ball.velocityY;
-			
+
+				this.ball.Xmin = this.ball.x - this.ball.size;
+				this.ball.Xmax = this.ball.x + this.ball.size;
+				this.ball.Ymin = this.ball.y - this.ball.size;
+				this.ball.Ymax = this.ball.y + this.ball.size;
+
+				console.log("this.ball.x : " + this.ball.x);
+				console.log("this.ball.y : " + this.ball.y);
+
+
+				console.log("this.ball.X min : " + this.ball.Xmin);
+				console.log("this.ball.Y min : " + this.ball.Ymin);
+				console.log("this.ball.X max : " + this.ball.Xmax);
+				console.log("this.ball.Y min : " + this.ball.Ymax);
+
+				console.log("this.canvas.h : " + this.canvas.h);
+
+				if (this.ball.Xmax >= this.canvas.w || this.ball.Xmin <= 0)
+					this.ball.velocityX *= -1;
+				if (this.ball.Ymax >= this.canvas.h || this.ball.Ymin <= 0)
+					this.ball.velocityY *= -1;
 				let canvas = document.getElementById('Pong');
 				if (canvas.getContext) {
 					let context = canvas.getContext('2d');
-					// context.clearRect(0, 0, this.canvas.w, this.canvas.h);
-					// this.render();
+					context.clearRect(oldX - this.ball.size, oldY - this.ball.size, this.ball.size * 2, this.ball.size * 2);
 				}
+				this.drawBall();
 				return ;
 			},
 		},
