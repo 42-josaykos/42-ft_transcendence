@@ -27,7 +27,7 @@
 			getPaddle: function () {
 				this.paddle.h = 0.2 * this.canvas.h;
 				this.paddle.w = 0.2 * this.paddle.h;
-				this.paddle.speed = 10;
+				this.paddle.speed = 15;
 				return (this.paddle);
 			},
 			getPlayerL: function() {
@@ -47,7 +47,7 @@
 			getBall: function() {
 				this.ball.x = this.canvas.w / 2;
 				this.ball.y = this.canvas.h / 2;
-				this.ball.size = this.paddle.w;
+				this.ball.size = this.paddle.w / 2;
 				this.ball.color = "yellow";
 				this.ball.speed = 7;
 				this.ball.velocityX = 1 * this.ball.speed;
@@ -85,11 +85,7 @@
 			},
 			game: function() {
 				this.update();
-				let canvas = document.getElementById('Pong');
-				if (canvas.getContext) {
-					let context = canvas.getContext('2d');
-					context.clearRect(0, 0, this.canvas.w, this.canvas.h);
-				}
+				this.clearCanvas();
 				this.render();
 				return ;
 			},
@@ -131,6 +127,14 @@
 				}
 				return ;
 			},
+			clearCanvas: function() {
+				let canvas = document.getElementById('Pong');
+				if (canvas.getContext) {
+					let context = canvas.getContext('2d');
+					context.clearRect(0, 0, this.canvas.w, this.canvas.h);
+				}
+
+			},
 			drawScore: function(leftPlayer, rightPlayer) {
 				let canvas = document.getElementById('Pong');
 				if (canvas.getContext) {
@@ -149,9 +153,9 @@
 			// KEYBOARD EVENT MANAGEMENT
 			move(event) {
 				if (event.keyCode == 37)
-					this.moveLeft();
+						this.moveLeft();
 				else if (event.keyCode == 39)
-					this.moveRight();
+						this.moveRight();
 				return ;
 			},
 			moveRight: function() {
@@ -198,6 +202,8 @@
 					this.player_R.score++;
 				else
 					this.player_L.score++;
+				if (this.player_R.score == 10 || this.player_L.score == 10)
+					console.log("END OF GAME");
 				this.resetBall();
 				return ;
 			},
