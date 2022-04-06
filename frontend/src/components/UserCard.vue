@@ -1,36 +1,53 @@
 <script setup lang="ts">
-//import type { User } from '@/models/user.model';
 
-const props = defineProps({
-    user: Object
-})
+  const props = defineProps({
+      user: Object
+  })
+
 </script>
 
-<template>
-    <div>
-        <h2>COUCOU</h2>
-        <p>{{props.user}}</p>
-
-        
-<div class="card mb-3" style="max-width: 540px;">
-  <div class="row no-gutters">
-    <div class="col-md-4">
-      <img src="..." class="card-img" alt="...">
-    </div>
-    <div class="col-md-8">
-      <div class="card-body">
-        <h5 class="card-title">Card title</h5>
-        <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-        <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+<template>    
+  <div class="">
+    <div class="row no-gutters">
+      <div class="col-md-4 cercle-user-card">
+        <img v-bind:src=props.user?.avatar alt="Avatar" class="card-img">
+      </div>
+      <div class="col-md-8 infos">
+      <div>
+        <div class="info" >
+          {{props.user?.username}}
+        </div>
+        <div class="info">
+          <small class="text-muted">Online/Offline</small>
+        </div>
+        </div>
       </div>
     </div>
   </div>
-</div>
-
-
-    </div>
 </template>
 
 <style>
+
+  .infos {
+    display: flex;
+    align-items: center;
+    padding-left: 10px !important;
+  }
+
+  .info {
+    text-align: left;
+  }
+
+  .cercle-user-card{
+    border-radius: 50%;
+    padding: 5px;
+  }
+
+  .cercle-user-card img{
+    border-radius: 50%;
+    border: var(--clr-neon) 3px solid;
+    background-color: transparent;
+    box-shadow: inset 0 0 0.5em 0 var(--clr-neon), 0 0 0.5em 0 var(--clr-neon);
+  }
 
 </style>

@@ -18,6 +18,7 @@ import { Delete, Get, Patch, Post } from '@/services/requests';
 import { io } from 'socket.io-client';
 
 import UserCard from './UserCard.vue';
+import ChatMenu from './ChatMenu.vue';
 
 const socket = io("http://localhost:4000", {
   withCredentials: true
@@ -117,19 +118,13 @@ socket.on('inviteChannel', (inviteChannel: Channel) => {
   channelStore.addChannelInvite(inviteChannel)
 })
 
-socket.on('joinChannel', (data: any) => {
-  const userID = data.id
-  const joinChannel = data.channel
-  if (loggedUser.value?.id == userID) {
-    channelStore.joinChannel(joinChannel);
-    channel.value = channelStore.getChannelByID(joinChannel.id);
-    socket.emit("updateMemberChannelToServer", joinChannel)
-    messages.value = joinChannel.messages;
+socket.on('joinChannel', () => {
+  if (channelJoin.value != undefined) {
+    channelStore.joinChannel(channelJoin.value);
+    channel.value = channelStore.getChannelByID(channelJoin.value.id);
+    messages.value = channelJoin.value.messages;
+    socket.emit("updateMember", channelJoin.value.id, {addMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value?.id, channel: {id: channelJoin.value?.id}, data: `${loggedUser.value?.username} has joined the channel.`}, loggedUser.value)
     channelStore.updateMember();
-    textMsg.value = `${loggedUser.value?.username} has joined the channel.`;
-    if (channelJoin.value != undefined) {
-        sendNewMessage(channelJoin.value?.id)
-    }
   }
 })
 
@@ -147,7 +142,10 @@ socket.on('updateMember', (updateChannel: Channel) => {
     channelStore.updateMember();
     channelStore.updateOwner(loggedUser.value.id)
     if (channel.value?.id === updateChannel.id) {
-      Get('/channels/search?id=' + channel.value.id.toString() + '&owner&admins&members&mutes&bans').then(res => usersMembers.value = res.data[0].members)
+      Get('/channels/search?id=' + channel.value.id.toString() + '&owner&admins&members&mutes&bans&messages').then(res => {
+        usersMembers.value = res.data[0].members
+        messages.value = res.data[0].messages
+      })
       channel.value = updateChannel;
     }
   }
@@ -244,10 +242,7 @@ const updateUsersInvite = (user: User) => {
 
 // Rejoindre un channel
 const joinChannel = () => {
-  const updateChannel = {
-    addMembers: [{id: loggedUser.value?.id}]
-  };
-  socket.emit('joinChannel', updateChannel, channelJoin.value, input.value.password)
+  socket.emit('joinChannel', loggedUser.value?.id, channelJoin.value, input.value.password)
   inputStore.$reset();
 }
 
@@ -325,6 +320,7 @@ const leaveChannelIfNotOwner = (channel_item: Channel) => {
       channelStore.leaveChannel(channel_item);
       channel.value = channel.value?.id === channel_item.id ? undefined : channel.value;
       messages.value = channel.value?.id === channel_item.id ? [] : messages.value;
+      channelStore.updateMember()
     }
   })
 }
@@ -371,11 +367,10 @@ const searchName = (channelItem: Channel | undefined): string=> {
 </script>
 
 <template>
-  <h2>Chat</h2>
   <!--<div class="wrapper"> <button class="neons">Hello</button></div>-->
-  <UserCard :user="loggedUser"/>
   <div class="container-fluid chat">
     <div class="chatMenu">
+      <ChatMenu  :socket="socket" :channels="channels" :allChannels="allChannels" :channelsJoin="channelsJoin" :loggedUser="loggedUser == null ? undefined : loggedUser" :searchName="searchName" :displayMessages="displayMessages"/>
       <div class="chatMenuWrapper">
         <!--Permet d'afficher mes channels-->
         <button @click="channelsJoin = true" type="button" class="btn btn-secondary send">Channels</button>
@@ -531,8 +526,8 @@ const searchName = (channelItem: Channel | undefined): string=> {
           <div v-if="usersMembers">
             <div class="scroller">
               <div class="list-group" v-for="user in usersMembers" :key="user.id">
-
-                <div v-if="channelStore.isBan(channel, user.id) == false">
+<UserCard :user="user"/>
+                <!--<div v-if="channelStore.isBan(channel, user.id) == false">
                   <a  class="list-group-item list-group-item-action"> {{user.username}} =>
 
                     <div v-if="channelStore.isAdmin(channel, user.id)">
@@ -578,7 +573,7 @@ const searchName = (channelItem: Channel | undefined): string=> {
                     </div>
 
                   </a>
-                </div>
+                </div>-->
               </div>
 
               <div v-if="channel.bans.length > 0">
@@ -863,6 +858,7 @@ const searchName = (channelItem: Channel | undefined): string=> {
 </template>
 
 <style>
+
 .chat {
   height: calc(100vh - 70px);
   display: flex;
@@ -871,11 +867,12 @@ const searchName = (channelItem: Channel | undefined): string=> {
 .chatMenu {
   flex: 2;
   text-align: center;
+  margin-top: 10px;
 }
 
-.btn-channel {
+/*.btn-channel {
   margin-bottom: 5px;
-}
+}*/
 
 .chatBox {
   flex: 6;

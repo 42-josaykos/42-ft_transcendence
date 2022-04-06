@@ -114,6 +114,7 @@ export const useChannelStore = defineStore('channel', () => {
     }
 
     const updateChannel = (id: number, updatedData: Channel, userID: number) => {
+      console.log("ICI")
       if (isInvite(updatedData, userID)) {
         const index = channelsInvite.value.findIndex((el: Channel) => el.id === id);
         channelsInvite.value.splice(index, 1, { ...channelsInvite.value[index], ...updatedData });

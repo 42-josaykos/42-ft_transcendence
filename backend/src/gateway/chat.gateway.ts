@@ -121,7 +121,7 @@ import { JwtService } from '@nestjs/jwt';
   */
   @SubscribeMessage('joinChannel')
   async joinChannel(client: Socket, data: any) {
-    const updateChannel = data[0];
+    const userID = data[0]
     const channel = data[1];
     const password = data[2]
 
@@ -135,14 +135,12 @@ import { JwtService } from '@nestjs/jwt';
           return;
       }
     }
-    const newChannel = await this.channelsService.updateChannel(channel.id, updateChannel)
 
     const [user] = await this.usersService.getUsersByFilter({
-      id: updateChannel.addMembers[0].id,
+      id: userID,
       socketID: true,
     });
-
-    this.server.to(user.socketID).emit('joinChannel', {id: user.id, channel: newChannel});
+    this.server.to(user.socketID).emit('joinChannel');
   }
 
 
