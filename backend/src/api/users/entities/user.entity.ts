@@ -87,16 +87,10 @@ class User {
   @ManyToMany((type) => Channel, (channel) => channel.members)
   public memberChannels: Channel[];
 
-  @OneToMany((type) => MutedUser, (mute) => mute.user, {
-    onUpdate: 'CASCADE',
-    onDelete: 'SET NULL',
-  })
+  @OneToMany((type) => MutedUser, (mute) => mute.user)
   public muteChannels: MutedUser[];
 
-  @OneToMany((type) => BanedUser, (ban) => ban.user, {
-    onUpdate: 'CASCADE',
-    onDelete: 'SET NULL',
-  })
+  @OneToMany((type) => BanedUser, (ban) => ban.user)
   public banChannels: BanedUser[];
 
   @ManyToMany((type) => Channel, (channel) => channel.invites)

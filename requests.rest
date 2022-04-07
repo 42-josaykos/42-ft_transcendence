@@ -107,8 +107,7 @@ PATCH http://{{host}}/channels/1
 Content-Type: {{contentType}}
 
 {
-    "addMutes": [{"user": {"id": 1}, "channel": {"id": 1}}],
-    "addBans": [{"user": {"id": 1}, "channel": {"id": 1}}]
+    "addMutes": [{"user": {"id": 1}, "channel": {"id": 1}}]
 }
 
 ###

@@ -57,8 +57,9 @@ class Channel {
   @JoinTable()
   public members: User[];
 
-  @ManyToMany((type) => MutedUser, (mutes) => mutes.channel, {
-    cascade: true,
+  @OneToMany((type) => MutedUser, (mutes) => mutes.channel, {
+    // cascade: true,
+    onUpdate: 'CASCADE',
     onDelete: 'SET NULL',
   })
   // @JoinTable()

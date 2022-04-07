@@ -31,6 +31,11 @@ export class ChannelsController {
     private readonly utilsProvider: Utils,
   ) {}
 
+  @Get('mute')
+  async test() {
+    return await this.channelsService.test();
+  }
+
   @Get()
   async getAllChannels(): Promise<Channel[]> {
     return await this.channelsService.getAllChannels();

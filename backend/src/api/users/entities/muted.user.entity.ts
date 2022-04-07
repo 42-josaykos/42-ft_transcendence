@@ -4,26 +4,33 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
   ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import User from './user.entity';
 
 @Entity()
 class MutedUser {
-  @ManyToOne((type) => User, (user) => user.muteChannels, {
-    primary: true,
-    cascade: true,
-  })
-  @JoinTable()
-  public user: User;
+  @PrimaryGeneratedColumn()
+  public id: number;
 
-  @ManyToMany((type) => Channel, (channel) => channel.mutes, {
-    onUpdate: 'CASCADE',
+  @ManyToOne((type) => User, (user) => user.muteChannels, {
+    // primary: true,
+    cascade: true,
     onDelete: 'CASCADE',
   })
-  @JoinTable()
+  @JoinColumn()
+  public user: User;
+
+  @ManyToOne((type) => Channel, (channel) => channel.mutes, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  // @JoinTable()
   public channel: Channel;
 
   @CreateDateColumn({ type: 'timestamptz', nullable: false })

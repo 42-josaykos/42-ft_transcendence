@@ -21,10 +21,20 @@ export class ChannelsService {
     private readonly channelsRepository: Repository<Channel>,
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    @InjectRepository(MutedUser)
+    private readonly mutesRepository: Repository<MutedUser>,
+    @InjectRepository(BanedUser)
+    private readonly bansRepository: Repository<BanedUser>,
   ) {}
 
+  async test() {
+    return await this.mutesRepository.find();
+  }
+
   async getAllChannels(): Promise<Channel[]> {
-    const channels = await this.channelsRepository.find();
+    const channels = await this.channelsRepository.find({
+      relations: ['user', 'channel'],
+    });
     return channels;
   }
 
@@ -227,7 +237,25 @@ export class ChannelsService {
       if (updatedChannel.owner) channel.owner = updatedChannel.owner;
       if (updatedChannel.admins) channel.admins = updatedChannel.admins;
       if (updatedChannel.members) channel.members = updatedChannel.members;
-      if (updatedChannel.mutes) channel.mutes = updatedChannel.mutes;
+      if (updatedChannel.mutes) {
+        console.log('Before mutes');
+        console.log('Update: ', updatedChannel.mutes);
+        const mutes = await this.mutesRepository.find({
+          where: { channel: { id: channelID } },
+          relations: ['channel'],
+        });
+        console.log('Old mutes: ', mutes);
+        await this.mutesRepository.remove(mutes);
+        console.log('After mutes removing');
+        const mute = this.mutesRepository.create(updatedChannel.mutes);
+        console.log('mute: ', mute);
+        const result = await this.mutesRepository.save(updatedChannel.mutes);
+        console.log('Result save: ', result);
+        console.log('After mutes saving');
+        const verif = await this.getChannelByID(channelID);
+        console.log('Verif: ', verif);
+        // channel.mutes = updatedChannel.mutes;
+      }
       if (updatedChannel.bans) channel.bans = updatedChannel.bans;
       if (updatedChannel.invites) channel.invites = updatedChannel.invites;
       if (updatedChannel.addAdmins)
