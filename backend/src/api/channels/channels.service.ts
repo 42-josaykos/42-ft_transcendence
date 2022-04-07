@@ -285,7 +285,7 @@ export class ChannelsService {
         await this.mutesRepository.remove(oldMutes);
         channel.mutes = await this.mutesRepository.find({
           where: { channel: channelID },
-          relations: ['channel'],
+          relations: ['user', 'channel'],
         });
       }
       if ('addBans' in updatedChannel) {
@@ -300,7 +300,7 @@ export class ChannelsService {
         await this.bansRepository.remove(oldBans);
         channel.bans = await this.bansRepository.find({
           where: { channel: channelID },
-          relations: ['channel'],
+          relations: ['user', 'channel'],
         });
       }
       if ('addInvites' in updatedChannel)
