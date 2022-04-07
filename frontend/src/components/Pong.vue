@@ -33,14 +33,14 @@
 			},
 			getPlayerL: function() {
 				this.player_L.x = this.bound;
-				this.player_L.y = this.canvas.h / 2;
+				this.player_L.y = (this.canvas.h / 2) - (this.paddle.h / 2);
 				this.player_L.color = "blue";
 				this.player_L.score = 0;
 				return (this.player_L);
 			},
 			getPlayerR: function() {
 				this.player_R.x = this.canvas.w - this.bound - this.paddle.w;
-				this.player_R.y = this.canvas.h / 2;
+				this.player_R.y = (this.canvas.h / 2) - (this.paddle.h / 2);
 				this.player_R.color = "pink";
 				this.player_R.score = 0;
 				return (this.player_R);
@@ -185,7 +185,9 @@
 			update: function() {
 				this.runWild();
 
-				if (this.ball.Xmax >= this.canvas.w || this.ball.Xmin <= 0)
+				// if (this.ball.Xmax >= this.canvas.w || this.ball.Xmin <= 0)
+				// 	this.updateScore();
+				if ((this.ball.Xmin - 10) > this.canvas.w || (this.ball.Xmax + 10) < 0)
 					this.updateScore();
 				if (this.ball.Ymax >= this.canvas.h || this.ball.Ymin <= 0)
 					this.ball.velocityY *= -1;
@@ -215,11 +217,9 @@
 				return ;
 			},
 			updateScore: function() {
-				if (this.ball.Xmin <= 0) {
+				// if (this.ball.Xmin <= 0) {
+				if (this.ball.Xmax + 10 > 0) {
 					this.player_R.score++;
-					// while (this.ball.Xmax >= 0) { ;
-					// }
-					
 				}
 				else {
 					this.player_L.score++;
@@ -248,19 +248,19 @@
 				return ;
 			},
 			resetPlayerLeft: function() {
-				this.player_L.y = this.canvas.h / 2;
+				this.player_L.y = (this.canvas.h / 2) - (this.paddle.h / 2);
 				this.player_L.Xmin = this.player_L.x;
-      	this.player_L.Xmax = this.player_L.x + this.paddle.w;
+      			this.player_L.Xmax = this.player_L.x + this.paddle.w;
 				this.player_L.Ymin = this.player_L.y;
-      	this.player_L.Ymax = this.player_L.y + this.paddle.h;
+      			this.player_L.Ymax = this.player_L.y + this.paddle.h;
 				return ;
 			},
 			resetPlayerRight: function() {
-				this.player_R.y = this.canvas.h / 2;
+				this.player_R.y = (this.canvas.h / 2) - (this.paddle.h / 2);
 				this.player_R.Xmin = this.player_R.x;
-      	this.player_R.Xmax = this.player_R.x + this.paddle.w;
+      			this.player_R.Xmax = this.player_R.x + this.paddle.w;
 				this.player_R.Ymin = this.player_R.y;
-      	this.player_R.Ymax = this.player_R.y + this.paddle.h;
+      			this.player_R.Ymax = this.player_R.y + this.paddle.h;
 				return ;
 			},
 			resetPlayer: function(player) {
