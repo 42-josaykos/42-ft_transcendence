@@ -42,7 +42,6 @@ export const isMeteor = ref(false);
   <div v-if="isAuthenticated">
     <StatusSystem />
   </div>
-  <StatusSystem />;
   <div class="routerView">
     <div style="z-index: 0">
       <div class="star"></div>

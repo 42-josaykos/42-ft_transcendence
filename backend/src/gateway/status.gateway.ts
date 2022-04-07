@@ -52,8 +52,11 @@ export class StatusGateway
     );
 
     // Should never append, but prevention is better than cure
-    if (userIndex === -1)
+    if (userIndex === -1) {
+      console.log('Client: ', client);
+      console.log('Connected Clients: ', this.connectedClients);
       throw new WsException('Disconnecting user was not found');
+    }
 
     // Removing socketID from corresponding user
     this.connectedClients[userIndex].socketID.splice(
@@ -65,10 +68,10 @@ export class StatusGateway
     if (!this.connectedClients[userIndex].socketID.length) {
       this.connectedClients.splice(userIndex, 1);
       // console.log('Clients connected: ', this.connectedClients);
-      return {
-        event: 'update',
-        data: this.connectedClients.map(({ userID, ...rest }) => userID),
-      };
+      this.server.emit(
+        'update',
+        this.connectedClients.map(({ userID, ...rest }) => userID),
+      );
     }
     // console.log('Clients connected: ', this.connectedClients);
   }
@@ -79,8 +82,6 @@ export class StatusGateway
     @MessageBody() data: User,
   ): WsResponse<number[]> {
     // Checking if the user already exists
-    // console.log('Connection: ', client, ' / ', data);
-    console.log('Debug connection: ', client.id, ' / ', data);
     const userIndex = this.connectedClients.findIndex(
       (connection) => connection.userID === data.id,
     );
@@ -94,7 +95,7 @@ export class StatusGateway
       );
       // console.log('Clients connected: ', this.connectedClients);
     }
-    // Else, add the new socket to the corresponding Connections object
+    // Else, add the new socket to the corresponding Connections object and send client list to new client
     else {
       this.connectedClients[userIndex].socketID.push(client.id);
       return {
@@ -107,5 +108,5 @@ export class StatusGateway
 }
 
 // Differences between this.server.emit() / return { event: , data: }
-// 1- this.server.emit() seems to be plateform specific
+// 1- this.server.emit() seems to be plateform specific, but send to everyone in the room
 // 2- return { event: , data: } seems to only respond to the user that made the request
