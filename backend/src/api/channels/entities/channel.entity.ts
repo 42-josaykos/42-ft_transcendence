@@ -59,18 +59,17 @@ class Channel {
 
   @OneToMany((type) => MutedUser, (mutes) => mutes.channel, {
     // cascade: true,
-    onUpdate: 'CASCADE',
     onDelete: 'SET NULL',
   })
   // @JoinTable()
   public mutes: MutedUser[];
 
-  @ManyToMany((type) => BanedUser, (bans) => bans.channel, {
-    cascade: true,
-    onDelete: 'SET NULL',
-  })
-  // @JoinTable()
-  public bans: BanedUser[];
+  // @ManyToMany((type) => BanedUser, (bans) => bans.channel, {
+  //   cascade: true,
+  //   onDelete: 'SET NULL',
+  // })
+  // // @JoinTable()
+  // public bans: BanedUser[];
 
   @ManyToMany((type) => User, (bans) => bans.inviteChannels, {
     cascade: true,

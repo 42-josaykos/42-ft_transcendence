@@ -90,8 +90,8 @@ class User {
   @OneToMany((type) => MutedUser, (mute) => mute.user)
   public muteChannels: MutedUser[];
 
-  @OneToMany((type) => BanedUser, (ban) => ban.user)
-  public banChannels: BanedUser[];
+  // @OneToMany((type) => BanedUser, (ban) => ban.user)
+  // public banChannels: BanedUser[];
 
   @ManyToMany((type) => Channel, (channel) => channel.invites)
   public inviteChannels: Channel[];

@@ -125,12 +125,12 @@ export class ChannelsController {
     return await this.channelsService.getChannelMutes(channelID);
   }
 
-  @Get(':channelID/bans')
-  async getChannelBans(
-    @Param('channelID', ParseIntPipe) channelID: number,
-  ): Promise<BanedUser[]> {
-    return await this.channelsService.getChannelBans(channelID);
-  }
+  // @Get(':channelID/bans')
+  // async getChannelBans(
+  //   @Param('channelID', ParseIntPipe) channelID: number,
+  // ): Promise<BanedUser[]> {
+  //   return await this.channelsService.getChannelBans(channelID);
+  // }
 
   @Get(':channelID/invites')
   async getChannelInvites(

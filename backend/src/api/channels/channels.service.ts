@@ -28,13 +28,13 @@ export class ChannelsService {
   ) {}
 
   async test() {
-    return await this.mutesRepository.find();
+    return await this.mutesRepository.find({
+      relations: ['user', 'channel'],
+    });
   }
 
   async getAllChannels(): Promise<Channel[]> {
-    const channels = await this.channelsRepository.find({
-      relations: ['user', 'channel'],
-    });
+    const channels = await this.channelsRepository.find();
     return channels;
   }
 
@@ -48,8 +48,8 @@ export class ChannelsService {
       'members',
       'mutes',
       'mutes.user',
-      'bans',
-      'bans.user',
+      // 'bans',
+      // 'bans.user',
       'invites',
     ],
   ): Promise<Channel> {
@@ -191,14 +191,14 @@ export class ChannelsService {
     }
   }
 
-  async getChannelBans(channelID: number): Promise<BanedUser[]> {
-    try {
-      const channel = await this.getChannelByID(channelID, ['bans']);
-      return channel.bans;
-    } catch (error) {
-      throw error;
-    }
-  }
+  // async getChannelBans(channelID: number): Promise<BanedUser[]> {
+  //   try {
+  //     const channel = await this.getChannelByID(channelID, ['bans']);
+  //     return channel.bans;
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 
   async getChannelInvites(channelID: number): Promise<User[]> {
     try {
@@ -238,25 +238,16 @@ export class ChannelsService {
       if (updatedChannel.admins) channel.admins = updatedChannel.admins;
       if (updatedChannel.members) channel.members = updatedChannel.members;
       if (updatedChannel.mutes) {
-        console.log('Before mutes');
-        console.log('Update: ', updatedChannel.mutes);
-        const mutes = await this.mutesRepository.find({
+        const oldMutes = await this.mutesRepository.find({
           where: { channel: { id: channelID } },
           relations: ['channel'],
         });
-        console.log('Old mutes: ', mutes);
-        await this.mutesRepository.remove(mutes);
-        console.log('After mutes removing');
-        const mute = this.mutesRepository.create(updatedChannel.mutes);
-        console.log('mute: ', mute);
-        const result = await this.mutesRepository.save(updatedChannel.mutes);
-        console.log('Result save: ', result);
-        console.log('After mutes saving');
-        const verif = await this.getChannelByID(channelID);
-        console.log('Verif: ', verif);
-        // channel.mutes = updatedChannel.mutes;
+        // Must erase old mutes (i.e MutedUser with channelID)
+        await this.mutesRepository.remove(oldMutes);
+        const newMutes = await this.mutesRepository.save(updatedChannel.mutes);
+        channel.mutes = newMutes;
       }
-      if (updatedChannel.bans) channel.bans = updatedChannel.bans;
+      // if (updatedChannel.bans) channel.bans = updatedChannel.bans;
       if (updatedChannel.invites) channel.invites = updatedChannel.invites;
       if (updatedChannel.addAdmins)
         channel.admins = await this.addUsersToArray(
@@ -278,26 +269,39 @@ export class ChannelsService {
           updatedChannel.removeMembers,
           channel.members,
         );
-      if (updatedChannel.addMutes)
-        channel.mutes = await this.addUsersToArray(
+      if (updatedChannel.addMutes) {
+        const addMutes = await this.mutesRepository.save(
           updatedChannel.addMutes,
-          channel.mutes,
         );
-      if (updatedChannel.removeMutes)
-        channel.mutes = await this.removeTimedUsersFromArray(
-          updatedChannel.removeMutes,
-          channel.mutes,
-        );
-      if (updatedChannel.addBans)
-        channel.bans = await this.addUsersToArray(
-          updatedChannel.addBans,
-          channel.bans,
-        );
-      if (updatedChannel.removeBans)
-        channel.bans = await this.removeTimedUsersFromArray(
-          updatedChannel.removeBans,
-          channel.bans,
-        );
+        channel.mutes = await this.addUsersToArray(addMutes, channel.mutes);
+      }
+      if (updatedChannel.removeMutes) {
+        console.log('Start remove');
+        const oldMutes = await this.mutesRepository.find({
+          where: updatedChannel.removeMutes,
+          relations: ['user', 'channel'],
+        });
+        console.log('Before remove: ', oldMutes);
+        await this.mutesRepository.remove(oldMutes);
+        channel.mutes = await this.mutesRepository.find({
+          where: { channel: channelID },
+          relations: ['channel'],
+        });
+        // channel.mutes = await this.removeTimedUsersFromArray(
+        //   oldMutes,
+        //   channel.mutes,
+        // );
+      }
+      // if (updatedChannel.addBans)
+      //   channel.bans = await this.addUsersToArray(
+      //     updatedChannel.addBans,
+      //     channel.bans,
+      //   );
+      // if (updatedChannel.removeBans)
+      //   channel.bans = await this.removeTimedUsersFromArray(
+      //     updatedChannel.removeBans,
+      //     channel.bans,
+      // );
       if (updatedChannel.addInvites)
         channel.invites = await this.addUsersToArray(
           updatedChannel.addInvites,
@@ -384,15 +388,15 @@ export class ChannelsService {
           );
       }
     }
-    // Checking if all bans exist
-    if (channel.bans) {
-      for (const ban of channel.bans) {
-        if ((await this.usersRepository.count(ban.user)) === 0)
-          throw new ForbiddenException(
-            "Can't create / update channel (baned member does not exists)",
-          );
-      }
-    }
+    // // Checking if all bans exist
+    // if (channel.bans) {
+    //   for (const ban of channel.bans) {
+    //     if ((await this.usersRepository.count(ban.user)) === 0)
+    //       throw new ForbiddenException(
+    //         "Can't create / update channel (baned member does not exists)",
+    //       );
+    //   }
+    // }
     // Checking if all invites exist
     if (channel.invites) {
       for (const invite of channel.invites) {
@@ -456,24 +460,24 @@ export class ChannelsService {
           );
       }
     }
-    // Checking if all addBans exist
-    if ('addBans' in channel) {
-      for (const baned of channel.addBans) {
-        if ((await this.usersRepository.count(baned.user)) === 0)
-          throw new ForbiddenException(
-            "Can't create / update channel (added baned member does not exists)",
-          );
-      }
-    }
-    // Checking if all removeBans exist
-    if ('removeBans' in channel) {
-      for (const baned of channel.removeBans) {
-        if ((await this.usersRepository.count(baned.user)) === 0)
-          throw new ForbiddenException(
-            "Can't create / update channel (removed baned member does not exists)",
-          );
-      }
-    }
+    // // Checking if all addBans exist
+    // if ('addBans' in channel) {
+    //   for (const baned of channel.addBans) {
+    //     if ((await this.usersRepository.count(baned.user)) === 0)
+    //       throw new ForbiddenException(
+    //         "Can't create / update channel (added baned member does not exists)",
+    //       );
+    //   }
+    // }
+    // // Checking if all removeBans exist
+    // if ('removeBans' in channel) {
+    //   for (const baned of channel.removeBans) {
+    //     if ((await this.usersRepository.count(baned.user)) === 0)
+    //       throw new ForbiddenException(
+    //         "Can't create / update channel (removed baned member does not exists)",
+    //       );
+    //   }
+    // }
     // Checking if all addInvites exist
     if ('addInvites' in channel) {
       for (const invited of channel.addInvites) {

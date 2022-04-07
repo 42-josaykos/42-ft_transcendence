@@ -14,11 +14,11 @@ import User from './user.entity';
 
 @Entity()
 class MutedUser {
-  @PrimaryGeneratedColumn()
-  public id: number;
+  // @PrimaryGeneratedColumn()
+  // public id: number;
 
   @ManyToOne((type) => User, (user) => user.muteChannels, {
-    // primary: true,
+    primary: true,
     cascade: true,
     onDelete: 'CASCADE',
   })
@@ -30,7 +30,6 @@ class MutedUser {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
-  // @JoinTable()
   public channel: Channel;
 
   @CreateDateColumn({ type: 'timestamptz', nullable: false })

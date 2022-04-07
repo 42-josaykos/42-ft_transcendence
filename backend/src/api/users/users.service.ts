@@ -49,8 +49,8 @@ export class UsersService {
         'memberChannels',
         'muteChannels',
         'muteChannels.channel',
-        'banChannels',
-        'banChannels.channel',
+        // 'banChannels',
+        // 'banChannels.channel',
         'inviteChannels',
       ],
     });
@@ -74,8 +74,8 @@ export class UsersService {
       'memberChannels',
       'muteChannels',
       'muteChannels.channel',
-      'banChannels',
-      'banChannels.channel',
+      // 'banChannels',
+      // 'banChannels.channel',
       'inviteChannels',
     ],
   ): Promise<User> {
@@ -330,14 +330,14 @@ export class UsersService {
     }
   }
 
-  async getUserChannelsBaned(userID: number): Promise<BanedUser[]> {
-    try {
-      const user = await this.getUserByID(userID, ['banChannels']);
-      return user.banChannels;
-    } catch (error) {
-      throw error;
-    }
-  }
+  // async getUserChannelsBaned(userID: number): Promise<BanedUser[]> {
+  //   try {
+  //     const user = await this.getUserByID(userID, ['banChannels']);
+  //     return user.banChannels;
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 
   async getUserChannelsInvites(userID: number): Promise<Channel[]> {
     try {
