@@ -33,14 +33,14 @@
 			},
 			getPlayerL: function() {
 				this.player_L.x = this.bound;
-				this.player_L.y = this.canvas.h / 2;
+				this.player_L.y = (this.canvas.h / 2) - (this.paddle.h / 2);
 				this.player_L.color = "blue";
 				this.player_L.score = 0;
 				return (this.player_L);
 			},
 			getPlayerR: function() {
 				this.player_R.x = this.canvas.w - this.bound - this.paddle.w;
-				this.player_R.y = this.canvas.h / 2;
+				this.player_R.y = (this.canvas.h / 2) - (this.paddle.h / 2);
 				this.player_R.color = "pink";
 				this.player_R.score = 0;
 				return (this.player_R);
@@ -85,10 +85,8 @@
 				return ;
 			},
 			game: function() {
-				if (this.gameplay == true)
-				{
-					if (this.newround == true)
-					{
+				if (this.gameplay == true) {
+                    if (this.newround == true) {
 						this.newround = false;
 						this.waitForPlayers(1500);
 					}
@@ -103,7 +101,7 @@
 				this.drawPlayerLeft(this.getPaddle);
 				this.drawPlayerRight(this.getPaddle);
 				this.drawBall();
-        this.drawScore(this.player_L, this.player_R);
+                this.drawScore(this.player_L, this.player_R);
 				return ;
 			},
 			drawPlayerLeft: function(paddle) {
@@ -125,6 +123,11 @@
 				return ;
 			},
 			drawBall: function() {
+				// if (this.newround == true)
+				// 	{
+				// 		this.newround = false;
+				// 		this.waitForPlayers(1500);
+				// 	}
 				let canvas = document.getElementById('Pong');
 				if (canvas.getContext) {
 					let context = canvas.getContext('2d');
@@ -134,6 +137,11 @@
 					context.closePath();
 					context.fill();
 				}
+				// if (this.newround == true)
+				// 	{
+				// 		this.newround = false;
+				// 		this.waitForPlayers(1500);
+				// 	}
 				return ;
 			},
 			clearCanvas: function() {
@@ -184,9 +192,10 @@
 			// UPDATING DATA AND ADJUSTING
 			update: function() {
 				this.runWild();
-
 				if (this.ball.Xmax >= this.canvas.w || this.ball.Xmin <= 0)
-					this.updateScore();
+					this.updateScore(); // Là on update et on reset quand ça touche le bord
+				// if ((this.ball.Xmin - 10) > this.canvas.w || (this.ball.Xmax + 10) < 0)
+				// 	this.updateScore();
 				if (this.ball.Ymax >= this.canvas.h || this.ball.Ymin <= 0)
 					this.ball.velocityY *= -1;
 
@@ -215,30 +224,31 @@
 				return ;
 			},
 			updateScore: function() {
-				if (this.ball.Xmin <= 0) {
+				// if (this.ball.Xmax + 10 > 0) {
+                if (this.ball.Xmin <= 0) {
 					this.player_R.score++;
-					// while (this.ball.Xmax >= 0) { ;
-					// }
-					
+					// this.newround = true;
 				}
 				else {
 					this.player_L.score++;
-					// while (this.ball.Xmin <= 0) { ;
-					// }
+					// this.newround = true;
 				}
 				if (this.player_R.score == 10 || this.player_L.score == 10) {	
-					this.gameplay = false;
+					this.gameplay = false; // return;
 					//game over: winer
 				}
+				
 				this.waitForPlayers(500);
 				this.resetPlay();
+				// this.newround = true;
+
 				return ;
 			},
 			resetPlay: function () {
 				this.newround = true;
 				this.resetBall();
-				this.resetPlayerLeft();
-				this.resetPlayerRight();
+				this.resetPlayer(this.player_L);
+				this.resetPlayer(this.player_R);
 				return ;
 			},	
 			resetBall: function() {
@@ -247,24 +257,8 @@
 				this.ball.velocityX *= -1;
 				return ;
 			},
-			resetPlayerLeft: function() {
-				this.player_L.y = this.canvas.h / 2;
-				this.player_L.Xmin = this.player_L.x;
-      	this.player_L.Xmax = this.player_L.x + this.paddle.w;
-				this.player_L.Ymin = this.player_L.y;
-      	this.player_L.Ymax = this.player_L.y + this.paddle.h;
-				return ;
-			},
-			resetPlayerRight: function() {
-				this.player_R.y = this.canvas.h / 2;
-				this.player_R.Xmin = this.player_R.x;
-      	this.player_R.Xmax = this.player_R.x + this.paddle.w;
-				this.player_R.Ymin = this.player_R.y;
-      	this.player_R.Ymax = this.player_R.y + this.paddle.h;
-				return ;
-			},
 			resetPlayer: function(player) {
-				this.player.y = this.canvas.h / 2;
+				this.player.y = (this.canvas.h / 2) - (this.paddle.h / 2);
 				this.player.Xmin = this.player.x;
       	this.player.Xmax = this.player.x + this.paddle.w;
 				this.player.Ymin = this.player.y;
@@ -274,7 +268,6 @@
 			runWild: function() {
 				this.ball.x += this.ball.velocityX;
 				this.ball.y += this.ball.velocityY;
-
 				this.ball.Xmin = this.ball.x - this.ball.size;
 				this.ball.Xmax = this.ball.x + this.ball.size;
 				this.ball.Ymin = this.ball.y - this.ball.size;
