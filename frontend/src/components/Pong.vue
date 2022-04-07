@@ -209,7 +209,7 @@
 			update: function() {
 				// this.runWild();
 
-				if ((this.ball.Xmin - 10) > this.canvas.w || (this.ball.Xmax + 10) < 0)
+				if ((this.ball.Xmin - 50) > this.canvas.w || (this.ball.Xmax + 50) < 0) // pas très propre d'écrire comme ça
 					this.updateScore();
 				if (this.ball.Ymax >= this.canvas.h || this.ball.Ymin <= 0)
 					this.ball.velocityY *= -1;
@@ -253,7 +253,10 @@
 					//game over: winer
 				}
 
-				this.waitForPlayers(500); // à changer
+
+
+
+				// this.waitForPlayers(500); // à changer
 				this.resetPlay();
 				return ;
 			},
