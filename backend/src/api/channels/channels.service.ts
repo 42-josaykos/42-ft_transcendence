@@ -28,17 +28,6 @@ export class ChannelsService {
     private readonly bansRepository: Repository<BanedUser>,
   ) {}
 
-  async mute() {
-    return await this.mutesRepository.find({
-      relations: ['user', 'channel'],
-    });
-  }
-  async ban() {
-    return await this.bansRepository.find({
-      relations: ['user', 'channel'],
-    });
-  }
-
   async getAllChannels(): Promise<Channel[]> {
     const channels = await this.channelsRepository.find();
     return channels;
@@ -246,23 +235,15 @@ export class ChannelsService {
       if (updatedChannel.admins) channel.admins = updatedChannel.admins;
       if (updatedChannel.members) channel.members = updatedChannel.members;
       if (updatedChannel.mutes) {
-        const oldMutes = await this.mutesRepository.find({
-          where: { channel: channelID },
-          relations: ['channel'],
-        });
         // Must erase old mutes (i.e MutedUser with corresponding channelID)
-        await this.mutesRepository.remove(oldMutes);
+        await this.mutesRepository.delete({ channel: { id: channelID } });
         // Saving new mutes, and giving them their channels
         const newMutes = await this.mutesRepository.save(updatedChannel.mutes);
         channel.mutes = newMutes;
       }
       if (updatedChannel.bans) {
-        const oldBans = await this.bansRepository.find({
-          where: { channel: channelID },
-          relations: ['channel'],
-        });
         // Must erase old bans (i.e BanedUser with corresponding channelID)
-        await this.bansRepository.remove(oldBans);
+        await this.bansRepository.delete({ channel: { id: channelID } });
         // Saving new bans, and giving them their channels
         const newBans = await this.bansRepository.save(updatedChannel.bans);
         channel.bans = newBans;

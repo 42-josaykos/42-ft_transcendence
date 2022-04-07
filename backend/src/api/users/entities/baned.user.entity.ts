@@ -11,11 +11,8 @@ import User from './user.entity';
 
 @Entity()
 class BanedUser {
-  @PrimaryGeneratedColumn()
-  public id: number;
-
   @ManyToOne((type) => User, (user) => user.banChannels, {
-    // primary: true,
+    primary: true,
     onDelete: 'CASCADE',
   })
   public user: User;
