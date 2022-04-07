@@ -161,12 +161,12 @@ export class UsersController {
     return await this.usersService.getUserChannelsMuted(userID);
   }
 
-  // @Get(':userID/channels/baned')
-  // async getUserChannelsBaned(
-  //   @Param('userID', ParseIntPipe) userID: number,
-  // ): Promise<BanedUser[]> {
-  //   return await this.usersService.getUserChannelsBaned(userID);
-  // }
+  @Get(':userID/channels/baned')
+  async getUserChannelsBaned(
+    @Param('userID', ParseIntPipe) userID: number,
+  ): Promise<BanedUser[]> {
+    return await this.usersService.getUserChannelsBaned(userID);
+  }
 
   @Get(':userID/channels/invites')
   async getUserChannelsInvites(

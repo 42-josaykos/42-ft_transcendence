@@ -49,8 +49,8 @@ export class UsersService {
         'memberChannels',
         'muteChannels',
         'muteChannels.channel',
-        // 'banChannels',
-        // 'banChannels.channel',
+        'banChannels',
+        'banChannels.channel',
         'inviteChannels',
       ],
     });
@@ -74,8 +74,8 @@ export class UsersService {
       'memberChannels',
       'muteChannels',
       'muteChannels.channel',
-      // 'banChannels',
-      // 'banChannels.channel',
+      'banChannels',
+      'banChannels.channel',
       'inviteChannels',
     ],
   ): Promise<User> {
@@ -138,9 +138,13 @@ export class UsersService {
     if ('memberChannels' in filter)
       query.leftJoinAndSelect('users.memberChannels', 'memberChannels');
     if ('muteChannels' in filter)
-      query.leftJoinAndSelect('users.muteChannels', 'muteChannels');
+      query
+        .leftJoinAndSelect('users.muteChannels', 'muteChannels')
+        .leftJoinAndSelect('muteChannels.channel', 'mute_channel');
     if ('banChannels' in filter)
-      query.leftJoinAndSelect('users.banChannels', 'banChannels');
+      query
+        .leftJoinAndSelect('users.banChannels', 'banChannels')
+        .leftJoinAndSelect('banChannels.channel', 'ban_channel');
     if ('inviteChannels' in filter)
       query.leftJoinAndSelect('users.inviteChannels', 'inviteChannels');
 
@@ -330,14 +334,14 @@ export class UsersService {
     }
   }
 
-  // async getUserChannelsBaned(userID: number): Promise<BanedUser[]> {
-  //   try {
-  //     const user = await this.getUserByID(userID, ['banChannels']);
-  //     return user.banChannels;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
+  async getUserChannelsBaned(userID: number): Promise<BanedUser[]> {
+    try {
+      const user = await this.getUserByID(userID, ['banChannels']);
+      return user.banChannels;
+    } catch (error) {
+      throw error;
+    }
+  }
 
   async getUserChannelsInvites(userID: number): Promise<Channel[]> {
     try {

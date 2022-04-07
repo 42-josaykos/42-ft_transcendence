@@ -4,8 +4,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -15,19 +13,17 @@ import User from './user.entity';
 class BanedUser {
   @PrimaryGeneratedColumn()
   public id: number;
-  // @ManyToOne((type) => User, (user) => user.banChannels, {
-  //   primary: true,
-  //   cascade: true,
-  // })
-  // @JoinTable()
-  // public user: User;
 
-  // @ManyToMany((type) => Channel, (channel) => channel.bans, {
-  //   onUpdate: 'CASCADE',
-  //   onDelete: 'CASCADE',
-  // })
-  // @JoinTable()
-  // public channel: Channel;
+  @ManyToOne((type) => User, (user) => user.banChannels, {
+    // primary: true,
+    onDelete: 'CASCADE',
+  })
+  public user: User;
+
+  @ManyToOne((type) => Channel, (channel) => channel.bans, {
+    onDelete: 'CASCADE',
+  })
+  public channel: Channel;
 
   @CreateDateColumn({ type: 'timestamptz', nullable: false })
   public date: Date;
