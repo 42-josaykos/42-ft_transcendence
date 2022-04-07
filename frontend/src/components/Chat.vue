@@ -96,10 +96,9 @@ socket.on('newChannel', (data: any) => {
       //channel.value = newChannel;
       messages.value = [];
       if (newChannel.isPrivate == true && newChannel.isDirectChannel == false) {
-        socket.emit('inviteChannel', newChannel, ...usersInvite.value)
+        socket.emit('inviteChannel', newChannel, usersInvite.value ? usersInvite.value : null)
       }
       Get('/channels/search?id=' + newChannel.id.toString() + '&members&bans&mutes&admins&owner').then(res => {
-        console.log("DATA => ", res.data)
         channel.value = res.data[0]
         usersMembers.value = res.data[0].members
       })
@@ -370,7 +369,7 @@ const searchName = (channelItem: Channel | undefined): string=> {
   <!--<div class="wrapper"> <button class="neons">Hello</button></div>-->
   <div class="container-fluid chat">
     <div class="chatMenu">
-      <ChatMenu  :socket="socket" :channels="channels" :allChannels="allChannels" :channelsJoin="channelsJoin" :loggedUser="loggedUser == null ? undefined : loggedUser" :searchName="searchName" :displayMessages="displayMessages"/>
+      <ChatMenu  :socket="socket" :channelsJoin="channelsJoin" :loggedUser="loggedUser == null ? undefined : loggedUser" :searchName="searchName"/>
       <div class="chatMenuWrapper">
         <!--Permet d'afficher mes channels-->
         <button @click="channelsJoin = true" type="button" class="btn btn-secondary send">Channels</button>
@@ -524,7 +523,7 @@ const searchName = (channelItem: Channel | undefined): string=> {
       <div class="chatFriendsWrapper">
         <div v-if="channel != undefined">
           <div v-if="usersMembers">
-            <div class="scroller">
+            <div class=""> <!--scroller-->
               <div class="list-group" v-for="user in usersMembers" :key="user.id">
 <UserCard :user="user"/>
                 <!--<div v-if="channelStore.isBan(channel, user.id) == false">
@@ -576,7 +575,7 @@ const searchName = (channelItem: Channel | undefined): string=> {
                 </div>-->
               </div>
 
-              <div v-if="channel.bans.length > 0">
+              <!-- <div v-if="channel.bans.length > 0">
                 *** Users Bans ***
               </div>
               <div class="list-group" v-for="user in usersMembers" :key="user.id">
@@ -605,7 +604,7 @@ const searchName = (channelItem: Channel | undefined): string=> {
 
                   </a>
                 </div>
-              </div>
+              </div> -->
 
             </div>
           </div>

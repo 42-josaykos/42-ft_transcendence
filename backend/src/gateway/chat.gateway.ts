@@ -69,6 +69,7 @@ import { JwtService } from '@nestjs/jwt';
 
     const message = data[0]
     const user = data[1]
+
     let channel = message.channel;
     [channel] = await this.channelsService.getChannelsByFilter({
       id: channel.id,
@@ -89,6 +90,7 @@ import { JwtService } from '@nestjs/jwt';
 
     const newMessage = await this.messagesService.createMessage(message);
     newMessage.author = user;
+
     for (const member of members) {
       this.server.to(member.socketID).emit('newMessage', newMessage);
     }
@@ -115,8 +117,8 @@ import { JwtService } from '@nestjs/jwt';
     this.server.emit('newChannel', {newChannel, message, user});
   }
 
-
   /*
+
     Join Channel
   */
   @SubscribeMessage('joinChannel')
@@ -125,17 +127,22 @@ import { JwtService } from '@nestjs/jwt';
     const channel = data[1];
     const password = data[2]
 
-    if (password) {
-      const isPasswordMatching = await bcrypt.compare(
-        password,
-        channel.password,
-      );
-      if (!isPasswordMatching) {
-        console.log("Password false")
+    if (channel.password) {
+      if (password) {
+        const isPasswordMatching = await bcrypt.compare(
+          password,
+          channel.password,
+        );
+        if (!isPasswordMatching) {
+          console.log("Password false")
           return;
+        }
+      }
+      else {
+        console.log("Password false")
+        return;
       }
     }
-
     const [user] = await this.usersService.getUsersByFilter({
       id: userID,
       socketID: true,
@@ -159,12 +166,15 @@ import { JwtService } from '@nestjs/jwt';
   */
   @SubscribeMessage('inviteChannel')
   async inviteChannel(client: Socket, data: any[]) {
-    const channel = data[0];
-    data.splice(0, 1);
-    data.forEach(async (el: any) => {
-      const user = await this.usersService.getUserByID(el.id);
-      this.server.to(user.socketID).emit('inviteChannel', channel);
-    })
+    if (data[1] != null) {
+      const channel = data[0];
+      const invites = data[1];
+
+      invites.forEach(async (el: any) => {
+        const user = await this.usersService.getUserByID(el.id);
+        this.server.to(user.socketID).emit('inviteChannel', channel);
+      })
+    }
   }
 
 
