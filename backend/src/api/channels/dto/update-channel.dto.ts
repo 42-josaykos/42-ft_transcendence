@@ -7,8 +7,8 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import BanedUser from 'src/api/users/entities/baned.user.entity';
 import MutedUserDTO from 'src/api/users/dto/mute-user.dto';
+import BanedUserDTO from 'src/api/users/dto/ban-user.dto';
 import User from 'src/api/users/entities/user.entity';
 
 export class UpdateChannelDTO {
@@ -65,7 +65,7 @@ export class UpdateChannelDTO {
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly bans?: BanedUser[];
+  readonly bans?: BanedUserDTO[];
 
   @ApiProperty({ required: false })
   @IsArray()
@@ -114,13 +114,13 @@ export class UpdateChannelDTO {
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly addBans?: BanedUser[];
+  readonly addBans?: BanedUserDTO[];
 
   @ApiProperty({ required: false })
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly removeBans?: BanedUser[];
+  readonly removeBans?: BanedUserDTO[];
 
   @ApiProperty({ required: false })
   @IsArray()

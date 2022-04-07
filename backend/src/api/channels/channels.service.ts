@@ -28,8 +28,13 @@ export class ChannelsService {
     private readonly bansRepository: Repository<BanedUser>,
   ) {}
 
-  async test() {
+  async mute() {
     return await this.mutesRepository.find({
+      relations: ['user', 'channel'],
+    });
+  }
+  async ban() {
+    return await this.bansRepository.find({
       relations: ['user', 'channel'],
     });
   }
@@ -49,8 +54,8 @@ export class ChannelsService {
       'members',
       'mutes',
       'mutes.user',
-      // 'bans',
-      // 'bans.user',
+      'bans',
+      'bans.user',
       'invites',
     ],
   ): Promise<Channel> {
@@ -257,9 +262,9 @@ export class ChannelsService {
           relations: ['channel'],
         });
         // Must erase old bans (i.e BanedUser with corresponding channelID)
-        await this.mutesRepository.remove(oldBans);
+        await this.bansRepository.remove(oldBans);
         // Saving new bans, and giving them their channels
-        const newBans = await this.mutesRepository.save(updatedChannel.bans);
+        const newBans = await this.bansRepository.save(updatedChannel.bans);
         channel.bans = newBans;
       }
       if (updatedChannel.invites) channel.invites = updatedChannel.invites;
