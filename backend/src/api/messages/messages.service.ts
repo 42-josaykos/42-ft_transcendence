@@ -76,17 +76,17 @@ export class MessagesService {
       .leftJoinAndSelect('messages.channel', 'channel')
       .orderBy('messages.id', 'DESC');
 
-    if (filter.authorName)
+    if ('authorName' in filter)
       query.andWhere('author.username = :authorName', {
         authorName: filter.authorName,
       });
-    if (filter.authorID)
+    if ('authorID' in filter)
       query.andWhere('author.id = :authorID', { authorID: filter.authorID });
-    if (filter.channelName)
+    if ('channelName' in filter)
       query.andWhere('channel.name = :channelName', {
         channelName: filter.channelName,
       });
-    if (filter.channelID)
+    if ('channelID' in filter)
       query.andWhere('channel.id = :channelID', {
         channelID: filter.channelID,
       });
@@ -118,10 +118,11 @@ export class MessagesService {
   ): Promise<Message> {
     try {
       const message = await this.getMessageByID(messageID);
+
       //Checking what is updated
-      if (updatedMessage.author) message.author = updatedMessage.author;
-      if (updatedMessage.channel) message.channel = updatedMessage.channel;
-      if (updatedMessage.data) message.data = updatedMessage.data;
+      if ('author' in updatedMessage) message.author = updatedMessage.author;
+      if ('channel' in updatedMessage) message.channel = updatedMessage.channel;
+      if ('data' in updatedMessage) message.data = updatedMessage.data;
       await this.messagesRepository.save(message);
       return message;
     } catch (error) {

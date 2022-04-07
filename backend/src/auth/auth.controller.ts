@@ -4,19 +4,28 @@ import {
   Post,
   Redirect,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import {
+import { Response } from 'express';
+import { RequestWithUser } from './auth.interface';
+import JwtAuthGuard, {
   AuthenticatedGuard,
   FortyTwoAuthGuard,
   GithubGuard,
   LocalAuthGuard,
 } from './guards';
+import { AuthenticationProvider } from './auth.interface';
+import { Inject } from '@nestjs/common';
 
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
+  constructor(
+    @Inject('AUTH_SERVICE')
+    private readonly authService: AuthenticationProvider,
+  ) {}
   /**
    * GET /auth/login
    * This is the route user will visit to authenticate
@@ -35,8 +44,12 @@ export class AuthController {
 
   @Post('login/local')
   @UseGuards(LocalAuthGuard)
-  loginLocal(@Req() req) {
-    return req.user;
+  loginLocal(@Req() req: RequestWithUser, @Res() res: Response) {
+    const { user } = req;
+    const cookie = this.authService.getCookieWithJwtToken(user.id);
+    res.setHeader('Set-Cookie', cookie);
+    user.password = undefined;
+    return res.send(user);
   }
 
   /**
@@ -46,14 +59,22 @@ export class AuthController {
   @Get('redirect')
   @Redirect('/')
   @UseGuards(FortyTwoAuthGuard)
-  async redirect() {
+  async redirect(@Req() req: RequestWithUser, @Res() res: Response) {
+    const { user } = req;
+    const cookie = this.authService.getCookieWithJwtToken(user.id);
+    res.setHeader('Set-Cookie', cookie);
+    user.password = undefined;
     return;
   }
 
   @Get('redirect/github')
   @Redirect('/')
   @UseGuards(GithubGuard)
-  async redirectGithub() {
+  async redirectGithub(@Req() req: RequestWithUser, @Res() res: Response) {
+    const { user } = req;
+    const cookie = this.authService.getCookieWithJwtToken(user.id);
+    res.setHeader('Set-Cookie', cookie);
+    user.password = undefined;
     return;
   }
 
@@ -67,15 +88,21 @@ export class AuthController {
     return req.user;
   }
 
+  @Get('jwt-status')
+  @UseGuards(JwtAuthGuard)
+  jwtStatus(@Req() req: RequestWithUser) {
+    const { id, username, socketID, avatar } = req.user;
+    return { id, username, socketID, avatar };
+  }
+
   /**
    * GET /auth/logout
    * Logging the user out
    */
   @Get('logout')
   @Redirect('/')
-  async logout(@Req() req) {
+  async logout(@Req() req, @Res() res: Response) {
+    res.setHeader('Set-Cookie', this.authService.getCookieForLogout());
     req.logOut();
-    req.session.cookie.maxAge = 0;
-    req.session.destroy();
   }
 }

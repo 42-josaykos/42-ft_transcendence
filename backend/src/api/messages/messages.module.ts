@@ -11,5 +11,6 @@ import User from 'src/api/users/entities/user.entity';
   imports: [TypeOrmModule.forFeature([Message, User, Channel])],
   controllers: [MessagesController],
   providers: [MessagesService, Utils],
+  exports: [MessagesService]
 })
 export class MessagesModule {}

@@ -73,6 +73,9 @@ class Channel {
   })
   @JoinTable()
   public invites: User[];
+
+  @Column({ nullable: true, default: false })
+  public isDirectMessage: boolean;
 }
 
 export default Channel;

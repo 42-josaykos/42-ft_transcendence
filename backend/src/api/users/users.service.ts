@@ -34,24 +34,24 @@ export class UsersService {
       order: { id: 'ASC' },
       select: ['id', 'username', 'avatar', 'studentID', 'githubID', 'socketID'],
       relations: [
-        'stats',
         // Below: For DEBUG, may remove later
-        'friends',
-        'friendsInverse',
-        'blockedUsers',
-        'blockedUsersInverse',
-        'messages',
-        'messages.channel',
-        'playedMatches',
-        'winMatches',
-        'ownerChannels',
-        'adminChannels',
-        'memberChannels',
-        'muteChannels',
-        'muteChannels.channel',
-        'banChannels',
-        'banChannels.channel',
-        'inviteChannels',
+        // 'stats',
+        // 'friends',
+        // 'friendsInverse',
+        // 'blockedUsers',
+        // 'blockedUsersInverse',
+        // 'messages',
+        // 'messages.channel',
+        // 'playedMatches',
+        // 'winMatches',
+        // 'ownerChannels',
+        // 'adminChannels',
+        // 'memberChannels',
+        // 'muteChannels',
+        // 'muteChannels.channel',
+        // 'banChannels',
+        // 'banChannels.channel',
+        // 'inviteChannels',
       ],
     });
     return users;
@@ -181,6 +181,11 @@ export class UsersService {
       userData.password = hash;
     }
 
+    // Avatar
+    userData.avatar = `https://avatars.dicebear.com/api/gridy/${
+      userData.username + Math.floor(Math.random() * 100)
+    }.svg`;
+
     // Creating a new user and it's stats
     const newUser = this.usersRepository.create(userData);
     const stats = this.statsRepository.create(new CreateStatsDTO());
@@ -199,28 +204,28 @@ export class UsersService {
       const user = await this.getUserByID(userID);
 
       // Checking what is updated
-      if (updatedUser.username) user.username = updatedUser.username;
-      if (updatedUser.avatar) user.avatar = updatedUser.avatar;
-      if (updatedUser.socketID) user.socketID = updatedUser.socketID;
-      if (updatedUser.friends) user.friends = updatedUser.friends;
-      if (updatedUser.addFriends)
+      if ('username' in updatedUser) user.username = updatedUser.username;
+      if ('avatar' in updatedUser) user.avatar = updatedUser.avatar;
+      if ('socketID' in updatedUser) user.socketID = updatedUser.socketID;
+      if ('friends' in updatedUser) user.friends = updatedUser.friends;
+      if ('addFriends' in updatedUser)
         user.friends = await this.addUsersToArray(
           updatedUser.addFriends,
           user.friends,
         );
-      if (updatedUser.removeFriends)
+      if ('removeFriends' in updatedUser)
         user.friends = await this.removeUsersFromArray(
           updatedUser.removeFriends,
           user.friends,
         );
-      if (updatedUser.blockedUsers)
+      if ('blockedUsers' in updatedUser)
         user.blockedUsers = updatedUser.blockedUsers;
-      if (updatedUser.addBlockedUsers)
+      if ('addBlockedUsers' in updatedUser)
         user.blockedUsers = await this.addUsersToArray(
           updatedUser.addBlockedUsers,
           user.blockedUsers,
         );
-      if (updatedUser.removeBlockedUsers)
+      if ('removeBlockedUsers' in updatedUser)
         user.blockedUsers = await this.removeUsersFromArray(
           updatedUser.blockedUsers,
           user.blockedUsers,
