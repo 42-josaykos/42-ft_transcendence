@@ -12,6 +12,8 @@ import { CreateStatsDTO } from '../stats/dto/create-stats.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { FilterUserDTO } from './dto/filter-user.dto';
 import User from './entities/user.entity';
+import MutedUser from './entities/muted.user.entity';
+import BanedUser from './entities/baned.user.entity';
 import Stats from 'src/api/stats/entities/stats.entity';
 import Match from 'src/api/matches/entities/matches.entity';
 import Channel from 'src/api/channels/entities/channel.entity';
@@ -32,20 +34,24 @@ export class UsersService {
       order: { id: 'ASC' },
       select: ['id', 'username', 'avatar', 'studentID', 'githubID', 'socketID'],
       relations: [
-        'stats',
         // Below: For DEBUG, may remove later
-        'friends',
-        'friendsInverse',
-        'messages',
-        'messages.channel',
-        'playedMatches',
-        'winMatches',
-        'ownerChannels',
-        'adminChannels',
-        'memberChannels',
-        'muteChannels',
-        'banChannels',
-        'inviteChannels',
+        // 'stats',
+        // 'friends',
+        // 'friendsInverse',
+        // 'blockedUsers',
+        // 'blockedUsersInverse',
+        // 'messages',
+        // 'messages.channel',
+        // 'playedMatches',
+        // 'winMatches',
+        // 'ownerChannels',
+        // 'adminChannels',
+        // 'memberChannels',
+        // 'muteChannels',
+        // 'muteChannels.channel',
+        // 'banChannels',
+        // 'banChannels.channel',
+        // 'inviteChannels',
       ],
     });
     return users;
@@ -57,6 +63,8 @@ export class UsersService {
       'stats',
       'friends',
       'friendsInverse',
+      'blockedUsers',
+      'blockedUsersInverse',
       'messages',
       'messages.channel',
       'playedMatches',
@@ -65,7 +73,9 @@ export class UsersService {
       'adminChannels',
       'memberChannels',
       'muteChannels',
+      'muteChannels.channel',
       'banChannels',
+      'banChannels.channel',
       'inviteChannels',
     ],
   ): Promise<User> {
@@ -108,6 +118,13 @@ export class UsersService {
       query.leftJoinAndSelect('users.friends', 'friends');
     if ('friendsInverse' in filter)
       query.leftJoinAndSelect('users.friendsInverse', 'friendsInverse');
+    if ('blockedUsers' in filter)
+      query.leftJoinAndSelect('users.blockedUsers', 'blockedUsers');
+    if ('blockedUsersInverse' in filter)
+      query.leftJoinAndSelect(
+        'users.blockedUsersInverse',
+        'blockedUsersInverse',
+      );
     if ('playedMatches' in filter)
       query.leftJoinAndSelect('users.playedMatches', 'playedMatches');
     if ('winMatches' in filter)
@@ -121,9 +138,13 @@ export class UsersService {
     if ('memberChannels' in filter)
       query.leftJoinAndSelect('users.memberChannels', 'memberChannels');
     if ('muteChannels' in filter)
-      query.leftJoinAndSelect('users.muteChannels', 'muteChannels');
+      query
+        .leftJoinAndSelect('users.muteChannels', 'muteChannels')
+        .leftJoinAndSelect('muteChannels.channel', 'mute_channel');
     if ('banChannels' in filter)
-      query.leftJoinAndSelect('users.banChannels', 'banChannels');
+      query
+        .leftJoinAndSelect('users.banChannels', 'banChannels')
+        .leftJoinAndSelect('banChannels.channel', 'ban_channel');
     if ('inviteChannels' in filter)
       query.leftJoinAndSelect('users.inviteChannels', 'inviteChannels');
 
@@ -183,19 +204,31 @@ export class UsersService {
       const user = await this.getUserByID(userID);
 
       // Checking what is updated
-      if (updatedUser.username) user.username = updatedUser.username;
-      if (updatedUser.avatar) user.avatar = updatedUser.avatar;
-      if (updatedUser.socketID) user.socketID = updatedUser.socketID;
-      if (updatedUser.friends) user.friends = updatedUser.friends;
-      if (updatedUser.addFriends)
+      if ('username' in updatedUser) user.username = updatedUser.username;
+      if ('avatar' in updatedUser) user.avatar = updatedUser.avatar;
+      if ('socketID' in updatedUser) user.socketID = updatedUser.socketID;
+      if ('friends' in updatedUser) user.friends = updatedUser.friends;
+      if ('addFriends' in updatedUser)
         user.friends = await this.addUsersToArray(
           updatedUser.addFriends,
           user.friends,
         );
-      if (updatedUser.removeFriends)
+      if ('removeFriends' in updatedUser)
         user.friends = await this.removeUsersFromArray(
           updatedUser.removeFriends,
           user.friends,
+        );
+      if ('blockedUsers' in updatedUser)
+        user.blockedUsers = updatedUser.blockedUsers;
+      if ('addBlockedUsers' in updatedUser)
+        user.blockedUsers = await this.addUsersToArray(
+          updatedUser.addBlockedUsers,
+          user.blockedUsers,
+        );
+      if ('removeBlockedUsers' in updatedUser)
+        user.blockedUsers = await this.removeUsersFromArray(
+          updatedUser.blockedUsers,
+          user.blockedUsers,
         );
 
       await this.usersRepository.save(user);
@@ -227,6 +260,24 @@ export class UsersService {
     try {
       const user = await this.getUserByID(userID, ['friendsInverse']);
       return user.friendsInverse;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getBlockedUsers(userID: number): Promise<User[]> {
+    try {
+      const user = await this.getUserByID(userID, ['usersBlocked']);
+      return user.blockedUsers;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getBlockedUsersInverse(userID: number): Promise<User[]> {
+    try {
+      const user = await this.getUserByID(userID, ['usersBlockedInverse']);
+      return user.blockedUsersInverse;
     } catch (error) {
       throw error;
     }
@@ -279,7 +330,7 @@ export class UsersService {
     }
   }
 
-  async getUserChannelsMuted(userID: number): Promise<Channel[]> {
+  async getUserChannelsMuted(userID: number): Promise<MutedUser[]> {
     try {
       const user = await this.getUserByID(userID, ['muteChannels']);
       return user.muteChannels;
@@ -288,7 +339,7 @@ export class UsersService {
     }
   }
 
-  async getUserChannelsBaned(userID: number): Promise<Channel[]> {
+  async getUserChannelsBaned(userID: number): Promise<BanedUser[]> {
     try {
       const user = await this.getUserByID(userID, ['banChannels']);
       return user.banChannels;
@@ -344,6 +395,32 @@ export class UsersService {
         if ((await this.usersRepository.count(friend)) === 0)
           throw new ForbiddenException(
             "Can't update friends (removed friend does not exists)",
+          );
+      }
+    }
+    if ('blockedUsers' in user) {
+      for (const blockedUser of user.blockedUsers) {
+        if ((await this.usersRepository.count(blockedUser)) === 0)
+          throw new ForbiddenException(
+            "Can't update blocked users (blocked user does not exists)",
+          );
+      }
+    }
+    // Checking if all addFriends exist
+    if ('addBlockedUsers' in user) {
+      for (const blockedUser of user.addBlockedUsers) {
+        if ((await this.usersRepository.count(blockedUser)) === 0)
+          throw new ForbiddenException(
+            "Can't update blocke users (added blocked user does not exists)",
+          );
+      }
+    }
+    // Checking if all removeFriends exist
+    if ('removeBlockedUsers' in user) {
+      for (const blockedUser of user.removeBlockedUsers) {
+        if ((await this.usersRepository.count(blockedUser)) === 0)
+          throw new ForbiddenException(
+            "Can't update blocked users (removed blocked user does not exists)",
           );
       }
     }
