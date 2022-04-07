@@ -21,6 +21,10 @@
 
 				gameplay: false,
 				newround: false,
+				newpause: false,
+
+				startTime: {},
+
 			}
 		},
 		// COMPUTED DATA
@@ -76,21 +80,41 @@
 		},
 		// METHODS
 		methods: {
+			// listenKeyboard: function() {
+			// 	window.addEventListener('keydown', this.move);
+			// 	return ; //keypress does not work for arrows
+			// },
+			// removeKeyboard: function () {
+			// 	window.removeEventListener('keydown', this.move);
+			// 	return ;
+			// },
 			launch: function() {
 				const framePerSec = 50;
 				if (this.gameplay == false) {
 					this.gameplay = true;
 				}
-				setInterval(this.game, 1000/framePerSec);
+				if (this.gameplay == true) {
+					// this.listenKeyboard();
+					setInterval(this.game, 1000/framePerSec);
+				}
 				return ;
 			},
 			game: function() {
 				if (this.gameplay == true)
 				{
-					if (this.newround == true)
-					{
-						this.newround = false;
-						this.waitForPlayers(1500);
+					this.runWild();
+					if (this.newround == true) {
+						if (this.newpause == true) {
+							this.startTime = new Date().getTime();
+							this.newpause = false;
+						}
+						var end = new Date().getTime();
+						if (end < this.startTime + 1500) {
+							this.ball.x = this.canvas.w / 2;
+							this.ball.y = this.canvas.h / 2;
+						}
+						else
+							this.newround = false;
 					}
 					this.update();
 					this.clearCanvas();
@@ -183,10 +207,8 @@
 			},
 			// UPDATING DATA AND ADJUSTING
 			update: function() {
-				this.runWild();
+				// this.runWild();
 
-				// if (this.ball.Xmax >= this.canvas.w || this.ball.Xmin <= 0)
-				// 	this.updateScore();
 				if ((this.ball.Xmin - 10) > this.canvas.w || (this.ball.Xmax + 10) < 0)
 					this.updateScore();
 				if (this.ball.Ymax >= this.canvas.h || this.ball.Ymin <= 0)
@@ -230,15 +252,17 @@
 					this.gameplay = false;
 					//game over: winer
 				}
-				this.waitForPlayers(500);
+
+				this.waitForPlayers(500); // à changer
 				this.resetPlay();
 				return ;
 			},
 			resetPlay: function () {
 				this.newround = true;
+				this.newpause = true;
 				this.resetBall();
-				this.resetPlayerLeft();
-				this.resetPlayerRight();
+				// this.resetPlayerLeft();
+				// this.resetPlayerRight();
 				return ;
 			},	
 			resetBall: function() {
