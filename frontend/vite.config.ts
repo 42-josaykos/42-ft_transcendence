@@ -27,8 +27,11 @@ export default ({ mode }: any) => {
         "/messages": {
           target: `http://${process.env.BACKEND_HOST}:${process.env.API_PORT}`,
         },
+        "/assets": {
+          target: `http://${process.env.BACKEND_HOST}:${process.env.UPLOAD_PORT}`,
+        },
         "/upload": {
-          target: `http://${process.env.BACKEND_HOST}:7000`,
+          target: `http://${process.env.BACKEND_HOST}:${process.env.UPLOAD_PORT}`,
         },
       },
     },

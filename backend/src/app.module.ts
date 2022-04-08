@@ -28,7 +28,7 @@ const envSchema = Joi.object({
     PassportModule.register({ session: true }),
     UploadModule,
   ],
-  controllers: [UploadController],
+  controllers: [],
   providers: [ChatGateway],
 })
 export class AppModule {}
