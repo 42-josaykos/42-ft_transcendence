@@ -15,7 +15,7 @@ console.log("[StatusStore] isAuthenticated: ", isAuthenticated.value);
 
 if (isAuthenticated.value) {
   console.log("[StatusStore] loggedUser: ", loggedUser.value);
-  const socket = io("ws://localhost:4000", {
+  const socket = io("ws://localhost:3615", {
     withCredentials: true,
   });
 

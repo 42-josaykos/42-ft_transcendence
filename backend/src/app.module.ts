@@ -5,7 +5,7 @@ import { ApiModule } from './api/api.module';
 import { ChatGateway } from './gateway/chat.gateway';
 import { UploadController } from './upload/upload.controller';
 import { UploadModule } from './upload/upload.module';
-import { StatusGateway } from './gateway/status.gateway';
+import { StatusModule } from './status/status.module';
 import * as Joi from 'joi';
 
 const envSchema = Joi.object({
@@ -23,11 +23,12 @@ const envSchema = Joi.object({
       envFilePath: '../.env',
       validationSchema: envSchema,
     }),
-    ApiModule,
     PassportModule.register({ session: true }),
+    ApiModule,
+    StatusModule,
     UploadModule,
   ],
   controllers: [UploadController],
-  providers: [StatusGateway],
+  providers: [],
 })
 export class AppModule {}

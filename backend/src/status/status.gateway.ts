@@ -21,7 +21,7 @@ class Connections {
 
 @WebSocketGateway({
   cors: {
-    origin: 'http://localhost:3001',
+    origin: `http://localhost:3001`,
     credentials: true,
   },
 })
@@ -37,16 +37,16 @@ export class StatusGateway
   // Init, connection, disconnect event handlers
   afterInit(server: any) {
     this.connectedClients = new Array();
-    console.log('StatusSystem gateway is initialized');
+    this.logger.log('StatusSystem gateway is initialized');
   }
 
   handleConnection(@ConnectedSocket() client: Socket) {
-    console.log(`Connection: ${client.id}`);
+    this.logger.log(`Connection: ${client.id}`);
     this.server.to(client.id).emit('requestUserInfo', '');
   }
 
   handleDisconnect(@ConnectedSocket() client: Socket) {
-    console.log(`Disconnect: ${client.id}`);
+    this.logger.log(`Disconnect: ${client.id}`);
     const userIndex = this.connectedClients.findIndex(
       (connection) => connection.socketID.indexOf(client.id) !== -1,
     );
