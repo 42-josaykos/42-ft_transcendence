@@ -17,6 +17,8 @@ services:
       - postgres:/data/postgres-transcendence
     restart: unless-stopped
 
+  ############################################################
+
   backend:
     container_name: backend-transcendence
     image: backend-transcendence:1.0.0
@@ -53,13 +55,14 @@ services:
       - /usr/app/node_modules
     restart: unless-stopped
 
+  ############################################################
+
   frontend:
     container_name: frontend-transcendence
     image: frontend-transcendence:1.0.0
     build:
       context: ./frontend
       dockerfile: ./Dockerfile
-    # command: tail -f /dev/null
     environment:
       - FRONTEND_PORT=${FRONTEND_PORT}
       - BACKEND_HOST=${BACKEND_HOST}
