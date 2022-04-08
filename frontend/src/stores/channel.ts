@@ -139,11 +139,13 @@ export const useChannelStore = defineStore('channel', () => {
       return false;
     }
 
-    const isOwner = (channel_item: Channel, userID: number | undefined) => {
-      if (userID != undefined) {
-        const owner = channel_item.owner;
-        if (owner.id === userID){
-          return true;
+    const isOwner = (channel_item: Channel | undefined, userID: number | undefined) => {
+      if (channel_item != undefined) {
+        if (userID != undefined) {
+          const owner = channel_item.owner;
+          if (owner.id === userID){
+            return true;
+          }
         }
       }
       return false
