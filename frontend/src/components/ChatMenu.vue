@@ -21,8 +21,8 @@
             //channelsJoin,
             channelJoin,
             channelLeave,
-            /*channelsInvite,
-            channelUpdate,*/
+            //channelsInvite,
+            channelUpdate,
             newOwner,
             usersMembers,
             /*userDirectMessage,
@@ -76,20 +76,20 @@ const deleteChannel = () => {
   }
 }
 
-const del = () => {
-    if (props.socket != undefined) {
-props.socket.on('deleteChannel', (channelID: number) => {
-  if (channel.value?.id == channelID) {
-    channel.value = undefined;
-    messages.value = [];
+/*const del = () => {
+  if (props.socket != undefined) {
+    props.socket.on('deleteChannel', (channelID: number) => {
+      if (channel.value?.id == channelID) {
+        channel.value = undefined;
+        messages.value = [];
+      }
+      channelStore.deleteChannel(channelID)
+    })
   }
-  channelStore.deleteChannel(channelID)
-})
-    }
-}
+}*/
 // Quitter un channel si Owner
 const leaveChannel = () => {
-  if (props.loggedUser != null) {
+  if (props.loggedUser != null && props.socket != undefined) {
     if (channelLeave.value !== undefined) {
       if (channelStore.isOwner(channelLeave.value, props.loggedUser.id)) {
         if (channelStore.isAdmin(channelLeave.value, newOwner.value != undefined ? newOwner.value.id : -1) == true) {
@@ -164,13 +164,13 @@ const leaveChannel = () => {
                       <button @click="Get('channels/search?id=' + item.id.toString() + '&admins&mutes&members&bans&owner').then(res => [channelLeave] = res.data)" type="button" class="rounded btn-channel wrapper-icon-leave ms-auto" data-bs-toggle="modal" data-bs-target="#leaveChannel">
                         <i class="fa-solid fa-xmark"></i>
                       </button>
-                    <!-- <button type="button" class="btn btn-danger btn-channel btn-sm" @click="Get('channels/search?id=' + item.id.toString() + '&admins&mutes&members').then(res => [channelLeave] = res.data)" data-bs-toggle="modal" data-bs-target="#leaveChannel">
+                    <button @click="Get('channels/search?id=' + item.id.toString() + '&admins&mutes&members').then(res => [channelUpdate] = res.data)" type="button" class="rounded btn-channel wrapper-icon-leave ms-auto" data-bs-toggle="modal" data-bs-target="#updateChannel">
                       Leave Owner
-                    </button> -->
+                    </button>
 
                   </div>
                   <div v-else class="ms-auto">
-                      <button @click="Get('channels/search?id=' + item.id.toString() + '&admins&mutes&members&bans&owner').then(res => {[channelLeave] = res.data; leaveChannel()})" type="button" class="rounded btn-channel wrapper-icon-leave ms-auto">
+                      <button @click="Get('channels/search?id=' + item.id.toString() + '&mutes&members').then(res => {[channelLeave] = res.data; leaveChannel()})" type="button" class="rounded btn-channel wrapper-icon-leave ms-auto">
                           <i class="fa-solid fa-xmark"></i>
                       </button>
                   </div>
