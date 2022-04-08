@@ -7,10 +7,13 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateChannelDTO } from './dto/create-channel.dto';
 import { UpdateChannelDTO } from './dto/update-channel.dto';
-import User from 'src/api/users/entities/user.entity';
+import { FilterChannelDTO } from './dto/filter-channel.dto';
 import Channel from './entities/channel.entity';
 import Message from 'src/api/messages/entities/message.entity';
-import { FilterChannelDTO } from './dto/filter-channel.dto';
+import User from 'src/api/users/entities/user.entity';
+import MutedUser from 'src/api/users/entities/muted.user.entity';
+import BanedUser from 'src/api/users/entities/baned.user.entity';
+import { validate } from 'class-validator';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -20,6 +23,10 @@ export class ChannelsService {
     private readonly channelsRepository: Repository<Channel>,
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    @InjectRepository(MutedUser)
+    private readonly mutesRepository: Repository<MutedUser>,
+    @InjectRepository(BanedUser)
+    private readonly bansRepository: Repository<BanedUser>,
   ) {}
 
   async getAllChannels(): Promise<Channel[]> {
@@ -36,7 +43,9 @@ export class ChannelsService {
       'admins',
       'members',
       'mutes',
+      'mutes.user',
       'bans',
+      'bans.user',
       'invites',
     ],
   ): Promise<Channel> {
@@ -64,7 +73,11 @@ export class ChannelsService {
       query.andWhere('channels.isPrivate = :isPrivate', {
         isPrivate: filter.isPrivate,
       });
-      if ('isDirectChannel' in filter)
+    if ('isProtected' in filter)
+      query.andWhere('channels.isProtected = :isProtected', {
+        isProtected: filter.isProtected,
+      });
+    if ('isDirectChannel' in filter)
       query.andWhere('channels.isDirectChannel = :isDirectChannel', {
         isDirectChannel: filter.isDirectChannel,
       });
@@ -90,11 +103,13 @@ export class ChannelsService {
     if ('mutes' in filter)
       query
         .leftJoinAndSelect('channels.mutes', 'mutes')
-        .addSelect('mutes.socketID');
+        .leftJoinAndSelect('mutes.user', 'mute_user')
+        .addSelect('mute_user.socketID');
     if ('bans' in filter)
       query
         .leftJoinAndSelect('channels.bans', 'bans')
-        .addSelect('bans.socketID');
+        .leftJoinAndSelect('bans.user', 'ban_user')
+        .addSelect('ban_user.socketID');
     if ('invites' in filter)
       query
         .leftJoinAndSelect('channels.invites', 'invites')
@@ -169,7 +184,7 @@ export class ChannelsService {
     }
   }
 
-  async getChannelMutes(channelID: number): Promise<User[]> {
+  async getChannelMutes(channelID: number): Promise<MutedUser[]> {
     try {
       const channel = await this.getChannelByID(channelID, ['mutes']);
       return channel.mutes;
@@ -178,7 +193,7 @@ export class ChannelsService {
     }
   }
 
-  async getChannelBans(channelID: number): Promise<User[]> {
+  async getChannelBans(channelID: number): Promise<BanedUser[]> {
     try {
       const channel = await this.getChannelByID(channelID, ['bans']);
       return channel.bans;
@@ -230,63 +245,91 @@ export class ChannelsService {
     try {
       await this.validateChannel(updatedChannel);
       const channel = await this.getChannelByID(channelID);
+
       //Checking what is updated
-      if (updatedChannel.name) channel.name = updatedChannel.name;
-      /*if (updatedChannel.isPrivate)*/
+      if ('name' in updatedChannel) channel.name = updatedChannel.name;
+      if ('isPrivate' in updatedChannel)
         channel.isPrivate = updatedChannel.isPrivate;
-      /*if (updatedChannel.password) */channel.password = updatedChannel.password;
-      if (updatedChannel.owner) channel.owner = updatedChannel.owner;
-      if (updatedChannel.admins) channel.admins = updatedChannel.admins;
-      if (updatedChannel.members) channel.members = updatedChannel.members;
-      if (updatedChannel.mutes) channel.mutes = updatedChannel.mutes;
-      if (updatedChannel.bans) channel.bans = updatedChannel.bans;
-      if (updatedChannel.invites) channel.invites = updatedChannel.invites;
-      if (updatedChannel.addAdmins)
+      if ('isProtected' in updatedChannel)
+        channel.isProtected = updatedChannel.isProtected;
+      if ('password' in updatedChannel)
+        channel.password = updatedChannel.password;
+      if ('owner' in updatedChannel) channel.owner = updatedChannel.owner;
+      if ('admins' in updatedChannel) channel.admins = updatedChannel.admins;
+      if ('members' in updatedChannel) channel.members = updatedChannel.members;
+      if ('mutes' in updatedChannel) {
+        // Must erase old mutes (i.e MutedUser with corresponding channelID)
+        await this.mutesRepository.delete({ channel: { id: channelID } });
+        // Saving new mutes, and giving them their channels
+        const newMutes = await this.mutesRepository.save(updatedChannel.mutes);
+        channel.mutes = newMutes;
+      }
+      if ('bans' in updatedChannel) {
+        // Must erase old bans (i.e BanedUser with corresponding channelID)
+        await this.bansRepository.delete({ channel: { id: channelID } });
+        // Saving new bans, and giving them their channels
+        const newBans = await this.bansRepository.save(updatedChannel.bans);
+        channel.bans = newBans;
+      }
+      if ('invites' in updatedChannel) channel.invites = updatedChannel.invites;
+      if ('addAdmins' in updatedChannel)
         channel.admins = await this.addUsersToArray(
           updatedChannel.addAdmins,
           channel.admins,
         );
-      if (updatedChannel.removeAdmins)
+      if ('removeAdmins' in updatedChannel)
         channel.admins = await this.removeUsersFromArray(
           updatedChannel.removeAdmins,
           channel.admins,
         );
-      if (updatedChannel.addMembers)
+      if ('addMembers' in updatedChannel)
         channel.members = await this.addUsersToArray(
           updatedChannel.addMembers,
           channel.members,
         );
-      if (updatedChannel.removeMembers)
+      if ('removeMembers' in updatedChannel)
         channel.members = await this.removeUsersFromArray(
           updatedChannel.removeMembers,
           channel.members,
         );
-      if (updatedChannel.addMutes)
-        channel.mutes = await this.addUsersToArray(
+      if ('addMutes' in updatedChannel) {
+        const addMutes = await this.mutesRepository.save(
           updatedChannel.addMutes,
-          channel.mutes,
         );
-      if (updatedChannel.removeMutes)
-        channel.mutes = await this.removeUsersFromArray(
-          updatedChannel.removeMutes,
-          channel.mutes,
-        );
-      if (updatedChannel.addBans)
-        channel.bans = await this.addUsersToArray(
-          updatedChannel.addBans,
-          channel.bans,
-        );
-      if (updatedChannel.removeBans)
-        channel.bans = await this.removeUsersFromArray(
-          updatedChannel.removeBans,
-          channel.bans,
-        );
-      if (updatedChannel.addInvites)
+        channel.mutes = await this.addUsersToArray(addMutes, channel.mutes);
+      }
+      if ('removeMutes' in updatedChannel) {
+        const oldMutes = await this.mutesRepository.find({
+          where: updatedChannel.removeMutes,
+          relations: ['user', 'channel'],
+        });
+        await this.mutesRepository.remove(oldMutes);
+        channel.mutes = await this.mutesRepository.find({
+          where: { channel: channelID },
+          relations: ['user', 'channel'],
+        });
+      }
+      if ('addBans' in updatedChannel) {
+        const addBans = await this.bansRepository.save(updatedChannel.addBans);
+        channel.bans = await this.addUsersToArray(addBans, channel.bans);
+      }
+      if ('removeBans' in updatedChannel) {
+        const oldBans = await this.bansRepository.find({
+          where: updatedChannel.removeBans,
+          relations: ['user', 'channel'],
+        });
+        await this.bansRepository.remove(oldBans);
+        channel.bans = await this.bansRepository.find({
+          where: { channel: channelID },
+          relations: ['user', 'channel'],
+        });
+      }
+      if ('addInvites' in updatedChannel)
         channel.invites = await this.addUsersToArray(
           updatedChannel.addInvites,
           channel.invites,
         );
-      if (updatedChannel.removeInvites)
+      if ('removeInvites' in updatedChannel)
         channel.invites = await this.removeUsersFromArray(
           updatedChannel.removeInvites,
           channel.invites,
@@ -308,14 +351,14 @@ export class ChannelsService {
     }
   }
 
-  async addUsersToArray(toAdd: User[], array: User[]) {
+  async addUsersToArray(toAdd: any[], array: any[]) {
     toAdd.forEach((user) => {
       array.push(user);
     });
     return array;
   }
 
-  async removeUsersFromArray(toRemove: User[], array: User[]) {
+  async removeUsersFromArray(toRemove: any[], array: any[]) {
     array = array.filter(
       (user) => !toRemove.find((remove) => remove.id === user.id),
     );
@@ -327,14 +370,14 @@ export class ChannelsService {
   ): Promise<void> {
     // Checking if owner exists
     if (
-      channel.owner &&
+      'owner' in channel &&
       (await this.usersRepository.count(channel.owner)) === 0
     )
       throw new ForbiddenException(
         "Can't create / update channel (owner does not exists)",
       );
     // Checking if all admins exist
-    if (channel.admins) {
+    if ('admins' in channel) {
       for (const admin of channel.admins) {
         if ((await this.usersRepository.count(admin)) === 0)
           throw new ForbiddenException(
@@ -343,7 +386,7 @@ export class ChannelsService {
       }
     }
     // Checking if all members exist
-    if (channel.members) {
+    if ('members' in channel) {
       for (const member of channel.members) {
         if ((await this.usersRepository.count(member)) === 0)
           throw new ForbiddenException(
@@ -352,25 +395,25 @@ export class ChannelsService {
       }
     }
     // Checking if all mutes exist
-    if (channel.mutes) {
+    if ('mutes' in channel) {
       for (const mute of channel.mutes) {
-        if ((await this.usersRepository.count(mute)) === 0)
+        if ((await this.usersRepository.count(mute.user)) === 0)
           throw new ForbiddenException(
             "Can't create / update channel (muted member does not exists)",
           );
       }
     }
     // Checking if all bans exist
-    if (channel.bans) {
+    if ('bans' in channel) {
       for (const ban of channel.bans) {
-        if ((await this.usersRepository.count(ban)) === 0)
+        if ((await this.usersRepository.count(ban.user)) === 0)
           throw new ForbiddenException(
             "Can't create / update channel (baned member does not exists)",
           );
       }
     }
     // Checking if all invites exist
-    if (channel.invites) {
+    if ('invites' in channel) {
       for (const invite of channel.invites) {
         if ((await this.usersRepository.count(invite)) === 0)
           throw new ForbiddenException(
@@ -417,7 +460,7 @@ export class ChannelsService {
     // Checking if all addMutes exist
     if ('addMutes' in channel) {
       for (const muted of channel.addMutes) {
-        if ((await this.usersRepository.count(muted)) === 0)
+        if ((await this.usersRepository.count(muted.user)) === 0)
           throw new ForbiddenException(
             "Can't create / update channel (added muted member does not exists)",
           );
@@ -426,7 +469,7 @@ export class ChannelsService {
     // Checking if all removeMutes exist
     if ('removeMutes' in channel) {
       for (const muted of channel.removeMutes) {
-        if ((await this.usersRepository.count(muted)) === 0)
+        if ((await this.usersRepository.count(muted.user)) === 0)
           throw new ForbiddenException(
             "Can't create / update channel (removed muted member does not exists)",
           );
@@ -435,7 +478,7 @@ export class ChannelsService {
     // Checking if all addBans exist
     if ('addBans' in channel) {
       for (const baned of channel.addBans) {
-        if ((await this.usersRepository.count(baned)) === 0)
+        if ((await this.usersRepository.count(baned.user)) === 0)
           throw new ForbiddenException(
             "Can't create / update channel (added baned member does not exists)",
           );
@@ -444,7 +487,7 @@ export class ChannelsService {
     // Checking if all removeBans exist
     if ('removeBans' in channel) {
       for (const baned of channel.removeBans) {
-        if ((await this.usersRepository.count(baned)) === 0)
+        if ((await this.usersRepository.count(baned.user)) === 0)
           throw new ForbiddenException(
             "Can't create / update channel (removed baned member does not exists)",
           );

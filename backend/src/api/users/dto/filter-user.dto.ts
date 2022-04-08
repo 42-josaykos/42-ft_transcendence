@@ -70,6 +70,16 @@ export class FilterUserDTO {
   readonly friendsInverse?: boolean;
 
   @ApiProperty({ required: false })
+  @IsOptional()
+  @IsEmpty()
+  readonly blockedUsers?: boolean;
+
+  @ApiProperty({ required: false })
+  @IsEmpty()
+  @IsOptional()
+  readonly blockedUsersInverse?: boolean;
+
+  @ApiProperty({ required: false })
   @IsEmpty()
   @IsOptional()
   readonly playedMatches?: boolean;

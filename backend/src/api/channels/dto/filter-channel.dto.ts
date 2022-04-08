@@ -1,13 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
+  IsBooleanString,
   IsEmpty,
   IsNotEmpty,
   IsNumberString,
   IsOptional,
   IsString,
 } from 'class-validator';
-import User from 'src/api/users/entities/user.entity';
 
 export class FilterChannelDTO {
   // Search parameters
@@ -24,12 +24,17 @@ export class FilterChannelDTO {
   readonly name?: string;
 
   @ApiProperty({ required: false })
-  @IsBoolean()
+  @IsBooleanString()
   @IsOptional()
   readonly isPrivate?: boolean;
 
   @ApiProperty({ required: false })
-  @IsBoolean()
+  @IsBooleanString()
+  @IsOptional()
+  readonly isProtected?: boolean;
+
+  @ApiProperty({ required: false })
+  @IsBooleanString()
   @IsOptional()
   readonly isDirectChannel?: boolean;
 
