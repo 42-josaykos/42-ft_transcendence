@@ -1,6 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { AuthenticationProvider } from './auth.interface';
+import { AuthenticationProvider, TokenPayload } from './auth.interface';
 import User from 'src/api/users/entities/user.entity';
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { PassportSerializer } from '@nestjs/passport';
@@ -9,18 +9,26 @@ import { UsersService } from 'src/api/users/users.service';
 import { CreateUserDTO } from 'src/api/users/dto/create-user.dto';
 import { FilterUserDTO } from 'src/api/users/dto/filter-user.dto';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 /**
  * Create a new student user if not found in database
  */
-
 @Injectable()
 export class AuthService implements AuthenticationProvider {
   constructor(
     @Inject('USERS_SERVICE')
     private usersService: UsersService,
+    @InjectRepository(User)
+    private userRepo: Repository<User>,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
+  /**
+   * 42 Api auth validation
+   */
   async validateUser(details: CreateUserDTO) {
     const { studentID } = details;
     try {
@@ -35,6 +43,9 @@ export class AuthService implements AuthenticationProvider {
     }
   }
 
+  /**
+   * Github Api auth validation
+   */
   async validateUserGithub(details: CreateUserDTO) {
     const { githubID } = details;
     try {
@@ -49,6 +60,9 @@ export class AuthService implements AuthenticationProvider {
     }
   }
 
+  /**
+   * username/password auth validation
+   */
   async validateUserLocal(username: string, plainPassword: string) {
     try {
       const filter: FilterUserDTO = { username: username, password: true };
@@ -83,9 +97,24 @@ export class AuthService implements AuthenticationProvider {
     const [user] = await this.usersService.getUsersByFilter({ id: id });
     return user;
   }
+
+  /*****************************************************************************
+   * Jwt
+   */
+  public getCookieWithJwtToken(userId: number) {
+    const payload: TokenPayload = { userId };
+    const token = this.jwtService.sign(payload);
+    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
+      'JWT_EXPIRATION_TIME',
+    )}`;
+  }
+
+  public getCookieForLogout() {
+    return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
+  }
 }
 
-/**
+/*******************************************************************************
  * Handle session store in DB
  */
 

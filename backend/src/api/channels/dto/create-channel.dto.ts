@@ -8,6 +8,8 @@ import {
   IsString,
 } from 'class-validator';
 import User from 'src/api/users/entities/user.entity';
+import MutedUser from 'src/api/users/entities/muted.user.entity';
+import BanedUser from 'src/api/users/entities/baned.user.entity';
 
 export class CreateChannelDTO {
   @IsString()
@@ -17,6 +19,9 @@ export class CreateChannelDTO {
 
   @IsBoolean()
   readonly isPrivate?: boolean | false;
+
+  @IsBoolean()
+  readonly isProtected?: boolean | false;
 
   @IsString()
   readonly password?: string | null;
@@ -39,17 +44,20 @@ export class CreateChannelDTO {
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly mutes?: User[];
+  readonly mutes?: MutedUser[];
 
   @ApiProperty({ required: false })
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
-  readonly bans?: User[];
+  readonly bans?: BanedUser[];
 
   @ApiProperty({ required: false })
   @IsArray()
   @IsNotEmpty()
   @IsOptional()
   readonly invites?: User[];
+
+  @IsBoolean()
+  readonly isDirectMessage?: boolean | false;
 }

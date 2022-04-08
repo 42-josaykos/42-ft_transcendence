@@ -10,6 +10,7 @@ import { TypeORMSession } from './auth/entities/session.entity';
 import { TypeormStore } from 'connect-typeorm';
 import { UploadModule } from './upload/upload.module';
 import { StatusModule } from './status/status.module';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const api = await NestFactory.create(AppModule);
@@ -40,6 +41,9 @@ async function bootstrap() {
   // Starting up API service
   const configService = api.get(ConfigService);
   const port = configService.get('API_PORT') || 4000;
+
+  // Cookie parser
+  api.use(cookieParser());
 
   // Set session cookie
   const sessionRepo = getRepository(TypeORMSession);

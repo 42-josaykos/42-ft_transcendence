@@ -6,13 +6,14 @@ import {
   OneToOne,
   ManyToMany,
   PrimaryGeneratedColumn,
-  ManyToOne,
   JoinTable,
 } from 'typeorm';
 import Stats from 'src/api/stats/entities/stats.entity';
 import Message from 'src/api/messages/entities/message.entity';
 import Channel from 'src/api/channels/entities/channel.entity';
 import Match from 'src/api/matches/entities/matches.entity';
+import MutedUser from './muted.user.entity';
+import BanedUser from './baned.user.entity';
 
 @Entity()
 class User {
@@ -52,6 +53,17 @@ class User {
   @ManyToMany((type) => User, (user) => user.friends)
   public friendsInverse: User[]; // Users who are friends with me
 
+  @ManyToMany((type) => User, (user) => user.blockedUsersInverse, {
+    cascade: true,
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
+  })
+  @JoinTable()
+  public blockedUsers: User[]; // Users I blocked
+
+  @ManyToMany((type) => User, (user) => user.blockedUsers)
+  public blockedUsersInverse: User[]; // Users who blocked me
+
   // Match related relations
   @ManyToMany((type) => Match, (match) => match.players)
   public playedMatches: Match[];
@@ -73,11 +85,11 @@ class User {
   @ManyToMany((type) => Channel, (channel) => channel.members)
   public memberChannels: Channel[];
 
-  @ManyToMany((type) => Channel, (channel) => channel.mutes)
-  public muteChannels: Channel[];
+  @OneToMany((type) => MutedUser, (mute) => mute.user)
+  public muteChannels: MutedUser[];
 
-  @ManyToMany((type) => Channel, (channel) => channel.bans)
-  public banChannels: Channel[];
+  @OneToMany((type) => BanedUser, (ban) => ban.user)
+  public banChannels: BanedUser[];
 
   @ManyToMany((type) => Channel, (channel) => channel.invites)
   public inviteChannels: Channel[];

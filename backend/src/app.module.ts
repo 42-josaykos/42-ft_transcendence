@@ -15,6 +15,8 @@ const envSchema = Joi.object({
   POSTGRES_PASSWORD: Joi.string().required(),
   POSTGRES_DB: Joi.string().required(),
   POR: Joi.string(),
+  JWT_SECRET: Joi.string().required(),
+  JWT_EXPIRATION_TIME: Joi.string().required(),
 });
 
 @Module({
@@ -29,6 +31,6 @@ const envSchema = Joi.object({
     UploadModule,
   ],
   controllers: [UploadController],
-  providers: [],
+  providers: [ChatGateway],
 })
 export class AppModule {}

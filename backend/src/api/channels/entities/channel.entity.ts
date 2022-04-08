@@ -1,15 +1,15 @@
 import {
   Column,
   Entity,
-  JoinColumn,
   JoinTable,
   ManyToMany,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import User from 'src/api/users/entities/user.entity';
+import MutedUser from 'src/api/users/entities/muted.user.entity';
+import BanedUser from 'src/api/users/entities/baned.user.entity';
 import Message from 'src/api/messages/entities/message.entity';
 
 @Entity()
@@ -22,6 +22,9 @@ class Channel {
 
   @Column({ nullable: true, default: false })
   public isPrivate: boolean;
+
+  @Column({ nullable: true, default: false })
+  public isProtected: boolean;
 
   @Column({ nullable: true, select: false })
   public password: string;
@@ -52,19 +55,17 @@ class Channel {
   @JoinTable()
   public members: User[];
 
-  @ManyToMany((type) => User, (bans) => bans.muteChannels, {
+  @OneToMany((type) => MutedUser, (mutes) => mutes.channel, {
     cascade: true,
     onDelete: 'SET NULL',
   })
-  @JoinTable()
-  public mutes: User[];
+  public mutes: MutedUser[];
 
-  @ManyToMany((type) => User, (bans) => bans.banChannels, {
+  @OneToMany((type) => BanedUser, (bans) => bans.channel, {
     cascade: true,
     onDelete: 'SET NULL',
   })
-  @JoinTable()
-  public bans: User[];
+  public bans: BanedUser[];
 
   @ManyToMany((type) => User, (bans) => bans.inviteChannels, {
     cascade: true,
@@ -72,6 +73,9 @@ class Channel {
   })
   @JoinTable()
   public invites: User[];
+
+  @Column({ nullable: true, default: false })
+  public isDirectMessage: boolean;
 }
 
 export default Channel;
