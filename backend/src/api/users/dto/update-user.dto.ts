@@ -48,4 +48,18 @@ export class UpdateUserDTO {
   @IsNotEmpty()
   @IsOptional()
   readonly refreshToken?: string;
+
+  @IsNotEmpty()
+  @IsOptional()
+  readonly blockedUsers?: User[];
+
+  @ApiProperty({ required: false })
+  @IsNotEmpty()
+  @IsOptional()
+  readonly addBlockedUsers?: User[];
+
+  @ApiProperty({ required: false })
+  @IsNotEmpty()
+  @IsOptional()
+  readonly removeBlockedUsers?: User[];
 }

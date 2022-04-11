@@ -22,6 +22,8 @@ import Channel from 'src/api/channels/entities/channel.entity';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { JwtAccessGuard } from 'src/auth/guards';
 import { Utils } from 'src/utils/utils.provider';
+import MutedUser from './entities/muted.user.entity';
+import BanedUser from './entities/baned.user.entity';
 
 @Controller('users')
 @ApiTags('users')
@@ -104,6 +106,20 @@ export class UsersController {
     return await this.usersService.getUserFriendsInverse(userID);
   }
 
+  @Get(':userID/blockedUsers')
+  async getUsersBlocked(
+    @Param('userID', ParseIntPipe) userID: number,
+  ): Promise<User[]> {
+    return await this.usersService.getBlockedUsers(userID);
+  }
+
+  @Get(':userID/blockedUsersInverse')
+  async getUsersBlockedInverse(
+    @Param('userID', ParseIntPipe) userID: number,
+  ): Promise<User[]> {
+    return await this.usersService.getBlockedUsersInverse(userID);
+  }
+
   // Match related
   @Get(':userID/matches/played')
   async getUserMatchesPlayed(
@@ -144,14 +160,14 @@ export class UsersController {
   @Get(':userID/channels/muted')
   async getUserChannelsMuted(
     @Param('userID', ParseIntPipe) userID: number,
-  ): Promise<Channel[]> {
+  ): Promise<MutedUser[]> {
     return await this.usersService.getUserChannelsMuted(userID);
   }
 
   @Get(':userID/channels/baned')
   async getUserChannelsBaned(
     @Param('userID', ParseIntPipe) userID: number,
-  ): Promise<Channel[]> {
+  ): Promise<BanedUser[]> {
     return await this.usersService.getUserChannelsBaned(userID);
   }
 
