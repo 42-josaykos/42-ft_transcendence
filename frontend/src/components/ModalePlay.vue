@@ -6,7 +6,7 @@
 </script>
 
 <template>
-    <div class="bloc-modale" v-if="revelePlay" v-on:click="toggleModalePlay">
+    <div class="bloc-modale" v-if="!revelePlay" v-on:click="toggleModalePlay">
         <div class="overlay" v-on:click="toggleModalePlay"></div> <!-- canvas ? -->
             <div class="modale card">
             <div class=Modale_Header>

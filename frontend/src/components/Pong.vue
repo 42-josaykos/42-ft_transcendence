@@ -3,10 +3,12 @@
 
 	export default {
 		name: 'Pong',
-		props: {
-			msg: String,
-			revelePlay: Boolean,
-		},
+		props: ['revelePlay', 'msg'],
+		// props: {
+		// 	msg: String,
+		// 	revelePlay: Boolean,
+		// 	// gameplay: Boolean,
+		// },
 		components: {
 			'modale-play': ModalePlay, 
 		},
@@ -19,12 +21,18 @@
 				player_R: {},
 				ball: {},
 
+				// gameplay: this.revelePlay,
 				gameplay: false,
 				newround: false,
-				newpause: false,
+				newpause: true, //false,
+
+				newgame: true,
+				endgame: false,
 
 				startTime: {},
 
+
+				sounds: {},
 			}
 		},
 		// COMPUTED DATA
@@ -59,6 +67,20 @@
 				this.ball.velocityY = 1 * this.ball.speed; //velocity = speed & dir
 				return (this.ball);
 			},
+			getSounds: function() {
+
+				this.sounds.hit = new Audio("./src/components/sounds/hit.wav");
+				this.sounds.hit.volume = 0.1;
+				this.sounds.wall = new Audio("./src/components/sounds/wall.wav");
+				this.sounds.wall.volume = 0.1;
+				this.sounds.score = new Audio("./src/components/sounds/score.wav");
+				this.sounds.score.volume = 0.1;
+				this.sounds.win = new Audio("./src/components/sounds/win.wav");
+				this.sounds.win.volume = 0.1;
+				this.sounds.loose = new Audio("./src/components/sounds/loose.wav");
+				this.sounds.loose.volume = 0.1;
+				return (this.sounds);
+			}
 		},
 		// LIFECYCLE HOOKS
 		created() {
@@ -70,6 +92,7 @@
 			let leftPlayer = this.getPlayerL;
 			let rightPlayer = this.getPlayerR;
 			let gameBall = this.getBall;
+			let sounds = this.getSounds;
 			this.render();
 			this.launch();
 			return ;
@@ -90,19 +113,25 @@
 			// },
 			launch: function() {
 				const framePerSec = 50;
-				if (this.gameplay == false) {
-					this.gameplay = true;
-				}
-				if (this.gameplay == true) {
-					// this.listenKeyboard();
-					setInterval(this.game, 1000/framePerSec);
-				}
+				// this.newgame = true;
+				setInterval(this.game, 1000/framePerSec); // setInterval(this.game, 1000/framePerSec);
 				return ;
 			},
 			game: function() {
-				if (this.gameplay == true)
-				{
-					this.runWild();
+				if (this.revelePlay == true) {
+					this.gameplay = true;
+					// this.newgame = true;
+				}
+				// this.gameplay = this.revelePlay;
+				if (this.gameplay == true && this.endgame == false) {
+					// if (this.newgame ==  true)
+					// 	this.countdown();
+					console.log("before runWild game x : " + this.ball.x);
+					console.log("before runWild game y : " + this.ball.y);
+					if (this.newgame == false)
+						this.runWild();
+					console.log("after runWild game x : " + this.ball.x);
+					console.log("after runWild game y : " + this.ball.y);
 					if (this.newround == true) {
 						if (this.newpause == true) {
 							this.startTime = new Date().getTime();
@@ -112,20 +141,69 @@
 						if (end < this.startTime + 1500) {
 							this.ball.x = this.canvas.w / 2;
 							this.ball.y = this.canvas.h / 2;
+							this.ball.Xmin = this.ball.x - this.ball.size;
+							this.ball.Xmax = this.ball.x + this.ball.size;
+							this.ball.Ymin = this.ball.y - this.ball.size;
+							this.ball.Ymax = this.ball.y + this.ball.size;
 						}
 						else
 							this.newround = false;
 					}
+					// if (this.gameplay == true) {
+					// 	if (this.newgame ==  true)
+					// 		this.countdown();
+					// }
 					this.update();
 					this.clearCanvas();
 					this.render();
+					if (this.gameplay == true) {
+						if (this.newgame ==  true)
+							this.countdown();
+					}
 				}
 				return ;
+			},
+			countdown: function() {
+				let canvas = document.getElementById('Pong');
+				if (canvas.getContext) {
+					let context = canvas.getContext('2d');
+					let size = 0.2 * this.canvas.h;
+					context.font = size + "px Impact";
+					let x = this.canvas.w/2;
+					let y = this.canvas.h/2 - (size/2);
+
+					context.fillStyle = "red";
+				if (this.newpause == true) {
+					this.startTime = new Date().getTime();
+					this.newpause = false;
+				}
+				var end = new Date().getTime();
+				if (end < this.startTime + 1500) {
+					this.ball.x = this.canvas.w / 2;
+					this.ball.y = this.canvas.h / 2;
+					context.fillText("3", x, y); // si je remets ça alors la balle est au même endroit avec et sans modale
+				}
+				else if (end >= this.startTime + 1500 && end < this.startTime + 3000) {
+					this.ball.x = this.canvas.w / 2;
+					this.ball.y = this.canvas.h / 2;
+					context.fillText("2", x, y);
+				}
+				else if (end >=  this.startTime + 3000 && end < this.startTime + 4500) {
+					this.ball.x = this.canvas.w / 2;
+					this.ball.y = this.canvas.h / 2;
+					context.fillText("1", x, y);
+				}
+				else
+					this.newgame = false;
+				}
+				return ; 
 			},
 			// ELEMENTS RENDERING
 			render: function() {
 				this.drawPlayerLeft(this.getPaddle);
 				this.drawPlayerRight(this.getPaddle);
+				console.log("x : " + this.ball.x);
+				console.log("y : " + this.ball.y);
 				this.drawBall();
         this.drawScore(this.player_L, this.player_R);
 				return ;
@@ -149,6 +227,8 @@
 				return ;
 			},
 			drawBall: function() {
+				console.log("x : " + this.ball.x);
+				console.log("y : " + this.ball.y);
 				let canvas = document.getElementById('Pong');
 				if (canvas.getContext) {
 					let context = canvas.getContext('2d');
@@ -166,7 +246,7 @@
 					let context = canvas.getContext('2d');
 					context.clearRect(0, 0, this.canvas.w, this.canvas.h);
 				}
-
+				return ;
 			},
 			drawScore: function(leftPlayer, rightPlayer) {
 				let canvas = document.getElementById('Pong');
@@ -177,7 +257,7 @@
 					let xLeft = this.canvas.w/4;
 					let xRight = 3 * this.canvas.w/4 - (size/2);
 
-					context.fillStyle = "green";
+					context.fillStyle = "yellow";
 					context.fillText(leftPlayer.score, xLeft, this.canvas.h/5);
 					context.fillText(rightPlayer.score, xRight, this.canvas.h/5);
 				}
@@ -207,16 +287,18 @@
 			},
 			// UPDATING DATA AND ADJUSTING
 			update: function() {
-				// this.runWild();
-
 				if ((this.ball.Xmin - 50) > this.canvas.w || (this.ball.Xmax + 50) < 0) // pas très propre d'écrire comme ça
 					this.updateScore();
-				if (this.ball.Ymax >= this.canvas.h || this.ball.Ymin <= 0)
+				if (this.ball.Ymax >= this.canvas.h || this.ball.Ymin <= 0) {
 					this.ball.velocityY *= -1;
+					this.sounds.wall.play();
+				}
 
 				let player = (this.ball.x + this.ball.size < this.canvas.w/2) ? this.player_L : this.player_R;
-				if (this.collision(this.ball, player))
+				if (this.collision(this.ball, player)) {
+					this.sounds.hit.play();
 					this.updateVelocity(player);
+				}
 				return ;
 			},
 			updateVelocity: function(player) {
@@ -239,24 +321,21 @@
 				return ;
 			},
 			updateScore: function() {
-				// if (this.ball.Xmin <= 0) {
-				if (this.ball.Xmax + 10 > 0) {
+				// if (this.newgame == true)
+				if (this.ball.Xmax + 10 < 0)
 					this.player_R.score++;
+				else if ((this.ball.Xmin - 10) > this.canvas.w)
+					this.player_L.score++
+				if (this.player_R.score == 10 || this.player_L.score == 10) {
+					this.gameplay = false; // rajouter un endofgame car comme le "revelplay" est true, ca remet aussi le gameplay a true au debut
+					this.endgame = true;
+					this.sounds.win.play();
+					return ;
 				}
-				else {
-					this.player_L.score++;
-					// while (this.ball.Xmin <= 0) { ;
-					// }
-				}
-				if (this.player_R.score == 10 || this.player_L.score == 10) {	
-					this.gameplay = false;
-					//game over: winer
-				}
-
-
-
-
-				// this.waitForPlayers(500); // à changer
+					//game over: winer : // this.sounds.win.play();
+				
+				// else
+				this.sounds.score.play();
 				this.resetPlay();
 				return ;
 			},
@@ -265,7 +344,7 @@
 				this.newpause = true;
 				this.resetBall();
 				// this.resetPlayerLeft();
-				// this.resetPlayerRight();
+				// this.resetPlayerRight(); // Au final plus fluide sans
 				return ;
 			},	
 			resetBall: function() {
@@ -299,6 +378,8 @@
 				return ;
 			},
 			runWild: function() {
+				console.log("into it x : " + this.ball.x);
+				console.log("into it y : " + this.ball.y);
 				this.ball.x += this.ball.velocityX;
 				this.ball.y += this.ball.velocityY;
 
@@ -306,11 +387,13 @@
 				this.ball.Xmax = this.ball.x + this.ball.size;
 				this.ball.Ymin = this.ball.y - this.ball.size;
 				this.ball.Ymax = this.ball.y + this.ball.size;
+				console.log("into it x : " + this.ball.x);
+				console.log("into it y : " + this.ball.y);
 				return ;
 			},
 			collision: function (ball, player){
 				player.Xmin = player.x;
-      	player.Xmax = player.x + this.paddle.w;
+      			player.Xmax = player.x + this.paddle.w;
 				player.Ymin = player.y;
 				player.Ymax = player.y + this.paddle.h;
 
@@ -329,6 +412,7 @@
 	<div class=PongGame>
 				<!-- {{ revelePlay }} -->
 		<canvas ref="Pong" class="Pong" id="Pong" :width="canvas.w" :height="canvas.h"> </canvas>
+		<!-- v-bind:gameplay="revelePlay -->
 		<!-- <canvas ref="Pong" class="Pong" id="Pong" :width="canvas.w" :height="canvas.h" v-on:click="launch"> </canvas> -->
 		
 	</div>

@@ -11,7 +11,7 @@
 		data() {
 			return {
 				reveleSettings: false,
-				revelePlay: true,
+				revelePlay: false,
 			}
 		},
 		components: {
@@ -25,10 +25,14 @@
 				console.log("here: " + this.reveleSettings);
 				this.reveleSettings = !this.reveleSettings;
 				console.log(" became: " + this.reveleSettings);
+				return ;
 			},
 			toggleModalePlay: function(){
-				if (this.revelePlay == true)
+				console.log("this.revelePlay in Game.vue : " + this.revelePlay);
+				if (this.revelePlay == false)
 					this.revelePlay = !this.revelePlay;
+				console.log("THEN this.revelePlay in Game.vue : " + this.revelePlay);
+				return ;
 			},
 		},
 	}
