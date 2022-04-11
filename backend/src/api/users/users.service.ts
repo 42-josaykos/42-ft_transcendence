@@ -374,6 +374,7 @@ export class UsersService {
     );
     return array;
   }
+
   async validateUser(user: UpdateUserDTO): Promise<void> {
     // Checking if all friends exist
     if ('friends' in user) {
