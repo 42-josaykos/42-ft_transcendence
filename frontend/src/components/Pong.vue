@@ -103,35 +103,19 @@
 		},
 		// METHODS
 		methods: {
-			// listenKeyboard: function() {
-			// 	window.addEventListener('keydown', this.move);
-			// 	return ; //keypress does not work for arrows
-			// },
-			// removeKeyboard: function () {
-			// 	window.removeEventListener('keydown', this.move);
-			// 	return ;
-			// },
 			launch: function() {
 				const framePerSec = 50;
 				// this.newgame = true;
-				setInterval(this.game, 1000/framePerSec); // setInterval(this.game, 1000/framePerSec);
+				setInterval(this.game, 1000 /framePerSec); // setInterval(this.game, 1000/framePerSec);
 				return ;
 			},
 			game: function() {
 				if (this.revelePlay == true) {
 					this.gameplay = true;
-					// this.newgame = true;
 				}
-				// this.gameplay = this.revelePlay;
 				if (this.gameplay == true && this.endgame == false) {
-					// if (this.newgame ==  true)
-					// 	this.countdown();
-					console.log("before runWild game x : " + this.ball.x);
-					console.log("before runWild game y : " + this.ball.y);
 					if (this.newgame == false)
 						this.runWild();
-					console.log("after runWild game x : " + this.ball.x);
-					console.log("after runWild game y : " + this.ball.y);
 					if (this.newround == true) {
 						if (this.newpause == true) {
 							this.startTime = new Date().getTime();
@@ -149,10 +133,6 @@
 						else
 							this.newround = false;
 					}
-					// if (this.gameplay == true) {
-					// 	if (this.newgame ==  true)
-					// 		this.countdown();
-					// }
 					this.update();
 					this.clearCanvas();
 					this.render();
@@ -167,10 +147,10 @@
 				let canvas = document.getElementById('Pong');
 				if (canvas.getContext) {
 					let context = canvas.getContext('2d');
-					let size = 0.2 * this.canvas.h;
+					let size = 1 * this.canvas.h;
 					context.font = size + "px Impact";
-					let x = this.canvas.w/2;
-					let y = this.canvas.h/2 - (size/2);
+					let x = this.canvas.w / 2 - size / 4;
+					let y = this.canvas.h * 8 / 9;
 
 					context.fillStyle = "red";
 				if (this.newpause == true) {
