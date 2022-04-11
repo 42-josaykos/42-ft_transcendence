@@ -13,22 +13,25 @@ export default ({ mode }: any) => {
       port: Number(process.env.FRONTEND_PORT),
       proxy: {
         "/users": {
-          target: `http://localhost:${process.env.API_PORT}`,
+          target: `http://${process.env.BACKEND_HOST}:${process.env.API_PORT}`,
         },
         "/matches": {
-          target: `http://localhost:${process.env.API_PORT}`,
+          target: `http://${process.env.BACKEND_HOST}:${process.env.API_PORT}`,
         },
         "/auth": {
-          target: `http://localhost:${process.env.API_PORT}`,
+          target: `http://${process.env.BACKEND_HOST}:${process.env.API_PORT}`,
         },
         "/channels": {
-          target: `http://localhost:${process.env.API_PORT}`,
+          target: `http://${process.env.BACKEND_HOST}:${process.env.API_PORT}`,
         },
         "/messages": {
-          target: `http://localhost:${process.env.API_PORT}`,
+          target: `http://${process.env.BACKEND_HOST}:${process.env.API_PORT}`,
+        },
+        "/assets": {
+          target: `http://${process.env.BACKEND_HOST}:${process.env.UPLOAD_PORT}`,
         },
         "/upload": {
-          target: `http://localhost:7000`,
+          target: `http://${process.env.BACKEND_HOST}:${process.env.UPLOAD_PORT}`,
         },
       },
     },
