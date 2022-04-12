@@ -38,12 +38,7 @@ export const isMeteor = ref(false);
 </style>
 
 <template>
-  <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
-  <div v-if="isAuthenticated">
-    <StatusSystem />
-  </div>
-  <div class="routerView">
-    <div style="z-index: 0">
+    <div style="z-index: 0;">
       <div class="star"></div>
       <div v-if="isMeteor">
         <div class="meteor-1"></div>
@@ -63,20 +58,29 @@ export const isMeteor = ref(false);
         <div class="meteor-15"></div>
       </div>
     </div>
-    <router-view />
-  </div>
+    <div class="full-height full-width" style="z-index: 1; background: radial-gradient(ellipse at top, #1b2735 0%, #080e21 70%);">
+      <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
+      <div v-if="isAuthenticated">
+        <StatusSystem />
+      </div>
+      <div class="routerView"><router-view /></div>
+    </div>
 </template>
 
 <style>
-.routerView {
-  margin-left: 8vh;
+@media all and (min-width: 992px){
+    .routerView {
+       margin-left: 8vh;
+    }
 }
+
 #app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  /* font-family: 'Vibure', cursive; */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #9e9e9e;
+  color: #c4c4c4;
 }
 
 .header {

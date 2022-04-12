@@ -3,73 +3,73 @@
   width: 0.1vw;
   height: 0.1vh;
   background: transparent;
-  box-shadow: 78.31vw 57.22vh #fff, 71.9vw 4.87vh #fff, 14.13vw 13vh #fff,
-    87.86vw 42.95vh #fff, 36.7vw 87.16vh #fff, 48.67vw 57.95vh #fff,
-    68.52vw 23.27vh #fff, 43.43vw 51.37vh #fff, 42.65vw 75.97vh #fff,
-    90.11vw 99.77vh #fff, 41.66vw 16.28vh #fff, 67.5vw 56.33vh #fff,
-    68.99vw 24.38vh #fff, 50.11vw 63.23vh #fff, 33.86vw 87.43vh #fff,
-    12.49vw 24.3vh #fff, 82.4vw 45.67vh #fff, 22.95vw 43.12vh #fff,
-    98.94vw 15.44vh #fff, 7.65vw 16.21vh #fff, 58.28vw 49.7vh #fff,
-    4.64vw 31.59vh #fff, 90.91vw 69.74vh #fff, 94.68vw 29.96vh #fff,
-    88.86vw 2.3vh #fff, 60.43vw 41.68vh #fff, 58.9vw 5.8vh #fff,
-    83.36vw 25.28vh #fff, 62.88vw 66.66vh #fff, 73.54vw 49.17vh #fff,
-    32.29vw 65.61vh #fff, 63.45vw 71.9vh #fff, 53.14vw 66.96vh #fff,
-    58.53vw 55.66vh #fff, 72.68vw 2.35vh #fff, 13.49vw 46vh #fff,
-    19.98vw 25.92vh #fff, 80.28vw 54.4vh #fff, 35.23vw 49.46vh #fff,
-    84.8vw 90.78vh #fff, 27.9vw 70.96vh #fff, 24.14vw 41.85vh #fff,
-    60.36vw 95.86vh #fff, 28.75vw 76.28vh #fff, 21.76vw 63.58vh #fff,
-    64.9vw 50.63vh #fff, 23.25vw 89.81vh #fff, 95.92vw 32.34vh #fff,
-    54.81vw 34.5vh #fff, 4.17vw 7.42vh #fff, 14.27vw 30.87vh #fff,
-    60.27vw 98.34vh #fff, 19.53vw 40.76vh #fff, 8.7vw 38.98vh #fff,
-    9.5vw 27.26vh #fff, 73.29vw 69.3vh #fff, 13.89vw 51.41vh #fff,
-    16.84vw 97.74vh #fff, 71.14vw 50.88vh #fff, 7.92vw 17.71vh #fff,
-    32.49vw 98.22vh #fff, 24.1vw 91.95vh #fff, 26.93vw 46.21vh #fff,
-    44.89vw 95.37vh #fff, 64.65vw 39.26vh #fff, 43.55vw 56.61vh #fff,
-    59.61vw 16.82vh #fff, 23vw 38.83vh #fff, 98.19vw 86.32vh #fff,
-    89.7vw 67.16vh #fff, 59.44vw 84.49vh #fff, 28.94vw 60.11vh #fff,
-    38.85vw 82.49vh #fff, 85.84vw 63.37vh #fff, 60.3vw 93.3vh #fff,
-    60.27vw 91.18vh #fff, 11.3vw 57.93vh #fff, 14vw 22.95vh #fff,
-    43.43vw 1.14vh #fff, 21.43vw 45.35vh #fff, 30vw 77.82vh #fff,
-    1.37vw 20.48vh #fff, 86.62vw 64.13vh #fff, 99.35vw 21.32vh #fff,
-    39.88vw 56.73vh #fff, 6.73vw 42.29vh #fff, 83.82vw 6.72vh #fff,
-    13vw 53.63vh #fff, 53.38vw 70.17vh #fff, 75.47vw 71.51vh #fff,
-    20.16vw 68.39vh #fff, 41.9vw 30.1vh #fff, 30.54vw 33.88vh #fff,
-    60.72vw 80.17vh #fff, 95.16vw 81.45vh #fff, 50.8vw 16.4vh #fff,
-    73.14vw 42.2vh #fff, 6.28vw 94.66vh #fff, 11.78vw 76.42vh #fff,
-    56.81vw 2.64vh #fff, 3.48vw 79.9vh #fff, 52.82vw 72.11vh #fff,
-    0.58vw 60.17vh #fff, 51.22vw 68.57vh #fff, 76.92vw 2.66vh #fff,
-    22.73vw 66.26vh #fff, 55.72vw 65.49vh #fff, 10.55vw 9.66vh #fff,
-    28.18vw 6.43vh #fff, 18.51vw 1.84vh #fff, 39.75vw 17.2vh #fff,
-    56.56vw 63.92vh #fff, 18.4vw 58.93vh #fff, 13.54vw 11.6vh #fff,
-    46.38vw 54.43vh #fff, 33.34vw 86.56vh #fff, 3.99vw 8.49vh #fff,
-    98.35vw 13.3vh #fff, 81.9vw 98.19vh #fff, 29.5vw 79.5vh #fff,
-    58.2vw 53.9vh #fff, 10.38vw 70.8vh #fff, 40.9vw 84.54vh #fff,
-    7.32vw 84.76vh #fff, 41.1vw 29.27vh #fff, 54vw 89.94vh #fff,
-    18.62vw 55.33vh #fff, 14.65vw 15.97vh #fff, 84.1vw 50.2vh #fff,
-    55.85vw 33.58vh #fff, 79.84vw 26.54vh #fff, 87.83vw 68.93vh #fff,
-    82.8vw 80.8vh #fff, 90.5vw 92.3vh #fff, 90.24vw 96.87vh #fff,
-    15.56vw 16.35vh #fff, 24.65vw 2.99vh #fff, 18.18vw 85.32vh #fff,
-    89.71vw 34.68vh #fff, 60.38vw 84.92vh #fff, 65.82vw 23.39vh #fff,
-    3.73vw 27.48vh #fff, 25.38vw 95.82vh #fff, 29.27vw 50.37vh #fff,
-    20.26vw 12.39vh #fff, 14.92vw 5.82vh #fff, 44.32vw 39.66vh #fff,
-    79.86vw 79.45vh #fff, 32vw 47.53vh #fff, 20.39vw 92.36vh #fff,
-    49.46vw 14.38vh #fff, 64vw 91.37vh #fff, 86.61vw 93.46vh #fff,
-    30.53vw 98.49vh #fff, 2.34vw 76.29vh #fff, 68.6vw 78.78vh #fff,
-    8.27vw 65.45vh #fff, 73.65vw 92.64vh #fff, 12.29vw 5.13vh #fff,
-    60.14vw 47.78vh #fff, 72.61vw 92.72vh #fff, 8.27vw 0.85vh #fff,
-    94.95vw 25.4vh #fff, 75.4vw 41.4vh #fff, 42.71vw 75.59vh #fff,
-    65.73vw 5.43vh #fff, 24.11vw 44.3vh #fff, 40.34vw 62.71vh #fff,
-    63.31vw 61.76vh #fff, 73.95vw 15.75vh #fff, 90.68vw 60.3vh #fff,
-    24.35vw 10.75vh #fff, 36.26vw 22.25vh #fff, 69.49vw 84.94vh #fff,
-    49.94vw 9.31vh #fff, 42.75vw 51.49vh #fff, 39.78vw 72.45vh #fff,
-    70.21vw 45.41vh #fff, 93.39vw 45.5vh #fff, 69.24vw 59.33vh #fff,
-    11.16vw 43.26vh #fff, 31.31vw 29.67vh #fff, 67.56vw 33.29vh #fff,
-    5.33vw 40.2vh #fff, 17.46vw 62.5vh #fff, 43.32vw 42.98vh #fff,
-    63.6vw 74.6vh #fff, 35.88vw 71.23vh #fff, 32.64vw 52.5vh #fff,
-    33.92vw 97.47vh #fff, 24.75vw 15.43vh #fff, 21.99vw 18.38vh #fff,
-    78.53vw 16.53vh #fff, 41.57vw 57.14vh #fff, 44.75vw 53.68vh #fff,
-    35.2vw 6.6vh #fff, 64.44vw 63.54vh #fff, 17.39vw 96.4vh #fff,
-    39.31vw 40.75vh #fff, 60.16vw 80.15vh #fff;
+  box-shadow: 39.53vw 53.51vh #fff, 48.7vw 97.21vh #fff, 41.98vw 1.56vh #fff,
+    27.27vw 95.68vh #fff, 43.1vw 22.12vh #fff, 77.8vw 61.36vh #fff,
+    56.37vw 96.99vh #fff, 50.3vw 28.78vh #fff, 35.45vw 82.51vh #fff,
+    21.21vw 24.38vh #fff, 18.4vw 32.97vh #fff, 65.96vw 30.95vh #fff,
+    10.27vw 76.51vh #fff, 10.3vw 38.1vh #fff, 39.51vw 84.73vh #fff,
+    2.59vw 10.83vh #fff, 65.85vw 70.58vh #fff, 51.44vw 0.18vh #fff,
+    54.37vw 47.76vh #fff, 34.46vw 63.7vh #fff, 59.45vw 51.76vh #fff,
+    13.58vw 76.42vh #fff, 1.48vw 41.53vh #fff, 38.91vw 42.61vh #fff,
+    51.86vw 58.93vh #fff, 87.8vw 56.15vh #fff, 27.36vw 15.7vh #fff,
+    37.6vw 80.56vh #fff, 38.5vw 96.87vh #fff, 9.21vw 81.25vh #fff,
+    94.14vw 86.32vh #fff, 91.49vw 64.73vh #fff, 29.74vw 43.85vh #fff,
+    77.68vw 19.79vh #fff, 27.91vw 16.57vh #fff, 31.36vw 27.7vh #fff,
+    13.58vw 41.92vh #fff, 38.25vw 36.31vh #fff, 80.84vw 18.22vh #fff,
+    80.54vw 64.51vh #fff, 72.81vw 72.84vh #fff, 88.94vw 1.98vh #fff,
+    79.12vw 23.13vh #fff, 95.76vw 56.17vh #fff, 99.3vw 87.15vh #fff,
+    25.36vw 17.49vh #fff, 9.18vw 24.42vh #fff, 43.15vw 60.7vh #fff,
+    79.7vw 82.6vh #fff, 0.8vw 63.27vh #fff, 19.47vw 22.92vh #fff,
+    51.43vw 78.13vh #fff, 68.21vw 82.13vh #fff, 35.21vw 27.45vh #fff,
+    23.26vw 66.59vh #fff, 24.72vw 14.58vh #fff, 98.23vw 38.52vh #fff,
+    13.4vw 81.9vh #fff, 50.67vw 29.1vh #fff, 1.37vw 8.15vh #fff,
+    8.91vw 15.58vh #fff, 59.61vw 14.14vh #fff, 9.3vw 97.37vh #fff,
+    7.84vw 76.46vh #fff, 87.98vw 61.73vh #fff, 27.78vw 96.43vh #fff,
+    77.93vw 77vh #fff, 84.23vw 41.14vh #fff, 69.84vw 31.95vh #fff,
+    66.81vw 29.22vh #fff, 44.43vw 88.75vh #fff, 4.64vw 41.81vh #fff,
+    74.44vw 83.9vh #fff, 4.27vw 53.84vh #fff, 52.39vw 45.89vh #fff,
+    57.6vw 11vh #fff, 47.79vw 67.9vh #fff, 24.6vw 7.25vh #fff,
+    23.13vw 81.1vh #fff, 7.44vw 0.78vh #fff, 9.22vw 59.3vh #fff,
+    87.1vw 3.73vh #fff, 96.41vw 58.67vh #fff, 63.82vw 51.12vh #fff,
+    74.81vw 28.8vh #fff, 10.81vw 98.46vh #fff, 79.96vw 67.58vh #fff,
+    0.8vw 30.1vh #fff, 5.27vw 3.25vh #fff, 35.36vw 76.21vh #fff,
+    47.49vw 59.97vh #fff, 40.15vw 80.14vh #fff, 28.26vw 42.65vh #fff,
+    96.41vw 75.7vh #fff, 13.12vw 88.36vh #fff, 78.43vw 29.45vh #fff,
+    90.47vw 64.36vh #fff, 76.37vw 74.49vh #fff, 39.23vw 33.62vh #fff,
+    45.91vw 84.88vh #fff, 95.17vw 83.43vh #fff, 15.32vw 54.91vh #fff,
+    78.35vw 10.56vh #fff, 4.7vw 76.31vh #fff, 47.4vw 7.28vh #fff,
+    5.98vw 67.99vh #fff, 61.96vw 82.6vh #fff, 45.87vw 29.25vh #fff,
+    24.89vw 8.3vh #fff, 35.76vw 72.69vh #fff, 46.25vw 50.9vh #fff,
+    23.91vw 56.34vh #fff, 42.55vw 24.1vh #fff, 75.26vw 58.21vh #fff,
+    97.15vw 93.63vh #fff, 59.86vw 88.3vh #fff, 75.8vw 71.67vh #fff,
+    31.8vw 37.74vh #fff, 78.62vw 77.73vh #fff, 20.51vw 50.17vh #fff,
+    50.25vw 7.55vh #fff, 74.41vw 35.26vh #fff, 15.89vw 72.3vh #fff,
+    5.78vw 20.16vh #fff, 49.54vw 12.57vh #fff, 57.37vw 71.43vh #fff,
+    28.96vw 10.22vh #fff, 36.97vw 89.27vh #fff, 90.25vw 89.42vh #fff,
+    38.86vw 74.54vh #fff, 43.92vw 95.26vh #fff, 15.88vw 45.25vh #fff,
+    34.71vw 42.62vh #fff, 50.32vw 59.79vh #fff, 77.25vw 34.46vh #fff,
+    64.66vw 92.45vh #fff, 99.9vw 0.45vh #fff, 89.91vw 86.88vh #fff,
+    12.61vw 36.35vh #fff, 94.2vw 89.3vh #fff, 52.74vw 96.75vh #fff,
+    86.75vw 24.13vh #fff, 53.79vw 83.63vh #fff, 90.81vw 58.41vh #fff,
+    51.25vw 63.78vh #fff, 58.8vw 50.28vh #fff, 21.5vw 98.95vh #fff,
+    33.27vw 97.6vh #fff, 88.71vw 54.35vh #fff, 16.37vw 53.12vh #fff,
+    97.7vw 45.12vh #fff, 68.1vw 67.64vh #fff, 53.64vw 9.36vh #fff,
+    2.71vw 75.75vh #fff, 24.13vw 38.94vh #fff, 70.88vw 33.68vh #fff,
+    16.55vw 27.81vh #fff, 13.23vw 64.87vh #fff, 52.1vw 13.29vh #fff,
+    54.96vw 86.57vh #fff, 29.2vw 20.49vh #fff, 8.12vw 21.45vh #fff,
+    54.7vw 69.7vh #fff, 95.96vw 82.29vh #fff, 32.37vw 60.17vh #fff,
+    94.94vw 33.18vh #fff, 64.49vw 79.51vh #fff, 40.86vw 82.22vh #fff,
+    23.23vw 59.21vh #fff, 64.29vw 65.27vh #fff, 73.31vw 28.26vh #fff,
+    21.84vw 51.11vh #fff, 94.86vw 91.71vh #fff, 91.44vw 98.2vh #fff,
+    58.78vw 24.32vh #fff, 36.42vw 85.64vh #fff, 44.7vw 20.78vh #fff,
+    49.5vw 50.1vh #fff, 94.49vw 65.88vh #fff, 93.47vw 39.68vh #fff,
+    17.53vw 1.6vh #fff, 2.19vw 99.83vh #fff, 69.32vw 20.96vh #fff,
+    56.17vw 37.36vh #fff, 8.69vw 98.7vh #fff, 95.24vw 49.4vh #fff,
+    18.52vw 70.45vh #fff, 80.4vw 33.3vh #fff, 45.12vw 11.84vh #fff,
+    81.41vw 1.22vh #fff, 28.68vw 40.46vh #fff, 31.85vw 80.98vh #fff,
+    42.48vw 19.45vh #fff, 7.16vw 61.72vh #fff, 38.52vw 53.8vh #fff,
+    27.66vw 34.83vh #fff, 7.84vw 81.47vh #fff, 42.96vw 23.96vh #fff,
+    82.64vw 21.5vh #fff, 42.98vw 28.7vh #fff;
 }
 
 .meteor-1 {
@@ -81,7 +81,6 @@
   transform: rotate(-45deg);
   background-image: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
   animation: meteor 4s linear infinite;
-  z-index: -1;
 }
 
 .meteor-1:before {
@@ -104,7 +103,6 @@
   transform: rotate(-45deg);
   background-image: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
   animation: meteor 4.4s linear infinite;
-  z-index: -1;
 }
 
 .meteor-2:before {
@@ -127,7 +125,6 @@
   transform: rotate(-45deg);
   background-image: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
   animation: meteor 5.9s linear infinite;
-  z-index: -1;
 }
 
 .meteor-3:before {
@@ -150,7 +147,6 @@
   transform: rotate(-45deg);
   background-image: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
   animation: meteor 9.7s linear infinite;
-  z-index: -1;
 }
 
 .meteor-4:before {
@@ -173,7 +169,6 @@
   transform: rotate(-45deg);
   background-image: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
   animation: meteor 9.9s linear infinite;
-  z-index: -1;
 }
 
 .meteor-5:before {
@@ -196,7 +191,6 @@
   transform: rotate(-45deg);
   background-image: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
   animation: meteor 6.6s linear infinite;
-  z-index: -1;
 }
 
 .meteor-6:before {
@@ -219,7 +213,6 @@
   transform: rotate(-45deg);
   background-image: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
   animation: meteor 6.2s linear infinite;
-  z-index: -1;
 }
 
 .meteor-7:before {
@@ -242,7 +235,6 @@
   transform: rotate(-45deg);
   background-image: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
   animation: meteor 7s linear infinite;
-  z-index: -1;
 }
 
 .meteor-8:before {
@@ -265,7 +257,6 @@
   transform: rotate(-45deg);
   background-image: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
   animation: meteor 5.6s linear infinite;
-  z-index: -1;
 }
 
 .meteor-9:before {
@@ -288,7 +279,6 @@
   transform: rotate(-45deg);
   background-image: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
   animation: meteor 7.5s linear infinite;
-  z-index: -1;
 }
 
 .meteor-10:before {
@@ -311,7 +301,6 @@
   transform: rotate(-45deg);
   background-image: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
   animation: meteor 3.5s linear infinite;
-  z-index: -1;
 }
 
 .meteor-11:before {
@@ -334,7 +323,6 @@
   transform: rotate(-45deg);
   background-image: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
   animation: meteor 5s linear infinite;
-  z-index: -1;
 }
 
 .meteor-12:before {
@@ -357,7 +345,6 @@
   transform: rotate(-45deg);
   background-image: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
   animation: meteor 7.5s linear infinite;
-  z-index: -1;
 }
 
 .meteor-13:before {
@@ -380,7 +367,6 @@
   transform: rotate(-45deg);
   background-image: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
   animation: meteor 6.7s linear infinite;
-  z-index: -1;
 }
 
 .meteor-14:before {
@@ -403,7 +389,6 @@
   transform: rotate(-45deg);
   background-image: linear-gradient(to right, #fff, rgba(255, 255, 255, 0));
   animation: meteor 4s linear infinite;
-  z-index: -1;
 }
 
 .meteor-15:before {
