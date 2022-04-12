@@ -186,7 +186,7 @@
 			</li>
 		</ul>
 	</div>
-	<Modale :loggedUser="loggedUser"/>
+	<Modale :isAuthenticated="isAuthenticated" :loggedUser="loggedUser"/>
 </template>
 
 <style scoped>

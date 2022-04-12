@@ -39,12 +39,12 @@
             <br><br><br>
             <div class="container-fluid p-0">
               <div class="row">
-                <div class="col-lg-7 d-flex align-items-center pb-3 watch_player" style="color:white; text-align: start;">
+                <div class="col-lg-7 pb-3 watch_player" style="color:white; text-align: start;">
                   Pong was the first commercially successful video game, and it helped to establish the video game industry along with the Magnavox Odyssey. Soon after its release, several companies began producing games that closely mimicked its gameplay.
                   <br><br>
-
+                  Pong is a two-dimensional sports game that simulates table tennis. The player controls an in-game paddle by moving it vertically across the left or right side of the screen. They can compete against another player controlling a second paddle on the opposing side. Players use the paddles to hit a ball back and forth. The goal is for each player to reach eleven points before the opponent; points are earned when one fails to return the ball to the other.
                 </div>
-                <div class="col-lg-5">
+                <div class="col-lg-5 d-flex align-items-center">
                   <img src="../assets/home/Arcade-pong.jpeg" alt="BorneArcade" style="width: 100%">
                 </div>
               </div>
@@ -55,11 +55,11 @@
             <div class="text-center mb-3 d-none d-lg-block">
               <div class="GameName neon-typo" style="font-size: 4vw;"><b>SPACE PONG</b></div>
             </div>
-            <div class="liveGame">
+            <div class="infoGame mb-5">
               <div class="neon-typo pt-4" style="font-size: xx-large; font-weight: bold;">Live Game</div>
               <hr>
               <br>
-                <table style="width: 95%; table-layout: fixed;">
+                <table style="width: 90%; table-layout: fixed; margin-left: 5%;">
                   <tr>
                     <th class="watch_player">Josaykos</th>
                     <td class="neon-typo versus">VS</td>
@@ -89,6 +89,48 @@
                     <td class="neon-typo versus">VS</td>
                     <th class="watch_player">Mabriand Mabriand Mabriand</th>
                     <td><i class="fa-solid fa-eye fa-xl watch_icon"></i></td>
+                  </tr>
+                </table>
+            </div>
+            <div class="infoGame">
+              <div class="neon-typo pt-4" style="font-size: xx-large; font-weight: bold;">Online Player</div>
+              <hr>
+              <br>
+                <table style="width: 90%; table-layout: fixed; margin-left: 5%;">
+                  <tr>
+                    <th class="watch_player">Mabriand</th>
+                    <td><i class="fa-solid fa-circle" style="color: greenyellow;"></i></td>
+                    <td><i class="fa-solid fa-comment-dots fa-xl watch_icon"></i></td>
+                    <td><i class="fa-solid fa-gamepad fa-xl watch_icon"></i></td>
+                    <td><i class="fa-solid fa-ellipsis-vertical fa-xl watch_icon"></i></td>
+                  </tr>
+                  <tr>
+                    <th class="watch_player">Adupuy</th>
+                    <td><i class="fa-solid fa-circle" style="color: red;"></i></td>
+                    <td><i class="fa-solid fa-comment-dots fa-xl watch_icon"></i></td>
+                    <td><i class="fa-solid fa-gamepad fa-xl watch_icon"></i></td>
+                    <td><i class="fa-solid fa-ellipsis-vertical fa-xl watch_icon"></i></td>
+                  </tr>
+                  <tr>
+                    <th class="watch_player">Lchapren</th>
+                    <td><i class="fa-solid fa-circle" style="color: red;"></i></td>
+                    <td><i class="fa-solid fa-comment-dots fa-xl watch_icon"></i></td>
+                    <td><i class="fa-solid fa-gamepad fa-xl watch_icon"></i></td>
+                    <td><i class="fa-solid fa-ellipsis-vertical fa-xl watch_icon"></i></td>
+                  </tr>
+                  <tr>
+                    <th class="watch_player">Josaykos</th>
+                    <td><i class="fa-solid fa-circle" style="color: greenyellow;"></i></td>
+                    <td><i class="fa-solid fa-comment-dots fa-xl watch_icon"></i></td>
+                    <td><i class="fa-solid fa-gamepad fa-xl watch_icon"></i></td>
+                    <td><i class="fa-solid fa-ellipsis-vertical fa-xl watch_icon"></i></td>
+                  </tr>
+                  <tr>
+                    <th class="watch_player">Vmoreau Vmoreau Vmoreau Vmoreau Vmoreau</th>
+                    <td><i class="fa-solid fa-circle" style="color: red;"></i></td>
+                    <td><i class="fa-solid fa-comment-dots fa-xl watch_icon"></i></td>
+                    <td><i class="fa-solid fa-gamepad fa-xl watch_icon"></i></td>
+                    <td><i class="fa-solid fa-ellipsis-vertical fa-xl watch_icon"></i></td>
                   </tr>
                 </table>
             </div>
@@ -148,10 +190,12 @@
 
 <style scoped>
 
-.liveGame{
+.infoGame{
   background-color: rgba(0, 0, 0, 0.397);
   padding-bottom: 4vh;
   min-height: 400px;
+  max-height: 400px;
+  overflow-y: scroll;
   border-radius: 30px;
   box-shadow: 0px 0px 10px 2px #fff961, inset 0px 0px 4px 2px #fff961;
 }
@@ -195,7 +239,7 @@ p {
   font-style: normal;
 }
 
-.liveGame hr{
+.infoGame hr{
   display: block;
   position: relative;
   height: 2px;
@@ -208,9 +252,9 @@ p {
 }
 
 th{
-  overflow: hidden;
+  /* overflow: hidden; */
+  /* text-overflow: ellipsis; */
   white-space: nowrap;
-  text-overflow: ellipsis;
   width: 40%;
 }
 
@@ -220,6 +264,7 @@ th{
 }
 .watch_player{
   font-size: large;
+  overflow-x: scroll;
 }
 
 .watch_icon{

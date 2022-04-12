@@ -75,7 +75,7 @@ function register() {
           v-model="password2"
           required
         />
-        <button class="mod-btn mod-btn-yellow" type="submit" style="margin: 20px;"> Register </button> <br>
+        <button class="mod-btn mod-btn-yellow" type="submit" style="margin: 20px;"> Register and Log in</button> <br>
         <div>Already registered ?</div>
         <a href="#" @click="login_open = true; register_open = false">Login</a>
       </form>

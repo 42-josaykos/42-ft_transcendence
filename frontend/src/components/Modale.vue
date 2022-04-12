@@ -5,6 +5,7 @@
 	import Register from "./Register.vue"
 
 	defineProps < {
+		isAuthenticated: boolean;
 		loggedUser: any;
 	} > ();
 </script>
@@ -28,13 +29,13 @@
 		<Setting/>
 	</div>
 </div>
-<div class="bloc_modale" v-if="register_open">
+<div class="bloc_modale" v-if="register_open && !isAuthenticated">
 	<div class="overlay" @click="register_open = !register_open"></div>
 	<div class="modale card">
 		<Register/>
 	</div>
 </div>
-<div class="bloc_modale" v-if="login_open">
+<div class="bloc_modale" v-if="login_open && !isAuthenticated">
 	<div class="overlay" @click="login_open = !login_open"></div>
 	<div class="modale card">
 		<Login/>
