@@ -10,17 +10,20 @@
 		components: {
 			'powerups': PowerUps,
 		},
-        props: ['reveleSettings', 'toggleModaleSettings'],
+        // props: ['reveleSettings', 'toggleModaleSettings'],
+        props: ['revelePlay', 'toggleModaleSettings_1', 'launch']
     }
 </script>
 
 <template>
 <div>
-    <div class="bloc-modale" v-if="reveleSettings">
-        <div class="overlay" v-on:click="toggleModaleSettings"></div>
+    <!-- <div class="bloc-modale" v-if="reveleSettings">
+        <div class="overlay" v-on:click="toggleModaleSettings"></div> -->
+    <div class="bloc-modale" v-if="!revelePlay" v-on:click="toggleModaleSettings_1">
+        <div class="overlay" v-on:click="toggleModaleSettings_1"></div> <!-- canvas ? -->
         <div class="modale card">
             <div class=Modale_Header>
-                <div class="btn-modale btn btn-danger" v-on:click="toggleModaleSettings">X</div>
+                <!-- <div class="btn-modale btn btn-danger" v-on:click="toggleModaleSettings">X</div> -->
                 <h1> Choose your features... </h1>
             </div>  
             <powerups class=Powerups></powerups>

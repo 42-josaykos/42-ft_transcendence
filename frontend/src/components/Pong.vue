@@ -3,7 +3,7 @@
 
 	export default {
 		name: 'Pong',
-		props: ['revelePlay', 'msg'],
+		props: ['revelePlay', 'msg', ],
 		// props: {
 		// 	msg: String,
 		// 	revelePlay: Boolean,
@@ -93,7 +93,10 @@
 			let rightPlayer = this.getPlayerR;
 			let gameBall = this.getBall;
 			let sounds = this.getSounds;
-			this.render();
+			// this.render();
+			this.drawPlayerLeft(this.getPaddle);
+			this.drawPlayerRight(this.getPaddle);
+			this.drawScore(this.player_L, this.player_R);
 			this.launch();
 			return ;
 		},
@@ -138,6 +141,7 @@
 					this.render();
 					if (this.gameplay == true) {
 						if (this.newgame ==  true)
+							// this.clearCanvas();
 							this.countdown();
 					}
 				}
@@ -147,34 +151,36 @@
 				let canvas = document.getElementById('Pong');
 				if (canvas.getContext) {
 					let context = canvas.getContext('2d');
-					let size = 1 * this.canvas.h;
+					context.clearRect(0, 0, this.canvas.w, this.canvas.h);
+
+					let size = 0.65 * this.canvas.h;
 					context.font = size + "px Impact";
 					let x = this.canvas.w / 2 - size / 4;
-					let y = this.canvas.h * 8 / 9;
+					let y = this.canvas.h * 3 / 4;
 
 					context.fillStyle = "red";
-				if (this.newpause == true) {
-					this.startTime = new Date().getTime();
-					this.newpause = false;
-				}
-				var end = new Date().getTime();
-				if (end < this.startTime + 1500) {
-					this.ball.x = this.canvas.w / 2;
-					this.ball.y = this.canvas.h / 2;
-					context.fillText("3", x, y); // si je remets ça alors la balle est au même endroit avec et sans modale
-				}
-				else if (end >= this.startTime + 1500 && end < this.startTime + 3000) {
-					this.ball.x = this.canvas.w / 2;
-					this.ball.y = this.canvas.h / 2;
-					context.fillText("2", x, y);
-				}
-				else if (end >=  this.startTime + 3000 && end < this.startTime + 4500) {
-					this.ball.x = this.canvas.w / 2;
-					this.ball.y = this.canvas.h / 2;
-					context.fillText("1", x, y);
-				}
-				else
-					this.newgame = false;
+					if (this.newpause == true) {
+						this.startTime = new Date().getTime();
+						this.newpause = false;
+					}
+					var end = new Date().getTime();
+					if (end < this.startTime + 1500) {
+						this.ball.x = this.canvas.w / 2;
+						this.ball.y = this.canvas.h / 2;
+						context.fillText("3", x, y); // si je remets ça alors la balle est au même endroit avec et sans modale
+					}
+					else if (end >= this.startTime + 1500 && end < this.startTime + 3000) {
+						this.ball.x = this.canvas.w / 2;
+						this.ball.y = this.canvas.h / 2;
+						context.fillText("2", x, y);
+					}
+					else if (end >=  this.startTime + 3000 && end < this.startTime + 4500) {
+						this.ball.x = this.canvas.w / 2;
+						this.ball.y = this.canvas.h / 2;
+						context.fillText("1", x, y);
+					}
+					else
+						this.newgame = false;
 				}
 				return ; 
 			},
@@ -182,8 +188,6 @@
 			render: function() {
 				this.drawPlayerLeft(this.getPaddle);
 				this.drawPlayerRight(this.getPaddle);
-				console.log("x : " + this.ball.x);
-				console.log("y : " + this.ball.y);
 				this.drawBall();
         this.drawScore(this.player_L, this.player_R);
 				return ;
