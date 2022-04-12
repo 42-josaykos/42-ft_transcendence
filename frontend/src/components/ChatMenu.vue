@@ -18,7 +18,10 @@
     const modalNewChannel = ref<boolean>(false);
     const modalJoinChannel = ref<boolean>(false);
     const modalDelChannel = ref<boolean>(false);
+    const modalUpdateChannel = ref<boolean>(false);
     const modalValidate = ref<boolean>(false);
+    const modalAcceptJoinChannel = ref<boolean>(false);
+    const modalRefuseJoinChannel = ref<boolean>(false);
 
     //const usersInvite = ref<User[]>([]);
     //const users = ref<User[]>([]);
@@ -82,14 +85,14 @@ const createChannel = () => {
         owner: { id: props.loggedUser?.id },
         admins: [{ id: props.loggedUser?.id }],
         members: [{ id: props.loggedUser?.id }],
-        invites: channelType.value== 2 ? usersArray : []
+        invites: channelType.value == 2 ? usersArray : []
       };
       props.socket.emit('newChannel', newChannel, null ,props.loggedUser)
     }
   }
   inputPassword.value = ''
   channelName.value = ''
-  channelType.value = 1
+  channelType.value = 0
 }
 
 // Rejoindre un channel
@@ -98,6 +101,35 @@ const joinChannel = () => {
     props.socket.emit('joinChannel', props.loggedUser?.id, channelJoin.value, inputPassword.value)
     inputPassword.value = ''
   }
+}
+
+// Accepter une invitation à rejoindre un channel
+const acceptInviteChannel = () => {
+  if (props.socket != undefined) {
+    console.log(`Accept invitation => ${channelJoin.value?.name}`)
+    const updateChannel = {
+      removeInvites: [{id: props.loggedUser?.id}],
+      addMembers: [{id: props.loggedUser?.id}]
+    };
+    if (channelJoin.value != undefined) {
+      props.socket.emit('updateMember', channelJoin.value.id, updateChannel, {author: props.loggedUser?.id, channel: {id: channelJoin.value.id}, data: `${props.loggedUser?.username} has joined the channel.`}, props.loggedUser)
+      channelStore.deleteChannelInvite(channelJoin.value)
+      channelStore.joinChannel(channelJoin.value)
+      channelStore.updateMember()
+    }
+  }
+}
+
+// Refuser une invitation à rejoindre un channel
+const refuseInviteChannel = () => {
+  if (props.socket != undefined) {
+    console.log(`Refuse invitation => ${channelJoin.value?.name}`)
+    if (channelJoin.value != undefined) {
+      props.socket.emit('updateMember', channelJoin.value.id, {removeInvites: [{id: props.loggedUser?.id}]}, null, props.loggedUser)
+      channelStore.deleteChannelInvite(channelJoin.value)
+    }
+  }
+  //inputStore.$reset();
 }
 
 // Supprimer un channel
@@ -154,29 +186,32 @@ const leaveChannel = () => {
   }
 }
 
-// // Mettre à jour un channel
-// const updateChannel = () => {
-//   if (props.socket != undefined) {
-//     if (channelUpdate.value !== undefined)
-//     {
-//       let obj: any = {}
-//       let usersArray: any = []
-//       usersInvite.value.forEach((value) => {
-//         obj = {id: value.id}
-//         usersArray.push(obj)
-//       })
-//       const updateChannel = {
-//         name: input.value.update_channel_name,
-//         isPrivate: channelTypeUpdate.value == 2 ? true : false,
-//         password: channelTypeUpdate.value == 3 ? inputPassword : null,
-//         isProtected: channelTypeUpdate.value == 3 ? true : false,
-//         invites: channelTypeUpdate.value == 2 ? usersArray : []
-//       }
-//       props.socket.emit('updateChannel', input.value.channel_id, updateChannel)
-//     }
-//   }
-//   inputStore.$reset();
-// };
+// Mettre à jour un channel
+const updateChannel = () => {
+  if (props.socket != undefined) {
+    if (channelUpdate.value !== undefined)
+    {
+      let obj: any = {}
+      let usersArray: any = []
+      usersInvite.value.forEach((value) => {
+        obj = {id: value.id}
+        usersArray.push(obj)
+      })
+      const updateChannel = {
+        name: channelName.value,
+        isPrivate: channelType.value == 2 ? true : false,
+        password: channelType.value == 3 ? inputPassword : null,
+        isProtected: channelType.value == 3 ? true : false,
+        addInvites: channelType.value == 2 ? usersArray : [],
+        removeInvites: channelType.value != 2 ? channelUpdate.value.invites : []
+      }
+      props.socket.emit('updateChannel', channelUpdate.value.id, updateChannel)
+    }
+  }
+  channelName.value = ''
+  inputPassword.value = ''
+  channelType.value = 1
+};
 
 // Mettre à jour jour un tableau de users qui recevront une invitation à un channel
 const updateUsersInvite = (user: User) => {
@@ -201,7 +236,7 @@ const updateUsersInvite = (user: User) => {
                 <div class="wrapper-icon">
                     <i class="fa-solid fa-caret-down"></i>
                 </div>
-                <div class="title-btn">Channels</div>
+                <div class="col-sm-10 text-truncate title-btn">Channels</div>
             </button>
         </h2>
         
@@ -212,22 +247,18 @@ const updateUsersInvite = (user: User) => {
               <li v-for="(item, index) in allChannels" :key="index" class="btn-toggle-nav list-unstyled fw-normal small">
                 <!--Permet d'afficher les messages appartenant au channel selectionné-->
                 <div v-if="item.isMember" style="display: flex; align-items: center;">
-                  <div>
+                  <div class="text-truncate ">
                       <button @click="displayMessages(item)" type="button" class="rounded btn-channel">
                           {{searchName(item)}}
                       </button>
                   </div>
-                  <div class="ms-auto">
-<!--  -->
-<!-- A AJOUTER SI INVITATIONS SUR UN CHANNEL DETRUIT SUPPRIMER LES INVITATIONS -->
-<!--  -->
-                      <button @click="Get('channels/search?id=' + item.id.toString() + '&admins&mutes&members&bans&owner').then(res => {[channelLeave] = res.data; item.isOwner ? modalDelChannel = true : modalValidate = true})" type="button" class="rounded btn-channel wrapper-icon-leave ms-auto">
-                        <i class="fa-solid fa-xmark"></i>
-                      </button>
-                      <!-- <button @click="Get('channels/search?id=' + item.id.toString() + '&admins&mutes&members').then(res => [channelUpdate] = res.data)" type="button" class="rounded btn-channel wrapper-icon-leave ms-auto" data-bs-toggle="modal" data-bs-target="#updateChannel">
-                        <i class="fa-solid fa-pen"></i>
-                      </button> -->
-
+                  <div class="ms-auto d-flex">
+                    <button  v-if="item.isOwner" @click="Get('/users/search').then(res => users = res.data); Get('channels/search?id=' + item.id.toString() + '&admins&mutes&members&invites').then(res => {[channelUpdate] = res.data; channelName = res.data[0].name; usersInvite = []; modalUpdateChannel = true; channelType = 0})" type="button" class="rounded btn-channel wrapper-icon-leave ms-auto">
+                      <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button @click="Get('channels/search?id=' + item.id.toString() + '&admins&mutes&members&bans&owner').then(res => {[channelLeave] = res.data; item.isOwner ? modalDelChannel = true : modalValidate = true})" type="button" class="rounded btn-channel wrapper-icon-leave ms-auto">
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
                   </div>
                 </div>
               </li>
@@ -244,7 +275,7 @@ const updateUsersInvite = (user: User) => {
                 <div class="wrapper-icon">
                     <i class="fa-solid fa-caret-down"></i>
                 </div>
-                <div class="title-btn">All channels</div>
+                <div class="col-sm-10 text-truncate title-btn">All channels</div>
             </button>
         </h2>
         <div id="all-channels-collapse" class="accordion-collapse collapse" aria-labelledby="all-channels-heading">
@@ -279,7 +310,7 @@ const updateUsersInvite = (user: User) => {
         <div class="wrapper-icon">
             <i class="fa-solid fa-caret-down"></i>
         </div>
-        <div class="title-btn">Directs messages</div>
+        <div class="col-sm-10 text-truncate title-btn">Directs messages</div>
       </button>
     </h2>
     <div id="direct-msg-collapse" class="accordion-collapse collapse" aria-labelledby="direct-msg-heading">
@@ -302,7 +333,7 @@ const updateUsersInvite = (user: User) => {
         <div class="wrapper-icon">
             <i class="fa-solid fa-caret-down"></i>
         </div>
-        <div class="title-btn">Invites</div>
+        <div class="col-sm-10 text-truncate title-btn">Invites</div>
         <div v-if="channelsInvite.length > 0" class="ms-auto">
             <span class="position-absolute position-badge translate-middle rounded-pill">{{channelsInvite.length}}</span>
         </div>
@@ -318,6 +349,16 @@ const updateUsersInvite = (user: User) => {
                         {{searchName(item)}}
                     </button>
                   </div>
+                  <div class="ms-auto">
+                    <button @click="modalAcceptJoinChannel = true; channelJoin = item" type="button" class="rounded btn-channel wrapper-icon-leave ms-auto">
+                      <i class="fa-solid fa-check"></i>
+                    </button>
+                  </div>
+                  <div class="ms-auto">
+                    <button @click="modalRefuseJoinChannel = true; Get('channels/search?id=' + item.id.toString() + '&messages').then(res => [channelJoin] = res.data)" type="button" class="rounded btn-channel wrapper-icon-leave ms-auto">
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                  </div>
                 </div>
                 </li>
             </div>
@@ -328,14 +369,14 @@ const updateUsersInvite = (user: User) => {
   <div>
 
     <!--Permet de créer un nouveau channel-->
-    <button @click="Get('/users/search').then(res => {users = res.data; usersInvite = []; modalNewChannel = true})" type="button" class="rounded btn-channel wrapper-icon-leave ms-auto">
+    <button @click="Get('/users/search').then(res => {users = res.data; usersInvite = []; modalNewChannel = true; channelType = 1})" type="button" class="rounded btn-channel wrapper-icon-leave ms-auto">
         <i class="fa-solid fa-circle-plus"></i>
     </button>
 
   </div>
 
 
-    <ModalChat v-if="modalNewChannel == true" @close="usersInvite = []; modalNewChannel = false; channelName = ''; inputPassword = ''; channelType = 1">
+    <ModalChat v-if="modalNewChannel == true" @close="usersInvite = []; modalNewChannel = false; channelName = ''; inputPassword = ''; channelType = 0">
       <template v-slot:header>
         <h5 class="modal-title" id="staticBackdropLabel">New channel : {{channelName}}</h5>
       </template>
@@ -364,10 +405,10 @@ const updateUsersInvite = (user: User) => {
             </div>
             <div v-else-if="channelType == 2">
               <div v-if="props.users?.length != 1">
-                  Choose users :
+                  Choose users :{{props.users}}
                   <div class="scroller">
                     <div class="list-group" v-for="user in props.users" :key="user.id">
-                      <div v-if="user.id != loggedUser?.id">{{user}}
+                      <div v-if="user.id != loggedUser?.id">
                         <a  class="list-group-item list-group-item-action"> {{user.username}} =>
                           <button @click="updateUsersInvite(user)" type="button" class="btn btn-primary btn-sm">
                               {{usersInvite.findIndex((el: User) => el.id === user.id) == -1 ? "Invite" : "Remove"}}
@@ -380,8 +421,59 @@ const updateUsersInvite = (user: User) => {
             </div>
       </template>
       <template v-slot:footer>
-            <button @click="usersInvite = []; modalNewChannel = false; channelName = ''; inputPassword = ''; channelType = 1" type="button" class="btn btn-danger">Cancel</button>
+            <button @click="usersInvite = []; modalNewChannel = false; channelName = ''; inputPassword = ''; channelType = 0" type="button" class="btn btn-danger">Cancel</button>
             <button @click="modalNewChannel = false; createChannel()" type="submit" class="btn btn-primary">Create</button>
+      </template>
+    </ModalChat>
+
+    <ModalChat v-if="modalUpdateChannel == true" @close="usersInvite = []; modalUpdateChannel = false; channelName = ''; inputPassword = ''; channelType = 0">
+      <template v-slot:header>
+        <h5 class="modal-title" id="staticBackdropLabel">Update channel : {{channelName}}</h5>
+      </template>
+      <template v-slot:body>
+            <div class="form form-new-channel">
+              <label for="name">Channel name: </label>
+              <input v-model="channelName" type="text" class="input"/>
+            </div>
+            <div>Channel : {{channelUpdate?.isPrivate ? "Private" : channelUpdate?.isProtected == true ? "Proteted" : "Public"}}</div>
+            <div class="form-check form-check-inline">
+              <input @click="channelType = 1" class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1">
+              <label class="form-check-label" for="inlineRadio1">Public</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input @click="channelType = 2" class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2">
+              <label class="form-check-label" for="inlineRadio2">Private</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input @click="channelType = 3" class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2">
+              <label class="form-check-label" for="inlineRadio2">Protected</label>
+            </div>
+            <div v-if="channelType == 3">
+              <div class="form form-new-channel">
+                <label for="name">Password:</label>
+                <input v-model="inputPassword" type="text" class="input"/>
+              </div>
+            </div>
+            <div v-else-if="channelType == 2">
+              <div v-if="props.users?.length != 1">
+                  Choose users :
+                  <div class="scroller">
+                    <div class="list-group" v-for="user in props.users" :key="user.id">
+                      <div v-if="user.id != loggedUser?.id && channelStore.isMember(channelUpdate, user.id) == false  && channelStore.isInvite(channelUpdate, user.id) == false">
+                        <a  class="list-group-item list-group-item-action"> {{user.username}} =>
+                          <button @click="updateUsersInvite(user)" type="button" class="btn btn-success btn-channel btn-sm">
+                              {{usersInvite.findIndex((el: User) => el.id === user.id) == -1 ? "Invite" : "Remove"}}
+                          </button>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+            </div>
+      </template>
+      <template v-slot:footer>
+            <button @click="usersInvite = []; modalUpdateChannel = false; channelName = ''; inputPassword = ''; channelType = 0" type="button" class="btn btn-danger">Cancel</button>
+            <button @click="modalUpdateChannel = false; updateChannel()" type="submit" class="btn btn-primary">Update</button>
       </template>
     </ModalChat>
 
@@ -445,6 +537,26 @@ const updateUsersInvite = (user: User) => {
       </template>
     </ModalChat>
 
+    <ModalChat v-if="modalAcceptJoinChannel == true" @close="modalAcceptJoinChannel = false">
+      <template v-slot:header>
+            Are you sure you want to accept the invitation to this channel
+      </template>
+      <template v-slot:footer>
+        <button @click="modalAcceptJoinChannel = false; acceptInviteChannel()" type="button" class="btn btn-primary btn-sm">Yes</button>
+        <button @click="modalAcceptJoinChannel = false" type="button" class="btn btn-danger btn-sm">No</button>
+      </template>
+    </ModalChat>
+
+    <ModalChat v-if="modalRefuseJoinChannel == true" @close="modalRefuseJoinChannel = false">
+      <template v-slot:header>
+            Are you sure you want to decline the invitation to this channel
+      </template>
+      <template v-slot:footer>
+        <button @click="modalRefuseJoinChannel = false; refuseInviteChannel()" type="button" class="btn btn-primary btn-sm">Yes</button>
+        <button @click="modalRefuseJoinChannel = false" type="button" class="btn btn-danger btn-sm">No</button>
+      </template>
+    </ModalChat>
+
 </template>
 
 <style>
@@ -471,11 +583,12 @@ const updateUsersInvite = (user: User) => {
     overflow: hidden;*/
     white-space: nowrap;
 }
-.wrapper-accordion {
+/* .wrapper-accordion {
     padding-right: 0.75rem;
-}
+} */
 .wrapper-icon {
     padding-right: 20px;
+    padding-left: 10px;
 }
 
 .accordion-btn:not(.collapsed)::after {
@@ -519,26 +632,27 @@ const updateUsersInvite = (user: User) => {
     align-items: center;
     cursor: pointer;
     text-decoration: none;
-    color: hsl(31 100% 54%);
-    border: hsl(31 100% 54%) 3px solid;
+    color: #fff961;
+    border: #fff961 3px solid;
     background-color: transparent;
     border-radius: 0.25em;
     text-shadow: 0 0 0.125em hsl(0 0% 100% / 0.3), 0 0 0.45em currentColor;
-    box-shadow: inset 0 0 0.5em 0 hsl(31 100% 54%), 0 0 0.5em 0 hsl(31 100% 54%);
+    box-shadow: inset 0 0 0.5em 0 #fff961, 0 0 0.5em 0 #fff961;
+      /*box-shadow: 0px 0px 10px #fff961, 0px 0px 15px 2vh #fff961;*/
     transition: all 0.5s;
     border-radius: 50px !important;
     margin-bottom: 5px;
 }
 
 .btn-neons-channels-menu:hover {
-    background-color: hsl(31 100% 54%);
-    color: #fff;
+    background-color: #fff961;
+    color: #000;
 }
 
 .btn-channel {
     background-color: transparent !important;
     border-color: transparent !important;
-    color: hsl(31 100% 54%);
+    color: #fff961;
 }
 
 .btn-channel:hover {
@@ -546,7 +660,7 @@ const updateUsersInvite = (user: User) => {
 }
 
 .wrapper-icon-leave {
-    color: hsl(31 100% 54%);
+    color: #fff961;
 }
 
 </style>

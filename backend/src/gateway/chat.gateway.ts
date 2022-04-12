@@ -156,6 +156,18 @@ import { JwtService } from '@nestjs/jwt';
   */
   @SubscribeMessage('deleteChannel')
   async deleteChannel(client: Socket, channelID: number) {
+
+    let [channel] = await this.channelsService.getChannelsByFilter({
+      id: channelID,
+      invites: true,
+    });
+
+    if (channel.invites != []) {
+      for (const invite of channel.invites) {
+        this.server.to(invite.socketID).emit('uninviteChannel', channel);
+      }
+    }
+
     await this.channelsService.deleteChannel(channelID);
     this.server.emit('deleteChannel', channelID);
   }
@@ -187,6 +199,7 @@ import { JwtService } from '@nestjs/jwt';
     const updateChannel = data[1]
     const message = data[2]
     const user = data[3]
+
     const newChannel = await this.channelsService.updateChannel(channelID, updateChannel);
     let [channel] = await this.channelsService.getChannelsByFilter({
       id: channelID,
@@ -206,9 +219,16 @@ import { JwtService } from '@nestjs/jwt';
     Update Channel
   */
     @SubscribeMessage('updateChannel')
-    async updateChannel2(client: Socket, data: any) {
+    async updateChannel(client: Socket, data: any) {
       const channelID = data[0]
       const updateChannel = data[1]
+
+      if (updateChannel.removeInvites != []) {
+        for (const invite of updateChannel.removeInvites) {
+          this.server.to(invite.socketID).emit('uninviteChannel', updateChannel);
+        }
+      }
+
       const newChannel = await this.channelsService.updateChannel(channelID, updateChannel);
       this.server.emit('updateMember', newChannel);
     }

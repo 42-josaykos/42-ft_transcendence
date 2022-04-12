@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref } from 'vue';
 
 import { storeToRefs} from 'pinia';
 
@@ -54,6 +54,10 @@ const { allChannels,
 const baseUrlMsg = '/messages';
 const baseUrlChannel = '/channels';
 
+onUpdated( () => {
+  scrollFunction()
+})
+
 onMounted(async () => {
   Get('/channels/search').then(res => {
     if (res.status == 200) {
@@ -68,7 +72,7 @@ onMounted(async () => {
   /////////
   channelsJoin.value = true;
   newOwner.value = undefined;
-  channelType.value = 1;
+  channelType.value = 0;
   channelTypeUpdate.value = 1;
 });
 
@@ -117,6 +121,10 @@ socket.on('newChannel', (data: any) => {
 
 socket.on('inviteChannel', (inviteChannel: Channel) => {
   channelStore.addChannelInvite(inviteChannel)
+})
+
+socket.on('uninviteChannel', (uninviteChannel: Channel) => {
+  channelStore.deleteChannelInvite(uninviteChannel)
 })
 
 socket.on('joinChannel', () => {
@@ -256,51 +264,51 @@ const updateUsersInvite = (user: User) => {
 
 
 // Accepter une invitation à rejoindre un channel
-const acceptInviteChannel = () => {
-  console.log(`Accept invitation => ${channelJoin.value?.name}`)
-  const updateChannel = {
-    removeInvites: [{id: loggedUser.value?.id}],
-    addMembers: [{id: loggedUser.value?.id}]
-  };
-  if (channelJoin.value != undefined) {
-    socket.emit('updateMember', channelJoin.value.id, updateChannel, {author: loggedUser.value?.id, channel: {id: channelJoin.value.id}, data: `${loggedUser.value?.username} has joined the channel.`}, loggedUser.value)
-    channelStore.deleteChannelInvite(channelJoin.value)
-    channelStore.joinChannel(channelJoin.value)
-    channelStore.updateMember()
-  }
-}
+// const acceptInviteChannel = () => {
+//   console.log(`Accept invitation => ${channelJoin.value?.name}`)
+//   const updateChannel = {
+//     removeInvites: [{id: loggedUser.value?.id}],
+//     addMembers: [{id: loggedUser.value?.id}]
+//   };
+//   if (channelJoin.value != undefined) {
+//     socket.emit('updateMember', channelJoin.value.id, updateChannel, {author: loggedUser.value?.id, channel: {id: channelJoin.value.id}, data: `${loggedUser.value?.username} has joined the channel.`}, loggedUser.value)
+//     channelStore.deleteChannelInvite(channelJoin.value)
+//     channelStore.joinChannel(channelJoin.value)
+//     channelStore.updateMember()
+//   }
+// }
 
-// Refuser une invitation à rejoindre un channel
-const refuseInviteChannel = () => {
-  console.log(`Refuse invitation => ${channelJoin.value?.name}`)
-  if (channelJoin.value != undefined) {
-    socket.emit('updateMember', channelJoin.value.id, {removeInvites: [{id: loggedUser.value?.id}]}, null, loggedUser.value)
-    channelStore.deleteChannelInvite(channelJoin.value)
-  }
-  inputStore.$reset();
-}
+// // Refuser une invitation à rejoindre un channel
+// const refuseInviteChannel = () => {
+//   console.log(`Refuse invitation => ${channelJoin.value?.name}`)
+//   if (channelJoin.value != undefined) {
+//     socket.emit('updateMember', channelJoin.value.id, {removeInvites: [{id: loggedUser.value?.id}]}, null, loggedUser.value)
+//     channelStore.deleteChannelInvite(channelJoin.value)
+//   }
+//   inputStore.$reset();
+// }
 
 // Mettre à jour un channel
-const updateChannel = () => {
-  if (channelUpdate.value !== undefined)
-  {
-    let obj: any = {}
-    let users: any = []
-    usersInvite.value.forEach((value) => {
-      obj = {id: value.id}
-      users.push(obj)
-    })
-    const updateChannel = {
-      name: input.value.update_channel_name,
-      isPrivate: channelTypeUpdate.value == 2 ? true : false,
-      password: channelTypeUpdate.value == 3 ? input.value.password : null,
-      isProtected: channelTypeUpdate.value == 3 ? true : false,
-      invites: channelTypeUpdate.value == 2 ? users : []
-    }
-    socket.emit('updateChannel', input.value.channel_id, updateChannel)
-  }
-  inputStore.$reset();
-};
+// const updateChannel = () => {
+//   if (channelUpdate.value !== undefined)
+//   {
+//     let obj: any = {}
+//     let users: any = []
+//     usersInvite.value.forEach((value) => {
+//       obj = {id: value.id}
+//       users.push(obj)
+//     })
+//     const updateChannel = {
+//       name: input.value.update_channel_name,
+//       isPrivate: channelTypeUpdate.value == 2 ? true : false,
+//       password: channelTypeUpdate.value == 3 ? input.value.password : null,
+//       isProtected: channelTypeUpdate.value == 3 ? true : false,
+//       invites: channelTypeUpdate.value == 2 ? users : []
+//     }
+//     socket.emit('updateChannel', input.value.channel_id, updateChannel)
+//   }
+//   inputStore.$reset();
+// };
 
 // Quitter un channel si pas Owner
 // const leaveChannelIfNotOwner = (channel_item: Channel) => {
@@ -355,8 +363,11 @@ const updateChannel = () => {
 //   }
 // }
 
+//////////////////////////////////////////
+// CHANGER AVEC LES ID QUI RESTE UNIQUE //
+//////////////////////////////////////////
 const searchName = (channelItem: Channel | undefined): string=> {
-  if (channelItem == undefined) {return "Messages"}
+  if (channelItem == undefined) {return "CHAT"}
   if (channelItem.isDirectChannel === true) {
     const names = channelItem.name.split(' ');
     if (names[0] === loggedUser.value?.username) {
@@ -368,158 +379,110 @@ const searchName = (channelItem: Channel | undefined): string=> {
   return channelItem.name
 }
 
+const scrollFunction = () => {
+const scroll = document.getElementById('scroll-bar');
+  if (scroll != null) {
+    scroll.scrollTop = scroll.scrollHeight
+  }
+}
 </script>
 
 <template>
-  <!--<div class="wrapper"> <button class="neons">Hello</button></div>-->
-  <div class="container-fluid chat">
-    <div class="chatMenu">
-      <ChatMenu :users="users" :socket="socket" :channelsJoin="channelsJoin" :loggedUser="loggedUser == null ? undefined : loggedUser" :searchName="searchName"/>
-      <div class="chatMenuWrapper">
-        <!-- <button @click="channelsJoin = true" type="button" class="btn btn-secondary send">Channels</button>
-        <button @click="channelsJoin = false, channelStore.updateMember(), channelStore.updateOwner(loggedUser != null ? loggedUser.id : -1)" type="button" class="btn btn-secondary send">All Channels</button>
-        <button @click="channelsJoin = undefined" type="button" class="btn btn-secondary send">Invite
-          <div v-if="channelsInvite.length > 0">
-            <span class="badge rounded-pill bg-danger">{{channelsInvite.length}}</span>
-          </div>
-        </button> -->
-
-        <!--Affichage de mes channels-->
-        <!-- <div v-if="channelsJoin == true">
-          <div v-if="channels">
-            <ul v-for="(item, index) in channels" :key="index" class="list-group">
-              <button @click="displayMessages(item)" type="button" class="btn btn-secondary btn-channel">
-              {{searchName(item)}}
-              </button>
-            </ul>
-          </div>
-        </div> -->
-
-        <!--Affichage de tous les channels-->
-        <!-- <div v-else-if="channelsJoin == false">
-          <div v-if="allChannels">
-            <ul v-for="(item, index) in  allChannels" :key="index" class="list-group">
-
-              <div v-if="item.isMember">
-                <button @click="displayMessages(item)" type="button" class="btn btn-secondary btn-channel">
-                  <span v-if="item.isPrivate == true" class="badge bg-success">Private</span>
-                  <span v-else-if="item.isProtected == true" class="badge bg-warning">Password</span>
-                  <span v-else class="badge bg-success">Public</span>
-                  {{searchName(item)}}
-                </button>
-
-                <div v-if="item.isOwner">
-                  <button type="button" class="btn btn-danger btn-channel btn-sm" @click="Get('channels/search?id=' + item.id.toString() + '&admins&mutes&members').then(res => [channelLeave] = res.data)" data-bs-toggle="modal" data-bs-target="#leaveChannel">
-                    Leave Owner
-                  </button>
-
-                  <button
-                    type="button"
-                    class="btn btn-success btn-channel btn-sm"
-                    @click="
-                      Get('/users/search').then(res => users = res.data);
-                      usersInvite = [];
-                      Get('/channels/search?id=' + item.id.toString() + '&members&invites').then(res => {
-                        channelUpdate = res.data[0];
-                        input.update_channel_name = res.data[0].name;
-                        input.channel_id = res.data[0].id;
-                      })"
-                    data-bs-toggle="modal"
-                    data-bs-target="#updateChannel">
-                    Update Channel
-                  </button>
-                </div>
-
-                <div v-else>
-                  <button type="button" class="btn btn-danger btn-channel btn-sm" @click="leaveChannelIfNotOwner(item)" >Leave</button>
-                </div>
-              </div>
-
-                <div v-else>
-                  <button type="button" class="btn btn-secondary btn-channel">
-                    <span v-if="item.isPrivate == true" class="badge bg-success">Private</span>
-                    <span v-else-if="item.isProtected == true" class="badge bg-warning">Password</span>
-                    <span v-else class="badge bg-success">Public</span>
-                    {{item.name}}
-                  </button>
-
-                  <div v-if="item.isPrivate == false">
-                    <button type="button" class="btn btn-primary btn-channel btn-sm" @click="channelJoin = item" data-bs-toggle="modal" data-bs-target="#joinChannel" >Join</button>
-                  </div>
-                </div>
-            </ul>
-          </div>
-        </div> -->
-
-        <!--Affichage des invitations-->
-        <!-- <div v-else> -->
-          <div v-if="channelsInvite">
-            <ul v-for="(item, index) in  channelsInvite" :key="index" class="list-group">
-              <button type="button" class="btn btn-secondary btn-channel">
-                {{item.name}}
-              </button> 
-              <button type="button" class="btn btn-primary btn-channel btn-sm" @click="channelJoin = item, acceptInviteChannel()">Join</button>
-              <button type="button" class="btn btn-danger btn-channel btn-sm" @click="channelJoin = item, refuseInviteChannel()">Refuse</button>
-            </ul>
-          </div>
-        </div>
-
-        <div>
-
-        <!--Permet de créer un nouveau channel-->
-        <!-- <button @click="Get('/users/search').then(res => users = res.data); usersInvite = []" type="button" class="send" data-bs-toggle="modal" data-bs-target="#newChannel">
-          New Channel
-        </button> -->
-
+  <div class="container-fluid">
+    <div class="row-chat margin-chat">
+      <div class="my-col-sm-2 col-chat">
+        <div class="scrollspy-example my-5 px-2 py-2" style="min-height: 80vh;">
+          <ChatMenu :users="users" :socket="socket" :channelsJoin="channelsJoin" :loggedUser="loggedUser == null ? undefined : loggedUser" :searchName="searchName"/>
         </div>
       </div>
-    <!-- </div> -->
+      <div class="my-col-sm-7 col-chat ms-auto">
+        <div class="" style="min-height: 90vh; width: 100%;">
+<!---->
+<!---->
+<!---->
+        <div class="horizontal-line-bottom">
+          <h1 style="line-height: 1.5 !important">{{searchName(channel)}}</h1>
+        </div>
+        <div id="scroll-bar" class="scrollspy-example" style="height: 80vh; width: 100%; overflow-y: scroll;" tabindex="0">
 
-    <span class="vertical-line"></span>
+          <!--Affichage des messages du channel selectionné-->
+          <div v-if="channel != undefined">
 
-    <div class="chatBox">
-      <div class="chatBoxWrapper">{{searchName(channel)}}
+            <div v-if="channelStore.isBan(channel, loggedUser?.id) == false">
+              <div v-if="messages" class="scroller">
+              <div id="" style="display: flex;" v-for="item in messages" :key="item.id">
+                <div v-if="channelStore.isBan(channel, item.author.id) == true">
+                  *** Message delete ***
+                </div>
+                <div v-else-if="item.author.id != loggedUser.id">
 
-        <!--Affichage des messages du channel selectionné-->
-        <div v-if="channel != undefined">
+							<div class="msg chat-message-left mb-4">
+								<div style="margin: auto; padding-left: 10px; padding-right: 10px;">
+									<img v-bind:src=item.author.avatar alt="Avatar"  class="rounded-circle mr-1" width="40" height="40">
+								</div>
+								<div class="flex-shrink-1 rounded ml-3 text-msg-left">
+									<div class="font-weight-bold mb-1">{{item.author.username}}</div>
+									{{item.data}}
+								</div>
+							</div>
+</div>
+<div v-else  style="display: contents;">
+							<div class="msg chat-message-right mb-4">
+								<div style="margin: auto; padding-left: 10px; padding-right: 10px;">
+									<img v-bind:src=item.author.avatar alt="Avatar"  class="rounded-circle mr-1" width="40" height="40">
+								</div>
+								<div class="flex-shrink-1  rounded  mr-3 text-msg-right">
+									<div class="font-weight-bold mb-1">{{item.author.username}}</div>
+									{{item.data}}
+								</div>
+							</div>
 
-          <div v-if="channelStore.isBan(channel, loggedUser?.id) == false">
-            <div v-if="messages" class="scroller">
-              <ul id="msg" v-for="item in messages" :key="item.id">
-              <div v-if="channelStore.isBan(channel, item.author.id) == true">
-                *** Message delete ***
+
+                </div>
               </div>
-              <div v-else>
-                {{item.author.username}} wrote : {{ item.data }}
+                <!-- <ul id="msg" v-for="item in messages" :key="item.id">
+                <div v-if="channelStore.isBan(channel, item.author.id) == true">
+                  *** Message delete ***
+                </div>
+                <div v-else style="color:black">
+                  {{item.author.username}} wrote : {{ item.data }}
+                </div>
+                </ul> -->
               </div>
-              </ul>
+            </div>
+            <div v-else>
+              You are banned from this channel for XX time
             </div>
           </div>
-          <div v-else>
-            You are banned from this channel for XX time
-          </div>
-
-          <!--Permet d'envoyer un nouveau message dans le channel selectionné'-->
-          <form @submit.prevent.trim.lazy="sendNewMessage(channel?.id)" method="POST" class="form">
-            <input v-model="textMsg" type="text" class="input"/>
-            <input type="submit" value="Send" class="send"/>
-          </form>
 
         </div>
 
+          <div class="horizontal-line-top">
+          <form @submit.prevent.trim.lazy="sendNewMessage(channel?.id)" method="POST" class="form">
+            <input v-model="textMsg" type="text" class="input"/>
+            <button type="submit" class="rounded btn-channel wrapper-icon-leave ms-auto">
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+            
+            <!-- <input type="submit" value="Send" class="send"/> -->
+          </form>
+          </div>
+<!---->
+<!---->
+<!---->
+        </div>
       </div>
-    </div>
 
-    <span class="vertical-line"></span>
-
-    <!--Permettra de visualiser les membres du channel-->
-    <div class="chatFriends">
-      <div class="chatFriendsWrapper">
+      <div class="my-col-sm-2 col-chat ms-auto">
+        <div class="scrollspy-example my-5 px-2 py-2" style="min-height: 70vh;">
+<!---->
+<!---->
+<!---->
         <div v-if="channel != undefined">
           <div v-if="usersMembers">
             <div class=""> <!--scroller-->
               <div class="list-group" v-for="user in usersMembers" :key="user.id">
-<UserCard :user="user"/>
+                <UserCard :user="user"/>
                 <!--<div v-if="channelStore.isBan(channel, user.id) == false">
                   <a  class="list-group-item list-group-item-action"> {{user.username}} =>
 
@@ -603,222 +566,18 @@ const searchName = (channelItem: Channel | undefined): string=> {
             </div>
           </div>
         </div>
+<!---->
+<!---->
+<!---->
+        </div>
       </div>
     </div>
+  </div>
+
+
+
 
     <!-- Modal -->
-    <!--Formulaire pour créer un nouveau channel-->
-    <!-- <div class="modal fade modal-dialog-scrollable" id="newChannel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="staticBackdropLabel">New Channel => {{channelType}}</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-
-          <div class="modal-body">
-     
-            <div class="form form-new-channel">
-              <label for="name">Channel name:</label>
-              <input v-model="input.create_channel" type="text" class="input"/>
-            </div>
-
-            <div class="form-check form-check-inline">
-              <input @click="channelType = 1" class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" checked>
-              <label class="form-check-label" for="inlineRadio1">Public</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input @click="channelType = 2" class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2">
-              <label class="form-check-label" for="inlineRadio2">Private</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input @click="channelType = 3" class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2">
-              <label class="form-check-label" for="inlineRadio2">Protected</label>
-            </div>
-
-            <div v-if="channelType == 3">
-              <div class="form form-new-channel">
-                <label for="name">Password:</label>
-                <input v-model="input.password" type="text" class="input"/>
-              </div>
-            </div>
-            <div v-else-if="channelType == 2">
-              <div v-if="users.length != 1">
-                  Choose users :
-                  <div class="scroller">
-                    <div class="list-group" v-for="user in users" :key="user.id">
-                      <div v-if="user.id != loggedUser?.id">
-                        <a  class="list-group-item list-group-item-action"> {{user.username}} =>
-                          <button @click="updateUsersInvite(user)" type="button" class="btn btn-success btn-channel btn-sm">
-                              {{usersInvite.findIndex((el: User) => el.id === user.id) == -1 ? "Invite" : "Remove"}}
-                          </button>
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-              </div>
-            </div>
-
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-            <button @click="createChannel" type="submit" class="btn btn-primary" data-bs-dismiss="modal">Create</button>
-          </div>
-
-        </div>
-      </div>
-    </div> -->
-
-    <!--Formulaire pour modifier un channel-->
-    <div class="modal fade modal-dialog-scrollable" id="updateChannel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="staticBackdropLabel">Update : {{ input.update_channel_name }} => {{channelTypeUpdate}}</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-
-          <div class="modal-body">
-
-            <div class="form form-new-channel">
-              <label for="name">Channel name:</label>
-              <input v-model="input.update_channel_name" type="text" class="input"/>
-            </div>
-{{channelUpdate}}
-            <div>Channel : {{channelUpdate?.isPrivate ? "Private" : channelUpdate?.isProtected == true ? "Proteted" : "Public"}}</div>
-            <div class="form-check form-check-inline">
-              <input @click="channelTypeUpdate = 1" class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" checked>
-              <label class="form-check-label" for="inlineRadio1">Public</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input @click="channelTypeUpdate = 2" class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2">
-              <label class="form-check-label" for="inlineRadio2">Private</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input @click="channelTypeUpdate = 3" class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2">
-              <label class="form-check-label" for="inlineRadio2">Protected</label>
-            </div>
-
-            <div v-if="channelTypeUpdate == 3">
-              <div class="form form-new-channel">
-                <label for="name">Password:</label>
-                <input v-model="input.password" type="text" class="input"/>
-              </div>
-            </div>
-            <div v-else-if="channelTypeUpdate == 2">
-              <div v-if="users.length != 1">
-                  Choose users :
-                  <div class="scroller">
-                    <div class="list-group" v-for="user in users" :key="user.id">
-                      <div v-if="user.id != loggedUser?.id && channelStore.isMember(channelUpdate, user.id) == false  && channelStore.isInvite(channelUpdate, user.id) == false">
-                        <a  class="list-group-item list-group-item-action"> {{user.username}} =>
-                          <button @click="updateUsersInvite(user)" type="button" class="btn btn-success btn-channel btn-sm">
-                              {{usersInvite.findIndex((el: User) => el.id === user.id) == -1 ? "Invite" : "Remove"}}
-                          </button>
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-              </div>
-            </div>
-
-          </div>
-
-          <div class="modal-footer">
-            <button @click="inputStore.$reset(); channelUpdate = undefined" type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-            <button @click="updateChannel" type="submit" class="btn btn-primary" data-bs-dismiss="modal">Update</button>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-    <!--Formulaire pour rejoindre un channel-->
-    <!-- <div class="modal fade modal-dialog-scrollable" id="joinChannel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="staticBackdropLabel">Join : {{ channelJoin?.name}}</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-
-          <div v-if="channelJoin?.isProtected == true">
-            <div class="modal-body">
-              This channel is protected with a password.
-              <div class="form form-new-channel">
-                <label for="name">Enter Password:</label>
-                <input v-model="input.password" type="text" class="input"/>
-              </div>
-            </div>
-          </div>
-
-
-          <div class="modal-footer">
-            <button @click="inputStore.$reset(); channelJoin = undefined" type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-            <button @click="joinChannel()" type="submit" class="btn btn-primary" data-bs-dismiss="modal">Join</button>
-          </div>
-
-        </div>
-      </div>
-    </div> -->
-
-
-    <!--Formulaire pour détruire un channel ou définir un nouveau Owner-->
-    <!-- <div class="modal fade modal-dialog-scrollable" id="leaveChannel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="staticBackdropLabel">Leave channel : {{channelLeave?.name}}</h5>
-              <button @click="newOwner = undefined" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            Click here if you want to permanently delete this channel :
-            <div class="d-grid gap-2">
-              <button @click="deleteChannel" type="button" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
-            </div>
-            <br>
-            <div v-if="channelLeave?.members.length != 1">
-                Otherwise choose a new channel owner :
-                <div v-if="channelLeave?.members" class="scroller">
-                  <div class="list-group" v-for="item in channelLeave.members" :key="item.id">
-                    <div v-if="item.id != loggedUser?.id">
-                      <a  class="list-group-item list-group-item-action"> {{item.username}} =>
-                        <button @click="newOwner = item" type="button" class="btn btn-danger btn-channel" data-bs-toggle="modal" data-bs-target="#validateNewOwner">
-                            New Owner                
-                        </button>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button @click="newOwner = undefined" type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-          </div>
-
-        </div>
-      </div>
-    </div> -->
-
-    <!--Formulaire pour valider le nouveau Owner-->
-    <!-- <div class="modal fade modal-dialog-scrollable" id="validateNewOwner" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            Are you sure ?
-              <button @click="leaveChannelIfOwner" type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">Yes</button>
-              <button @click="newOwner = undefined" type="button" class="btn btn-danger btn-sm"  data-bs-toggle="modal" data-bs-target="#leaveChannel">No</button>
-          </div>
-        </div>
-      </div>
-    </div> -->
-
     <!--Formulaire pour envoyer un direct message-->
     <div class="modal fade modal-dialog-scrollable" id="directMessage" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
 
@@ -846,7 +605,6 @@ const searchName = (channelItem: Channel | undefined): string=> {
       </div>
     </div>
 
-  </div>
 
 </template>
 
@@ -917,8 +675,6 @@ const searchName = (channelItem: Channel | undefined): string=> {
   display: flex;
   height: 3rem;
   box-sizing: border-box;
-  backdrop-filter: blur(10px);
-
 }
 
 .form-new-channel {
@@ -944,14 +700,17 @@ const searchName = (channelItem: Channel | undefined): string=> {
   color: #fff;
 }
 
-#msg {
+.msg {
   list-style-type: none;
-  margin: 0;
-  padding: 0;
-  padding: 0.5rem 1rem;
-  margin-bottom: 5px;
-  background: #efefef;
+  /* margin: 0; */
+  /* padding: 0; */
+  /* padding: 0.5rem 1rem; */
+  /* margin-bottom: 10px; */
+  /* background: #efefef; */
   border-radius: 2rem;
+    /* border: #fff961 3px solid; */
+    margin-left: 10px;
+    margin-right: 5px;
 }
 
 .wrapper {
@@ -989,6 +748,136 @@ const searchName = (channelItem: Channel | undefined): string=> {
 .neons:hover {
     background-color: var(--clr-neon);
     color: #fff
+}
+
+
+
+
+/*--------------------------*/
+/*--------------------------*/
+/*--------------------------*/
+.margin-chat {
+	margin: 1% !important;
+	margin-top: 5% !important;
+}
+.col-chat {
+	min-height: 90vh;
+  width: -webkit-fill-available;
+  /* display: flex; */
+  justify-content: center;
+  text-decoration: none;
+  color: #fff961;
+  border: #fff961 3px solid;
+  background-color: transparent;
+  border-radius: 0.25em;
+  text-shadow: 0 0 0.125em hsl(0 0% 100% / 0.3), 0 0 0.45em currentColor;
+  box-shadow: inset 0 0 0.5em 0 #fff961, 0 0 0.5em 0 #fff961;
+  transition: all 0.5s;
+  border-radius: 50px !important;
+}
+
+.row-chat {
+	--bs-gutter-x: 1.5rem;
+  --bs-gutter-y: 0;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.scrollspy-example {
+  position: relative;
+  height: 100px;
+  margin-top: 0.5rem;
+  overflow: auto;
+}
+
+.scrollspy-example::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollspy-example::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollspy-example::-webkit-scrollbar-thumb {
+  background-color: rgb(32, 31, 31);
+  border-radius: 20px;
+}
+
+/*--------------------------*/
+/*--------------------------*/
+/*--------------------------*/
+.horizontal-line-bottom {
+  border-bottom: #fff961 1.5px solid;
+  display: block;
+  height: 60px;
+  text-shadow: 0 0 0.125em hsl(0 0% 100% / 0.3), 0 0 0.45em currentColor;
+}
+
+.horizontal-line-top {
+  border-top: #fff961 1.5px solid;
+  display: block;
+  height: 60px;
+  text-shadow: 0 0 0.125em hsl(0 0% 100% / 0.3), 0 0 0.45em currentColor;
+
+
+
+    background: rgba(0, 0, 0, 0.15);
+  padding: 0.25rem;
+
+  bottom: 0;
+  left: 0;
+  right: 0;
+  box-sizing: border-box;
+
+}
+
+
+.chat-message-left,
+.chat-message-right {
+    display: flex;
+    flex-shrink: 0;
+}
+
+.chat-message-left {
+    margin-right: auto;
+border: #1a52ed 3px solid;
+}
+
+.chat-message-right {
+    flex-direction: row-reverse;
+    margin-left: auto;
+border: #3ded29 3px solid;
+}
+
+.text-msg-left .font-weight-bold {
+  color: #1a52ed;
+  text-align: start;
+}
+.text-msg-left {
+color: white;
+padding: 10px;  
+}
+
+.text-msg-right .font-weight-bold {
+  color: #3ded29;
+  text-align: end;
+}
+.text-msg-right {
+color: white;
+padding: 10px;  
+}
+
+@media (min-width: 950px )  {
+  .my-col-sm-2 {
+      flex: 0 0 auto !important;
+      width: 16.66666667% !important;
+  }
+}
+@media (min-width: 950px )  {
+  .my-col-sm-7 {
+      flex: 0 0 auto !important;
+      width: 58.33333333%;
+  }
 }
 
 </style>
