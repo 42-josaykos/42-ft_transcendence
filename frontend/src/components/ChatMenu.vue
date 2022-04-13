@@ -245,7 +245,6 @@ const updateUsersInvite = (user: User) => {
 
             <div v-if="allChannels">
               <li v-for="(item, index) in allChannels" :key="index" class="btn-toggle-nav list-unstyled fw-normal small">
-                <!--Permet d'afficher les messages appartenant au channel selectionné-->
                 <div v-if="item.isMember" style="display: flex; align-items: center;">
                   <div class="text-truncate ">
                       <button @click="displayMessages(item)" type="button" class="rounded btn-channel">
@@ -279,11 +278,10 @@ const updateUsersInvite = (user: User) => {
             </button>
         </h2>
         <div id="all-channels-collapse" class="accordion-collapse collapse" aria-labelledby="all-channels-heading">
-            <div class="accordion-body">
+          <div class="accordion-body">
 
             <div v-if="allChannels">
                 <li v-for="(item, index) in allChannels" :key="index" class="btn-toggle-nav list-unstyled fw-normal small">
-                <!--Permet d'afficher les messages appartenant au channel selectionné-->
                 <div v-if="!item.isMember && !item.isPrivate && !item.isDirectChannel" style="display: flex; align-items: center;">
                   <div>
                     <button @click="" type="button" class="rounded btn-channel">
@@ -349,12 +347,10 @@ const updateUsersInvite = (user: User) => {
                         {{searchName(item)}}
                     </button>
                   </div>
-                  <div class="ms-auto">
+                  <div class="ms-auto d-flex">
                     <button @click="modalAcceptJoinChannel = true; channelJoin = item" type="button" class="rounded btn-channel wrapper-icon-leave ms-auto">
                       <i class="fa-solid fa-check"></i>
                     </button>
-                  </div>
-                  <div class="ms-auto">
                     <button @click="modalRefuseJoinChannel = true; Get('channels/search?id=' + item.id.toString() + '&messages').then(res => [channelJoin] = res.data)" type="button" class="rounded btn-channel wrapper-icon-leave ms-auto">
                       <i class="fa-solid fa-xmark"></i>
                     </button>
@@ -405,7 +401,7 @@ const updateUsersInvite = (user: User) => {
             </div>
             <div v-else-if="channelType == 2">
               <div v-if="props.users?.length != 1">
-                  Choose users :{{props.users}}
+                  Choose users :
                   <div class="scroller">
                     <div class="list-group" v-for="user in props.users" :key="user.id">
                       <div v-if="user.id != loggedUser?.id">

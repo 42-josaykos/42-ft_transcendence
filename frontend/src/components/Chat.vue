@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { onBeforeUpdate, onMounted, onUnmounted, onUpdated, ref } from 'vue';
+import { onMounted, onUnmounted, onUpdated, ref } from 'vue';
 
 import { storeToRefs} from 'pinia';
 
@@ -13,14 +13,14 @@ import type { Channel } from '@/models/channel.model';
 import type { Message } from '@/models/message.model';
 import type { User } from '@/models/user.model';
 
-import { Delete, Get, Patch, Post } from '@/services/requests';
+import { Get } from '@/services/requests';
 
 import { io } from 'socket.io-client';
 
 import UserCard from './UserCard.vue';
 import ChatMenu from './ChatMenu.vue';
 
-const socket = io("http://localhost:4000", {
+const socketChat = io("http://localhost:4000", {
   withCredentials: true
 });
 
@@ -51,9 +51,6 @@ const { allChannels,
         channelTypeUpdate
       } = storeToRefs(channelStore);
 
-const baseUrlMsg = '/messages';
-const baseUrlChannel = '/channels';
-
 onUpdated( () => {
   scrollFunction()
 })
@@ -77,24 +74,24 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  socket.off('newMessage');
-  socket.off('newChannel');
-  socket.off('deleteChannel');
-  socket.off('joinChannel');
-  socket.off('updateChannel');
-  socket.off('inviteChannel');
+  socketChat.off('newMessage');
+  socketChat.off('newChannel');
+  socketChat.off('deleteChannel');
+  socketChat.off('joinChannel');
+  socketChat.off('updateChannel');
+  socketChat.off('inviteChannel');
 })
 
 ///////////////////////
-//  SOCKET.ON
+//  socketChat.ON
 ///////////////////////
-socket.on('newMessage', (newMessage: Message) => {
+socketChat.on('newMessage', (newMessage: Message) => {
  if (channel.value != undefined && channel.value.id == newMessage.channel.id) {
    messageStore.createMessage(newMessage);
  }
 })
 
-socket.on('newChannel', (data: any) => {
+socketChat.on('newChannel', (data: any) => {
   const { newChannel, message, user } = data
   if (loggedUser.value != undefined) {
     if (loggedUser.value?.id === newChannel.owner.id) {
@@ -102,7 +99,7 @@ socket.on('newChannel', (data: any) => {
       //channel.value = newChannel;
       messages.value = [];
       if (newChannel.isPrivate == true && newChannel.isDirectChannel == false) {
-        socket.emit('inviteChannel', newChannel, usersInvite.value ? usersInvite.value : null)
+        socketChat.emit('inviteChannel', newChannel, usersInvite.value ? usersInvite.value : null)
       }
       Get('/channels/search?id=' + newChannel.id.toString() + '&members&bans&mutes&admins&owner').then(res => {
         channel.value = res.data[0]
@@ -114,30 +111,30 @@ socket.on('newChannel', (data: any) => {
     channelStore.updateOwner(loggedUser.value.id)
     if (loggedUser.value.id != newChannel.owner.id && newChannel.admins.findIndex((el: User) => el.id === loggedUser.value?.id) != -1) {
       channelStore.joinChannel(newChannel);
-      socket.emit('newMessage', message, user)
+      socketChat.emit('newMessage', message, user)
     }
   }
 })
 
-socket.on('inviteChannel', (inviteChannel: Channel) => {
+socketChat.on('inviteChannel', (inviteChannel: Channel) => {
   channelStore.addChannelInvite(inviteChannel)
 })
 
-socket.on('uninviteChannel', (uninviteChannel: Channel) => {
+socketChat.on('uninviteChannel', (uninviteChannel: Channel) => {
   channelStore.deleteChannelInvite(uninviteChannel)
 })
 
-socket.on('joinChannel', () => {
+socketChat.on('joinChannel', () => {
   if (channelJoin.value != undefined) {
     channelStore.joinChannel(channelJoin.value);
     channel.value = channelStore.getChannelByID(channelJoin.value.id);
     messages.value = channelJoin.value.messages;
-    socket.emit("updateMember", channelJoin.value.id, {addMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value?.id, channel: {id: channelJoin.value?.id}, data: `${loggedUser.value?.username} has joined the channel.`}, loggedUser.value)
+    socketChat.emit("updateMember", channelJoin.value.id, {addMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value?.id, channel: {id: channelJoin.value?.id}, data: `${loggedUser.value?.username} has joined the channel.`}, loggedUser.value)
     channelStore.updateMember();
   }
 })
 
-socket.on('deleteChannel', (channelID: number) => {
+socketChat.on('deleteChannel', (channelID: number) => {
   if (channel.value?.id == channelID) {
     channel.value = undefined;
     messages.value = [];
@@ -145,7 +142,7 @@ socket.on('deleteChannel', (channelID: number) => {
   channelStore.deleteChannel(channelID)
 })
 
-socket.on('updateMember', (updateChannel: Channel) => {
+socketChat.on('updateMember', (updateChannel: Channel) => {
   if (loggedUser.value != null) {
     channelStore.updateChannel(updateChannel.id, updateChannel, loggedUser.value.id);
     channelStore.updateMember();
@@ -179,7 +176,7 @@ const sendNewMessage = (channelId: Number | undefined) => {
         channel: {id: channelId},
         data: textMsg.value
       };
-      socket.emit('newMessage', newMessage, loggedUser.value)
+      socketChat.emit('newMessage', newMessage, loggedUser.value)
     }
   }
   textMsg.value = '';
@@ -201,10 +198,10 @@ const sendDirectMessage = async () => {
       isDirectChannel: true,
       isProtected: false
     };
-    socket.emit('newChannel', newChannel, {author: loggedUser.value?.id, channel: {id: null}, data: textDirectMsg.value}, loggedUser.value)
+    socketChat.emit('newChannel', newChannel, {author: loggedUser.value?.id, channel: {id: null}, data: textDirectMsg.value}, loggedUser.value)
   }
   else {
-    socket.emit('newMessage', {author: loggedUser.value?.id, channel: {id: channelItem?.id}, data: textDirectMsg.value}, loggedUser.value)
+    socketChat.emit('newMessage', {author: loggedUser.value?.id, channel: {id: channelItem?.id}, data: textDirectMsg.value}, loggedUser.value)
     textDirectMsg.value = '';
   }
 }
@@ -233,7 +230,7 @@ const sendDirectMessage = async () => {
 //       members: [{ id: loggedUser.value?.id }],
 //       invites: channelType.value== 2 ? users : []
 //     };
-//     socket.emit('newChannel', newChannel, null ,loggedUser.value)
+//     socketChat.emit('newChannel', newChannel, null ,loggedUser.value)
 //     inputStore.$reset();
 //   }
 // }
@@ -253,13 +250,13 @@ const updateUsersInvite = (user: User) => {
 
 // Rejoindre un channel
 // const joinChannel = () => {
-//   socket.emit('joinChannel', loggedUser.value?.id, channelJoin.value, input.value.password)
+//   socketChat.emit('joinChannel', loggedUser.value?.id, channelJoin.value, input.value.password)
 //   inputStore.$reset();
 // }
 
 // Supprimer un channel
 // const deleteChannel = () => {
-//   socket.emit('deleteChannel', channelLeave.value?.id)
+//   socketChat.emit('deleteChannel', channelLeave.value?.id)
 // }
 
 
@@ -271,7 +268,7 @@ const updateUsersInvite = (user: User) => {
 //     addMembers: [{id: loggedUser.value?.id}]
 //   };
 //   if (channelJoin.value != undefined) {
-//     socket.emit('updateMember', channelJoin.value.id, updateChannel, {author: loggedUser.value?.id, channel: {id: channelJoin.value.id}, data: `${loggedUser.value?.username} has joined the channel.`}, loggedUser.value)
+//     socketChat.emit('updateMember', channelJoin.value.id, updateChannel, {author: loggedUser.value?.id, channel: {id: channelJoin.value.id}, data: `${loggedUser.value?.username} has joined the channel.`}, loggedUser.value)
 //     channelStore.deleteChannelInvite(channelJoin.value)
 //     channelStore.joinChannel(channelJoin.value)
 //     channelStore.updateMember()
@@ -282,7 +279,7 @@ const updateUsersInvite = (user: User) => {
 // const refuseInviteChannel = () => {
 //   console.log(`Refuse invitation => ${channelJoin.value?.name}`)
 //   if (channelJoin.value != undefined) {
-//     socket.emit('updateMember', channelJoin.value.id, {removeInvites: [{id: loggedUser.value?.id}]}, null, loggedUser.value)
+//     socketChat.emit('updateMember', channelJoin.value.id, {removeInvites: [{id: loggedUser.value?.id}]}, null, loggedUser.value)
 //     channelStore.deleteChannelInvite(channelJoin.value)
 //   }
 //   inputStore.$reset();
@@ -305,7 +302,7 @@ const updateUsersInvite = (user: User) => {
 //       isProtected: channelTypeUpdate.value == 3 ? true : false,
 //       invites: channelTypeUpdate.value == 2 ? users : []
 //     }
-//     socket.emit('updateChannel', input.value.channel_id, updateChannel)
+//     socketChat.emit('updateChannel', input.value.channel_id, updateChannel)
 //   }
 //   inputStore.$reset();
 // };
@@ -316,17 +313,17 @@ const updateUsersInvite = (user: User) => {
 //     [channelLeave.value] = res.data;
 //     if (loggedUser.value != null) {
 //       if (channelStore.isAdmin(channelLeave.value, loggedUser.value.id) == true) {
-//         socket.emit('updateMember', channelLeave.value?.id, {removeAdmins: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
+//         socketChat.emit('updateMember', channelLeave.value?.id, {removeAdmins: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
 //       }
 //       else {
 //         if (channelStore.isBan(channelLeave.value, loggedUser.value.id) == true) {
-//           socket.emit('updateMember', channelLeave.value?.id, {removeBans: [{id: loggedUser.value?.id}], removeMutes: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
+//           socketChat.emit('updateMember', channelLeave.value?.id, {removeBans: [{id: loggedUser.value?.id}], removeMutes: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
 //         }
 //           else if (channelStore.isMute(channelLeave.value, loggedUser.value.id) == true) {
-//             socket.emit('updateMember', channelLeave.value?.id, {removeMutes: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
+//             socketChat.emit('updateMember', channelLeave.value?.id, {removeMutes: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
 //         }
 //         else {
-//           socket.emit('updateMember', channelLeave.value?.id, {removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
+//           socketChat.emit('updateMember', channelLeave.value?.id, {removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
 //         }
 //       }
 //       channelStore.leaveChannel(channel_item);
@@ -342,17 +339,17 @@ const updateUsersInvite = (user: User) => {
 //   if (loggedUser.value != null) {
 //     if (channelLeave.value !== undefined) {
 //       if (channelStore.isAdmin(channelLeave.value, newOwner.value != undefined ? newOwner.value.id : -1) == true) {
-//         socket.emit('updateMember', channelLeave.value.id, {owner: {id: newOwner.value?.id}, removeAdmins: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value.id}, data: `${loggedUser.value?.username} the channel owner has left the channel - - ${newOwner.value?.username} becomes the owner.`}, loggedUser.value)
+//         socketChat.emit('updateMember', channelLeave.value.id, {owner: {id: newOwner.value?.id}, removeAdmins: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value.id}, data: `${loggedUser.value?.username} the channel owner has left the channel - - ${newOwner.value?.username} becomes the owner.`}, loggedUser.value)
 //       }
 //       else {
 //         if (channelStore.isBan(channelLeave.value, loggedUser.value.id) == true) {
-//           socket.emit('updateMember', channelLeave.value?.id, {owner: {id: newOwner.value?.id}, addAdmins: [{id: newOwner.value?.id}], removeMutes: [{id: newOwner.value?.id}], removeBans: [{id: loggedUser.value?.id}], removeAdmins: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
+//           socketChat.emit('updateMember', channelLeave.value?.id, {owner: {id: newOwner.value?.id}, addAdmins: [{id: newOwner.value?.id}], removeMutes: [{id: newOwner.value?.id}], removeBans: [{id: loggedUser.value?.id}], removeAdmins: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
 //         }
 //         else if (channelStore.isMute(channelLeave.value, newOwner.value != undefined ? newOwner.value.id : -1) == true) {
-//             socket.emit('updateMember', channelLeave.value?.id, {owner: {id: newOwner.value?.id}, addAdmins: [{id: newOwner.value?.id}], removeMutes: [{id: newOwner.value?.id}], removeAdmins: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
+//             socketChat.emit('updateMember', channelLeave.value?.id, {owner: {id: newOwner.value?.id}, addAdmins: [{id: newOwner.value?.id}], removeMutes: [{id: newOwner.value?.id}], removeAdmins: [{id: loggedUser.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
 //         }
 //         else {
-//           socket.emit('updateMember', channelLeave.value?.id, {owner: {id: newOwner.value?.id}, removeAdmins: [{id: loggedUser.value?.id}], addAdmins: [{id: newOwner.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
+//           socketChat.emit('updateMember', channelLeave.value?.id, {owner: {id: newOwner.value?.id}, removeAdmins: [{id: loggedUser.value?.id}], addAdmins: [{id: newOwner.value?.id}], removeMembers: [{id: loggedUser.value?.id}]}, {author: loggedUser.value.id, channel: {id: channelLeave.value?.id}, data: `${loggedUser.value?.username} has leaved the channel.`}, loggedUser.value)
 //         }
 //       }
 //       channelStore.leaveChannel(channelLeave.value);
@@ -392,7 +389,7 @@ const scroll = document.getElementById('scroll-bar');
     <div class="row-chat margin-chat">
       <div class="my-col-sm-2 col-chat">
         <div class="scrollspy-example my-5 px-2 py-2" style="min-height: 80vh;">
-          <ChatMenu :users="users" :socket="socket" :channelsJoin="channelsJoin" :loggedUser="loggedUser == null ? undefined : loggedUser" :searchName="searchName"/>
+          <ChatMenu :users="users" :socket="socketChat" :channelsJoin="channelsJoin" :loggedUser="loggedUser" :searchName="searchName"/>
         </div>
       </div>
       <div class="my-col-sm-7 col-chat ms-auto">
@@ -400,72 +397,60 @@ const scroll = document.getElementById('scroll-bar');
 <!---->
 <!---->
 <!---->
-        <div class="horizontal-line-bottom">
-          <h1 style="line-height: 1.5 !important">{{searchName(channel)}}</h1>
-        </div>
-        <div id="scroll-bar" class="scrollspy-example" style="height: 80vh; width: 100%; overflow-y: scroll;" tabindex="0">
+          <div class="horizontal-line-bottom">
+            <h1 style="line-height: 1.5 !important">{{searchName(channel)}}</h1>
+          </div>
+          <div id="scroll-bar" class="scrollspy-example" style="height: 80vh; width: 100%; overflow-y: scroll;" tabindex="0">
 
-          <!--Affichage des messages du channel selectionné-->
-          <div v-if="channel != undefined">
-
-            <div v-if="channelStore.isBan(channel, loggedUser?.id) == false">
-              <div v-if="messages" class="scroller">
-              <div id="" style="display: flex;" v-for="item in messages" :key="item.id">
-                <div v-if="channelStore.isBan(channel, item.author.id) == true">
-                  *** Message delete ***
-                </div>
-                <div v-else-if="item.author.id != loggedUser.id">
-
-							<div class="msg chat-message-left mb-4">
-								<div style="margin: auto; padding-left: 10px; padding-right: 10px;">
-									<img v-bind:src=item.author.avatar alt="Avatar"  class="rounded-circle mr-1" width="40" height="40">
-								</div>
-								<div class="flex-shrink-1 rounded ml-3 text-msg-left">
-									<div class="font-weight-bold mb-1">{{item.author.username}}</div>
-									{{item.data}}
-								</div>
-							</div>
-</div>
-<div v-else  style="display: contents;">
-							<div class="msg chat-message-right mb-4">
-								<div style="margin: auto; padding-left: 10px; padding-right: 10px;">
-									<img v-bind:src=item.author.avatar alt="Avatar"  class="rounded-circle mr-1" width="40" height="40">
-								</div>
-								<div class="flex-shrink-1  rounded  mr-3 text-msg-right">
-									<div class="font-weight-bold mb-1">{{item.author.username}}</div>
-									{{item.data}}
-								</div>
-							</div>
-
-
+            <!--Affichage des messages du channel selectionné-->
+            <div v-if="channel != undefined">
+              <div v-if="channelStore.isBan(channel, loggedUser?.id) == false">
+                <div v-if="messages" class="scroller">
+                  <div id="" style="display: flex;" v-for="item in messages" :key="item.id">
+                    <div v-if="channelStore.isBan(channel, item.author.id) == true">
+                      *** Message delete ***
+                    </div>
+                    <div v-else-if="item.author.id != loggedUser.id">
+                      <div class="msg chat-message-left mb-4">
+                        <div style="margin: auto; padding-left: 10px; padding-right: 10px;">
+                          <img v-bind:src=item.author.avatar alt="Avatar"  class="rounded-circle mr-1" width="40" height="40">
+                        </div>
+                        <div class="flex-shrink-1 rounded ml-3 text-msg-left">
+                          <div class="font-weight-bold mb-1">{{item.author.username}}</div>
+                          {{item.data}}
+                        </div>
+                      </div>
+                    </div>
+                    <div v-else  style="display: contents;">
+                      <div class="msg chat-message-right mb-4">
+                        <div style="margin: auto; padding-left: 10px; padding-right: 10px;">
+                          <img v-bind:src=item.author.avatar alt="Avatar"  class="rounded-circle mr-1" width="40" height="40">
+                        </div>
+                        <div class="flex-shrink-1  rounded  mr-3 text-msg-right">
+                          <div class="font-weight-bold mb-1">{{item.author.username}}</div>
+                          {{item.data}}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-                <!-- <ul id="msg" v-for="item in messages" :key="item.id">
-                <div v-if="channelStore.isBan(channel, item.author.id) == true">
-                  *** Message delete ***
-                </div>
-                <div v-else style="color:black">
-                  {{item.author.username}} wrote : {{ item.data }}
-                </div>
-                </ul> -->
+              <div v-else>
+                You are banned from this channel for XX time
               </div>
             </div>
-            <div v-else>
-              You are banned from this channel for XX time
-            </div>
+
           </div>
 
-        </div>
-
           <div class="horizontal-line-top">
-          <form @submit.prevent.trim.lazy="sendNewMessage(channel?.id)" method="POST" class="form">
-            <input v-model="textMsg" type="text" class="input"/>
-            <button type="submit" class="rounded btn-channel wrapper-icon-leave ms-auto">
-              <i class="fa-solid fa-paper-plane"></i>
-            </button>
-            
-            <!-- <input type="submit" value="Send" class="send"/> -->
-          </form>
+            <form @submit.prevent.trim.lazy="sendNewMessage(channel?.id)" method="POST" class="form">
+              <input v-model="textMsg" type="text" class="input"/>
+              <button type="submit" class="rounded btn-channel wrapper-icon-leave ms-auto">
+                <i class="fa-solid fa-paper-plane"></i>
+              </button>
+              
+              <!-- <input type="submit" value="Send" class="send"/> -->
+            </form>
           </div>
 <!---->
 <!---->
@@ -489,7 +474,7 @@ const scroll = document.getElementById('scroll-bar');
                     <div v-if="channelStore.isAdmin(channel, user.id)">
                       Admin
                       <div v-if="channelStore.isOwner(channel, loggedUser?.id) && loggedUser?.id != user.id">
-                        <button @click="socket.emit('updateMember', channel?.id, {removeAdmins: [{id: user.id}]}, null, loggedUser)" type="button" class="btn btn-danger btn-channel btn-sm">
+                        <button @click="socketChat.emit('updateMember', channel?.id, {removeAdmins: [{id: user.id}]}, null, loggedUser)" type="button" class="btn btn-danger btn-channel btn-sm">
                           Remove admin
                         </button>
                       </div>
@@ -498,18 +483,18 @@ const scroll = document.getElementById('scroll-bar');
                     <div v-else-if="channelStore.isMember(channel, user.id)">
                       Member
                       <div v-if="channelStore.isOwner(channel, loggedUser?.id)">
-                        <button @click="socket.emit('updateMember', channel?.id, {addAdmins: [{id: user.id}]}, null, loggedUser)" type="button" class="btn btn-success btn-channel btn-sm">
+                        <button @click="socketChat.emit('updateMember', channel?.id, {addAdmins: [{id: user.id}]}, null, loggedUser)" type="button" class="btn btn-success btn-channel btn-sm">
                           Add admin
                         </button>
                       </div>
                       <div v-if="channelStore.isAdmin(channel, loggedUser?.id)">
                         <div v-if="!channelStore.isAdmin(channel, user.id) && !channelStore.isBan(channel, user.id)">
-                          <button @click="socket.emit('updateMember', channel?.id, {addBans: [{id: user.id}], addMutes: [{id: user.id}]}, null, loggedUser)" type="button" class="btn btn-warning btn-channel btn-sm">
+                          <button @click="socketChat.emit('updateMember', channel?.id, {addBans: [{id: user.id}], addMutes: [{id: user.id}]}, null, loggedUser)" type="button" class="btn btn-warning btn-channel btn-sm">
                             Ban
                           </button>
                         </div>
                         <div v-if="!channelStore.isAdmin(channel, user.id) && !channelStore.isMute(channel, user.id)">
-                          <button @click="socket.emit('updateMember', channel?.id, {addMutes: [{id: user.id}]}, null, loggedUser)" type="button" class="btn btn-warning btn-channel btn-sm">
+                          <button @click="socketChat.emit('updateMember', channel?.id, {addMutes: [{id: user.id}]}, null, loggedUser)" type="button" class="btn btn-warning btn-channel btn-sm">
                             Mute
                           </button>
                         </div>
@@ -523,7 +508,7 @@ const scroll = document.getElementById('scroll-bar');
                     </div>
 
                     <div v-if="loggedUser?.id != user.id && !channelStore.isAdmin(channel, user.id) && channelStore.isMute(channel, user.id)">
-                      <button @click="socket.emit('updateMember', channel?.id, {removeMutes: [{id: user.id}]}, null, loggedUser)" type="button" class="btn btn-warning btn-channel btn-sm">
+                      <button @click="socketChat.emit('updateMember', channel?.id, {removeMutes: [{id: user.id}]}, null, loggedUser)" type="button" class="btn btn-warning btn-channel btn-sm">
                         Remove mute
                       </button>
                     </div>
@@ -542,12 +527,12 @@ const scroll = document.getElementById('scroll-bar');
                     <div v-if="channelStore.isMember(channel, user.id)">
                       Member
                       <div v-if="channelStore.isOwner(channel, loggedUser?.id)">
-                        <button @click="socket.emit('updateMember', channel?.id, {addAdmins: [{id: user.id}], removeBans: [{id: user.id}], removeMutes: [{id: user.id}]}, null, loggedUser)" type="button" class="btn btn-success btn-channel btn-sm">
+                        <button @click="socketChat.emit('updateMember', channel?.id, {addAdmins: [{id: user.id}], removeBans: [{id: user.id}], removeMutes: [{id: user.id}]}, null, loggedUser)" type="button" class="btn btn-success btn-channel btn-sm">
                           Add admin
                         </button>
                       </div>
                       <div v-if="channelStore.isAdmin(channel, loggedUser?.id)">
-                        <button @click="socket.emit('updateMember', channel?.id, {removeBans: [{id: user.id}], removeMutes: [{id: user.id}]}, null, loggedUser)" type="button" class="btn btn-warning btn-channel btn-sm">
+                        <button @click="socketChat.emit('updateMember', channel?.id, {removeBans: [{id: user.id}], removeMutes: [{id: user.id}]}, null, loggedUser)" type="button" class="btn btn-warning btn-channel btn-sm">
                           Remove ban
                         </button>
                       </div>
@@ -573,9 +558,6 @@ const scroll = document.getElementById('scroll-bar');
       </div>
     </div>
   </div>
-
-
-
 
     <!-- Modal -->
     <!--Formulaire pour envoyer un direct message-->

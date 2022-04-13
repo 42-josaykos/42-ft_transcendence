@@ -42,16 +42,18 @@ import { JwtService } from '@nestjs/jwt';
 
     if (client.handshake.headers['cookie'] != undefined) {
       const str = client.handshake.headers['cookie'];
-      let cookie = str.substring(str.indexOf("=") + 1, str.indexOf(";"))
-
-      const decodeJwtAccessToken = this.jwtService.decode(cookie)
-      const userId = decodeJwtAccessToken['userId']
-
-      const updateUser: UpdateUserDTO = {socketID: client.id}
-      await this.usersService.updateUser(userId, updateUser)
-    }
+      const split =  str.split(';')
+      split.forEach( async (el) => {
+        let [k, v] = el.split('=');
+        if (k.trim() == 'Authentication') {
+          const decodeJwtAccessToken = this.jwtService.decode(v)
+          const userId = decodeJwtAccessToken['userId']
+          const updateUser: UpdateUserDTO = {socketID: client.id}
+          await this.usersService.updateUser(userId, updateUser)
+        }
+      })
+     }
   }
-
 
   /*
     Deconnection
