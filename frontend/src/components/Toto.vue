@@ -1,3 +1,8 @@
+<script setup lang="ts">
+</script>
+
 <template>
-		<h2>TOTOOoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo</h2>
+<div style="float: left;">
+	123456789 10111213141516171819
+</div>
 </template>
