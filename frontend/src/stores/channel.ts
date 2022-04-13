@@ -35,10 +35,10 @@ export const useChannelStore = defineStore('channel', () => {
   // Les users que l'on souhaite invité dans un channel privé
     const usersInvite = ref<User[]>([]);
 
-    const channelsJoin = ref<boolean>();
+    //const channelsJoin = ref<boolean>();
     const newOwner = ref<User>();
     const channelType = ref<number>();
-    const channelTypeUpdate = ref<number>();
+    //const channelTypeUpdate = ref<number>();
 
     const createChannel = (newChannel: Channel) => {
       allChannels.value.push(newChannel);
@@ -222,7 +222,7 @@ export const useChannelStore = defineStore('channel', () => {
         allChannels,
         channels,
         channel,
-        channelsJoin,
+        //channelsJoin,
         channelJoin,
         channelLeave,
         channelsInvite,
@@ -232,7 +232,7 @@ export const useChannelStore = defineStore('channel', () => {
         userDirectMessage,
         usersInvite,
         channelType,
-        channelTypeUpdate,
+        //channelTypeUpdate,
         createChannel,
         joinChannel,
         leaveChannel,

@@ -19,6 +19,7 @@ import { io } from 'socket.io-client';
 
 import UserCard from './UserCard.vue';
 import ChatMenu from './ChatMenu.vue';
+import ChatUsers from './ChatUsers.vue';
 
 const socketChat = io("http://localhost:4000", {
   withCredentials: true
@@ -38,17 +39,17 @@ const channelStore = useChannelStore();
 const { allChannels,
         channels,
         channel,
-        channelsJoin,
+        //channelsJoin,
         channelJoin,
-        channelLeave,
+        //channelLeave,
         channelsInvite,
-        channelUpdate,
+        //channelUpdate,
         newOwner,
         usersMembers,
         userDirectMessage,
         usersInvite,
         channelType,
-        channelTypeUpdate
+        //channelTypeUpdate
       } = storeToRefs(channelStore);
 
 onUpdated( () => {
@@ -67,10 +68,10 @@ onMounted(async () => {
     channelsInvite.value = res.data[0].inviteChannels
   });
   /////////
-  channelsJoin.value = true;
+  //channelsJoin.value = true;
   newOwner.value = undefined;
   channelType.value = 0;
-  channelTypeUpdate.value = 1;
+  //channelTypeUpdate.value = 1;
 });
 
 onUnmounted(() => {
@@ -236,17 +237,17 @@ const sendDirectMessage = async () => {
 // }
 
 // Mettre à jour jour un tableau de users qui recevront une invitation à un channel
-const updateUsersInvite = (user: User) => {
-  if (usersInvite.value != undefined) {
-    const index =  usersInvite?.value.findIndex((el: User) => el.id === user.id);
-    if (index != -1) {
-      channelStore.deleteUserInvite(index);
-    }
-    else {
-      channelStore.addUserInvite(user);
-    }
-  }
-}
+// const updateUsersInvite = (user: User) => {
+//   if (usersInvite.value != undefined) {
+//     const index =  usersInvite?.value.findIndex((el: User) => el.id === user.id);
+//     if (index != -1) {
+//       channelStore.deleteUserInvite(index);
+//     }
+//     else {
+//       channelStore.addUserInvite(user);
+//     }
+//   }
+// }
 
 // Rejoindre un channel
 // const joinChannel = () => {
@@ -386,13 +387,13 @@ const scroll = document.getElementById('scroll-bar');
 
 <template>
   <div class="container-fluid">
-    <div class="row-chat margin-chat">
-      <div class="my-col-sm-2 col-chat">
+    <div class="row-chat padding-chat">
+      <div class="col-md-3 col-chat">
         <div class="scrollspy-example my-5 px-2 py-2" style="min-height: 80vh;">
-          <ChatMenu :users="users" :socket="socketChat" :channelsJoin="channelsJoin" :loggedUser="loggedUser" :searchName="searchName"/>
+          <ChatMenu :users="users" :socket="socketChat" :loggedUser="loggedUser == null ? undefined : loggedUser" :searchName="searchName"/>
         </div>
       </div>
-      <div class="my-col-sm-7 col-chat ms-auto">
+      <div class="col-md-5 col-chat ms-auto">
         <div class="" style="min-height: 90vh; width: 100%;">
 <!---->
 <!---->
@@ -417,7 +418,7 @@ const scroll = document.getElementById('scroll-bar');
                         </div>
                         <div class="flex-shrink-1 rounded ml-3 text-msg-left">
                           <div class="font-weight-bold mb-1">{{item.author.username}}</div>
-                          {{item.data}}
+                          <div style="text-align: start;">{{item.data}}</div>
                         </div>
                       </div>
                     </div>
@@ -428,7 +429,7 @@ const scroll = document.getElementById('scroll-bar');
                         </div>
                         <div class="flex-shrink-1  rounded  mr-3 text-msg-right">
                           <div class="font-weight-bold mb-1">{{item.author.username}}</div>
-                          {{item.data}}
+                          <div style="text-align: start;">{{item.data}}</div>
                         </div>
                       </div>
                     </div>
@@ -458,16 +459,20 @@ const scroll = document.getElementById('scroll-bar');
         </div>
       </div>
 
-      <div class="my-col-sm-2 col-chat ms-auto">
+      <div class="col-md-3 col-chat ms-auto">
         <div class="scrollspy-example my-5 px-2 py-2" style="min-height: 70vh;">
+        <ChatUsers/>
 <!---->
 <!---->
 <!---->
-        <div v-if="channel != undefined">
+        <!-- <div v-if="channel != undefined">
           <div v-if="usersMembers">
-            <div class=""> <!--scroller-->
+            <div class="">
               <div class="list-group" v-for="user in usersMembers" :key="user.id">
-                <UserCard :user="user"/>
+                <UserCard :user="user"/> -->
+
+
+
                 <!--<div v-if="channelStore.isBan(channel, user.id) == false">
                   <a  class="list-group-item list-group-item-action"> {{user.username}} =>
 
@@ -515,7 +520,9 @@ const scroll = document.getElementById('scroll-bar');
 
                   </a>
                 </div>-->
-              </div>
+
+
+              <!-- </div> -->
 
               <!-- <div v-if="channel.bans.length > 0">
                 *** Users Bans ***
@@ -548,9 +555,9 @@ const scroll = document.getElementById('scroll-bar');
                 </div>
               </div> -->
 
-            </div>
+            <!-- </div>
           </div>
-        </div>
+        </div> -->
 <!---->
 <!---->
 <!---->
@@ -738,9 +745,10 @@ const scroll = document.getElementById('scroll-bar');
 /*--------------------------*/
 /*--------------------------*/
 /*--------------------------*/
-.margin-chat {
-	margin: 1% !important;
-	margin-top: 5% !important;
+.padding-chat {
+	padding: 1% !important;
+	padding-top: 5% !important;
+	padding-bottom: 5% !important;
 }
 .col-chat {
 	min-height: 90vh;
@@ -748,7 +756,7 @@ const scroll = document.getElementById('scroll-bar');
   /* display: flex; */
   justify-content: center;
   text-decoration: none;
-  color: #fff961;
+  /* color: #fff961; */
   border: #fff961 3px solid;
   background-color: transparent;
   border-radius: 0.25em;
@@ -850,13 +858,13 @@ padding: 10px;
 }
 
 @media (min-width: 950px )  {
-  .my-col-sm-2 {
+  .my-col-sm-3 {
       flex: 0 0 auto !important;
       width: 16.66666667% !important;
   }
 }
 @media (min-width: 950px )  {
-  .my-col-sm-7 {
+  .my-col-sm-5 {
       flex: 0 0 auto !important;
       width: 58.33333333%;
   }
