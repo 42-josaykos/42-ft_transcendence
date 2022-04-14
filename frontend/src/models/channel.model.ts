@@ -5,6 +5,8 @@ export interface Channel {
     id: number;
     name: string;
     isPrivate: boolean;
+    isProtected: boolean;
+    isDirectChannel: boolean;
     password: string;
     messages: Message[];
     owner: User;
@@ -15,5 +17,4 @@ export interface Channel {
     invites: User[];
     isMember: boolean;
     isOwner: boolean;
-    isDirectMessage: boolean;
 }

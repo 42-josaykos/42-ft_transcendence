@@ -44,6 +44,7 @@ import {
       provide: 'USERS_SERVICE',
       useClass: UsersService,
     },
+    JwtModule
   ],
   controllers: [AuthController],
   providers: [
