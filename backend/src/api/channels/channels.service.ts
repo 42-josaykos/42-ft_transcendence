@@ -14,6 +14,7 @@ import User from 'src/api/users/entities/user.entity';
 import MutedUser from 'src/api/users/entities/muted.user.entity';
 import BanedUser from 'src/api/users/entities/baned.user.entity';
 import { validate } from 'class-validator';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class ChannelsService {
@@ -75,6 +76,10 @@ export class ChannelsService {
     if ('isProtected' in filter)
       query.andWhere('channels.isProtected = :isProtected', {
         isProtected: filter.isProtected,
+      });
+    if ('isDirectChannel' in filter)
+      query.andWhere('channels.isDirectChannel = :isDirectChannel', {
+        isDirectChannel: filter.isDirectChannel,
       });
 
     // Fetch field parameters
@@ -209,8 +214,24 @@ export class ChannelsService {
   async createChannel(channel: CreateChannelDTO): Promise<Channel> {
     try {
       await this.validateChannel(channel);
-      const newChannel = this.channelsRepository.create(channel);
+      const count = await this.channelsRepository.count({
+        where: { name: channel.name },
+      });
+      if (count > 0)
+        throw new ForbiddenException(
+          "Can't create new Channel (name must be unique)",
+        );
+      
+      const channelData = { ...channel };
+      if (channelData.password) {
+        const hash = await bcrypt.hash(channel.password, 10);
+        channelData.password = hash;
+      }
+
+      const newChannel = this.channelsRepository.create(channelData);
       await this.channelsRepository.save(newChannel);
+
+      delete newChannel.password
       return newChannel;
     } catch (error) {
       throw error;
