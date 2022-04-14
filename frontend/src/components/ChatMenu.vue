@@ -553,7 +553,11 @@ const updateUsersInvite = (user: User) => {
               style="display: flex; align-items: center"
             >
               <div class="text-truncate">
-                <button @click="" type="button" class="rounded btn-channel">
+                <button
+                  @click="displayMessages(item)"
+                  type="button"
+                  class="rounded btn-channel"
+                >
                   {{ searchName(item) }}
                 </button>
               </div>

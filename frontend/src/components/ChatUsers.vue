@@ -57,12 +57,9 @@ const sendDirectMessage = async () => {
 
   const name1 = `${userClick.value.id} ${loggedUser.value?.id}`;
   const name2 = `${loggedUser.value?.id} ${userClick.value.id}`;
-  console.log("name1 => ", name1);
-  console.log("name2 => ", name2);
   const channelItem = allChannels.value.find(
     (el: Channel) => el.name === name1 || el.name === name2
   );
-  console.log("channelItem => ", channelItem);
   if (channelItem == undefined) {
     const newChannel = {
       name: `${userClick.value.id} ${loggedUser.value?.id}`,
@@ -74,7 +71,6 @@ const sendDirectMessage = async () => {
       isDirectChannel: true,
       isProtected: false,
     };
-    console.log("newChannel => ", newChannel);
     props.socketChat.emit(
       "newChannel",
       newChannel,
