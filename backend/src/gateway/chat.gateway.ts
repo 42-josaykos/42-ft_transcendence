@@ -19,6 +19,7 @@ import { MessagesService } from 'src/api/messages/messages.service';
 
 @WebSocketGateway({
   //donne accès à la fonctionnalité socket.io
+  namespace: 'chat',
   cors: {
     origin: 'http://localhost:3001',
     credentials: true,
