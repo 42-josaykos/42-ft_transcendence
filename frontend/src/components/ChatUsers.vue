@@ -21,6 +21,7 @@ const { allChannels,
 
 const userClick = ref<User>()
 const userClickBool = ref<boolean>(false)
+const modalShowProfil = ref<boolean>(false)
 
 const isOnline = (userID: Number):boolean => {
   if (usersOnline.value.findIndex((el: Number) => el == userID) == -1) {
@@ -52,27 +53,27 @@ const test = (user: User) => {
     </template>
     <template v-slot:body>
       <div style="display: grid;">
-        <button type="button" class="btn-user-click">
-          PROFIL
+        <button @click="modalShowProfil = true" type="button" class="btn-user-click my-2">
+          Profil
         </button>
-        <div v-if="loggedUser.id != userClick.id"  style="display: grid;">
-          <button type="button" class="btn-user-click">
+        <div v-if="loggedUser?.id != userClick?.id"  style="display: grid;">
+          <button type="button" class="btn-user-click my-2">
             SEND MESSAGE
           </button>
-          <button type="button" class="btn-user-click">
+          <button type="button" class="btn-user-click my-2">
             ADD FRIEND => si pas encore ami
           </button>
-          <button type="button" class="btn-user-click">
+          <button type="button" class="btn-user-click my-2">
             BLOQUER => retir de la liste d'ami??
           </button>
-          <div v-if="channelStore.isAdmin(channel, loggedUser.id)"  style="display: grid;">
-            <button type="button" class="btn-user-click">
+          <div v-if="channelStore.isAdmin(channel, loggedUser?.id)"  style="display: grid;">
+            <button type="button" class="btn-user-click my-2">
               MUET => si admin
             </button>
-            <button type="button" class="btn-user-click">
+            <button type="button" class="btn-user-click my-2">
               BAN => si admin
             </button>
-            <button type="button" class="btn-user-click">
+            <button type="button" class="btn-user-click my-2">
               ADD ADMIN => si admin
             </button>
           </div>
@@ -80,7 +81,7 @@ const test = (user: User) => {
       </div>
     </template>
     <template v-slot:footer>
-      <button @click="userClickBool  = false" type="button" class="mod-btn mod-btn-yellow">Return</button>
+      <button @click="userClickBool  = false" type="button" class="mod-btn mod-btn-yellow  my-2">Return</button>
     </template>
   </ModalChat>
 

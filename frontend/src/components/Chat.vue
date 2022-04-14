@@ -406,12 +406,12 @@ const scroll = document.getElementById('scroll-bar');
             <!--Affichage des messages du channel selectionné-->
             <div v-if="channel != undefined">
               <div v-if="channelStore.isBan(channel, loggedUser?.id) == false">
-                <div v-if="messages" class="scroller">
+                <div v-if="messages">
                   <div id="" style="display: flex;" v-for="item in messages" :key="item.id">
                     <div v-if="channelStore.isBan(channel, item.author.id) == true">
                       *** Message delete ***
                     </div>
-                    <div v-else-if="item.author.id != loggedUser.id">
+                    <div v-else-if="item.author.id != loggedUser?.id">
                       <div class="msg chat-message-left mb-4">
                         <div style="margin: auto; padding-left: 10px; padding-right: 10px;">
                           <img v-bind:src=item.author.avatar alt="Avatar"  class="rounded-circle mr-1" width="40" height="40">
@@ -460,7 +460,7 @@ const scroll = document.getElementById('scroll-bar');
       </div>
 
       <div class="col-md-3 col-chat ms-auto">
-        <div class="scrollspy-example my-5 px-2 py-2" style="min-height: 70vh;">
+        <div class="scrollspy-example my-5 px-2 py-2" style="min-height: 80vh;">
         <ChatUsers/>
 <!---->
 <!---->
@@ -648,11 +648,11 @@ const scroll = document.getElementById('scroll-bar');
   flex: 0;
 	}
 
-.scroller {
+/* .scroller {
   overflow-y: scroll;
   scrollbar-width: thin;
   height: 100%;
-}
+} */
 
 .form {
   background: rgba(0, 0, 0, 0.15);
