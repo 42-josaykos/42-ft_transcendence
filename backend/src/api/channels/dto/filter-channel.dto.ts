@@ -33,6 +33,11 @@ export class FilterChannelDTO {
   @IsOptional()
   readonly isProtected?: boolean;
 
+  @ApiProperty({ required: false })
+  @IsBooleanString()
+  @IsOptional()
+  readonly isDirectChannel?: boolean;
+
   // Fetch field parameters
   @ApiProperty({ required: false })
   @IsEmpty()
