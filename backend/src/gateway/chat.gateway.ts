@@ -19,6 +19,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
  
  @WebSocketGateway({  //donne accès à la fonctionnalité socket.io
+  namespace: 'chat',
    cors: {
      origin: 'http://localhost:3001',
      credentials: true
@@ -104,11 +105,13 @@ import { JwtService } from '@nestjs/jwt';
   */
   @SubscribeMessage('newChannel')
   async newChannel(client: Socket, data: any) {
+    console.log("data => ", data)
     const channel = data[0]
     const message = data[1]
     const userID = data[2]
 
     const newChannel = await this.channelsService.createChannel(channel)
+    console.log("newChannel 2  => ", newChannel)
     if (message != null) {
       message.channel.id = newChannel.id
     }

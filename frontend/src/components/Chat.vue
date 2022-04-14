@@ -20,7 +20,7 @@ import UserCard from "./UserCard.vue";
 import ChatMenu from "./ChatMenu.vue";
 import ChatUsers from "./ChatUsers.vue";
 
-const socketChat = io("http://localhost:4000", {
+const socketChat = io("http://localhost:4000/chat", {
   withCredentials: true,
 });
 
@@ -57,9 +57,10 @@ onUpdated(() => {
 });
 
 onMounted(async () => {
-  Get("/channels/search").then((res) => {
+  Get("/channels/search?&members").then((res) => {
     if (res.status == 200) {
       allChannels.value = res.data;
+      console.log("ALL => ", allChannels.value);
     }
   });
   //////Pas sure d'en avoir besoin
@@ -128,6 +129,7 @@ socketChat.on("newChannel", (data: any) => {
         (el: User) => el.id === loggedUser.value?.id
       ) != -1
     ) {
+      console.log(" ICI ");
       channelStore.joinChannel(newChannel);
       socketChat.emit("newMessage", message, user);
     }
@@ -399,29 +401,15 @@ const sendNewMessage = (channelId: Number | undefined) => {
 // CHANGER AVEC LES ID QUI RESTE UNIQUE //
 //////////////////////////////////////////
 const searchName = (channelItem: Channel | undefined): string => {
-  console.log("Channel Item => ", channelItem);
   if (channelItem == undefined) {
     return "CHAT";
   }
-  if (channelItem.isDirectChannel === true) {
-    const names = channelItem.name.split(" ");
-    if (names[0] === loggedUser.value?.id) {
-      const membersChan = channelItem.members;
-      membersChan.forEach((el: User) => {
-        if (el.id == names[1]) {
-          return el.username;
-        }
-      });
-    } else {
-      const membersChan = channelItem.members;
-      membersChan.forEach((el: User) => {
-        if (el.id == names[0]) {
-          return el.username;
-        }
-      });
-    }
+  if (channelItem.isDirectChannel === false) {
+    return channelItem.name;
   }
-  return channelItem.name;
+  const membersChan = channelItem.members;
+  const nameChan = membersChan.filter((el) => el.id != loggedUser.value.id);
+  return nameChan[0].username;
 };
 
 const scrollFunction = () => {
@@ -558,7 +546,7 @@ const scrollFunction = () => {
 
       <div class="col-md-3 col-chat ms-auto">
         <div class="scrollspy-example my-5 px-2 py-2" style="min-height: 80vh">
-          <ChatUsers :socketchat="socketChat" />
+          <ChatUsers :socketChat="socketChat" />
           <!---->
           <!---->
           <!---->

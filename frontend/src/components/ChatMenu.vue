@@ -397,7 +397,7 @@ const updateUsersInvite = (user: User) => {
             class="btn-toggle-nav list-unstyled fw-normal small"
           >
             <div
-              v-if="item.isMember"
+              v-if="item.isMember && !item.isDirectChannel"
               style="display: flex; align-items: center"
             >
               <div class="text-truncate">
@@ -519,6 +519,10 @@ const updateUsersInvite = (user: User) => {
   <div class="wrapper-accordion">
     <h2 class="accordion-header" id="direct-msg-heading">
       <button
+        @click="
+          channelStore?.updateOwner(props.loggedUser?.id),
+            channelStore?.updateMember()
+        "
         class="accordion-btn collapsed btn-neons-channels-menu"
         type="button"
         data-bs-toggle="collapse"
@@ -545,7 +549,7 @@ const updateUsersInvite = (user: User) => {
             class="btn-toggle-nav list-unstyled fw-normal small"
           >
             <div
-              v-if="!=item.isMember && item.isPrivate && item.isDirectChannel"
+              v-if="item.isMember && item.isDirectChannel"
               style="display: flex; align-items: center"
             >
               <div class="text-truncate">
