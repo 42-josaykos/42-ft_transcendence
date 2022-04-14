@@ -436,12 +436,14 @@ export class UsersService {
       id: userID,
       refreshToken: true,
     });
-    const isRefreshTokenMatching = await bcrypt.compare(
-      refreshToken,
-      user.refreshToken,
-    );
-    if (isRefreshTokenMatching) {
-      return user;
+    if (user && user.refreshToken) {
+      const isRefreshTokenMatching = await bcrypt.compare(
+        refreshToken,
+        user.refreshToken,
+      );
+      if (isRefreshTokenMatching) {
+        return user;
+      }
     }
   }
 

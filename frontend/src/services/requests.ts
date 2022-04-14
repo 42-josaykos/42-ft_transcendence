@@ -1,14 +1,13 @@
-import axios from 'axios';
+import ax from './interceptors';
 
 // Get
 export async function Get(url: string) {
   let response;
   try {
-    response = await axios.get(url);
+    response = await ax.get(url);
   } catch (e: any) {
     response = e.response;
   }
-  console.log(response);
   return response;
 }
 
@@ -16,11 +15,10 @@ export async function Get(url: string) {
 export async function Post(url: string, data: any) {
   let response;
   try {
-    response = await axios.post(url, data);
+    response = await ax.post(url, data);
   } catch (e: any) {
     response = e.response;
   }
-  console.log(response);
   return response;
 }
 
@@ -28,11 +26,10 @@ export async function Post(url: string, data: any) {
 export async function Patch(url: string, data: any) {
   let response;
   try {
-    response = await axios.patch(url, data);
+    response = await ax.patch(url, data);
   } catch (e: any) {
     response = e.response;
   }
-  console.log(response);
   return response;
 }
 
@@ -40,11 +37,10 @@ export async function Patch(url: string, data: any) {
 export async function Put(url: string, data: any) {
   let response;
   try {
-    response = await axios.put(url, data);
+    response = await ax.put(url, data);
   } catch (e: any) {
     response = e.response;
   }
-  console.log(response);
   return response;
 }
 
@@ -52,10 +48,9 @@ export async function Put(url: string, data: any) {
 export async function Delete(url: string) {
   let response;
   try {
-    response = await axios.delete(url);
+    response = await ax.delete(url);
   } catch (e: any) {
     response = e.response;
   }
-  console.log(response);
   return response;
 }
