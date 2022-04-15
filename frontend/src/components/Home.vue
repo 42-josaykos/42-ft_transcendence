@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { onMounted, ref } from 'vue'
+  import { ref } from 'vue'
   import TeamProfil from './TeamProfil.vue';
 
   const profil_vmoreau = ref(false)
@@ -252,8 +252,6 @@ p {
 }
 
 th{
-  /* overflow: hidden; */
-  /* text-overflow: ellipsis; */
   white-space: nowrap;
   width: 40%;
 }
@@ -269,8 +267,8 @@ th{
 
 .watch_icon{
   color: var(--sidebar-icon-color);
-
 }
+
 .watch_icon:hover{
   transform: scale(1.5);
   transition: 0.4s;
