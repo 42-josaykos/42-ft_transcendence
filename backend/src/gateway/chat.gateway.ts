@@ -51,7 +51,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         let [k, v] = el.split('=');
         if (k.trim() == 'Authentication') {
           const decodeJwtAccessToken = this.jwtService.decode(v);
-          const userId = decodeJwtAccessToken['userId'];
+          const userId = decodeJwtAccessToken['userID'];
           const updateUser: UpdateUserDTO = { socketID: client.id };
           await this.usersService.updateUser(userId, updateUser);
         }
