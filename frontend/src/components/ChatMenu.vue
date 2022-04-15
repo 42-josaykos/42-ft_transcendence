@@ -3,6 +3,7 @@ import ModalChat from "@/components/ModalChat.vue";
 import { storeToRefs } from "pinia";
 import { useChannelStore } from "@/stores/channel";
 import { useMessageStore } from "@/stores/message";
+import { useUserStore } from "@/stores/user";
 
 import type { Channel } from "@/models/channel.model";
 import type { User } from "@/models/user.model";
@@ -11,6 +12,9 @@ import { ref } from "vue";
 
 const messageStore = useMessageStore();
 const { messages } = storeToRefs(messageStore);
+
+const userStore = useUserStore();
+const { loggedUser, users } = storeToRefs(userStore);
 
 let inputPassword = ref<string>("");
 let channelName = ref<string>("");
@@ -39,9 +43,7 @@ const {
 
 const props = defineProps({
   socket: Object,
-  loggedUser: Object || undefined,
   searchName: Function,
-  users: [Object],
 });
 
 const displayMessages = (channel_item: Channel) => {
@@ -71,12 +73,12 @@ const createChannel = () => {
         isPrivate: channelType.value == 2 ? true : false,
         password: channelType.value == 3 ? inputPassword : null,
         isProtected: channelType.value == 3 ? true : false,
-        owner: { id: props.loggedUser?.id },
-        admins: [{ id: props.loggedUser?.id }],
-        members: [{ id: props.loggedUser?.id }],
+        owner: { id: loggedUser.value?.id },
+        admins: [{ id: loggedUser.value?.id }],
+        members: [{ id: loggedUser.value?.id }],
         invites: channelType.value == 2 ? usersArray : [],
       };
-      props.socket.emit("newChannel", newChannel, null, props.loggedUser);
+      props.socket.emit("newChannel", newChannel, null, loggedUser.value);
     }
   }
   inputPassword.value = "";
@@ -89,7 +91,7 @@ const joinChannel = () => {
   if (props.socket != undefined) {
     props.socket.emit(
       "joinChannel",
-      props.loggedUser?.id,
+      loggedUser.value?.id,
       channelJoin.value,
       inputPassword.value
     );
@@ -99,27 +101,29 @@ const joinChannel = () => {
 
 // Accepter une invitation à rejoindre un channel
 const acceptInviteChannel = () => {
-  if (props.socket != undefined) {
-    console.log(`Accept invitation => ${channelJoin.value?.name}`);
-    const updateChannel = {
-      removeInvites: [{ id: props.loggedUser?.id }],
-      addMembers: [{ id: props.loggedUser?.id }],
-    };
-    if (channelJoin.value != undefined) {
-      props.socket.emit(
-        "updateMember",
-        channelJoin.value.id,
-        updateChannel,
-        {
-          author: props.loggedUser?.id,
-          channel: { id: channelJoin.value.id },
-          data: `${props.loggedUser?.username} has joined the channel.`,
-        },
-        props.loggedUser
-      );
-      channelStore.deleteChannelInvite(channelJoin.value);
-      channelStore.joinChannel(channelJoin.value);
-      channelStore.updateMember(props.loggedUser?.id);
+  if (loggedUser.value != undefined) {
+    if (props.socket != undefined) {
+      console.log(`Accept invitation => ${channelJoin.value?.name}`);
+      const updateChannel = {
+        removeInvites: [{ id: loggedUser.value?.id }],
+        addMembers: [{ id: loggedUser.value?.id }],
+      };
+      if (channelJoin.value != undefined) {
+        props.socket.emit(
+          "updateMember",
+          channelJoin.value.id,
+          updateChannel,
+          {
+            author: loggedUser.value?.id,
+            channel: { id: channelJoin.value.id },
+            data: `${loggedUser.value?.username} has joined the channel.`,
+          },
+          loggedUser.value
+        );
+        channelStore.deleteChannelInvite(channelJoin.value);
+        channelStore.joinChannel(channelJoin.value);
+        channelStore.updateMember(loggedUser.value?.id);
+      }
     }
   }
 };
@@ -132,9 +136,9 @@ const refuseInviteChannel = () => {
       props.socket.emit(
         "updateMember",
         channelJoin.value.id,
-        { removeInvites: [{ id: props.loggedUser?.id }] },
+        { removeInvites: [{ id: loggedUser.value?.id }] },
         null,
-        props.loggedUser
+        loggedUser.value
       );
       channelStore.deleteChannelInvite(channelJoin.value);
     }
@@ -151,11 +155,11 @@ const deleteChannel = () => {
 
 // Quitter un channel si Owner
 const leaveChannel = () => {
-  if (props.loggedUser != null && props.socket != undefined) {
+  if (loggedUser.value != undefined && props.socket != undefined) {
     if (channelLeave.value !== undefined) {
       if (channelLeave.value.isDirectChannel) {
       } else if (
-        channelStore.isOwner(channelLeave.value, props.loggedUser.id)
+        channelStore.isOwner(channelLeave.value, loggedUser.value.id)
       ) {
         if (
           channelStore.isAdmin(
@@ -168,19 +172,19 @@ const leaveChannel = () => {
             channelLeave.value.id,
             {
               owner: { id: newOwner.value?.id },
-              removeAdmins: [{ id: props.loggedUser.id }],
-              removeMembers: [{ id: props.loggedUser.id }],
+              removeAdmins: [{ id: loggedUser.value.id }],
+              removeMembers: [{ id: loggedUser.value.id }],
             },
             {
-              author: props.loggedUser.id,
+              author: loggedUser.value.id,
               channel: { id: channelLeave.value.id },
-              data: `${props.loggedUser.username} the channel owner has left the channel - - ${newOwner.value?.username} becomes the owner.`,
+              data: `${loggedUser.value.username} the channel owner has left the channel - - ${newOwner.value?.username} becomes the owner.`,
             },
-            props.loggedUser
+            loggedUser.value
           );
         } else {
           if (
-            channelStore.isBan(channelLeave.value, props.loggedUser.id) == true
+            channelStore.isBan(channelLeave.value, loggedUser.value.id) == true
           ) {
             props.socket.emit(
               "updateMember",
@@ -189,16 +193,16 @@ const leaveChannel = () => {
                 owner: { id: newOwner.value?.id },
                 addAdmins: [{ id: newOwner.value?.id }],
                 removeMutes: [{ id: newOwner.value?.id }],
-                removeBans: [{ id: props.loggedUser.id }],
-                removeAdmins: [{ id: props.loggedUser.id }],
-                removeMembers: [{ id: props.loggedUser.id }],
+                removeBans: [{ id: loggedUser.value.id }],
+                removeAdmins: [{ id: loggedUser.value.id}],
+                removeMembers: [{ id: loggedUser.value.id }],
               },
               {
-                author: props.loggedUser.id,
+                author: loggedUser.value.id,
                 channel: { id: channelLeave.value?.id },
-                data: `${props.loggedUser.username} has leaved the channel.`,
+                data: `${loggedUser.value.username} has leaved the channel.`,
               },
-              props.loggedUser
+              loggedUser.value
             );
           } else if (
             channelStore.isMute(
@@ -213,15 +217,15 @@ const leaveChannel = () => {
                 owner: { id: newOwner.value?.id },
                 addAdmins: [{ id: newOwner.value?.id }],
                 removeMutes: [{ id: newOwner.value?.id }],
-                removeAdmins: [{ id: props.loggedUser.id }],
-                removeMembers: [{ id: props.loggedUser.id }],
+                removeAdmins: [{ id: loggedUser.value.id }],
+                removeMembers: [{ id: loggedUser.value.id }],
               },
               {
-                author: props.loggedUser.id,
+                author: loggedUser.value.id,
                 channel: { id: channelLeave.value?.id },
-                data: `${props.loggedUser.username} has leaved the channel.`,
+                data: `${loggedUser.value.username} has leaved the channel.`,
               },
-              props.loggedUser
+              loggedUser.value
             );
           } else {
             props.socket.emit(
@@ -229,84 +233,84 @@ const leaveChannel = () => {
               channelLeave.value?.id,
               {
                 owner: { id: newOwner.value?.id },
-                removeAdmins: [{ id: props.loggedUser.id }],
+                removeAdmins: [{ id: loggedUser.value.id }],
                 addAdmins: [{ id: newOwner.value?.id }],
-                removeMembers: [{ id: props.loggedUser.id }],
+                removeMembers: [{ id: loggedUser.value.id }],
               },
               {
-                author: props.loggedUser.id,
+                author: loggedUser.value.id,
                 channel: { id: channelLeave.value?.id },
-                data: `${props.loggedUser.username} has leaved the channel.`,
+                data: `${loggedUser.value.username} has leaved the channel.`,
               },
-              props.loggedUser
+              loggedUser.value
             );
           }
         }
       } else {
         if (
-          channelStore.isAdmin(channelLeave.value, props.loggedUser.id) == true
+          channelStore.isAdmin(channelLeave.value, loggedUser.value.id) == true
         ) {
           props.socket.emit(
             "updateMember",
             channelLeave.value?.id,
             {
-              removeAdmins: [{ id: props.loggedUser.id }],
-              removeMembers: [{ id: props.loggedUser.id }],
+              removeAdmins: [{ id: loggedUser.value.id }],
+              removeMembers: [{ id: loggedUser.value.id }],
             },
             {
-              author: props.loggedUser.id,
+              author: loggedUser.value.id,
               channel: { id: channelLeave.value?.id },
-              data: `${props.loggedUser.username} has leaved the channel.`,
+              data: `${loggedUser.value.username} has leaved the channel.`,
             },
-            props.loggedUser
+            loggedUser.value
           );
         } else {
           if (
-            channelStore.isBan(channelLeave.value, props.loggedUser.id) == true
+            channelStore.isBan(channelLeave.value, loggedUser.value.id) == true
           ) {
             props.socket.emit(
               "updateMember",
               channelLeave.value?.id,
               {
-                removeBans: [{ id: props.loggedUser.id }],
-                removeMutes: [{ id: props.loggedUser.id }],
-                removeMembers: [{ id: props.loggedUser.id }],
+                removeBans: [{ id: loggedUser.value.id }],
+                removeMutes: [{ id: loggedUser.value.id }],
+                removeMembers: [{ id: loggedUser.value.id }],
               },
               {
-                author: props.loggedUser.id,
+                author: loggedUser.value.id,
                 channel: { id: channelLeave.value?.id },
-                data: `${props.loggedUser.username} has leaved the channel.`,
+                data: `${loggedUser.value.username} has leaved the channel.`,
               },
-              props.loggedUser
+              loggedUser.value
             );
           } else if (
-            channelStore.isMute(channelLeave.value, props.loggedUser.id) == true
+            channelStore.isMute(channelLeave.value, loggedUser.value.id) == true
           ) {
             props.socket.emit(
               "updateMember",
               channelLeave.value?.id,
               {
-                removeMutes: [{ id: props.loggedUser.id }],
-                removeMembers: [{ id: props.loggedUser.id }],
+                removeMutes: [{ id: loggedUser.value.id }],
+                removeMembers: [{ id: loggedUser.value.id }],
               },
               {
-                author: props.loggedUser.id,
+                author: loggedUser.value.id,
                 channel: { id: channelLeave.value?.id },
-                data: `${props.loggedUser.username} has leaved the channel.`,
+                data: `${loggedUser.value.username} has leaved the channel.`,
               },
-              props.loggedUser
+              loggedUser.value
             );
           } else {
             props.socket.emit(
               "updateMember",
               channelLeave.value?.id,
-              { removeMembers: [{ id: props.loggedUser.id }] },
+              { removeMembers: [{ id: loggedUser.value.id }] },
               {
-                author: props.loggedUser.id,
+                author: loggedUser.value.id,
                 channel: { id: channelLeave.value?.id },
-                data: `${props.loggedUser.username} has leaved the channel.`,
+                data: `${loggedUser.value.username} has leaved the channel.`,
               },
-              props.loggedUser
+              loggedUser.value
             );
           }
         }
@@ -318,7 +322,7 @@ const leaveChannel = () => {
           : channel.value;
       messages.value =
         channel.value?.id === channelLeave.value?.id ? [] : messages.value;
-      channelStore.updateMember(props.loggedUser?.id);
+      channelStore.updateMember(loggedUser.value.id);
     }
   }
 };
@@ -368,8 +372,8 @@ const updateUsersInvite = (user: User) => {
     <h2 class="accordion-header" id="channels-heading">
       <button
         @click="
-          channelStore?.updateOwner(props.loggedUser?.id),
-            channelStore?.updateMember(props.loggedUser?.id)
+          channelStore?.updateOwner(loggedUser.id),
+            channelStore?.updateMember(loggedUser.id)
         "
         class="accordion-btn collapsed btn-neons-channels-menu"
         type="button"
@@ -460,7 +464,7 @@ const updateUsersInvite = (user: User) => {
   <div class="wrapper-accordion">
     <h2 class="accordion-header" id="all-channels-heading">
       <button
-        @click="channelStore?.updateMember(props.loggedUser?.id)"
+        @click="channelStore?.updateMember(loggedUser.id)"
         class="accordion-btn collapsed btn-neons-channels-menu"
         type="button"
         data-bs-toggle="collapse"
@@ -520,8 +524,8 @@ const updateUsersInvite = (user: User) => {
     <h2 class="accordion-header" id="direct-msg-heading">
       <button
         @click="
-          channelStore?.updateOwner(props.loggedUser?.id),
-            channelStore?.updateMember(props.loggedUser?.id)
+          channelStore?.updateOwner(loggedUser.id),
+            channelStore?.updateMember(loggedUser.id)
         "
         class="accordion-btn collapsed btn-neons-channels-menu"
         type="button"
@@ -735,12 +739,12 @@ const updateUsersInvite = (user: User) => {
         </div>
       </div>
       <div v-else-if="channelType == 2">
-        <div v-if="props.users?.length != 1">
+        <div v-if="users.length != 1">
           <h5 class="pt-3" style="text-align: start"><u>Choose users :</u></h5>
           <div class="scrollspy-example2 card-choose-users">
             <div
               class="separator-list"
-              v-for="user in props.users"
+              v-for="user in users"
               :key="user.id"
             >
               <div
@@ -867,12 +871,12 @@ const updateUsersInvite = (user: User) => {
         </div>
       </div>
       <div v-else-if="channelType == 2">
-        <div v-if="props.users?.length != 1">
+        <div v-if="users.length != 1">
           <h5 class="pt-3" style="text-align: start"><u>Choose users :</u></h5>
           <div class="scrollspy-example2 card-choose-users">
             <div
               class="separator-list"
-              v-for="user in props.users"
+              v-for="user in users"
               :key="user.id"
             >
               <div
@@ -1036,7 +1040,7 @@ const updateUsersInvite = (user: User) => {
         @click="
           newOwner = undefined;
           modalValidate = false;
-          channelStore.isOwner(channelLeave, props.loggedUser?.id)
+          channelStore.isOwner(channelLeave, loggedUser.id)
             ? (modalDelChannel = true)
             : (modalDelChannel = false);
         "

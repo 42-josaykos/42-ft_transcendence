@@ -25,7 +25,6 @@ const socketChat = io("http://localhost:4000/chat", {
 
 const userStore = useUserStore();
 const { loggedUser } = storeToRefs(userStore);
-const users = ref<User[]>([]);
 
 const messageStore = useMessageStore();
 const { messages, textMsg, textDirectMsg } = storeToRefs(messageStore);
@@ -420,9 +419,7 @@ const scrollFunction = () => {
       <div class="col-md-3 col-chat">
         <div class="scrollspy-example my-5 px-2 py-2" style="min-height: 80vh">
           <ChatMenu
-            :users="users"
             :socket="socketChat"
-            :loggedUser="loggedUser == null ? undefined : loggedUser"
             :searchName="searchName"
           />
         </div>

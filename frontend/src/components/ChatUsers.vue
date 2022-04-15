@@ -35,27 +35,6 @@ const isOnline = (userID: Number): boolean => {
 
 // Créer un nouveau channel entre 2 users si n'existe pas encore et permet d'envoyer des messages privés
 const sendDirectMessage = async () => {
-  // const name1 = `${userDirectMessage.value?.username} ${loggedUser.value?.username}`;
-  // const name2 = `${loggedUser.value?.username} ${userDirectMessage.value?.username}`;
-  // const channelItem = allChannels.value.find((el: Channel) => el.name === name1 || el.name === name2);
-  // if (channelItem == undefined) {
-  //   const newChannel = {
-  //     name: `${userDirectMessage.value?.username} ${loggedUser.value?.username}`,
-  //     isPrivate: true,
-  //     password: null,
-  //     owner: { id: loggedUser.value?.id },
-  //     admins: [{ id: loggedUser.value?.id }, {id: userDirectMessage.value?.id}],
-  //     members: [{ id: loggedUser.value?.id }, {id: userDirectMessage.value?.id}],
-  //     isDirectChannel: true,
-  //     isProtected: false
-  //   };
-  //   socketChat.emit('newChannel', newChannel, {author: loggedUser.value?.id, channel: {id: null}, data: textDirectMsg.value}, loggedUser.value)
-  // }
-  // else {
-  //   socketChat.emit('newMessage', {author: loggedUser.value?.id, channel: {id: channelItem?.id}, data: textDirectMsg.value}, loggedUser.value)
-  //   textDirectMsg.value = '';
-  // }
-
   const name1 = `${userClick.value?.id} ${loggedUser.value?.id}`;
   const name2 = `${loggedUser.value?.id} ${userClick.value?.id}`;
   const channelItem = allChannels.value.find(
@@ -96,9 +75,6 @@ const sendDirectMessage = async () => {
   }
 };
 
-const test = (user: User) => {
-  console.log("USER => ", user);
-};
 </script>
 
 <template>
