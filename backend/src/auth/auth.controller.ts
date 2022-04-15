@@ -10,10 +10,12 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { RequestWithUser } from './auth.interface';
-import JwtAuthGuard, {
+import {
+  JwtAccessGuard,
   AuthenticatedGuard,
   FortyTwoAuthGuard,
   GithubGuard,
+  JwtRefreshGuard,
   LocalAuthGuard,
 } from './guards';
 import { AuthenticationProvider } from './auth.interface';
@@ -44,11 +46,14 @@ export class AuthController {
 
   @Post('login/local')
   @UseGuards(LocalAuthGuard)
-  loginLocal(@Req() req: RequestWithUser, @Res() res: Response) {
+  async loginLocal(@Req() req: RequestWithUser, @Res() res: Response) {
     const { user } = req;
-    const cookie = this.authService.getCookieWithJwtToken(user.id);
-    res.setHeader('Set-Cookie', cookie);
-    user.password = undefined;
+    const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
+      user.id,
+    );
+    const refreshToken = this.authService.getCookieWithJwtRefreshToken(user.id);
+    await this.authService.setCurrentRefreshToken(refreshToken.token, user.id);
+    res.setHeader('Set-Cookie', [accessTokenCookie, refreshToken.cookie]);
     return res.send(user);
   }
 
@@ -61,9 +66,12 @@ export class AuthController {
   @UseGuards(FortyTwoAuthGuard)
   async redirect(@Req() req: RequestWithUser, @Res() res: Response) {
     const { user } = req;
-    const cookie = this.authService.getCookieWithJwtToken(user.id);
-    res.setHeader('Set-Cookie', cookie);
-    user.password = undefined;
+    const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
+      user.id,
+    );
+    const refreshToken = this.authService.getCookieWithJwtRefreshToken(user.id);
+    await this.authService.setCurrentRefreshToken(refreshToken.token, user.id);
+    res.setHeader('Set-Cookie', [accessTokenCookie, refreshToken.cookie]);
     return;
   }
 
@@ -72,9 +80,12 @@ export class AuthController {
   @UseGuards(GithubGuard)
   async redirectGithub(@Req() req: RequestWithUser, @Res() res: Response) {
     const { user } = req;
-    const cookie = this.authService.getCookieWithJwtToken(user.id);
-    res.setHeader('Set-Cookie', cookie);
-    user.password = undefined;
+    const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
+      user.id,
+    );
+    const refreshToken = this.authService.getCookieWithJwtRefreshToken(user.id);
+    await this.authService.setCurrentRefreshToken(refreshToken.token, user.id);
+    res.setHeader('Set-Cookie', [accessTokenCookie, refreshToken.cookie]);
     return;
   }
 
@@ -89,10 +100,21 @@ export class AuthController {
   }
 
   @Get('jwt-status')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAccessGuard)
   jwtStatus(@Req() req: RequestWithUser) {
-    const { id, username, socketID, avatar } = req.user;
-    return { id, username, socketID, avatar };
+    const { id, username, avatar } = req.user;
+    return { id, username, avatar };
+  }
+
+  @Get('refresh')
+  @UseGuards(JwtRefreshGuard)
+  jwtRefresh(@Req() req: RequestWithUser, @Res() res) {
+    const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
+      req.user.id,
+    );
+    res.setHeader('Set-Cookie', accessTokenCookie);
+    const { id, username, avatar } = req.user;
+    return res.send({ id, username, avatar });
   }
 
   /**
@@ -102,6 +124,7 @@ export class AuthController {
   @Get('logout')
   @Redirect('/')
   async logout(@Req() req, @Res() res: Response) {
+    await this.authService.removeRefreshToken(req.user.id);
     res.setHeader('Set-Cookie', this.authService.getCookieForLogout());
     req.logOut();
   }

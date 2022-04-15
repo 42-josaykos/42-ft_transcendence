@@ -93,6 +93,9 @@ class User {
 
   @ManyToMany((type) => Channel, (channel) => channel.invites)
   public inviteChannels: Channel[];
+
+  @Column({ nullable: true, select: false })
+  public refreshToken?: string;
 }
 
 export default User;

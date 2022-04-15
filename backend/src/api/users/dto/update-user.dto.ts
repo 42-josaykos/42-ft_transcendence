@@ -44,6 +44,11 @@ export class UpdateUserDTO {
   readonly removeFriends?: User[];
 
   @ApiProperty({ required: false })
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  readonly refreshToken?: string;
+
   @IsNotEmpty()
   @IsOptional()
   readonly blockedUsers?: User[];

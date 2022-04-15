@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import { Get, Post, Delete, Patch } from '@/services/requests';
 
 import { storeToRefs } from 'pinia';
@@ -65,7 +65,7 @@ const deleteUser = (id: number) => {
   });
 };
 
-onMounted(() => {
+onBeforeMount(() => {
   Get(baseUrl).then(res => (users.value = res.data));
 });
 </script>
