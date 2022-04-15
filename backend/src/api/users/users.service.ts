@@ -147,6 +147,7 @@ export class UsersService {
         .leftJoinAndSelect('banChannels.channel', 'ban_channel');
     if ('inviteChannels' in filter)
       query.leftJoinAndSelect('users.inviteChannels', 'inviteChannels');
+    if ('refreshToken' in filter) query.addSelect('users.refreshToken');
 
     const users = await query.getMany();
     if (!users.length)
@@ -194,6 +195,7 @@ export class UsersService {
 
     delete newUser.socketID;
     delete newUser.password;
+    delete newUser.refreshToken;
     console.log('New user created: ', newUser);
     return newUser;
   }
@@ -218,6 +220,8 @@ export class UsersService {
           updatedUser.removeFriends,
           user.friends,
         );
+      if (updatedUser.refreshToken)
+        user.refreshToken = updatedUser.refreshToken;
       if ('blockedUsers' in updatedUser)
         user.blockedUsers = updatedUser.blockedUsers;
       if ('addBlockedUsers' in updatedUser)
@@ -425,5 +429,27 @@ export class UsersService {
           );
       }
     }
+  }
+
+  async getUserIfRefreshToken(refreshToken: string, userID: number) {
+    const [user] = await this.getUsersByFilter({
+      id: userID,
+      refreshToken: true,
+    });
+    if (user && user.refreshToken) {
+      const isRefreshTokenMatching = await bcrypt.compare(
+        refreshToken,
+        user.refreshToken,
+      );
+      if (isRefreshTokenMatching) {
+        return user;
+      }
+    }
+  }
+
+  async removeRefreshToken(userID: number) {
+    return this.usersRepository.update(userID, {
+      refreshToken: null,
+    });
   }
 }

@@ -17,23 +17,26 @@ import { TypeORMSession } from 'src/auth/entities/session.entity';
 import { MessagesService } from 'src/api/messages/messages.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
- 
- @WebSocketGateway({  //donne accès à la fonctionnalité socket.io
+
+@WebSocketGateway({
+  //donne accès à la fonctionnalité socket.io
   namespace: 'chat',
-   cors: {
-     origin: 'http://localhost:3001',
-     credentials: true
-   },
- })
- export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect { //pour enregistrer certains états clés de notre application. Par exemple, nous enregistrons lorsqu'un nouveau client se connecte au serveur ou lorsqu'un client actuel se déconnecte
-  constructor(private readonly channelsService: ChannelsService,
-              private readonly usersService: UsersService,
-              private readonly messagesService: MessagesService,
-              private readonly jwtService: JwtService) {}
+  cors: {
+    origin: 'http://localhost:3001',
+    credentials: true,
+  },
+})
+export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  //pour enregistrer certains états clés de notre application. Par exemple, nous enregistrons lorsqu'un nouveau client se connecte au serveur ou lorsqu'un client actuel se déconnecte
+  constructor(
+    private readonly channelsService: ChannelsService,
+    private readonly usersService: UsersService,
+    private readonly messagesService: MessagesService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   @WebSocketServer() server: Server; //donne accès à l'instance du serveur websockets
   private logger: Logger = new Logger('ChatGateway');
-
 
   /*
     Connection
@@ -43,17 +46,17 @@ import { JwtService } from '@nestjs/jwt';
 
     if (client.handshake.headers['cookie'] != undefined) {
       const str = client.handshake.headers['cookie'];
-      const split =  str.split(';')
-      split.forEach( async (el) => {
+      const split = str.split(';');
+      split.forEach(async (el) => {
         let [k, v] = el.split('=');
         if (k.trim() == 'Authentication') {
-          const decodeJwtAccessToken = this.jwtService.decode(v)
-          const userId = decodeJwtAccessToken['userId']
-          const updateUser: UpdateUserDTO = {socketID: client.id}
-          await this.usersService.updateUser(userId, updateUser)
+          const decodeJwtAccessToken = this.jwtService.decode(v);
+          const userId = decodeJwtAccessToken['userID'];
+          const updateUser: UpdateUserDTO = { socketID: client.id };
+          await this.usersService.updateUser(userId, updateUser);
         }
-      })
-     }
+      });
+    }
   }
 
   /*
@@ -63,15 +66,13 @@ import { JwtService } from '@nestjs/jwt';
     this.logger.log(`Client disconnected: ${client.id}`);
   }
 
-
   /*
     New message
   */
   @SubscribeMessage('newMessage')
   async newMessage(client: Socket, data: any) {
-
-    const message = data[0]
-    const user = data[1]
+    const message = data[0];
+    const user = data[1];
 
     let channel = message.channel;
     [channel] = await this.channelsService.getChannelsByFilter({
@@ -99,27 +100,24 @@ import { JwtService } from '@nestjs/jwt';
     }
   }
 
-
   /*
     New Channel
   */
   @SubscribeMessage('newChannel')
   async newChannel(client: Socket, data: any) {
-    console.log("data => ", data)
-    const channel = data[0]
-    const message = data[1]
-    const userID = data[2]
+    const channel = data[0];
+    const message = data[1];
+    const userID = data[2];
 
-    const newChannel = await this.channelsService.createChannel(channel)
-    console.log("newChannel 2  => ", newChannel)
+    const newChannel = await this.channelsService.createChannel(channel);
     if (message != null) {
-      message.channel.id = newChannel.id
+      message.channel.id = newChannel.id;
     }
 
     const [user] = await this.usersService.getUsersByFilter({
       id: userID.id,
     });
-    this.server.emit('newChannel', {newChannel, message, user});
+    this.server.emit('newChannel', { newChannel, message, user });
   }
 
   /*
@@ -128,9 +126,9 @@ import { JwtService } from '@nestjs/jwt';
   */
   @SubscribeMessage('joinChannel')
   async joinChannel(client: Socket, data: any) {
-    const userID = data[0]
+    const userID = data[0];
     const channel = data[1];
-    const password = data[2]
+    const password = data[2];
 
     if (channel.password) {
       if (password) {
@@ -139,12 +137,11 @@ import { JwtService } from '@nestjs/jwt';
           channel.password,
         );
         if (!isPasswordMatching) {
-          console.log("Password false")
+          console.log('Password false');
           return;
         }
-      }
-      else {
-        console.log("Password false")
+      } else {
+        console.log('Password false');
         return;
       }
     }
@@ -155,13 +152,11 @@ import { JwtService } from '@nestjs/jwt';
     this.server.to(user.socketID).emit('joinChannel');
   }
 
-
   /*
     Delete Channel
   */
   @SubscribeMessage('deleteChannel')
   async deleteChannel(client: Socket, channelID: number) {
-
     let [channel] = await this.channelsService.getChannelsByFilter({
       id: channelID,
       invites: true,
@@ -177,7 +172,6 @@ import { JwtService } from '@nestjs/jwt';
     this.server.emit('deleteChannel', channelID);
   }
 
-
   /*
     Invite Channel
   */
@@ -190,22 +184,24 @@ import { JwtService } from '@nestjs/jwt';
       invites.forEach(async (el: any) => {
         const user = await this.usersService.getUserByID(el.id);
         this.server.to(user.socketID).emit('inviteChannel', channel);
-      })
+      });
     }
   }
-
 
   /*
     Update Member Channel
   */
   @SubscribeMessage('updateMember')
   async updateMember(client: Socket, data: any) {
-    const channelID = data[0]
-    const updateChannel = data[1]
-    const message = data[2]
-    const user = data[3]
+    const channelID = data[0];
+    const updateChannel = data[1];
+    const message = data[2];
+    const user = data[3];
 
-    const newChannel = await this.channelsService.updateChannel(channelID, updateChannel);
+    const newChannel = await this.channelsService.updateChannel(
+      channelID,
+      updateChannel,
+    );
     let [channel] = await this.channelsService.getChannelsByFilter({
       id: channelID,
       members: true,
@@ -215,26 +211,28 @@ import { JwtService } from '@nestjs/jwt';
       this.server.to(member.socketID).emit('updateMember', newChannel);
     }
     if (message != null) {
-      this.newMessage(client, [message, user])
+      this.newMessage(client, [message, user]);
     }
   }
-
 
   /*
     Update Channel
   */
-    @SubscribeMessage('updateChannel')
-    async updateChannel(client: Socket, data: any) {
-      const channelID = data[0]
-      const updateChannel = data[1]
+  @SubscribeMessage('updateChannel')
+  async updateChannel(client: Socket, data: any) {
+    const channelID = data[0];
+    const updateChannel = data[1];
 
-      if (updateChannel.removeInvites != []) {
-        for (const invite of updateChannel.removeInvites) {
-          this.server.to(invite.socketID).emit('uninviteChannel', updateChannel);
-        }
+    if (updateChannel.removeInvites != []) {
+      for (const invite of updateChannel.removeInvites) {
+        this.server.to(invite.socketID).emit('uninviteChannel', updateChannel);
       }
-
-      const newChannel = await this.channelsService.updateChannel(channelID, updateChannel);
-      this.server.emit('updateMember', newChannel);
     }
+
+    const newChannel = await this.channelsService.updateChannel(
+      channelID,
+      updateChannel,
+    );
+    this.server.emit('updateMember', newChannel);
+  }
 }

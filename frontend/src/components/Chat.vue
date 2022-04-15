@@ -600,7 +600,6 @@ const scrollFunction = () => {
                         Remove mute
                       </button>
                     </div>
-
                   </a>
                 </div>-->
 
@@ -655,23 +654,42 @@ const scrollFunction = () => {
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="staticBackdropLabel">{{userDirectMessage?.username}}</h5>
-              <button @click="textDirectMsg = ''" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <h5 class="modal-title" id="staticBackdropLabel">
+              {{ userDirectMessage?.username }}
+            </h5>
+            <button
+              @click="textDirectMsg = ''"
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
 
           <div class="modal-body">
-
             <div class="form form-new-channel">
-              <input v-model="textDirectMsg" type="text" class="input"/>
+              <input v-model="textDirectMsg" type="text" class="input" />
             </div>
-
           </div>
 
           <div class="modal-footer">
-            <button @click="textDirectMsg = ''" type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
-            <button @click="sendDirectMessage" type="submit" class="btn btn-info" data-bs-dismiss="modal">Send</button>
+            <button
+              @click="textDirectMsg = ''"
+              type="button"
+              class="btn btn-danger"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button
+              @click="sendDirectMessage"
+              type="submit"
+              class="btn btn-info"
+              data-bs-dismiss="modal"
+            >
+              Send
+            </button>
           </div>
-
         </div>
       </div>
     </div> -->

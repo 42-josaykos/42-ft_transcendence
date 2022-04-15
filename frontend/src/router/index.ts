@@ -12,7 +12,6 @@ import { useUserStore } from '@/stores/user';
 import { Get } from '@/services/requests';
 import { storeToRefs } from 'pinia';
 
-
 const routes = [
   {
     path: '/',
@@ -78,6 +77,7 @@ function routeGuard(to: any, from: any, next: any) {
   }
 }
 router.beforeEach(() => {
+  console.log(document.cookie);
   Get('/auth/status').then(res => {
     if (res.status != 403) {
       const userStore = useUserStore();
