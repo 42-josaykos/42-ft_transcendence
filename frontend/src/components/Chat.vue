@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, onUpdated, ref } from "vue";
+import { onBeforeMount, onUnmounted, onUpdated, ref } from "vue";
 
 import { storeToRefs } from "pinia";
 
@@ -16,7 +16,6 @@ import { Get } from "@/services/requests";
 
 import { io } from "socket.io-client";
 
-import UserCard from "./UserCard.vue";
 import ChatMenu from "./ChatMenu.vue";
 import ChatUsers from "./ChatUsers.vue";
 
@@ -42,7 +41,7 @@ const {
   //channelsJoin,
   channelJoin,
   //channelLeave,
-  channelsInvite,
+  //channelsInvite,
   //channelUpdate,
   newOwner,
   usersMembers,
@@ -56,23 +55,16 @@ onUpdated(() => {
   scrollFunction();
 });
 
-onMounted(async () => {
-  Get("/channels/search?&members").then((res) => {
+onBeforeMount(async () => {
+  Get("/channels/search?&members&invites").then((res) => {
     if (res.status == 200) {
       allChannels.value = res.data;
-      console.log("ALL => ", allChannels.value);
+      if (loggedUser.value != undefined) {
+        channelStore.updateInvite(loggedUser.value?.id)
+      }
     }
   });
-  //////Pas sure d'en avoir besoin
-  Get(
-    "/users/search?id=" +
-      loggedUser.value?.id.toString() +
-      "&memberChannels&inviteChannels"
-  ).then((res) => {
-    channels.value = res.data[0].memberChannels;
-    channelsInvite.value = res.data[0].inviteChannels;
-  });
-  /////////
+ 
   //channelsJoin.value = true;
   newOwner.value = undefined;
   channelType.value = 0;
@@ -121,7 +113,7 @@ socketChat.on("newChannel", (data: any) => {
       });
     }
     channelStore.createChannel(newChannel);
-    channelStore.updateMember();
+    channelStore.updateMember(loggedUser.value?.id);
     channelStore.updateOwner(loggedUser.value.id);
     if (
       loggedUser.value.id != newChannel.owner.id &&
@@ -145,22 +137,24 @@ socketChat.on("uninviteChannel", (uninviteChannel: Channel) => {
 });
 
 socketChat.on("joinChannel", () => {
-  if (channelJoin.value != undefined) {
-    channelStore.joinChannel(channelJoin.value);
-    channel.value = channelStore.getChannelByID(channelJoin.value.id);
-    messages.value = channelJoin.value.messages;
-    socketChat.emit(
-      "updateMember",
-      channelJoin.value.id,
-      { addMembers: [{ id: loggedUser.value?.id }] },
-      {
-        author: loggedUser.value?.id,
-        channel: { id: channelJoin.value?.id },
-        data: `${loggedUser.value?.username} has joined the channel.`,
-      },
-      loggedUser.value
-    );
-    channelStore.updateMember();
+  if (loggedUser.value != undefined) {
+    if (channelJoin.value != undefined) {
+      channelStore.joinChannel(channelJoin.value);
+      channel.value = channelStore.getChannelByID(channelJoin.value.id);
+      messages.value = channelJoin.value.messages;
+      socketChat.emit(
+        "updateMember",
+        channelJoin.value.id,
+        { addMembers: [{ id: loggedUser.value?.id }] },
+        {
+          author: loggedUser.value?.id,
+          channel: { id: channelJoin.value?.id },
+          data: `${loggedUser.value?.username} has joined the channel.`,
+        },
+        loggedUser.value
+      );
+      channelStore.updateMember(loggedUser.value?.id);
+    }
   }
 });
 
@@ -179,7 +173,7 @@ socketChat.on("updateMember", (updateChannel: Channel) => {
       updateChannel,
       loggedUser.value.id
     );
-    channelStore.updateMember();
+    channelStore.updateMember(loggedUser.value.id);
     channelStore.updateOwner(loggedUser.value.id);
     if (channel.value?.id === updateChannel.id) {
       Get(
@@ -408,7 +402,7 @@ const searchName = (channelItem: Channel | undefined): string => {
     return channelItem.name;
   }
   const membersChan = channelItem.members;
-  const nameChan = membersChan.filter((el) => el.id != loggedUser.value.id);
+  const nameChan = membersChan.filter((el) => el.id != loggedUser.value?.id);
   return nameChan[0].username;
 };
 

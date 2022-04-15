@@ -7,6 +7,7 @@ import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
 import { useChannelStore } from "@/stores/channel";
 import type { User } from "@/models/user.model";
+import type { Channel } from "@/models/channel.model";
 
 const userStore = useUserStore();
 const { usersOnline, loggedUser } = storeToRefs(userStore);
@@ -55,23 +56,23 @@ const sendDirectMessage = async () => {
   //   textDirectMsg.value = '';
   // }
 
-  const name1 = `${userClick.value.id} ${loggedUser.value?.id}`;
-  const name2 = `${loggedUser.value?.id} ${userClick.value.id}`;
+  const name1 = `${userClick.value?.id} ${loggedUser.value?.id}`;
+  const name2 = `${loggedUser.value?.id} ${userClick.value?.id}`;
   const channelItem = allChannels.value.find(
     (el: Channel) => el.name === name1 || el.name === name2
   );
   if (channelItem == undefined) {
     const newChannel = {
-      name: `${userClick.value.id} ${loggedUser.value?.id}`,
+      name: `${userClick.value?.id} ${loggedUser.value?.id}`,
       isPrivate: true,
       password: null,
       owner: { id: loggedUser.value?.id },
-      admins: [{ id: loggedUser.value?.id }, { id: userClick.value.id }],
-      members: [{ id: loggedUser.value?.id }, { id: userClick.value.id }],
+      admins: [{ id: loggedUser.value?.id }, { id: userClick.value?.id }],
+      members: [{ id: loggedUser.value?.id }, { id: userClick.value?.id }],
       isDirectChannel: true,
       isProtected: false,
     };
-    props.socketChat.emit(
+    props.socketChat?.emit(
       "newChannel",
       newChannel,
       {
@@ -82,7 +83,7 @@ const sendDirectMessage = async () => {
       loggedUser.value
     );
   } else {
-    props.socketChat.emit(
+    props.socketChat?.emit(
       "newMessage",
       {
         author: loggedUser.value?.id,

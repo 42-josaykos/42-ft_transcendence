@@ -21,7 +21,7 @@ const routes = [
   {
     path: '/game',
     name: 'Game',
-    beforeEnter: routeGuard,
+    // beforeEnter: routeGuard,
     component: Game
   },
   {
@@ -47,7 +47,7 @@ const routes = [
   {
     path: '/chat',
     name: 'Chat',
-    beforeEnter: routeGuard,
+    // beforeEnter: routeGuard,
     component: Chat
   },
   {
@@ -67,15 +67,16 @@ const router = createRouter({
   routes
 });
 
-function routeGuard(to: any, from: any, next: any) {
-  const userStore = useUserStore();
-  const { isAuthenticated } = userStore;
-  if (isAuthenticated) {
-    next(); // allow to enter route
-  } else {
-    next('/login'); // go to '/login';
-  }
-}
+// function routeGuard(to: any, from: any, next: any) {
+//   const userStore = useUserStore();
+//   const { isAuthenticated } = userStore;
+//   if (isAuthenticated) {
+//     next(); // allow to enter route
+//   } else {
+//     next('/login'); // go to '/login';
+//   }
+// }
+
 router.beforeEach(() => {
   console.log(document.cookie);
   Get('/auth/status').then(res => {

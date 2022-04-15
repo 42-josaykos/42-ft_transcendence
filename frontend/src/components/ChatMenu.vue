@@ -119,7 +119,7 @@ const acceptInviteChannel = () => {
       );
       channelStore.deleteChannelInvite(channelJoin.value);
       channelStore.joinChannel(channelJoin.value);
-      channelStore.updateMember();
+      channelStore.updateMember(props.loggedUser?.id);
     }
   }
 };
@@ -318,7 +318,7 @@ const leaveChannel = () => {
           : channel.value;
       messages.value =
         channel.value?.id === channelLeave.value?.id ? [] : messages.value;
-      channelStore.updateMember();
+      channelStore.updateMember(props.loggedUser?.id);
     }
   }
 };
@@ -369,7 +369,7 @@ const updateUsersInvite = (user: User) => {
       <button
         @click="
           channelStore?.updateOwner(props.loggedUser?.id),
-            channelStore?.updateMember()
+            channelStore?.updateMember(props.loggedUser?.id)
         "
         class="accordion-btn collapsed btn-neons-channels-menu"
         type="button"
@@ -460,7 +460,7 @@ const updateUsersInvite = (user: User) => {
   <div class="wrapper-accordion">
     <h2 class="accordion-header" id="all-channels-heading">
       <button
-        @click="channelStore?.updateMember()"
+        @click="channelStore?.updateMember(props.loggedUser?.id)"
         class="accordion-btn collapsed btn-neons-channels-menu"
         type="button"
         data-bs-toggle="collapse"
@@ -521,7 +521,7 @@ const updateUsersInvite = (user: User) => {
       <button
         @click="
           channelStore?.updateOwner(props.loggedUser?.id),
-            channelStore?.updateMember()
+            channelStore?.updateMember(props.loggedUser?.id)
         "
         class="accordion-btn collapsed btn-neons-channels-menu"
         type="button"

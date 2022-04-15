@@ -54,9 +54,11 @@ export const useChannelStore = defineStore('channel', () => {
       channels.value.splice(index, 1);
     }
 
-    const updateMember = () => {
+    const updateMember = (userID: number) => {
+      
       for (const chan of allChannels.value) {
-        const index =  channels.value.findIndex((el: Channel) => el.id === chan.id);
+        const members = chan.members;
+        const index =  members.findIndex((el: User) => el.id === userID);
         if (index != -1) {
           chan.isMember = true;
         }
@@ -80,6 +82,14 @@ export const useChannelStore = defineStore('channel', () => {
             }
           }
         })
+      }
+    }
+
+    const updateInvite = (userID: number) => {
+      for (const chan of allChannels.value) {
+        if (isInvite(chan, userID) == true) {
+          addChannelInvite(chan)
+        }
       }
     }
 
@@ -238,6 +248,7 @@ export const useChannelStore = defineStore('channel', () => {
         leaveChannel,
         updateMember,
         updateOwner,
+        updateInvite,
         getChannelByID,
         getChannelByName,
         deleteChannel,
