@@ -1,6 +1,6 @@
 import { CreateUserDTO } from 'src/api/users/dto/create-user.dto';
 import User from 'src/api/users/entities/user.entity';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 
 export interface AuthenticationProvider {
   validateUser(details: CreateUserDTO);
@@ -13,6 +13,8 @@ export interface AuthenticationProvider {
   setCurrentRefreshToken(refreshToken: string, userID: number);
   getCookieForLogout();
   removeRefreshToken(userID: number);
+  generateTwoFactorAuthenticationSecret(user: User);
+  pipeQrCodeStream(stream: Response, otpauthUrl: string);
 }
 
 export type Done = (err: Error, user: User) => void;

@@ -1,4 +1,5 @@
 import {
+  ClassSerializerInterceptor,
   Controller,
   Get,
   Post,
@@ -6,6 +7,7 @@ import {
   Req,
   Res,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
@@ -115,6 +117,17 @@ export class AuthController {
     res.setHeader('Set-Cookie', accessTokenCookie);
     const { id, username, avatar } = req.user;
     return res.send({ id, username, avatar });
+  }
+
+  @Post('generate-2fa')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseGuards(JwtAccessGuard)
+  async register(@Res() response: Response, @Req() request: RequestWithUser) {
+    const { otpauthUrl } =
+      await this.authService.generateTwoFactorAuthenticationSecret(
+        request.user,
+      );
+    return this.authService.pipeQrCodeStream(response, otpauthUrl);
   }
 
   /**

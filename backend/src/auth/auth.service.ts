@@ -12,6 +12,8 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { authenticator } from 'otplib';
+import { toFileStream } from 'qrcode';
+import { Response } from 'express';
 
 /**
  * Create a new student user if not found in database
@@ -143,22 +145,13 @@ export class AuthService implements AuthenticationProvider {
   async removeRefreshToken(userID: number) {
     return this.usersService.removeRefreshToken(userID);
   }
-}
 
-/*****************************************************************************
- * 2-FA
- */
-
-@Injectable()
-export class TwoFactorAuthenticationService {
-  constructor(
-    private readonly usersService: UsersService,
-    private readonly configService: ConfigService,
-  ) {}
-
+  /*****************************************************************************
+   * 2-FA
+   */
   public async generateTwoFactorAuthenticationSecret(user: User) {
     const secret = authenticator.generateSecret();
-    const otpauthurl = authenticator.keyuri(
+    const otpauthUrl = authenticator.keyuri(
       user.username,
       this.configService.get('TWO_FACTOR_AUTHENTICATION_APP_NAME'),
       secret,
@@ -167,8 +160,12 @@ export class TwoFactorAuthenticationService {
 
     return {
       secret,
-      otpauthurl,
+      otpauthUrl,
     };
+  }
+
+  public async pipeQrCodeStream(stream: Response, otpauthUrl: string) {
+    return toFileStream(stream, otpauthUrl);
   }
 }
 
