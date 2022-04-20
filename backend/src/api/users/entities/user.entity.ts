@@ -96,6 +96,9 @@ class User {
 
   @Column({ nullable: true, select: false })
   public refreshToken?: string;
+
+  @Column({ nullable: true, select: false })
+  public twoFactorAuthenticationSecret?: string;
 }
 
 export default User;

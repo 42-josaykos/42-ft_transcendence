@@ -148,6 +148,8 @@ export class UsersService {
     if ('inviteChannels' in filter)
       query.leftJoinAndSelect('users.inviteChannels', 'inviteChannels');
     if ('refreshToken' in filter) query.addSelect('users.refreshToken');
+    if ('twoFactorAuthenticationSecret' in filter)
+      query.addSelect('users.twoFactorAuthenticationSecret');
 
     const users = await query.getMany();
     if (!users.length)
@@ -196,6 +198,7 @@ export class UsersService {
     delete newUser.socketID;
     delete newUser.password;
     delete newUser.refreshToken;
+    delete newUser.twoFactorAuthenticationSecret;
     console.log('New user created: ', newUser);
     return newUser;
   }
@@ -222,6 +225,9 @@ export class UsersService {
         );
       if (updatedUser.refreshToken)
         user.refreshToken = updatedUser.refreshToken;
+      if (updatedUser.twoFactorAuthenticationSecret)
+        user.twoFactorAuthenticationSecret =
+          updatedUser.twoFactorAuthenticationSecret;
       if ('blockedUsers' in updatedUser)
         user.blockedUsers = updatedUser.blockedUsers;
       if ('addBlockedUsers' in updatedUser)
@@ -450,6 +456,12 @@ export class UsersService {
   async removeRefreshToken(userID: number) {
     return this.usersRepository.update(userID, {
       refreshToken: null,
+    });
+  }
+
+  async setTwoFactorAuthenticationSecret(secret: string, userId: number) {
+    return this.usersRepository.update(userId, {
+      twoFactorAuthenticationSecret: secret,
     });
   }
 }
