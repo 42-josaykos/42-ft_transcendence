@@ -67,15 +67,16 @@ const router = createRouter({
   routes
 });
 
-// function routeGuard(to: any, from: any, next: any) {
-//   const userStore = useUserStore();
-//   const { isAuthenticated } = userStore;
-//   if (isAuthenticated) {
-//     next(); // allow to enter route
-//   } else {
-//     next('/login'); // go to '/login';
-//   }
-// }
+function routeGuard(to: any, from: any, next: any) {
+  const userStore = useUserStore();
+  const { isAuthenticated } = userStore;
+  if (isAuthenticated) {
+    next(); // allow to enter route
+  } else {
+    next('/login'); // go to '/login';
+  }
+}
+
 
 router.beforeEach(() => {
   console.log(document.cookie);

@@ -6,12 +6,10 @@ import { useUserStore } from "@/stores/user";
 import { useStatusStore } from "@/stores/status";
 import { onMounted, ref } from "vue";
 import { Get } from "./services/requests";
+import ChatSocket from "./components/ChatSocket.vue";
 
 const userStore = useUserStore();
 const { loggedUser, isAuthenticated } = storeToRefs(userStore);
-
-// const statusStore = useStatusStore();
-// const { loggedUser, isAuthenticated, usersOnline } = storeToRefs(statusStore);
 
 // Verify if user is already logged
 onMounted(() => {
@@ -62,6 +60,7 @@ export const isMeteor = ref(false);
       <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
       <div v-if="isAuthenticated">
         <StatusSystem />
+        <ChatSocket />
       </div>
       <div class="routerView"><router-view /></div>
     </div>

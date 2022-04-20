@@ -103,12 +103,18 @@ Content-Type: {{contentType}}
 
 ###
 
-PATCH http://{{host}}/channels/1
+PATCH http://{{host}}/channels/38
 Content-Type: {{contentType}}
 
 {
-    "mutes": [{"user": {"id": 2}}, {"user": {"id": 1}}],
-    "bans": [{"user": {"id": 2}}, {"user": {"id": 1}}]
+    "addMutes": [
+        {
+            "user": {"id": 1},
+            "channel": {"id": 38},
+            "time": "15"
+        }
+    ]
+    //"bans": [{"user": {"id": 2}}, {"user": {"id": 1}}]
 }
 
 ###

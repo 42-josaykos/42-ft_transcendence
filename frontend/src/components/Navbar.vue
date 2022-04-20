@@ -77,7 +77,7 @@
 			</div>
 			<div v-else>
 				<a href="#" @click="logout_open = !logout_open">
-					<span class="icon"><img class="circular--square" v-bind:src=loggedUser.avatar alt="Avatar" /></span>
+					<span class="icon"><img class="circular--square" v-bind:src=loggedUser?.avatar alt="Avatar" /></span>
 					<span class="text logout"><b>Logout</b></span>
 				</a>
 			</div>
@@ -178,7 +178,7 @@
 				<div v-else @click="logout_open = !logout_open">
 					<div class="container-fluid">
 						<div class="row">
-							<div class="col-5"><img class="circular--square" style="width: 50px;" v-bind:src=loggedUser.avatar alt="Avatar" /></div>
+							<div class="col-5"><img class="circular--square" style="width: 50px;" v-bind:src=loggedUser?.avatar alt="Avatar" /></div>
 							<div class="col-5 pt-3 text-center"><span class="text_concat"><b><b>Logout</b></b></span></div>
 						</div>
 					</div>

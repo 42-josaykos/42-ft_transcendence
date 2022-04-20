@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, onUnmounted, onUpdated, ref } from "vue";
+import { onMounted, onBeforeMount, onUnmounted, onUpdated } from "vue";
 
 import { storeToRefs } from "pinia";
 
@@ -9,22 +9,14 @@ import { useChannelStore } from "@/stores/channel";
 import { useInputStore } from "@/stores/input";
 
 import type { Channel } from "@/models/channel.model";
-import type { Message } from "@/models/message.model";
-import type { User } from "@/models/user.model";
 
 import { Get } from "@/services/requests";
-
-import { io } from "socket.io-client";
 
 import ChatMenu from "./ChatMenu.vue";
 import ChatUsers from "./ChatUsers.vue";
 
-const socketChat = io("http://localhost:4000/chat", {
-  withCredentials: true,
-});
-
 const userStore = useUserStore();
-const { loggedUser } = storeToRefs(userStore);
+const { loggedUser, users, isAuthenticated, socketChat } = storeToRefs(userStore);
 
 const messageStore = useMessageStore();
 const { messages, textMsg, textDirectMsg } = storeToRefs(messageStore);
@@ -35,17 +27,17 @@ const { input } = storeToRefs(inputStore);
 const channelStore = useChannelStore();
 const {
   allChannels,
-  channels,
+  // channels,
   channel,
   //channelsJoin,
-  channelJoin,
+  // channelJoin,
   //channelLeave,
   //channelsInvite,
   //channelUpdate,
   newOwner,
-  usersMembers,
-  userDirectMessage,
-  usersInvite,
+  // usersMembers,
+  // userDirectMessage,
+  // usersInvite,
   channelType,
   //channelTypeUpdate
 } = storeToRefs(channelStore);
@@ -71,122 +63,32 @@ onBeforeMount(async () => {
 });
 
 onUnmounted(() => {
-  socketChat.off("newMessage");
-  socketChat.off("newChannel");
-  socketChat.off("deleteChannel");
-  socketChat.off("joinChannel");
-  socketChat.off("updateChannel");
-  socketChat.off("inviteChannel");
+  socketChat.value?.off("newMessage");
+  socketChat.value?.off("newChannel");
+  socketChat.value?.off("deleteChannel");
+  socketChat.value?.off("joinChannel");
+  socketChat.value?.off("updateChannel");
+  socketChat.value?.off("inviteChannel");
 });
 
-///////////////////////
-//  socketChat.ON
-///////////////////////
-socketChat.on("newMessage", (newMessage: Message) => {
-  if (channel.value != undefined && channel.value.id == newMessage.channel.id) {
-    messageStore.createMessage(newMessage);
-  }
-});
-
-socketChat.on("newChannel", (data: any) => {
-  const { newChannel, message, user } = data;
-  if (loggedUser.value != undefined) {
-    if (loggedUser.value?.id === newChannel.owner.id) {
-      channelStore.joinChannel(newChannel);
-      //channel.value = newChannel;
-      messages.value = [];
-      if (newChannel.isPrivate == true && newChannel.isDirectChannel == false) {
-        socketChat.emit(
-          "inviteChannel",
-          newChannel,
-          usersInvite.value ? usersInvite.value : null
-        );
-      }
-      Get(
-        "/channels/search?id=" +
-          newChannel.id.toString() +
-          "&members&bans&mutes&admins&owner"
-      ).then((res) => {
-        channel.value = res.data[0];
-        usersMembers.value = res.data[0].members;
-      });
+onMounted(() => {
+  Get("/auth/status").then((res) => {
+    if (res.status == 403) {
+      console.log("[App CHAT] isAuthenticated: ", false);
+      isAuthenticated.value = false;
+    } else {
+      console.log("[App CHAT] isAuthenticated: ", true);
+      isAuthenticated.value = true;
+      loggedUser.value = res.data;
+      console.log("[App CHAT] loggedUser: ", res.data);
     }
-    channelStore.createChannel(newChannel);
-    channelStore.updateMember(loggedUser.value?.id);
-    channelStore.updateOwner(loggedUser.value.id);
-    if (
-      loggedUser.value.id != newChannel.owner.id &&
-      newChannel.admins.findIndex(
-        (el: User) => el.id === loggedUser.value?.id
-      ) != -1
-    ) {
-      console.log(" ICI ");
-      channelStore.joinChannel(newChannel);
-      socketChat.emit("newMessage", message, user);
-    }
-  }
+  });
 });
 
-socketChat.on("inviteChannel", (inviteChannel: Channel) => {
-  channelStore.addChannelInvite(inviteChannel);
-});
 
-socketChat.on("uninviteChannel", (uninviteChannel: Channel) => {
-  channelStore.deleteChannelInvite(uninviteChannel);
-});
-
-socketChat.on("joinChannel", () => {
-  if (loggedUser.value != undefined) {
-    if (channelJoin.value != undefined) {
-      channelStore.joinChannel(channelJoin.value);
-      channel.value = channelStore.getChannelByID(channelJoin.value.id);
-      messages.value = channelJoin.value.messages;
-      socketChat.emit(
-        "updateMember",
-        channelJoin.value.id,
-        { addMembers: [{ id: loggedUser.value?.id }] },
-        {
-          author: loggedUser.value?.id,
-          channel: { id: channelJoin.value?.id },
-          data: `${loggedUser.value?.username} has joined the channel.`,
-        },
-        loggedUser.value
-      );
-      channelStore.updateMember(loggedUser.value?.id);
-    }
-  }
-});
-
-socketChat.on("deleteChannel", (channelID: number) => {
-  if (channel.value?.id == channelID) {
-    channel.value = undefined;
-    messages.value = [];
-  }
-  channelStore.deleteChannel(channelID);
-});
-
-socketChat.on("updateMember", (updateChannel: Channel) => {
-  if (loggedUser.value != null) {
-    channelStore.updateChannel(
-      updateChannel.id,
-      updateChannel,
-      loggedUser.value.id
-    );
-    channelStore.updateMember(loggedUser.value.id);
-    channelStore.updateOwner(loggedUser.value.id);
-    if (channel.value?.id === updateChannel.id) {
-      Get(
-        "/channels/search?id=" +
-          channel.value.id.toString() +
-          "&owner&admins&members&mutes&bans&messages"
-      ).then((res) => {
-        usersMembers.value = res.data[0].members;
-        messages.value = res.data[0].messages;
-      });
-      channel.value = updateChannel;
-    }
-  }
-});
+const test2 = () => {
+  console.log("Socket 2 => ", socketChat.value)
+}
 
 ///////////////////////
 //  MESSAGES
@@ -207,7 +109,7 @@ const sendNewMessage = (channelId: Number | undefined) => {
         channel: { id: channelId },
         data: textMsg.value,
       };
-      socketChat.emit("newMessage", newMessage, loggedUser.value);
+      socketChat.value?.emit("newMessage", newMessage, loggedUser.value);
     }
   }
   textMsg.value = "";
@@ -414,12 +316,12 @@ const scrollFunction = () => {
 </script>
 
 <template>
+<button @click="test2()">TEST</button>
   <div class="container-fluid">
     <div class="row-chat padding-chat">
       <div class="col-md-3 col-chat">
         <div class="scrollspy-example my-5 px-2 py-2" style="min-height: 80vh">
           <ChatMenu
-            :socket="socketChat"
             :searchName="searchName"
           />
         </div>
@@ -430,7 +332,7 @@ const scrollFunction = () => {
           <!---->
           <!---->
           <div class="horizontal-line-bottom">
-            <h1 style="line-height: 1.5 !important">
+            <h1 class=" text-truncate px-4" style="line-height: 1.5 !important">
               {{ searchName(channel) }}
             </h1>
           </div>
@@ -537,7 +439,7 @@ const scrollFunction = () => {
 
       <div class="col-md-3 col-chat ms-auto">
         <div class="scrollspy-example my-5 px-2 py-2" style="min-height: 80vh">
-          <ChatUsers :socketChat="socketChat" />
+          <ChatUsers />
           <!---->
           <!---->
           <!---->

@@ -9,12 +9,13 @@ import type { Channel } from "@/models/channel.model";
 import type { User } from "@/models/user.model";
 import { Get } from "@/services/requests";
 import { ref } from "vue";
+import type { Message } from "@/models/message.model";
 
 const messageStore = useMessageStore();
 const { messages } = storeToRefs(messageStore);
 
 const userStore = useUserStore();
-const { loggedUser, users } = storeToRefs(userStore);
+const { loggedUser, users, socketChat } = storeToRefs(userStore);
 
 let inputPassword = ref<string>("");
 let channelName = ref<string>("");
@@ -42,9 +43,13 @@ const {
 } = storeToRefs(channelStore);
 
 const props = defineProps({
-  socket: Object,
   searchName: Function,
 });
+
+const sortMessages = (dataMsg: Message[]) => {
+  dataMsg.sort((a, b) => (a.id > b.id) ? 1 : -1)
+  messages.value = dataMsg;
+}
 
 const displayMessages = (channel_item: Channel) => {
   Get(
@@ -53,14 +58,14 @@ const displayMessages = (channel_item: Channel) => {
       "&messages&owner&admins&members&mutes&bans"
   ).then((res) => {
     channel.value = res.data[0];
-    messages.value = res.data[0].messages;
+    sortMessages(res.data[0].messages);
     usersMembers.value = res.data[0].members;
   });
 };
 
 // Créer un nouveau channel
 const createChannel = () => {
-  if (props.socket != undefined) {
+  if (socketChat.value != undefined) {
     if (channelName.value !== "") {
       let obj: any = {};
       let usersArray: any = [];
@@ -78,7 +83,7 @@ const createChannel = () => {
         members: [{ id: loggedUser.value?.id }],
         invites: channelType.value == 2 ? usersArray : [],
       };
-      props.socket.emit("newChannel", newChannel, null, loggedUser.value);
+      socketChat.value.emit("newChannel", newChannel, null, loggedUser.value);
     }
   }
   inputPassword.value = "";
@@ -88,8 +93,8 @@ const createChannel = () => {
 
 // Rejoindre un channel
 const joinChannel = () => {
-  if (props.socket != undefined) {
-    props.socket.emit(
+  if (socketChat.value != undefined) {
+    socketChat.value.emit(
       "joinChannel",
       loggedUser.value?.id,
       channelJoin.value,
@@ -102,14 +107,14 @@ const joinChannel = () => {
 // Accepter une invitation à rejoindre un channel
 const acceptInviteChannel = () => {
   if (loggedUser.value != undefined) {
-    if (props.socket != undefined) {
+    if (socketChat.value != undefined) {
       console.log(`Accept invitation => ${channelJoin.value?.name}`);
       const updateChannel = {
         removeInvites: [{ id: loggedUser.value?.id }],
         addMembers: [{ id: loggedUser.value?.id }],
       };
       if (channelJoin.value != undefined) {
-        props.socket.emit(
+        socketChat.value.emit(
           "updateMember",
           channelJoin.value.id,
           updateChannel,
@@ -120,9 +125,7 @@ const acceptInviteChannel = () => {
           },
           loggedUser.value
         );
-        channelStore.deleteChannelInvite(channelJoin.value);
-        channelStore.joinChannel(channelJoin.value);
-        channelStore.updateMember(loggedUser.value?.id);
+        socketChat.value.emit('updateInvite', channelJoin.value, true, loggedUser.value.id)
       }
     }
   }
@@ -130,17 +133,17 @@ const acceptInviteChannel = () => {
 
 // Refuser une invitation à rejoindre un channel
 const refuseInviteChannel = () => {
-  if (props.socket != undefined) {
+  if (socketChat.value != undefined) {
     console.log(`Refuse invitation => ${channelJoin.value?.name}`);
     if (channelJoin.value != undefined) {
-      props.socket.emit(
+      socketChat.value.emit(
         "updateMember",
         channelJoin.value.id,
         { removeInvites: [{ id: loggedUser.value?.id }] },
         null,
         loggedUser.value
       );
-      channelStore.deleteChannelInvite(channelJoin.value);
+      socketChat.value.emit('updateInvite', channelJoin.value, false, loggedUser.value?.id)
     }
   }
   //inputStore.$reset();
@@ -148,14 +151,14 @@ const refuseInviteChannel = () => {
 
 // Supprimer un channel
 const deleteChannel = () => {
-  if (props.socket != undefined) {
-    props.socket.emit("deleteChannel", channelLeave.value?.id);
+  if (socketChat.value != undefined) {
+    socketChat.value.emit("deleteChannel", channelLeave.value?.id);
   }
 };
 
 // Quitter un channel si Owner
 const leaveChannel = () => {
-  if (loggedUser.value != undefined && props.socket != undefined) {
+  if (loggedUser.value != undefined && socketChat.value != undefined) {
     if (channelLeave.value !== undefined) {
       if (channelLeave.value.isDirectChannel) {
       } else if (
@@ -167,7 +170,7 @@ const leaveChannel = () => {
             newOwner.value != undefined ? newOwner.value.id : -1
           ) == true
         ) {
-          props.socket.emit(
+          socketChat.value.emit(
             "updateMember",
             channelLeave.value.id,
             {
@@ -186,7 +189,7 @@ const leaveChannel = () => {
           if (
             channelStore.isBan(channelLeave.value, loggedUser.value.id) == true
           ) {
-            props.socket.emit(
+            socketChat.value.emit(
               "updateMember",
               channelLeave.value?.id,
               {
@@ -210,7 +213,7 @@ const leaveChannel = () => {
               newOwner.value != undefined ? newOwner.value.id : -1
             ) == true
           ) {
-            props.socket.emit(
+            socketChat.value.emit(
               "updateMember",
               channelLeave.value?.id,
               {
@@ -228,7 +231,7 @@ const leaveChannel = () => {
               loggedUser.value
             );
           } else {
-            props.socket.emit(
+            socketChat.value.emit(
               "updateMember",
               channelLeave.value?.id,
               {
@@ -250,7 +253,7 @@ const leaveChannel = () => {
         if (
           channelStore.isAdmin(channelLeave.value, loggedUser.value.id) == true
         ) {
-          props.socket.emit(
+          socketChat.value.emit(
             "updateMember",
             channelLeave.value?.id,
             {
@@ -268,7 +271,7 @@ const leaveChannel = () => {
           if (
             channelStore.isBan(channelLeave.value, loggedUser.value.id) == true
           ) {
-            props.socket.emit(
+            socketChat.value.emit(
               "updateMember",
               channelLeave.value?.id,
               {
@@ -286,7 +289,7 @@ const leaveChannel = () => {
           } else if (
             channelStore.isMute(channelLeave.value, loggedUser.value.id) == true
           ) {
-            props.socket.emit(
+            socketChat.value.emit(
               "updateMember",
               channelLeave.value?.id,
               {
@@ -301,7 +304,7 @@ const leaveChannel = () => {
               loggedUser.value
             );
           } else {
-            props.socket.emit(
+            socketChat.value.emit(
               "updateMember",
               channelLeave.value?.id,
               { removeMembers: [{ id: loggedUser.value.id }] },
@@ -329,7 +332,7 @@ const leaveChannel = () => {
 
 // Mettre à jour un channel
 const updateChannel = () => {
-  if (props.socket != undefined) {
+  if (socketChat.value != undefined) {
     if (channelUpdate.value !== undefined) {
       let obj: any = {};
       let usersArray: any = [];
@@ -346,7 +349,7 @@ const updateChannel = () => {
         removeInvites:
           channelType.value != 2 ? channelUpdate.value.invites : [],
       };
-      props.socket.emit("updateChannel", channelUpdate.value.id, updateChannel);
+      socketChat.value.emit("updateChannel", channelUpdate.value.id, updateChannel);
     }
   }
   channelName.value = "";

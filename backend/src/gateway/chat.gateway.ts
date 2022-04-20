@@ -1,9 +1,12 @@
 import {
+  ConnectedSocket,
+  MessageBody,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  WsException,
 } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
@@ -11,6 +14,7 @@ import Channel from 'src/api/channels/entities/channel.entity';
 import User from 'src/api/users/entities/user.entity';
 import { ChannelsService } from 'src/api/channels/channels.service';
 import { UsersService } from 'src/api/users/users.service';
+import { AuthService } from 'src/auth/auth.service';
 import { UpdateUserDTO } from 'src/api/users/dto/update-user.dto';
 import { getRepository } from 'typeorm';
 import { TypeORMSession } from 'src/auth/entities/session.entity';
@@ -18,8 +22,12 @@ import { MessagesService } from 'src/api/messages/messages.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
+class Connections {
+  userID: number;
+  socketID: string[];
+}
+
 @WebSocketGateway({
-  //donne accès à la fonctionnalité socket.io
   namespace: 'chat',
   cors: {
     origin: 'http://localhost:3001',
@@ -27,36 +35,41 @@ import { JwtService } from '@nestjs/jwt';
   },
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  //pour enregistrer certains états clés de notre application. Par exemple, nous enregistrons lorsqu'un nouveau client se connecte au serveur ou lorsqu'un client actuel se déconnecte
   constructor(
     private readonly channelsService: ChannelsService,
     private readonly usersService: UsersService,
     private readonly messagesService: MessagesService,
     private readonly jwtService: JwtService,
+    private readonly authService: AuthService,
   ) {}
 
-  @WebSocketServer() server: Server; //donne accès à l'instance du serveur websockets
+  @WebSocketServer() server: Server;
   private logger: Logger = new Logger('ChatGateway');
-
+  private connectedClients: Connections[] = new Array();
   /*
     Connection
   */
   async handleConnection(client: Socket) {
     this.logger.log(`Client connected: ${client.id}`);
-
-    if (client.handshake.headers['cookie'] != undefined) {
-      const str = client.handshake.headers['cookie'];
-      const split = str.split(';');
-      split.forEach(async (el) => {
-        let [k, v] = el.split('=');
-        if (k.trim() == 'Authentication') {
-          const decodeJwtAccessToken = this.jwtService.decode(v);
-          const userId = decodeJwtAccessToken['userID'];
-          const updateUser: UpdateUserDTO = { socketID: client.id };
-          await this.usersService.updateUser(userId, updateUser);
-        }
-      });
-    }
+    this.server.to(client.id).emit('askInfo')
+    // let hasJwt = false;
+    // if (client.handshake.headers['cookie'] != undefined) {
+    //   const str = client.handshake.headers['cookie'];
+    //   const split = str.split(';');
+    //   split.forEach(async (el) => {
+    //     let [k, v] = el.split('=');
+    //     if (k.trim() == 'Authentication') {
+    //       hasJwt = true
+    //       const decodeJwtAccessToken = this.jwtService.decode(v);
+    //       const userId = decodeJwtAccessToken['userID'];
+    //       const updateUser: UpdateUserDTO = { socketID: client.id };
+    //       await this.usersService.updateUser(userId, updateUser);
+    //     }
+    //   });
+    //   if (!hasJwt) {
+    //     this.server.to(client.id).emit('askInfo')
+    //   }
+    // }
   }
 
   /*
@@ -64,6 +77,47 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   */
   handleDisconnect(client: Socket) {
     this.logger.log(`Client disconnected: ${client.id}`);
+
+    const userIndex = this.connectedClients.findIndex(
+      (connection) => connection.socketID.indexOf(client.id) !== -1,
+    );
+
+    // Should never append, but prevention is better than cure
+    if (userIndex === -1) {
+      console.log('Client: ', client);
+      console.log('Connected Clients: ', this.connectedClients);
+      throw new WsException('Disconnecting user was not found');
+    }
+
+    // Removing socketID from corresponding user
+    this.connectedClients[userIndex].socketID.splice(
+      this.connectedClients[userIndex].socketID.indexOf(client.id),
+      1,
+    );
+
+    // If the user has no more connected sockets, user is offline: removing it and sending updated list
+    if (!this.connectedClients[userIndex].socketID.length) {
+      this.connectedClients.splice(userIndex, 1);
+    }
+    console.log('Clients connected after disconnect: ', this.connectedClients);
+
+  }
+
+  @SubscribeMessage('sendInfo')
+  async sendInfo(@ConnectedSocket() client: Socket,
+            @MessageBody() data: User) {
+
+    const userIndex = this.connectedClients.findIndex(
+      (connection) => connection.userID === data.id,
+    );
+    if (userIndex === -1) {
+    this.connectedClients.push({ userID: data.id, socketID: [client.id] });
+    }
+    else {
+      this.connectedClients[userIndex].socketID.push(client.id);
+    }
+
+    console.log('Clients connected after connect: ', this.connectedClients);
   }
 
   /*
@@ -79,8 +133,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       id: channel.id,
       members: true,
       mutes: false,
-      bans: false,
+      bans: false
     });
+
     const members = channel.members;
     const usersMuted = channel.mutes;
     const usersBaned = channel.bans;
@@ -96,7 +151,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     newMessage.author = user;
 
     for (const member of members) {
-      this.server.to(member.socketID).emit('newMessage', newMessage);
+      const index = this.connectedClients.findIndex((el) => el.userID === member.id)
+      if (index != -1) {
+        const socketIds = this.connectedClients[index].socketID;
+        for (const socketId of socketIds) {
+          this.server.to(socketId).emit('newMessage', newMessage);
+        }
+      }
     }
   }
 
@@ -145,11 +206,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
       }
     }
-    const [user] = await this.usersService.getUsersByFilter({
-      id: userID,
-      socketID: true,
-    });
-    this.server.to(user.socketID).emit('joinChannel');
+    const index = this.connectedClients.findIndex((el) => el.userID === userID)
+    if (index != -1) {
+      const socketIds = this.connectedClients[index].socketID;
+      for (const socketId of socketIds) {
+        this.server.to(socketId).emit('joinChannel');
+      }
+    }
   }
 
   /*
@@ -164,7 +227,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     if (channel.invites != []) {
       for (const invite of channel.invites) {
-        this.server.to(invite.socketID).emit('uninviteChannel', channel);
+        const index = this.connectedClients.findIndex((el) => el.userID === invite.id)
+        if (index != -1) {
+          const socketIds = this.connectedClients[index].socketID;
+          for (const socketId of socketIds) {
+            this.server.to(socketId).emit('uninviteChannel', channel);
+          }
+        }
       }
     }
 
@@ -181,12 +250,37 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const channel = data[0];
       const invites = data[1];
 
-      invites.forEach(async (el: any) => {
-        const user = await this.usersService.getUserByID(el.id);
-        this.server.to(user.socketID).emit('inviteChannel', channel);
-      });
+      for (const invite of invites) {
+        const index = this.connectedClients.findIndex((el) => el.userID === invite.id)
+        if (index != -1) {
+          const socketIds = this.connectedClients[index].socketID;
+          for (const socketId of socketIds) {
+            this.server.to(socketId).emit('inviteChannel', channel);
+           }
+        }
+      };
     }
   }
+
+/*
+  Update Invite
+*/
+@SubscribeMessage('updateInvite')
+async updateInvite(client: Socket, data: any[]) {
+  if (data[1] != null) {
+    const inviteChannel = data[0];
+    const inviteBool = data[1];
+    const userID = data[2]
+  
+    const index = this.connectedClients.findIndex((el) => el.userID === userID)
+    if (index != -1) {
+      const socketIds = this.connectedClients[index].socketID;
+      for (const socketId of socketIds) {
+        this.server.to(socketId).emit('updateInvite', {inviteChannel, inviteBool});
+      }
+    }
+  }
+}
 
   /*
     Update Member Channel
@@ -207,9 +301,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       members: true,
     });
     const members = channel.members;
+
     for (const member of members) {
-      this.server.to(member.socketID).emit('updateMember', newChannel);
+      const index = this.connectedClients.findIndex((el) => el.userID === member.id)
+      if (index != -1) {
+        const socketIds = this.connectedClients[index].socketID;
+        for (const socketId of socketIds) {
+          this.server.to(socketId).emit('updateMember', newChannel);
+        }
+      }
     }
+
     if (message != null) {
       this.newMessage(client, [message, user]);
     }
