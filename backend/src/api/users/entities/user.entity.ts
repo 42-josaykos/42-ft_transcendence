@@ -99,6 +99,9 @@ class User {
 
   @Column({ nullable: true, select: false })
   public twoFactorAuthenticationSecret?: string;
+
+  @Column({ default: false })
+  public isTwoFactorAuthenticationEnabled: boolean;
 }
 
 export default User;

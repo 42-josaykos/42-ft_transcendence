@@ -1,4 +1,5 @@
 import {
+  Body,
   ClassSerializerInterceptor,
   Controller,
   Get,
@@ -6,6 +7,7 @@ import {
   Redirect,
   Req,
   Res,
+  UnauthorizedException,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -22,6 +24,7 @@ import {
 } from './guards';
 import { AuthenticationProvider } from './auth.interface';
 import { Inject } from '@nestjs/common';
+import { twoFactorAuthenticationCodeDTO } from './dto/twoFactorAuthenticationCode.dto';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -128,6 +131,23 @@ export class AuthController {
         request.user,
       );
     return this.authService.pipeQrCodeStream(response, otpauthUrl);
+  }
+
+  @Post('turn-2fa-on')
+  @UseGuards(JwtAccessGuard)
+  async turnOnTwoFactorAuthentication(
+    @Req() request: RequestWithUser,
+    @Body() { twoFactorAuthenticationCode }: twoFactorAuthenticationCodeDTO,
+  ) {
+    const isCodeValid =
+      await this.authService.isTwoFactorAuthenticationCodeValid(
+        twoFactorAuthenticationCode,
+        request.user.id,
+      );
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Wrong authentication code');
+    }
+    await this.authService.turnOnTwoFactorAuthentication(request.user.id);
   }
 
   /**

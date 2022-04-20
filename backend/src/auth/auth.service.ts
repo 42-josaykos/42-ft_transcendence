@@ -167,6 +167,27 @@ export class AuthService implements AuthenticationProvider {
   public async pipeQrCodeStream(stream: Response, otpauthUrl: string) {
     return toFileStream(stream, otpauthUrl);
   }
+
+  public async isTwoFactorAuthenticationCodeValid(
+    twoFactorAuthenticationCode: string,
+    userId: number,
+  ) {
+    const filter = {
+      id: userId,
+      twoFactorAuthenticationSecret: true,
+    };
+
+    const [user] = await this.usersService.getUsersByFilter(filter);
+
+    return authenticator.verify({
+      token: twoFactorAuthenticationCode,
+      secret: user.twoFactorAuthenticationSecret,
+    });
+  }
+
+  public async turnOnTwoFactorAuthentication(userId: number) {
+    return this.usersService.turnOnTwoFactorAuthentication(userId);
+  }
 }
 
 /*******************************************************************************

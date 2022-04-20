@@ -464,4 +464,10 @@ export class UsersService {
       twoFactorAuthenticationSecret: secret,
     });
   }
+
+  async turnOnTwoFactorAuthentication(userId: number) {
+    return this.usersRepository.update(userId, {
+      isTwoFactorAuthenticationEnabled: true,
+    });
+  }
 }

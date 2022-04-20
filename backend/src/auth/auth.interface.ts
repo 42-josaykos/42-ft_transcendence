@@ -15,6 +15,11 @@ export interface AuthenticationProvider {
   removeRefreshToken(userID: number);
   generateTwoFactorAuthenticationSecret(user: User);
   pipeQrCodeStream(stream: Response, otpauthUrl: string);
+  isTwoFactorAuthenticationCodeValid(
+    twoFactorAuthenticationCode: string,
+    userId: number,
+  );
+  turnOnTwoFactorAuthentication(userId: number);
 }
 
 export type Done = (err: Error, user: User) => void;
