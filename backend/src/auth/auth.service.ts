@@ -104,8 +104,11 @@ export class AuthService implements AuthenticationProvider {
   /*****************************************************************************
    * Jwt
    */
-  public getCookieWithJwtAccessToken(userID: number) {
-    const payload: TokenPayload = { userID };
+  public getCookieWithJwtAccessToken(
+    userID: number,
+    isSecondFactorAuthenticated = false,
+  ) {
+    const payload: TokenPayload = { userID, isSecondFactorAuthenticated };
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_ACCESS_SECRET'),
       expiresIn: `${this.configService.get('JWT_ACCESS_EXPIRATION_TIME')}s`,
@@ -178,15 +181,24 @@ export class AuthService implements AuthenticationProvider {
     };
 
     const [user] = await this.usersService.getUsersByFilter(filter);
+    console.log('istwofactor:', user);
 
+    if (!user.twoFactorAuthenticationSecret) {
+      return null;
+    }
     return authenticator.verify({
       token: twoFactorAuthenticationCode,
       secret: user.twoFactorAuthenticationSecret,
     });
   }
 
-  public async turnOnTwoFactorAuthentication(userId: number) {
-    return this.usersService.turnOnTwoFactorAuthentication(userId);
+  public async turnOnTwoFactorAuthentication(user: User) {
+    const filter = {
+      id: user.id,
+      isTwoFactorAuthenticationEnabled: true,
+    };
+    const [filteredUser] = await this.usersService.getUsersByFilter(filter);
+    return this.usersService.turnOnTwoFactorAuthentication(filteredUser);
   }
 }
 

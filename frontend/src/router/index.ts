@@ -78,8 +78,8 @@ function routeGuard(to: any, from: any, next: any) {
 }
 router.beforeEach(() => {
   console.log(document.cookie);
-  Get('/auth/status').then(res => {
-    if (res.status != 403) {
+  Get('/auth/jwt-status').then(res => {
+    if (res.status != 401) {
       const userStore = useUserStore();
       const { isAuthenticated } = storeToRefs(userStore);
       isAuthenticated.value = true;

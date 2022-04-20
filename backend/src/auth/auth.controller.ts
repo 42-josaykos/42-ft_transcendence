@@ -1,6 +1,5 @@
 import {
   Body,
-  ClassSerializerInterceptor,
   Controller,
   Get,
   Post,
@@ -9,7 +8,6 @@ import {
   Res,
   UnauthorizedException,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
@@ -21,6 +19,7 @@ import {
   GithubGuard,
   JwtRefreshGuard,
   LocalAuthGuard,
+  JwtTwoFactorGuard,
 } from './guards';
 import { AuthenticationProvider } from './auth.interface';
 import { Inject } from '@nestjs/common';
@@ -53,6 +52,10 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   async loginLocal(@Req() req: RequestWithUser, @Res() res: Response) {
     const { user } = req;
+    if (user.isTwoFactorAuthenticationEnabled) {
+      console.log('2FA enabled');
+      return res.status(303).send({ message: 'Need 2FA authentication' });
+    }
     const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
       user.id,
     );
@@ -67,17 +70,21 @@ export class AuthController {
    * This is the redirect URL the OAuth2 provider will call
    */
   @Get('redirect')
-  @Redirect('/')
+  @Redirect()
   @UseGuards(FortyTwoAuthGuard)
   async redirect(@Req() req: RequestWithUser, @Res() res: Response) {
     const { user } = req;
+    if (user.isTwoFactorAuthenticationEnabled) {
+      console.log('2FA enabled');
+      return { statusCode: 303, url: '/' };
+    }
     const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
       user.id,
     );
     const refreshToken = this.authService.getCookieWithJwtRefreshToken(user.id);
     await this.authService.setCurrentRefreshToken(refreshToken.token, user.id);
     res.setHeader('Set-Cookie', [accessTokenCookie, refreshToken.cookie]);
-    return;
+    return { url: '/' };
   }
 
   @Get('redirect/github')
@@ -85,13 +92,17 @@ export class AuthController {
   @UseGuards(GithubGuard)
   async redirectGithub(@Req() req: RequestWithUser, @Res() res: Response) {
     const { user } = req;
+    if (user.isTwoFactorAuthenticationEnabled) {
+      console.log('2FA enabled');
+      return { statusCode: 303, url: '/' };
+    }
     const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
       user.id,
     );
     const refreshToken = this.authService.getCookieWithJwtRefreshToken(user.id);
     await this.authService.setCurrentRefreshToken(refreshToken.token, user.id);
     res.setHeader('Set-Cookie', [accessTokenCookie, refreshToken.cookie]);
-    return;
+    return { url: '/' };
   }
 
   /**
@@ -123,8 +134,7 @@ export class AuthController {
   }
 
   @Post('generate-2fa')
-  @UseInterceptors(ClassSerializerInterceptor)
-  @UseGuards(JwtAccessGuard)
+  @UseGuards(JwtTwoFactorGuard)
   async register(@Res() response: Response, @Req() request: RequestWithUser) {
     const { otpauthUrl } =
       await this.authService.generateTwoFactorAuthenticationSecret(
@@ -134,8 +144,28 @@ export class AuthController {
   }
 
   @Post('turn-2fa-on')
-  @UseGuards(JwtAccessGuard)
+  @UseGuards(JwtTwoFactorGuard)
   async turnOnTwoFactorAuthentication(
+    @Req() request: RequestWithUser,
+    @Body() { twoFactorAuthenticationCode }: twoFactorAuthenticationCodeDTO,
+  ) {
+    const { user } = request;
+    console.log(user);
+
+    const isCodeValid =
+      await this.authService.isTwoFactorAuthenticationCodeValid(
+        twoFactorAuthenticationCode,
+        request.user.id,
+      );
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Wrong authentication code');
+    }
+    await this.authService.turnOnTwoFactorAuthentication(request.user);
+  }
+
+  @Post('authenticate-2fa')
+  @UseGuards(JwtAccessGuard)
+  async authenticateWith2FA(
     @Req() request: RequestWithUser,
     @Body() { twoFactorAuthenticationCode }: twoFactorAuthenticationCodeDTO,
   ) {
@@ -147,7 +177,12 @@ export class AuthController {
     if (!isCodeValid) {
       throw new UnauthorizedException('Wrong authentication code');
     }
-    await this.authService.turnOnTwoFactorAuthentication(request.user.id);
+    const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
+      request.user.id,
+      true,
+    );
+    request.res.setHeader('Set-Cookie', [accessTokenCookie]);
+    return request.user;
   }
 
   /**

@@ -20,7 +20,7 @@ import User from './entities/user.entity';
 import Match from 'src/api/matches/entities/matches.entity';
 import Channel from 'src/api/channels/entities/channel.entity';
 import { UpdateUserDTO } from './dto/update-user.dto';
-import { JwtAccessGuard } from 'src/auth/guards';
+import { JwtTwoFactorGuard } from 'src/auth/guards';
 import { Utils } from 'src/utils/utils.provider';
 import MutedUser from './entities/muted.user.entity';
 import BanedUser from './entities/baned.user.entity';
@@ -35,7 +35,7 @@ export class UsersController {
 
   // CRUD related
   @Get()
-  @UseGuards(JwtAccessGuard)
+  @UseGuards(JwtTwoFactorGuard)
   async getAllUsers(): Promise<User[]> {
     return await this.usersService.getAllUsers();
   }
