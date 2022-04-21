@@ -41,7 +41,7 @@ export const useChannelStore = defineStore('channel', () => {
     //const channelTypeUpdate = ref<number>();
 
     const arrayTime = ref<string[]>(["00:00:15", "00:15:00", "00:30:00", "01:00:00", "02:00:00", "12:00:00", "23:59:59", "indefinite time"])
-
+    const timeLeft = ref<string>('');
     const createChannel = (newChannel: Channel) => {
       allChannels.value.push(newChannel);
     }
@@ -245,6 +245,7 @@ export const useChannelStore = defineStore('channel', () => {
         usersInvite,
         channelType,
         arrayTime,
+        timeLeft,
         //channelTypeUpdate,
         createChannel,
         joinChannel,

@@ -40,6 +40,7 @@ const {
   // usersInvite,
   channelType,
   //channelTypeUpdate
+  timeLeft
 } = storeToRefs(channelStore);
 
 onUpdated(() => {
@@ -314,6 +315,8 @@ const scrollFunction = () => {
   }
 };
 
+// const timeLeft = ref<string>('');
+// new Date (channel.bans[0].date).toLocaleTimeString('fr-FR')
 // const counter = ref<number>(10);
 // let intervalId :any;// = null;
 
@@ -351,7 +354,6 @@ const scrollFunction = () => {
 </script>
 
 <template>
-<button @click="test2()">TEST</button>
   <div class="container-fluid">
     <div class="row-chat padding-chat">
       <div class="col-md-3 col-chat">
@@ -446,7 +448,7 @@ const scrollFunction = () => {
                 </div>
               </div>
               <div v-else id="timer">
-                You are banned from this channel for {{channel.bans[0].date}} time
+                You are banned from this channel for {{ timeLeft }} time
               </div>
             </div>
           </div>

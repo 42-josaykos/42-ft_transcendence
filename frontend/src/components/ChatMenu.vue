@@ -40,6 +40,7 @@ const {
   usersMembers,
   usersInvite,
   channelType,
+  timeLeft
 } = storeToRefs(channelStore);
 
 const props = defineProps({
@@ -58,6 +59,15 @@ const displayMessages = (channel_item: Channel) => {
       "&messages&owner&admins&members&mutes&bans"
   ).then((res) => {
     channel.value = res.data[0];
+    if (channelStore.isBan(channel.value, loggedUser.value?.id)) {
+      const dateNow = new Date()
+      const dateEnd = channel.value?.bans[channel.value?.bans.findIndex((el) => el.user.id == loggedUser.value?.id)].date
+      console.log("date now => ", dateNow)
+      console.log("date end => ", dateEnd)
+      const dateTime = channel.value?.bans[channel.value?.bans.findIndex((el) => el.user.id == loggedUser.value?.id)].time
+      console.log("date time => ", dateTime)
+    }
+    timeLeft.value = channel.value?.bans[0].time != undefined ? channel.value?.bans[0].time : '';
     sortMessages(res.data[0].messages);
     usersMembers.value = res.data[0].members;
   });
