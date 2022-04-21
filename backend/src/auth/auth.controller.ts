@@ -76,7 +76,7 @@ export class AuthController {
     const { user } = req;
     if (user.isTwoFactorAuthenticationEnabled) {
       console.log('2FA enabled');
-      return { statusCode: 303, url: '/' };
+      return { statusCode: 303, url: '/twofactorauth' };
     }
     const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
       user.id,
@@ -164,7 +164,6 @@ export class AuthController {
   }
 
   @Post('authenticate-2fa')
-  @UseGuards(JwtAccessGuard)
   async authenticateWith2FA(
     @Req() request: RequestWithUser,
     @Body() { twoFactorAuthenticationCode }: twoFactorAuthenticationCodeDTO,

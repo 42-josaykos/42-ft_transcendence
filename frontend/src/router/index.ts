@@ -11,6 +11,7 @@ import Register from '@/components/Register.vue';
 import { useUserStore } from '@/stores/user';
 import { Get } from '@/services/requests';
 import { storeToRefs } from 'pinia';
+import Authenticate2fa from '@/components/Authenticate2fa.vue';
 
 const routes = [
   {
@@ -56,6 +57,11 @@ const routes = [
     component: Setting
   },
   {
+    path: '/twofactorauth',
+    name: 'Authenticate2fa',
+    component: Authenticate2fa
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'PageNotFound',
     component: PageNotFound
@@ -76,6 +82,7 @@ function routeGuard(to: any, from: any, next: any) {
     next('/login'); // go to '/login';
   }
 }
+
 router.beforeEach(() => {
   console.log(document.cookie);
   Get('/auth/jwt-status').then(res => {
