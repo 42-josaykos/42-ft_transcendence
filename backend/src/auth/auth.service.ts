@@ -168,11 +168,10 @@ export class AuthService implements AuthenticationProvider {
   }
 
   public async pipeQrCodeStream(stream: Response, otpauthUrl: string) {
-    return toFileStream(stream, otpauthUrl, {
-      type: 'png',
-      width: 200,
-      errorCorrectionLevel: 'H',
-    });
+    return toFileStream(
+      stream.setHeader('Content-Type', 'image/png'),
+      otpauthUrl,
+    );
   }
 
   public async isTwoFactorAuthenticationCodeValid(
