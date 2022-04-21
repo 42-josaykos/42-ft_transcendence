@@ -141,8 +141,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const usersBaned = channel.bans;
 
     if (
-      usersMuted.findIndex((el: User) => el.id == user.id) != -1 ||
-      usersBaned.findIndex((el: User) => el.id == user.id) != -1
+      usersMuted.findIndex((el: any) => el.user.id == user.id) != -1 ||
+      usersBaned.findIndex((el: any) => el.user.id == user.id) != -1
     ) {
       return;
     }

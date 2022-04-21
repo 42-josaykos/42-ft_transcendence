@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onBeforeMount, onUnmounted, onUpdated } from "vue";
+import { onMounted, onBeforeMount, onUnmounted, onUpdated, ref } from "vue";
 
 import { storeToRefs } from "pinia";
 
@@ -313,6 +313,41 @@ const scrollFunction = () => {
     scroll.scrollTop = scroll.scrollHeight;
   }
 };
+
+// const counter = ref<number>(10);
+// let intervalId :any;// = null;
+
+// const stopTimer = () => {
+//   clearInterval(intervalId);
+//   // document.getElementById("timer").innerHTML = "TERMINE!";	
+// }
+
+// const timer = () => {
+//     counter.value--;
+//     if(counter.value == 0) stopTimer();
+//     else {	
+      
+//       // date1.ToString("T", CultureInfo.CreateSpecificCulture("es-ES"))
+//         // document.getElementById("timer").innerHTML = counter + " secondes restantes";
+
+
+//     const event = new Date('August 19, 1975 23:15:30 GMT-3:00');
+
+//     console.log(event.toUTCString());
+//     // expected output: Wed, 20 Aug 1975 02:15:30 GMT
+
+//     console.log(event.getUTCHours());
+//     // expected output: 2
+
+//     event.setUTCHours(23);
+
+//     console.log(event.toUTCString());
+//     // expected output: Wed, 20 Aug 1975 23:15:30 GMT
+//     }	
+// }
+// const startTimer = () => {
+//   intervalId = setInterval(timer, 1000);
+// }
 </script>
 
 <template>
@@ -410,7 +445,9 @@ const scrollFunction = () => {
                   </div>
                 </div>
               </div>
-              <div v-else>You are banned from this channel for XX time</div>
+              <div v-else id="timer">
+                You are banned from this channel for {{channel.bans[0].date}} time
+              </div>
             </div>
           </div>
 

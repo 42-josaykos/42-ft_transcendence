@@ -40,6 +40,8 @@ export const useChannelStore = defineStore('channel', () => {
     const channelType = ref<number>();
     //const channelTypeUpdate = ref<number>();
 
+    const arrayTime = ref<string[]>(["00:00:15", "00:15:00", "00:30:00", "01:00:00", "02:00:00", "12:00:00", "23:59:59", "indefinite time"])
+
     const createChannel = (newChannel: Channel) => {
       allChannels.value.push(newChannel);
     }
@@ -177,7 +179,7 @@ export const useChannelStore = defineStore('channel', () => {
         if (userID != undefined) {
           const bans = channel_item.bans;
           if (bans != undefined) {
-            const index = bans.findIndex((el: User) => el.id === userID);
+            const index = bans.findIndex((el: any) => el.user.id === userID);
             if (index != -1) {
               return true;
             }
@@ -191,7 +193,7 @@ export const useChannelStore = defineStore('channel', () => {
       if (channel_item != undefined) {
         const mutes = channel_item.mutes;
         if (mutes != undefined) {
-          const index = mutes.findIndex((el: User) => el.id === userID);
+          const index = mutes.findIndex((el: any) => el.user.id === userID);
           if (index != -1) {
             return true;
           }
@@ -242,6 +244,7 @@ export const useChannelStore = defineStore('channel', () => {
         userDirectMessage,
         usersInvite,
         channelType,
+        arrayTime,
         //channelTypeUpdate,
         createChannel,
         joinChannel,

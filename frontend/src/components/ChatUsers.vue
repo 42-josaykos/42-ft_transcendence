@@ -14,7 +14,7 @@ const { usersOnline, loggedUser, socketChat } = storeToRefs(userStore);
 
 const channelStore = useChannelStore();
 
-const { allChannels, channel, usersMembers } = storeToRefs(channelStore);
+const { allChannels, channel, usersMembers, arrayTime } = storeToRefs(channelStore);
 
 const userClick = ref<User>();
 const userClickBool = ref<boolean>(false);
@@ -25,6 +25,7 @@ const modalRemoveAdmin = ref<boolean>(false);
 const modalBan = ref<boolean>(false);
 const modalMute = ref<boolean>(false);
 const stringSendMessage = ref<string>("");
+const inputTime = ref<string>("");
 
 const isOnline = (userID: Number): boolean => {
   if (usersOnline.value.findIndex((el: Number) => el == userID) == -1) {
@@ -75,6 +76,34 @@ const sendDirectMessage = async () => {
   }
 };
 
+const addBanMute = (boolBan: Boolean) => {
+  if (boolBan) {
+    if (inputTime.value === arrayTime.value[arrayTime.value.length - 1]) {
+      socketChat.value?.emit('updateMember', channel.value?.id, {addBans: [{user: {id: userClick.value?.id}}]/*, addMutes: [{id: user.id}]*/}, null, loggedUser)
+    }
+    else {
+      socketChat.value?.emit('updateMember', channel.value?.id, {addBans: [{user: {id: userClick.value?.id}, time: inputTime.value}]/*, addMutes: [{id: user.id}]*/}, null, loggedUser)
+    }
+  }
+  else {
+    if (inputTime.value === arrayTime.value[arrayTime.value.length - 1]) {
+      socketChat.value?.emit('updateMember', channel.value?.id, {addMutes: [{user: {id: userClick.value?.id}}]}, null, loggedUser)
+    }
+    else {
+      socketChat.value?.emit('updateMember', channel.value?.id, {addMutes: [{user: {id: userClick.value?.id}, time: inputTime.value}]}, null, loggedUser)
+    }
+  }
+  inputTime.value = ''
+}
+
+const removeBanMute = (boolBan: Boolean) => {
+  if (boolBan) {
+      socketChat.value?.emit('updateMember', channel.value?.id, {removeBans: [{user: {id: userClick.value?.id}}]/*, addMutes: [{id: user.id}]*/}, null, loggedUser)
+  }
+  else {
+      socketChat.value?.emit('updateMember', channel.value?.id, {removeMutes: [{user: {id: userClick.value?.id}}]}, null, loggedUser)
+  }
+}
 </script>
 
 <template>
@@ -291,7 +320,7 @@ const sendDirectMessage = async () => {
     </template>
   </ModalChat>
 
-  <!-- <ModalChat
+  <ModalChat
     v-if="modalBan == true"
     @close="
       modalBan = false;
@@ -299,41 +328,42 @@ const sendDirectMessage = async () => {
   >
     <template v-slot:header>
       <h2 style="padding-top: 10px">
-        <u>Mute :</u> {{ userClick?.username }}
+        <u>Ban :</u> {{ userClick?.username }}
       </h2>
     </template>
     <template v-slot:body>
-
-        <div class="scrollspy-example2 card-choose-users">
-          <div
-            class="separator-list"
-            v-for="item in channelLeave.members"
-            :key="item.id"
-          >
-            <div
-              v-if="item.id != loggedUser?.id"
-              class="d-flex ms-auto"
-              style="align-items: center"
+      <div v-if="!channelStore.isBan(channel, userClick?.id)" class="scrollspy-example2 card-choose-users">{{channel}}
+        <div
+          class="separator-list"
+          v-for="time in arrayTime"
+        >
+          <div class="m-auto">
+            <button
+              @click="
+                modalBan = false;
+                inputTime = time;
+                addBanMute(true)
+              "
+              type="button"
+              class="mod-btn mod-btn-cyan btn-sm"
             >
-              <div class="ps-5">
-                <p class="pt-3" style="">{{ item.username }}</p>
-              </div>
-              <div class="ms-auto">
-                <button
-                  @click="
-                    modalBan = false;
-                    // fonction qui update le Mute
-                  "
-                  type="button"
-                  class="mod-btn mod-btn-cyan btn-sm"
-                >
-                  New Owner
-                </button>
-              </div>
-            </div>
+              {{ time }}
+            </button>
           </div>
         </div>
-
+      </div>
+      <div v-else>
+        <button
+          @click="
+            modalBan = false;
+            removeBanMute(true)
+          "
+          type="button"
+          class="mod-btn mod-btn-cyan btn-sm"
+        >
+          Remove ban
+        </button>
+      </div>
     </template>
     <template v-slot:footer>
       <button
@@ -346,7 +376,65 @@ const sendDirectMessage = async () => {
         Cancel
       </button>
     </template>
-  </ModalChat> -->
+  </ModalChat>
+
+  <ModalChat
+    v-if="modalMute == true"
+    @close="
+      modalMute = false;
+    "
+  >
+    <template v-slot:header>
+      <h2 style="padding-top: 10px">
+        <u>Mute :</u> {{ userClick?.username }}
+      </h2>
+    </template>
+    <template v-slot:body>
+      <div v-if="!channelStore.isMute(channel, userClick?.id)" class="scrollspy-example2 card-choose-users">
+        <div
+          class="separator-list"
+          v-for="time in arrayTime"
+        >
+          <div class="m-auto">
+            <button
+              @click="
+                modalMute= false;
+                inputTime = time;
+                addBanMute(false)
+              "
+              type="button"
+              class="mod-btn mod-btn-cyan btn-sm"
+            >
+              {{ time }}
+            </button>
+          </div>
+        </div>
+      </div>
+      <div v-else>
+        <button
+          @click="
+            modalMute = false;
+            removeBanMute(false)
+          "
+          type="button"
+          class="mod-btn mod-btn-cyan btn-sm"
+        >
+          Remove mute
+        </button>
+      </div>
+    </template>
+    <template v-slot:footer>
+      <button
+        @click="
+          modalMute = false;
+        "
+        type="button"
+        class="mod-btn mod-btn-yellow"
+      >
+        Cancel
+      </button>
+    </template>
+  </ModalChat>
 
 </template>
 

@@ -424,7 +424,7 @@ const updateUsersInvite = (user: User) => {
                     Get(
                       'channels/search?id=' +
                         item.id.toString() +
-                        '&admins&mutes&members&invites'
+                        '&admins&mutes&members&invites&bans'
                     ).then((res) => {
                       [channelUpdate] = res.data;
                       channelName = res.data[0].name;

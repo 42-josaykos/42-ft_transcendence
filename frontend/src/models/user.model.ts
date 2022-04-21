@@ -11,3 +11,17 @@ export interface User {
   banChannels: Channel[];
   inviteChannels: Channel[];
 }
+
+export interface BanedUser {
+  user: User;
+  channel: Channel;
+  date: Date;
+  time?: string;
+}
+
+export interface MutedUser {
+  user: User;
+  channel: Channel;
+  date: Date;
+  time?: string;
+}
