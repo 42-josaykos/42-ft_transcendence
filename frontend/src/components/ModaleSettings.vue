@@ -11,7 +11,23 @@
 			'powerups': PowerUps,
 		},
         // props: ['reveleSettings', 'toggleModaleSettings'],
-        props: ['revelePlay', 'toggleModaleSettings_1', 'launch']
+        props: ['revelePlay', 'toggleModaleSettings_1', 'launch'],
+        methods: {
+			updatePaddleSize: function(variable) {
+				this.paddleSize = variable;
+				
+                // console.log("ModaleSettings updated, now emitting from ModaleSettings to parent Game");
+                // console.log("paddleSize : " + this.paddleSize);
+				this.$emit('paddleSizeChange', this.paddleSize);
+			},
+            updateBallSpeed: function(variable) {
+				this.ballSpeed = variable; 
+
+				// console.log("ModaleSettings updated, now emitting from ModaleSettings to parent Game");
+				// console.log("ballSpeed : " + this.ballSpeed);
+				this.$emit('ballSpeedChange', this.ballSpeed);
+			}
+		},
     }
 </script>
 
@@ -28,7 +44,7 @@
                 <div class="btn-modale btn btn-danger" v-on:click="toggleModaleSettings_1">X</div>
                 <h1> Choose your features... </h1>
             </div>  
-            <powerups class=Powerups></powerups>
+            <powerups class=Powerups @paddleSizeChange="updatePaddleSize" @ballSpeedChange="updateBallSpeed"></powerups>
         </div>
     </div>
 </div>

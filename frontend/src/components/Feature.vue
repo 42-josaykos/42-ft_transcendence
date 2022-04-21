@@ -2,39 +2,63 @@
     export default {
         data() {
             return {
-                level: 5,
+                level: 5, //{}, //level: 5,
+                // levelMax: 10,
+                min: {},
+                max: {},
             }
         },
-        props: {
-            name: String
-        },
+        // props: {
+        //     name: String,
+
+        // },
+        props: ['name', 'levelMin', 'levelMax', 'startLevel'],
         /*  Intéressant pour avoir des données en cache */
         computed: {
-            levelMin: function()
+            // getLevelMin: function() {
+            //     this.min = this.levelMin; 
+            //     return (this.min);
+            // },
+            // getLevelMax: function() {
+            //     this.max = this.levelMax;
+            //     return (this.max);
+            // },
+            // getStartLevel: function() {
+            //     this.level = (this.levelMax + 1) / 2;
+            //     return (this.level);
+            // },
+            isMin: function()
             {
-                if (this.level == 0)
+                if (this.level == this.levelMin)
                     return (true);
                 return (false);
             },
-            levelMax: function()
+            isMax: function()
             {
-                if (this.level == 10)
+                if (this.level == this.levelMax)
                     return (true);
                 return (false);
             }
         },
+        created() {},
+        mounted() {},
+        destroyed() {},
         methods: {
             levelUp: function()
             {
-                if (this.level < 10)
+                if (this.level < this.levelMax) 
                     this.level++;
                 // console.log("levelMin is: " + this.levelMin + " levelMax is: " + this.levelMax + " level is: " + this.level)
+                // console.log("emitting from Feature to parent Powerups:");
+                this.$emit('levelChange', this.level);
             },
             levelDown: function()
             {
-                if (this.level > 0)
+                if (this.level > this.levelMin)
                     this.level--;
                 // console.log("min is: " + this.levelMin + "levelMax is: " + this.levelMax + "level is: " + this.level)
+                // console.log("emitting from Feature to parent Powerups:");
+                this.$emit('levelChange', this.level);
             },
         }
     }
@@ -43,12 +67,14 @@
 <template>
     <section class=Feature>
         <h2 class="FeatureName">
-            {{ name }} : {{ level }}
+            {{ name }} : {{ level }} <!--{{ startLevel }}-->
         </h2>
         <section class=FeatureButtons>
-            <button class="UpAndDown" v-on:click="levelDown" :disabled="levelMin == true"> - </button>
-            <input class="LevelBar" type="range" v-model="level" min="0" max="10">
-            <button class="UpAndDown" v-on:click="levelUp" :disabled="levelMax == true"> + </button>
+            <button class="UpAndDown" v-on:click="levelDown" :disabled="isMin == true"> - </button>
+            <input class="LevelBar" type="range" v-model="level" :min=levelMin :max=levelMax>
+            <!-- <input class="LevelBar" type="range" v-model="startLevel" :min=levelMin :max=levelMax> -->
+            <button class="UpAndDown" v-on:click="levelUp" :disabled="isMax == true"> + </button>
+            
         </section>
     </section>
 </template>

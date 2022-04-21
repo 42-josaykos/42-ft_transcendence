@@ -12,6 +12,8 @@
 			return {
 				// reveleSettings: false,
 				revelePlay: false,
+				paddleSize: 0, // pas sure de mettre 0, faut voir une valeur par défaut mais la même que dans la barre
+				ballSpeed: 0,
 			}
 		},
 		components: {
@@ -22,17 +24,31 @@
 		},
 		methods: {
 			toggleModaleSettings_2: function(){
-				console.log("here: " + this.reveleSettings);
+				// console.log("here: " + this.reveleSettings);
 				this.reveleSettings = !this.reveleSettings;
-				console.log(" became: " + this.reveleSettings);
+				// console.log(" became: " + this.reveleSettings);
 				return ;
 			},
 			toggleModaleSettings_1: function(){
-				console.log("this.revelePlay in Game.vue : " + this.revelePlay);
+				// console.log("this.revelePlay in Game.vue : " + this.revelePlay);
 				if (this.revelePlay == false)
 					this.revelePlay = !this.revelePlay;
-				console.log("THEN this.revelePlay in Game.vue : " + this.revelePlay);
+				// console.log("THEN this.revelePlay in Game.vue : " + this.revelePlay);
 				return ;
+			},
+			updatePaddleSize: function(variable) {
+				this.paddleSize = variable;
+				
+                // console.log("Game updated");
+                // console.log("paddleSize : " + this.paddleSize);
+				this.$emit('paddleSizeChange', this.paddleSize);
+			},
+            updateBallSpeed: function(variable) {
+				this.ballSpeed = variable; 
+
+				// console.log("Game updated");
+				// console.log("ballSpeed : " + this.ballSpeed);
+				this.$emit('ballSpeedChange', this.ballSpeed);
 			},
 			// toggleModalePlay: function(){
 			// 	console.log("this.revelePlay in Game.vue : " + this.revelePlay);
@@ -53,8 +69,8 @@
 				<div v-on:click="toggleModaleSettings" class="btn btn-success">OUVRE LA MODALE YOLO LA VIE</div>
 			</div> -->
 			<div class=PongGame>
-				<modale-settings class="ModaleSettings" v-bind:revelePlay="revelePlay" v-bind:toggleModaleSettings_1="toggleModaleSettings_1"></modale-settings>
-				<pong v-bind:revelePlay="revelePlay"></pong>
+				<modale-settings class="ModaleSettings" v-bind:revelePlay="revelePlay" v-bind:toggleModaleSettings_1="toggleModaleSettings_1" @paddleSizeChange="updatePaddleSize" @ballSpeedChange="updateBallSpeed"></modale-settings>
+				<pong v-bind:revelePlay="revelePlay" v-bind:paddleSize="paddleSize" v-bind:ballSpeed="ballSpeed"></pong>
 			</div>
 			<!-- <div class=PongGame>
 				<modale-play class="ModalePlay" v-bind:revelePlay="revelePlay" v-bind:toggleModalePlay="toggleModalePlay"></modale-play>
