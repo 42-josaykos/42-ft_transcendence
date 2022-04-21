@@ -40,7 +40,7 @@ async function bootstrap() {
 
   // Starting up API service
   const configService = api.get(ConfigService);
-  const port = configService.get('API_PORT') || 4000;
+  const port = configService.get('API_PORT') || 4001;
 
   // Cookie parser
   api.use(cookieParser());
@@ -73,7 +73,7 @@ async function bootstrap() {
   // await authApp.listen(5000);
 
   // Upload Module
-  const uploadModulePort = 7000;
+  const uploadModulePort = 7002;
   const fileUpload = await NestFactory.create(UploadModule);
   await fileUpload.listen(uploadModulePort, '0.0.0.0');
   console.log(
