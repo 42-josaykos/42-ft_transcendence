@@ -9,7 +9,9 @@ export const useMessageStore = defineStore('message', () => {
     const textDirectMsg = ref<string>('');
 
     const createMessage = (newMessage: Message) => {
-        messages.value.push(newMessage);
+        if (messages.value != undefined) {
+            messages.value.push(newMessage);
+        }
     }
 
     return {

@@ -9,8 +9,8 @@ import { getRepository } from 'typeorm';
 import { TypeORMSession } from './auth/entities/session.entity';
 import { TypeormStore } from 'connect-typeorm';
 import { UploadModule } from './upload/upload.module';
+import { StatusModule } from './status/status.module';
 import * as cookieParser from 'cookie-parser';
-import { appendFile } from 'fs';
 
 async function bootstrap() {
   const api = await NestFactory.create(AppModule);
@@ -71,6 +71,14 @@ async function bootstrap() {
   // Auth Module
   // const authApp = await NestFactory.create(AuthModule);
   // await authApp.listen(5000);
+
+  // Status Module
+  const statusSystemPort = 3615;
+  const statusSystem = await NestFactory.create(StatusModule);
+  await statusSystem.listen(statusSystemPort, '0.0.0.0');
+  console.log(
+    `[StatusSystem] Status service running on: ${await statusSystem.getUrl()}`,
+  );
 
   // Upload Module
   const uploadModulePort = 7002;

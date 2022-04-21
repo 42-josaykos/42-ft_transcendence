@@ -101,16 +101,46 @@ export class AuthService implements AuthenticationProvider {
   /*****************************************************************************
    * Jwt
    */
-  public getCookieWithJwtToken(userId: number) {
-    const payload: TokenPayload = { userId };
-    const token = this.jwtService.sign(payload);
-    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
-      'JWT_EXPIRATION_TIME',
+  public getCookieWithJwtAccessToken(userID: number) {
+    const payload: TokenPayload = { userID };
+    const token = this.jwtService.sign(payload, {
+      secret: this.configService.get('JWT_ACCESS_SECRET'),
+      expiresIn: `${this.configService.get('JWT_ACCESS_EXPIRATION_TIME')}s`,
+    });
+    return `Authentication=${token}; Secure; Path=/; Max-Age=${this.configService.get(
+      'JWT_ACCESS_EXPIRATION_TIME',
     )}`;
   }
 
+  public getCookieWithJwtRefreshToken(userID: number) {
+    const payload: TokenPayload = { userID };
+    const token = this.jwtService.sign(payload, {
+      secret: this.configService.get('JWT_REFRESH_SECRET'),
+      expiresIn: `${this.configService.get('JWT_REFRESH_EXPIRATION_TIME')}s`,
+    });
+    const cookie = `Refresh=${token}; HttpOnly; Path=/auth/refresh; Max-Age=${this.configService.get(
+      'JWT_REFRESH_EXPIRATION_TIME',
+    )}`;
+    return {
+      cookie,
+      token,
+    };
+  }
+
+  async setCurrentRefreshToken(token: string, userID: number) {
+    const refreshToken = await bcrypt.hash(token, 10);
+    await this.usersService.updateUser(userID, { refreshToken });
+  }
+
   public getCookieForLogout() {
-    return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
+    return [
+      'Authentication=; HttpOnly; Path=/; Max-Age=0',
+      'Refresh=; HttpOnly; Path=/; Max-Age=0',
+    ];
+  }
+
+  async removeRefreshToken(userID: number) {
+    return this.usersService.removeRefreshToken(userID);
   }
 }
 

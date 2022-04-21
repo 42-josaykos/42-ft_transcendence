@@ -4,6 +4,7 @@ import { useUserStore } from '@/stores/user';
 import { ref } from 'vue';
 import { Post } from '@/services/requests';
 import { useRouter } from 'vue-router';
+import { login_open, register_open} from "./Modale.vue"
 
 const userStore = useUserStore();
 const { isAuthenticated, loggedUser } = storeToRefs(userStore);
@@ -41,11 +42,10 @@ function register() {
 </script>
 
 <template>
-  <div class="auth-form border border-primary">
-    <h2 v-if="!isAuthenticated">Create a new account</h2>
-    <h2 v-else>Logout</h2>
+  <div>
+    <h2><u>Create a new account</u></h2>
 
-    <div v-if="!isAuthenticated">
+    <div>
       <form @submit.prevent.trim.lazy="register" class="form-signup">
         <label for="inputUsername" class="sr-only">Username</label>
         <input
@@ -75,26 +75,29 @@ function register() {
           v-model="password2"
           required
         />
-        <button class="btn btn-lg btn-primary btn-block my-2" type="submit">
-          Register
-        </button>
+        <button class="mod-btn mod-btn-yellow" type="submit" style="margin: 20px;"> Register and Log in</button> <br>
         <div>Already registered ?</div>
-        <router-link to="/login">Login</router-link>
+        <a href="#" @click="login_open = true; register_open = false">Login</a>
       </form>
-    </div>
-    <div v-else>
-      <a class="btn btn-danger" href="/auth/logout">Logout</a>
     </div>
   </div>
 </template>
 
-<style>
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 20px auto;
-  padding: 10px;
-  max-width: 50%;
+<style scoped>
+
+input{
+  text-align: center;
+  margin: auto;
+  max-width: 300px;
+}
+
+input::placeholder{
+  text-align: center;
+}
+
+input.form-control:focus{
+  outline: none;
+  box-shadow: none;
+  border: 1px solid #ced4da;
 }
 </style>
