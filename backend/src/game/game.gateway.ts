@@ -64,8 +64,12 @@ export class GameGateway
     //   throw new WsException('Game was not found');
     // }
 
-    // console.log('MoveLeft');
-    this.server.emit('moveLeft', '');
+    // Detect which player moved
+    // Will later need to send ONLY to people watching / playing the game
+    // if (data.id === this.games[gameIndex].players[0].userID)
+    this.server.emit('playerOneMoveLeft');
+    this.server.emit('playerTwoMoveLeft');
+    // else this.server.emit('playerTwoMoveLeft');
   }
 
   @SubscribeMessage('moveRight')
@@ -82,7 +86,11 @@ export class GameGateway
     //   throw new WsException('Game was not found');
     // }
 
-    // console.log('MoveRight');
-    this.server.emit('moveRight', '');
+    // Detect which player moved
+    // Will later need to send ONLY to people watching / playing the game
+    // if (data.id === this.games[gameIndex].players[0].userID)
+    this.server.emit('playerOneMoveRight');
+    this.server.emit('playerTwoMoveRight');
+    // else this.server.emit('playerTwoMoveRight');
   }
 }

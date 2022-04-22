@@ -98,24 +98,45 @@ export default {
     // this.render();
 
     // Socket Events
-    this.gameSocket.on("moveLeft", () => {
+    //######################################################################
+    this.gameSocket.on("playerOneMoveLeft", () => {
       let oldY = this.player_L.y;
       if (this.player_L.y - this.paddle.speed >= 0) {
         this.player_L.y -= this.paddle.speed;
-        console.log("moved left!");
+        // console.log("one moved left!");
       }
     });
 
-    this.gameSocket.on("moveRight", () => {
+    this.gameSocket.on("playerTwoMoveLeft", () => {
+      let oldY = this.player_R.y;
+      if (this.player_R.y - this.paddle.speed >= 0) {
+        this.player_R.y -= this.paddle.speed;
+        // console.log("two moved left!");
+      }
+    });
+
+    this.gameSocket.on("playerOneMoveRight", () => {
       let oldY = this.player_L.y;
       if (
         this.player_L.y + this.paddle.h + this.paddle.speed <=
         this.canvas.h
       ) {
         this.player_L.y += this.paddle.speed;
-        console.log("moved right!");
+        // console.log("one moved right!");
       }
     });
+
+    this.gameSocket.on("playerTwoMoveRight", () => {
+      let oldY = this.player_R.y;
+      if (
+        this.player_R.y + this.paddle.h + this.paddle.speed <=
+        this.canvas.h
+      ) {
+        this.player_R.y += this.paddle.speed;
+        // console.log("two moved right!");
+      }
+    });
+    //######################################################################
 
     this.drawPlayerLeft(this.getPaddle);
     this.drawPlayerRight(this.getPaddle);
@@ -278,9 +299,11 @@ export default {
     },
     // KEYBOARD EVENT MANAGEMENT
     move(event) {
-      if (event.keyCode == 37) this.gameSocket.emit("moveLeft");
+      if (event.keyCode == 37)
+        this.gameSocket.emit("moveLeft", this.loggedUser);
       //   if (event.keyCode == 37) this.moveLeft();
-      else if (event.keyCode == 39) this.gameSocket.emit("moveRight");
+      else if (event.keyCode == 39)
+        this.gameSocket.emit("moveRight", this.loggedUser);
       // else if (event.keyCode == 39) this.moveRight();
       return;
     },
