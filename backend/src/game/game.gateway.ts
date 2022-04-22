@@ -55,19 +55,34 @@ export class GameGateway
 
   @SubscribeMessage('moveLeft')
   handleMoveLeft(@ConnectedSocket() client: Socket, @MessageBody() data: User) {
-    console.log('MoveLeft');
     const gameIndex = this.games.findIndex((game) =>
       game.players.findIndex((connection) => connection.userID === data.id),
     );
 
     // Should never append, but prevention is better than cure
-    if (gameIndex === -1) {
-      throw new WsException('Game was not found');
-    }
+    // if (gameIndex === -1) {
+    //   throw new WsException('Game was not found');
+    // }
+
+    // console.log('MoveLeft');
+    this.server.emit('moveLeft', '');
   }
 
-  @SubscribeMessage('message')
-  handleMessage(client: any, payload: any): string {
-    return 'Hello world!';
+  @SubscribeMessage('moveRight')
+  handleMoveRight(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: User,
+  ) {
+    const gameIndex = this.games.findIndex((game) =>
+      game.players.findIndex((connection) => connection.userID === data.id),
+    );
+
+    // Should never append, but prevention is better than cure
+    // if (gameIndex === -1) {
+    //   throw new WsException('Game was not found');
+    // }
+
+    // console.log('MoveRight');
+    this.server.emit('moveRight', '');
   }
 }

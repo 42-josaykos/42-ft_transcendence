@@ -95,9 +95,28 @@ export default {
     let rightPlayer = this.getPlayerR;
     let gameBall = this.getBall;
     let sounds = this.getSounds;
-    console.log("DEBUG SOCKET! : ", this.gameSocket);
-    console.log("DEBUG USER! : ", this.loggedUser);
     // this.render();
+
+    // Socket Events
+    this.gameSocket.on("moveLeft", () => {
+      let oldY = this.player_L.y;
+      if (this.player_L.y - this.paddle.speed >= 0) {
+        this.player_L.y -= this.paddle.speed;
+        console.log("moved left!");
+      }
+    });
+
+    this.gameSocket.on("moveRight", () => {
+      let oldY = this.player_L.y;
+      if (
+        this.player_L.y + this.paddle.h + this.paddle.speed <=
+        this.canvas.h
+      ) {
+        this.player_L.y += this.paddle.speed;
+        console.log("moved right!");
+      }
+    });
+
     this.drawPlayerLeft(this.getPaddle);
     this.drawPlayerRight(this.getPaddle);
     this.drawScore(this.player_L, this.player_R);
@@ -259,29 +278,29 @@ export default {
     },
     // KEYBOARD EVENT MANAGEMENT
     move(event) {
-      if (event.keyCode == 37)
-        this.gameSocket.emit("moveLeft", this.loggedUser);
+      if (event.keyCode == 37) this.gameSocket.emit("moveLeft");
       //   if (event.keyCode == 37) this.moveLeft();
-      else if (event.keyCode == 39) this.moveRight();
+      else if (event.keyCode == 39) this.gameSocket.emit("moveRight");
+      // else if (event.keyCode == 39) this.moveRight();
       return;
     },
-    moveRight: function () {
-      let oldY = this.player_L.y;
-      if (
-        this.player_L.y + this.paddle.h + this.paddle.speed <=
-        this.canvas.h
-      ) {
-        this.player_L.y += this.paddle.speed;
-      }
-      return;
-    },
-    moveLeft: function () {
-      let oldY = this.player_L.y;
-      if (this.player_L.y - this.paddle.speed >= 0) {
-        this.player_L.y -= this.paddle.speed;
-      }
-      return;
-    },
+    // moveRight: function () {
+    //   let oldY = this.player_L.y;
+    //   if (
+    //     this.player_L.y + this.paddle.h + this.paddle.speed <=
+    //     this.canvas.h
+    //   ) {
+    //     this.player_L.y += this.paddle.speed;
+    //   }
+    //   return;
+    // },
+    // moveLeft: function () {
+    //   let oldY = this.player_L.y;
+    //   if (this.player_L.y - this.paddle.speed >= 0) {
+    //     this.player_L.y -= this.paddle.speed;
+    //   }
+    //   return;
+    // },
     // UPDATING DATA AND ADJUSTING
     update: function () {
       if (this.ball.Xmin - 50 > this.canvas.w || this.ball.Xmax + 50 < 0)
