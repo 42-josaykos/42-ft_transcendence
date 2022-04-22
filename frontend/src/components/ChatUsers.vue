@@ -332,7 +332,7 @@ const removeBanMute = (boolBan: Boolean) => {
       </h2>
     </template>
     <template v-slot:body>
-      <div v-if="!channelStore.isBan(channel, userClick?.id)" class="scrollspy-example2 card-choose-users">{{channel}}
+      <div v-if="!channelStore.isBan(channel, userClick?.id)" class="scrollspy-example2 card-choose-users">
         <div
           class="separator-list"
           v-for="time in arrayTime"

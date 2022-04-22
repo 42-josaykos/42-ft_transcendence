@@ -77,7 +77,6 @@ if (isAuthenticated.value) {
           (el: User) => el.id === loggedUser.value?.id
         ) != -1
       ) {
-        console.log(" ICI ");
         channelStore.joinChannel(newChannel);
         socketChat.value?.emit("newMessage", message, user);
       }
@@ -149,11 +148,35 @@ if (isAuthenticated.value) {
             "&owner&admins&members&mutes&bans&messages"
         ).then((res) => {
           usersMembers.value = res.data[0].members;
-          messages.value = res.data[0].messages;
+          messageStore.sortMessages(res.data[0].messages)
         });
         channel.value = updateChannel;
       }
     }
   });
+
+  socketChat.value.on('userAddBan', (updateChannel: Channel) => {
+    if (channel.value != undefined && loggedUser.value != null && channel.value.id == updateChannel.id) {
+      channelStore.handleBanMute({...updateChannel}, true)
+    }
+  })
+
+  socketChat.value.on('userRemoveBan', (updateChannel: Channel) => {
+    if (channel.value != undefined && loggedUser.value != null && channel.value.id == updateChannel.id) {
+      channel.value = updateChannel;
+    }
+  })
+
+  socketChat.value.on('userAddMute', (updateChannel: Channel) => {
+    if (channel.value != undefined && loggedUser.value != null && channel.value.id == updateChannel.id) {
+      channelStore.handleBanMute({...updateChannel}, false)
+    }
+  })
+
+  socketChat.value.on('userRemoveMute', (updateChannel: Channel) => {
+    if (channel.value != undefined && loggedUser.value != null && channel.value.id == updateChannel.id) {
+      channel.value = updateChannel;
+    }
+  })
 } 
 </script>

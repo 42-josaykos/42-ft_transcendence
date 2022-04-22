@@ -40,7 +40,8 @@ const {
   // usersInvite,
   channelType,
   //channelTypeUpdate
-  timeLeft
+  timeLeftBan,
+  timeLeftMute
 } = storeToRefs(channelStore);
 
 onUpdated(() => {
@@ -85,22 +86,6 @@ onMounted(() => {
     }
   });
 });
-
-
-const test2 = () => {
-  console.log("Socket 2 => ", socketChat.value)
-}
-
-///////////////////////
-//  MESSAGES
-///////////////////////
-// const displayMessages = (channel_item: Channel) => {
-//   Get('/channels/search?id=' + channel_item.id.toString() + '&messages&owner&admins&members&mutes&bans').then(res => {
-//     channel.value = res.data[0]
-//     messages.value = res.data[0].messages
-//     usersMembers.value = res.data[0].members
-//   })
-// }
 
 const sendNewMessage = (channelId: Number | undefined) => {
   if (channelId != undefined) {
@@ -384,15 +369,16 @@ const scrollFunction = () => {
               <div v-if="channelStore.isBan(channel, loggedUser?.id) == false">
                 <div v-if="messages">
                   <div
-                    id=""
                     style="display: flex"
                     v-for="item in messages"
                     :key="item.id"
                   >
-                    <div
-                      v-if="channelStore.isBan(channel, item.author.id) == true"
-                    >
-                      *** Message delete ***
+                    <div v-if="channelStore.isBan(channel, item.author.id) == true" style="display: contents;">
+                      <div class="msg chat-message-delete mb-4">
+                        <div class="flex-shrink-1 rounded ml-3 text-msg-left">
+                          <div style="text-align: center">*** Message delete ***</div>
+                        </div>
+                      </div>
                     </div>
                     <div v-else-if="item.author.id != loggedUser?.id">
                       <div class="msg chat-message-left mb-4">
@@ -446,9 +432,20 @@ const scrollFunction = () => {
                     </div>
                   </div>
                 </div>
+                <div v-if="channelStore.isMute(channel, loggedUser?.id) == true" style="display: contents;">
+                  <div class="msg timer mx-3 mb-3">
+                    <div class="flex-shrink-1 rounded ml-3 text-msg-left">
+                        <div style="text-align: center">You are muted from this channel for {{ timeLeftMute }} time</div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div v-else id="timer">
-                You are banned from this channel for {{ timeLeft }} time
+              <div v-else style="display: contents;">
+                <div class="msg timer mx-3 mt-3">
+                  <div class="flex-shrink-1 rounded ml-3 text-msg-left">
+                      <div style="text-align: center">You are banned from this channel for {{ timeLeftBan }} time</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -459,7 +456,7 @@ const scrollFunction = () => {
               method="POST"
               class="form"
             >
-              <input v-model="textMsg" type="text" class="input" />
+              <input v-model="textMsg" type="text" class="input ms-3" />
               <button
                 type="submit"
                 class="rounded btn-channel wrapper-icon-leave ms-auto"
@@ -861,6 +858,16 @@ const scrollFunction = () => {
   flex-direction: row-reverse;
   margin-left: auto;
   border: #3ded29 3px solid;
+}
+
+.chat-message-delete {
+  margin: auto;
+  border: #db810c 3px solid;
+}
+
+.timer {
+  margin: auto;
+  border: #ba0f1b 3px solid;
 }
 
 .text-msg-left .font-weight-bold {

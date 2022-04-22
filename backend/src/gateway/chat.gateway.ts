@@ -52,24 +52,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleConnection(client: Socket) {
     this.logger.log(`Client connected: ${client.id}`);
     this.server.to(client.id).emit('askInfo')
-    // let hasJwt = false;
-    // if (client.handshake.headers['cookie'] != undefined) {
-    //   const str = client.handshake.headers['cookie'];
-    //   const split = str.split(';');
-    //   split.forEach(async (el) => {
-    //     let [k, v] = el.split('=');
-    //     if (k.trim() == 'Authentication') {
-    //       hasJwt = true
-    //       const decodeJwtAccessToken = this.jwtService.decode(v);
-    //       const userId = decodeJwtAccessToken['userID'];
-    //       const updateUser: UpdateUserDTO = { socketID: client.id };
-    //       await this.usersService.updateUser(userId, updateUser);
-    //     }
-    //   });
-    //   if (!hasJwt) {
-    //     this.server.to(client.id).emit('askInfo')
-    //   }
-    // }
   }
 
   /*
@@ -292,6 +274,23 @@ async updateInvite(client: Socket, data: any[]) {
     const message = data[2];
     const user = data[3];
 
+    let userAddBan :User = undefined;
+    if (updateChannel.addBans != undefined) {
+      userAddBan = updateChannel.addBans[0].user
+    }
+    let userRemoveBan :User = undefined;
+    if (updateChannel.removeBans != undefined) {
+      userRemoveBan = updateChannel.removeBans[0].user
+    }
+    let userAddMute :User = undefined;
+    if (updateChannel.addMutes != undefined) {
+      userAddMute = updateChannel.addMutes[0].user
+    }
+    let userRemoveMute :User = undefined;
+    if (updateChannel.removeMutes != undefined) {
+      userRemoveMute = updateChannel.removeMutes[0].user
+    }
+
     const newChannel = await this.channelsService.updateChannel(
       channelID,
       updateChannel,
@@ -308,6 +307,18 @@ async updateInvite(client: Socket, data: any[]) {
         const socketIds = this.connectedClients[index].socketID;
         for (const socketId of socketIds) {
           this.server.to(socketId).emit('updateMember', newChannel);
+          if (userAddBan != undefined && this.connectedClients[index].userID == userAddBan.id) {
+            this.server.to(socketId).emit('userAddBan', newChannel)
+          }
+          if (userRemoveBan != undefined && this.connectedClients[index].userID == userRemoveBan.id) {
+            this.server.to(socketId).emit('userRemoveBan', newChannel)
+          }
+          if (userAddMute != undefined && this.connectedClients[index].userID == userAddMute.id) {
+            this.server.to(socketId).emit('userAddMute', newChannel)
+          }
+          if (userRemoveMute != undefined && this.connectedClients[index].userID == userRemoveMute.id) {
+            this.server.to(socketId).emit('userRemoveMute', newChannel)
+          }
         }
       }
     }

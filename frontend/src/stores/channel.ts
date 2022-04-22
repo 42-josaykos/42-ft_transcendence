@@ -1,10 +1,19 @@
-import { defineStore } from "pinia";
+import { defineStore, storeToRefs } from "pinia";
 import { ref } from "vue";
 import type { Channel } from '@/models/channel.model';
 import type { User } from "@/models/user.model";
 import { Get } from "@/services/requests";
+import { useUserStore } from "@/stores/user";
+import type { Socket } from "socket.io-client";
+
+// const userStore = useUserStore();
+// const { loggedUser, socketChat } = storeToRefs(userStore);
 
 export const useChannelStore = defineStore('channel', () => {
+
+  const userStore = useUserStore();
+  const { loggedUser, socketChat } = storeToRefs(userStore);
+
   // Tous les channels
     const allChannels = ref<Channel[]>([]);
 
@@ -41,7 +50,9 @@ export const useChannelStore = defineStore('channel', () => {
     //const channelTypeUpdate = ref<number>();
 
     const arrayTime = ref<string[]>(["00:00:15", "00:15:00", "00:30:00", "01:00:00", "02:00:00", "12:00:00", "23:59:59", "indefinite time"])
-    const timeLeft = ref<string>('');
+    const timeLeftBan = ref<string>('');
+    const timeLeftMute = ref<string>('');
+
     const createChannel = (newChannel: Channel) => {
       allChannels.value.push(newChannel);
     }
@@ -230,6 +241,90 @@ export const useChannelStore = defineStore('channel', () => {
       channelsInvite.value?.splice(index, 1);
     }
 
+    // class Intervals {
+    //   idInterval: any;
+    //   channelId: number;
+    // }
+    let timerIntervalBan :any;
+    let timerIntervalMute :any;
+
+    const secToTime = (sec: number, isBan: boolean) => {
+      let strH = "", strM = "", strS = "";
+      const hours = Math.floor(sec / 3600);
+      sec %= 3600;
+      const minutes = Math.floor(sec / 60);
+      const seconds = Math.floor(sec % 60);
+      if (hours < 10) {
+        strH = "0"
+      }
+      if (minutes < 10) {
+        strM = "0"
+      }
+      if (seconds < 10) {
+        strS = "0"
+      }
+      if (isBan) {
+        timeLeftBan.value = strH + hours + ":" + strM + minutes + ":" + strS + seconds ;
+      }
+      else {
+        timeLeftMute.value = strH + hours + ":" + strM + minutes + ":" + strS + seconds ;
+
+      }
+    }  
+
+    const timer = (dateEnd: any, channelItem: Channel, isBan: boolean) => {
+      const dateNow = new Date()
+      if (dateNow.getTime() < dateEnd.getTime()) {
+        secToTime((dateEnd.getTime() - dateNow.getTime())/1000, isBan)
+      }
+      else {
+        if (isBan) {
+          clearInterval(timerIntervalBan)
+          socketChat.value?.emit('updateMember', channelItem.id, {removeBans: [{user: {id: loggedUser.value?.id}}]}, null, loggedUser.value)
+          timeLeftBan.value = ''
+        }
+        else {
+          clearInterval(timerIntervalMute)
+          socketChat.value?.emit('updateMember', channelItem.id, {removeMutes: [{user: {id: loggedUser.value?.id}}]}, null, loggedUser.value)
+          timeLeftMute.value = ''
+        }
+      }
+    
+    }
+    
+    const handleBanMute = (channelItem: Channel, isBan: boolean) => {
+      const channel_item = isBan ? channelItem.bans : channelItem.mutes;
+      const index = channel_item.findIndex((el: any) => el.user.id == loggedUser.value?.id)
+      if (index != undefined) {
+        const dateStart = channel_item[index].date
+        const dateTime = channel_item[index].time
+        if (dateTime) {
+          const splitTime = dateTime?.split(":")
+          let dateEnd;
+          if (splitTime != undefined && dateStart != null){
+            dateEnd = new Date(dateStart)
+            dateEnd.setHours(dateEnd.getHours() + Number(splitTime[0]))
+            dateEnd.setMinutes(dateEnd.getMinutes() + Number(splitTime[1]))
+            dateEnd.setSeconds(dateEnd.getSeconds() + Number(splitTime[2]))
+            if (isBan) {
+              timerIntervalBan = setInterval(timer, 1000, dateEnd, channelItem, true);
+            }
+            else {
+              timerIntervalMute = setInterval(timer, 1000, dateEnd, channelItem, false);
+            }
+          }
+        }
+        else {
+          if (isBan) {
+            timeLeftBan.value = "undefinite"
+          }
+          else {
+            timeLeftMute.value = "undefinite"
+          }
+        }
+      }
+    }
+
     return {
         allChannels,
         channels,
@@ -245,7 +340,8 @@ export const useChannelStore = defineStore('channel', () => {
         usersInvite,
         channelType,
         arrayTime,
-        timeLeft,
+        timeLeftBan,
+        timeLeftMute,
         //channelTypeUpdate,
         createChannel,
         joinChannel,
@@ -266,6 +362,7 @@ export const useChannelStore = defineStore('channel', () => {
         addUserInvite,
         deleteUserInvite,
         addChannelInvite,
-        deleteChannelInvite
+        deleteChannelInvite,
+        handleBanMute
     };
 });

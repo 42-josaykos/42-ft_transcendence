@@ -10,6 +10,7 @@ import type { User } from "@/models/user.model";
 import { Get } from "@/services/requests";
 import { ref } from "vue";
 import type { Message } from "@/models/message.model";
+// import { time, timeStamp } from "console";
 
 const messageStore = useMessageStore();
 const { messages } = storeToRefs(messageStore);
@@ -39,18 +40,12 @@ const {
   newOwner,
   usersMembers,
   usersInvite,
-  channelType,
-  timeLeft
+  channelType
 } = storeToRefs(channelStore);
 
 const props = defineProps({
   searchName: Function,
 });
-
-const sortMessages = (dataMsg: Message[]) => {
-  dataMsg.sort((a, b) => (a.id > b.id) ? 1 : -1)
-  messages.value = dataMsg;
-}
 
 const displayMessages = (channel_item: Channel) => {
   Get(
@@ -59,16 +54,12 @@ const displayMessages = (channel_item: Channel) => {
       "&messages&owner&admins&members&mutes&bans"
   ).then((res) => {
     channel.value = res.data[0];
-    if (channelStore.isBan(channel.value, loggedUser.value?.id)) {
-      const dateNow = new Date()
-      const dateEnd = channel.value?.bans[channel.value?.bans.findIndex((el) => el.user.id == loggedUser.value?.id)].date
-      console.log("date now => ", dateNow)
-      console.log("date end => ", dateEnd)
-      const dateTime = channel.value?.bans[channel.value?.bans.findIndex((el) => el.user.id == loggedUser.value?.id)].time
-      console.log("date time => ", dateTime)
+    if (channel.value != undefined && loggedUser.value != null) {
+      if (channelStore.isBan(channel.value, loggedUser.value?.id)) {
+        channelStore.handleBanMute({...channel.value}, true)
+      }
     }
-    timeLeft.value = channel.value?.bans[0].time != undefined ? channel.value?.bans[0].time : '';
-    sortMessages(res.data[0].messages);
+    messageStore.sortMessages(res.data[0].messages);
     usersMembers.value = res.data[0].members;
   });
 };
