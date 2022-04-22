@@ -11,6 +11,7 @@ import { TypeormStore } from 'connect-typeorm';
 import { UploadModule } from './upload/upload.module';
 import { StatusModule } from './status/status.module';
 import * as cookieParser from 'cookie-parser';
+import { GameModule } from './game/game.module';
 
 async function bootstrap() {
   const api = await NestFactory.create(AppModule);
@@ -79,6 +80,12 @@ async function bootstrap() {
   console.log(
     `[StatusSystem] Status service running on: ${await statusSystem.getUrl()}`,
   );
+
+  // Game Module
+  const gameGatewayPort = 6060;
+  const game = await NestFactory.create(GameModule);
+  await game.listen(gameGatewayPort, '0.0.0.0');
+  console.log(`[GameModule] Game gateway running on: ${await game.getUrl()}`);
 
   // Upload Module
   const uploadModulePort = 7002;

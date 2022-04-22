@@ -30,7 +30,7 @@ export class StatusGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
-  server: Server;
+  private server: Server;
 
   private logger: Logger = new Logger('StatusSystem');
   private connectedClients: Connections[] = new Array();
