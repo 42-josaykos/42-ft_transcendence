@@ -4,15 +4,20 @@ import { setting_open } from './Modale.vue';
 import Toggle from '@vueform/toggle';
 import { useUserStore } from '@/stores/user';
 import { storeToRefs } from 'pinia';
-import { Post } from '@/services/requests';
 import { ref } from 'vue';
-import Authenticate2fa from './Authenticate2fa.vue';
-import axios from 'axios';
+import { Post } from '@/services/requests';
+import ax from '@/services/interceptors';
 
 const userStore = useUserStore();
-const { isTwoFactorAuth } = storeToRefs(userStore);
-const authenticate2FaForm = ref(false);
-const qrcode = ref();
+const { isTwoFactorAuth, isAuthenticated, loggedUser } = storeToRefs(userStore);
+if (loggedUser.value && loggedUser.value.isTwoFactorAuthenticationEnabled) {
+  isTwoFactorAuth.value = true;
+} else {
+  isTwoFactorAuth.value = false;
+}
+const qrcode = ref(null);
+const twoFactorInput = ref('');
+const turnOffForm = ref(false);
 
 function getBase64(file: any) {
   return new Promise((resolve, reject) => {
@@ -23,23 +28,56 @@ function getBase64(file: any) {
   });
 }
 
+function generate2FA() {
+  ax({
+    method: 'post',
+    url: '/auth/generate-2fa',
+    responseType: 'blob'
+  }).then(res => {
+    getBase64(res.data).then((data: any) => {
+      qrcode.value = data;
+    });
+  });
+}
+
+function validateCode() {
+  Post('/auth/turn-2fa-on', {
+    twoFactorAuthenticationCode: twoFactorInput.value
+  }).then(res => {
+    console.log(res);
+    if (res.status === 201) {
+      if (
+        !isTwoFactorAuth.value &&
+        loggedUser.value &&
+        !loggedUser.value.isTwoFactorAuthenticationEnabled
+      ) {
+        loggedUser.value.isTwoFactorAuthenticationEnabled = true;
+        isTwoFactorAuth.value = true;
+      } else if (
+        isTwoFactorAuth &&
+        loggedUser.value &&
+        loggedUser.value.isTwoFactorAuthenticationEnabled
+      ) {
+        loggedUser.value.isTwoFactorAuthenticationEnabled = false;
+        isTwoFactorAuth.value = false;
+      }
+      qrcode.value = null;
+      turnOffForm.value = false;
+    } else {
+      alert('Invalid 2FA code');
+    }
+    twoFactorInput.value = '';
+  });
+}
+
 function toggleTwoFactorAuthentication() {
   if (isTwoFactorAuth.value === true) {
     isTwoFactorAuth.value = false;
-    axios({
-      method: 'post',
-      url: '/auth/generate-2fa',
-      responseType: 'blob'
-    }).then(res => {
-      console.log(res.data);
-      getBase64(res.data).then((data: any) => {
-        qrcode.value = data;
-        console.log(data);
-      });
-    });
+    generate2FA();
   } else {
-    authenticate2FaForm.value = true;
-    // isTwoFactorAuth.value = true;
+    isTwoFactorAuth.value = true;
+    console.log('2FA is false');
+    turnOffForm.value = true;
   }
 }
 </script>
@@ -58,7 +96,7 @@ function toggleTwoFactorAuthentication() {
       class="toggle-style"
     />
   </span>
-  <span class="element-set">
+  <span v-if="isAuthenticated" class="element-set">
     Two-Factor Authentication (2FA):
     <Toggle
       @change="toggleTwoFactorAuthentication"
@@ -68,8 +106,24 @@ function toggleTwoFactorAuthentication() {
       class="toggle-style"
     />
   </span>
-  <img :src="qrcode" alt="" />
-  <Authenticate2fa v-if="authenticate2FaForm" />
+  <div v-if="qrcode">
+    <hr />
+    <img :src="qrcode" alt="" width="150" />
+    <button @click="generate2FA">Generate</button>
+    <form @submit.prevent.trim.lazy="validateCode">
+      Validate code to enable 2FA:
+      <input v-model="twoFactorInput" type="text" />
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+  <div v-if="turnOffForm">
+    <hr />
+    <form @submit.prevent.trim.lazy="validateCode">
+      Validate code to disable 2FA:
+      <input v-model="twoFactorInput" type="text" />
+      <button type="submit">Submit</button>
+    </form>
+  </div>
 </template>
 
 <style src="@vueform/toggle/themes/default.css"></style>

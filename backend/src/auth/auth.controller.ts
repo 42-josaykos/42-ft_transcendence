@@ -54,7 +54,8 @@ export class AuthController {
     const { user } = req;
     if (user.isTwoFactorAuthenticationEnabled) {
       console.log('2FA enabled');
-      return res.status(303).send({ message: 'Need 2FA authentication' });
+      // return { statusCode: 303, url: '/twofactorauth' };
+      return res.setHeader('url', '/twofactorauth').status(303).end();
     }
     const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
       user.id,
@@ -94,7 +95,7 @@ export class AuthController {
     const { user } = req;
     if (user.isTwoFactorAuthenticationEnabled) {
       console.log('2FA enabled');
-      return { statusCode: 303, url: '/' };
+      return { statusCode: 303, url: '/twofactorauth' };
     }
     const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
       user.id,
@@ -160,7 +161,7 @@ export class AuthController {
     if (!isCodeValid) {
       throw new UnauthorizedException('Wrong authentication code');
     }
-    await this.authService.turnOnTwoFactorAuthentication(request.user);
+    return await this.authService.turnOnTwoFactorAuthentication(request.user);
   }
 
   @Post('authenticate-2fa')

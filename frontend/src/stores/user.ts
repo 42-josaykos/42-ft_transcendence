@@ -8,7 +8,7 @@ export const useUserStore = defineStore('user', () => {
   const usersOnline = ref<Number[]>([]);
   const loggedUser = ref<User | null>(null);
   const isAuthenticated = ref(false);
-  const isTwoFactorAuth = ref(false);
+  const isTwoFactorAuth = ref<boolean>(false);
 
   const createUser = (newUser: User) => {
     users.value.push(newUser);
