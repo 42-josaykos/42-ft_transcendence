@@ -43,22 +43,23 @@ const {
   channelType
 } = storeToRefs(channelStore);
 
-const props = defineProps({
-  searchName: Function,
-});
-
 const displayMessages = (channel_item: Channel) => {
+  console.log("All channels => ", allChannels.value)
   Get(
     "/channels/search?id=" +
       channel_item.id.toString() +
       "&messages&owner&admins&members&mutes&bans"
   ).then((res) => {
     channel.value = res.data[0];
-    if (channel.value != undefined && loggedUser.value != null) {
-      if (channelStore.isBan(channel.value, loggedUser.value?.id)) {
-        channelStore.handleBanMute({...channel.value}, true)
-      }
-    }
+    // if (channel.value != undefined && loggedUser.value != null) {
+    //   console.log("Channel.value => ", channel.value)
+    //   if (channelStore.isBan(channel.value, loggedUser.value?.id)) {
+    //     channelStore.handleBanMute({...channel.value}, true)
+    //   }
+    //   else if (channelStore.isMute(channel.value, loggedUser.value?.id)) {
+    //     channelStore.handleBanMute({...channel.value}, false)
+    //   }
+    // }
     messageStore.sortMessages(res.data[0].messages);
     usersMembers.value = res.data[0].members;
   });
@@ -414,7 +415,7 @@ const updateUsersInvite = (user: User) => {
                   type="button"
                   class="rounded btn-channel"
                 >
-                  {{ searchName(item) }}
+                  {{ channelStore.searchName(item) }}
                 </button>
               </div>
               <div class="ms-auto d-flex">
@@ -500,7 +501,7 @@ const updateUsersInvite = (user: User) => {
             >
               <div class="text-truncate">
                 <button @click="" type="button" class="rounded btn-channel">
-                  {{ searchName(item) }}
+                  {{ channelStore.searchName(item) }}
                 </button>
               </div>
               <div class="ms-auto">
@@ -566,7 +567,7 @@ const updateUsersInvite = (user: User) => {
                   type="button"
                   class="rounded btn-channel"
                 >
-                  {{ searchName(item) }}
+                  {{ channelStore.searchName(item) }}
                 </button>
               </div>
               <!-- <div class="ms-auto">
@@ -620,7 +621,7 @@ const updateUsersInvite = (user: User) => {
             <div style="display: flex; align-items: center">
               <div>
                 <button @click="" type="button" class="rounded btn-channel">
-                  {{ searchName(item) }}
+                  {{ channelStore.searchName(item) }}
                 </button>
               </div>
               <div class="ms-auto d-flex">

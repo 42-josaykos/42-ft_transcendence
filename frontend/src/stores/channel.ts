@@ -2,9 +2,10 @@ import { defineStore, storeToRefs } from "pinia";
 import { ref } from "vue";
 import type { Channel } from '@/models/channel.model';
 import type { User } from "@/models/user.model";
+import type { Timer } from '@/models/timer.model';
 import { Get } from "@/services/requests";
 import { useUserStore } from "@/stores/user";
-import type { Socket } from "socket.io-client";
+
 
 // const userStore = useUserStore();
 // const { loggedUser, socketChat } = storeToRefs(userStore);
@@ -50,8 +51,10 @@ export const useChannelStore = defineStore('channel', () => {
     //const channelTypeUpdate = ref<number>();
 
     const arrayTime = ref<string[]>(["00:00:15", "00:15:00", "00:30:00", "01:00:00", "02:00:00", "12:00:00", "23:59:59", "indefinite time"])
-    const timeLeftBan = ref<string>('');
-    const timeLeftMute = ref<string>('');
+    // const timeLeftBan = ref<string>('');
+    // const timeLeftMute = ref<string>('');
+    const timerIntervalBan = ref<any[]>([]);
+    const timerIntervalMute = ref<any[]>([]);
 
     const createChannel = (newChannel: Channel) => {
       allChannels.value.push(newChannel);
@@ -241,14 +244,7 @@ export const useChannelStore = defineStore('channel', () => {
       channelsInvite.value?.splice(index, 1);
     }
 
-    // class Intervals {
-    //   idInterval: any;
-    //   channelId: number;
-    // }
-    let timerIntervalBan :any;
-    let timerIntervalMute :any;
-
-    const secToTime = (sec: number, isBan: boolean) => {
+    const secToTime = (sec: number, isBan: boolean, channelId: number) => {
       let strH = "", strM = "", strS = "";
       const hours = Math.floor(sec / 3600);
       sec %= 3600;
@@ -264,29 +260,33 @@ export const useChannelStore = defineStore('channel', () => {
         strS = "0"
       }
       if (isBan) {
-        timeLeftBan.value = strH + hours + ":" + strM + minutes + ":" + strS + seconds ;
+        const index = timerIntervalBan.value.findIndex((el: any) => el.channelId == channelId)
+        timerIntervalBan.value[index].timeLeft = strH + hours + ":" + strM + minutes + ":" + strS + seconds ;
       }
       else {
-        timeLeftMute.value = strH + hours + ":" + strM + minutes + ":" + strS + seconds ;
-
+        const index = timerIntervalMute.value.findIndex((el: any) => el.channelId == channelId)
+        timerIntervalMute.value[index].timeLeft = strH + hours + ":" + strM + minutes + ":" + strS + seconds ;
       }
     }  
 
     const timer = (dateEnd: any, channelItem: Channel, isBan: boolean) => {
       const dateNow = new Date()
       if (dateNow.getTime() < dateEnd.getTime()) {
-        secToTime((dateEnd.getTime() - dateNow.getTime())/1000, isBan)
+        secToTime((dateEnd.getTime() - dateNow.getTime())/1000, isBan, channelItem.id)
       }
       else {
         if (isBan) {
-          clearInterval(timerIntervalBan)
+          console.log("Clear Interval")
+          const index = timerIntervalBan.value.findIndex((el: any) => el.channelId == channelItem.id)
+          clearInterval(timerIntervalBan.value[index].idInterval)
           socketChat.value?.emit('updateMember', channelItem.id, {removeBans: [{user: {id: loggedUser.value?.id}}]}, null, loggedUser.value)
-          timeLeftBan.value = ''
+          timerIntervalBan.value.slice(index, 1)
         }
         else {
-          clearInterval(timerIntervalMute)
+          const index = timerIntervalBan.value.findIndex((el: any) => el.channelId == channelItem.id)
+          clearInterval(timerIntervalMute.value[index].idInterval)
           socketChat.value?.emit('updateMember', channelItem.id, {removeMutes: [{user: {id: loggedUser.value?.id}}]}, null, loggedUser.value)
-          timeLeftMute.value = ''
+          timerIntervalMute.value.slice(index, 1)
         }
       }
     
@@ -295,6 +295,8 @@ export const useChannelStore = defineStore('channel', () => {
     const handleBanMute = (channelItem: Channel, isBan: boolean) => {
       const channel_item = isBan ? channelItem.bans : channelItem.mutes;
       const index = channel_item.findIndex((el: any) => el.user.id == loggedUser.value?.id)
+      const indexBan = timerIntervalBan.value.findIndex((el: any) => el.channelId == channelItem.id)
+      const indexMute = timerIntervalMute.value.findIndex((el: any) => el.channelId == channelItem.id)
       if (index != undefined) {
         const dateStart = channel_item[index].date
         const dateTime = channel_item[index].time
@@ -307,23 +309,92 @@ export const useChannelStore = defineStore('channel', () => {
             dateEnd.setMinutes(dateEnd.getMinutes() + Number(splitTime[1]))
             dateEnd.setSeconds(dateEnd.getSeconds() + Number(splitTime[2]))
             if (isBan) {
-              timerIntervalBan = setInterval(timer, 1000, dateEnd, channelItem, true);
+              if (indexBan != -1) {
+                setInterval(timer, 1000, dateEnd, channelItem, true);
+              }
+              else {
+                const newTimer = {
+                  channelId: channelItem.id,
+                  idInterval: setInterval(timer, 1000, dateEnd, channelItem, true),
+                  timeLeft: ''
+                }
+                timerIntervalBan.value.push(newTimer)
+              }
             }
             else {
-              timerIntervalMute = setInterval(timer, 1000, dateEnd, channelItem, false);
+              if (indexMute != -1) {
+                setInterval(timer, 1000, dateEnd, channelItem, false);
+              }
+              else {
+                const newTimer = {
+                  channelId: channelItem.id,
+                  idInterval: setInterval(timer, 1000, dateEnd, channelItem, false),
+                  timeLeft: ''
+                }
+                timerIntervalMute.value.push(newTimer)
+              }
             }
           }
         }
         else {
           if (isBan) {
-            timeLeftBan.value = "undefinite"
+            if (indexBan != -1) {
+              timerIntervalBan.value[index].timeLeft = "undefinite"
+            }
+            else {
+              const newTimer = {
+                channelId: channelItem.id,
+                timeLeft: ''
+              }
+              timerIntervalBan.value.push(newTimer)
+            }
           }
           else {
-            timeLeftMute.value = "undefinite"
+            if (indexBan != -1) {
+              timerIntervalMute.value[index].timeLeft = "undefinite"
+            }
+            else {
+              const newTimer = {
+                channelId: channelItem.id,
+                timeLeft: ''
+              }
+              timerIntervalMute.value.push(newTimer)
+            }
           }
         }
       }
     }
+
+    const updateBanMute = (data: any) => {
+      console.log("Data => ", data)
+      const channelsBan = data[0].banChannels
+      const channelsMute = data[0].muteChannels
+      console.log("ChannelsBan => ", channelsBan)
+      console.log("ChannelsMute => ", channelsMute)
+      if (channelsBan != undefined) {
+        for (const ban of channelsBan) {
+          console.log("ban => ", ban)
+          const channelItem = allChannels.value.find((el: Channel) => el.id === ban.channel.id)
+          console.log("channelItem => ", channelItem)
+          if (channelItem != undefined) {
+            handleBanMute(channelItem, true)
+          }
+        }
+      }
+    console.log("timerIntervalBan => ", timerIntervalBan.value)
+    }
+
+    const searchName = (channelItem: Channel | undefined): string => {
+      if (channelItem == undefined) {
+        return "CHAT";
+      }
+      if (channelItem.isDirectChannel === false) {
+        return channelItem.name;
+      }
+      const membersChan = channelItem.members;
+      const nameChan = membersChan.filter((el) => el.id != loggedUser.value?.id);
+      return nameChan[0].username;
+    };
 
     return {
         allChannels,
@@ -340,8 +411,8 @@ export const useChannelStore = defineStore('channel', () => {
         usersInvite,
         channelType,
         arrayTime,
-        timeLeftBan,
-        timeLeftMute,
+        timerIntervalBan,
+        timerIntervalMute,
         //channelTypeUpdate,
         createChannel,
         joinChannel,
@@ -363,6 +434,8 @@ export const useChannelStore = defineStore('channel', () => {
         deleteUserInvite,
         addChannelInvite,
         deleteChannelInvite,
-        handleBanMute
+        handleBanMute,
+        updateBanMute,
+        searchName
     };
 });

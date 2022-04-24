@@ -7,8 +7,8 @@ export interface User {
   ownerChannels: Channel[];
   adminChannels: Channel[];
   memberChannels: Channel[];
-  muteChannels: Channel[];
-  banChannels: Channel[];
+  muteChannels: MutedUser[];
+  banChannels: BanedUser[];
   inviteChannels: Channel[];
 }
 

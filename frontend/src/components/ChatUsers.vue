@@ -2,7 +2,7 @@
 import UserCard from "./UserCard.vue";
 import ModalChat from "./ModalChat.vue";
 
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
 import { useChannelStore } from "@/stores/channel";
@@ -27,14 +27,6 @@ const modalMute = ref<boolean>(false);
 const stringSendMessage = ref<string>("");
 const inputTime = ref<string>("");
 
-const isOnline = (userID: Number): boolean => {
-  if (usersOnline.value.findIndex((el: Number) => el == userID) == -1) {
-    return false;
-  }
-  return true;
-};
-
-// Créer un nouveau channel entre 2 users si n'existe pas encore et permet d'envoyer des messages privés
 const sendDirectMessage = async () => {
   const name1 = `${userClick.value?.id} ${loggedUser.value?.id}`;
   const name2 = `${loggedUser.value?.id} ${userClick.value?.id}`;
@@ -104,15 +96,15 @@ const removeBanMute = (boolBan: Boolean) => {
       socketChat.value?.emit('updateMember', channel.value?.id, {removeMutes: [{user: {id: userClick.value?.id}}]}, null, loggedUser)
   }
 }
+
 </script>
 
-<template>
+<template>{{usersOnline}}
   <div v-if="channel != undefined">
     <div v-if="usersMembers" class="ps-2">
       <div class="list-group" v-for="user in usersMembers" :key="user.id">
         <UserCard
           :user="user"
-          :isOnline="isOnline(user.id)"
           @open="
             userClickBool = true;
             userClick = user;

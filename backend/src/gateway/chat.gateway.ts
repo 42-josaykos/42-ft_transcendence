@@ -290,7 +290,7 @@ async updateInvite(client: Socket, data: any[]) {
     if (updateChannel.removeMutes != undefined) {
       userRemoveMute = updateChannel.removeMutes[0].user
     }
-
+    
     const newChannel = await this.channelsService.updateChannel(
       channelID,
       updateChannel,

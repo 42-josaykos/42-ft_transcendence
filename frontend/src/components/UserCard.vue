@@ -1,19 +1,37 @@
 <script setup lang="ts">
+import { computed, ref } from "vue";
+import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/user";
+const userStore = useUserStore();
+const { usersOnline } = storeToRefs(userStore);
 
   const props = defineProps({
-      user: Object,
-      isOnline: Boolean
+      user: Object
   })
 
 const emit = defineEmits(['open'])
 const open = () => {
     emit('open');
 }
+const isOnlineBool = ref<boolean>(false)
+
+const isOnline = computed(() => {
+  if (usersOnline.value.findIndex((el: Number) => el == props.user?.id) == -1) {
+    return 'Offline';
+  }
+  return 'Online';
+});
+
+const chooseClass = computed(() => {
+  if (usersOnline.value.findIndex((el: Number) => el == props.user?.id) == -1) {
+    return 'offline';
+  }
+  return 'online';
+});
 
 </script>
 
 <template>    
-
   <button  @click="open()" type="button" class="btn-user-card">
     <div class="row no-gutters">
       <div class="col-md-4 cercle-user-card">
@@ -26,8 +44,9 @@ const open = () => {
           </div>
           <div class="info">
             <div class="status">
-              <i class="fa fa-circle" :class="{'online': isOnline, 'offline': isOnline == false}"></i>
-              <small class="text-muted">{{isOnline ? 'Online' : 'Offline'}}</small>
+              <!-- <i class="fa fa-circle" :class="{'online': isOnlineBool == true, 'offline': isOnlineBool == false}"></i> -->
+              <i class="fa fa-circle" :class="chooseClass"></i> 
+              <small class="text-muted">{{ isOnline }}</small>
             </div>
           </div>
           </div>
