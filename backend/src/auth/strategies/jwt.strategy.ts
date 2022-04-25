@@ -33,6 +33,37 @@ export class JwtAccessStrategy extends PassportStrategy(
 }
 
 @Injectable()
+export class JwtTwoFactorStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-two-factor',
+) {
+  constructor(
+    private readonly configService: ConfigService,
+    @Inject('USERS_SERVICE')
+    private readonly userService: UsersService,
+  ) {
+    super({
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request: Request) => {
+          return request?.cookies?.Authentication;
+        },
+      ]),
+      secretOrKey: configService.get('JWT_ACCESS_SECRET'),
+    });
+  }
+
+  async validate(payload: TokenPayload) {
+    const user = await this.userService.getUserByID(payload.userID);
+    if (!user.isTwoFactorAuthenticationEnabled) {
+      return user;
+    }
+    if (payload.isSecondFactorAuthenticated) {
+      return user;
+    }
+  }
+}
+
+@Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
   Strategy,
   'jwt-refresh',

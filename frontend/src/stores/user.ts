@@ -1,13 +1,14 @@
-import { defineStore } from "pinia";
-import { ref } from "vue";
-import type { User } from "@/models/user.model";
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
+import type { User } from '@/models/user.model';
 
 // Tracks users database
-export const useUserStore = defineStore("user", () => {
+export const useUserStore = defineStore('user', () => {
   const users = ref<User[]>([]);
   const usersOnline = ref<Number[]>([]);
   const loggedUser = ref<User | null>(null);
   const isAuthenticated = ref(false);
+  const isTwoFactorAuth = ref<boolean>(false);
 
   const createUser = (newUser: User) => {
     users.value.push(newUser);
@@ -27,8 +28,9 @@ export const useUserStore = defineStore("user", () => {
     loggedUser,
     usersOnline,
     isAuthenticated,
+    isTwoFactorAuth,
     createUser,
     deleteUser,
-    updateUser,
+    updateUser
   };
 });

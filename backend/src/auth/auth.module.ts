@@ -16,6 +16,7 @@ import { JwtModule } from '@nestjs/jwt';
 import {
   JwtAccessStrategy,
   JwtRefreshStrategy,
+  JwtTwoFactorStrategy,
 } from './strategies/jwt.strategy';
 
 @Module({
@@ -44,7 +45,7 @@ import {
       provide: 'USERS_SERVICE',
       useClass: UsersService,
     },
-    JwtModule
+    JwtModule,
   ],
   controllers: [AuthController],
   providers: [
@@ -55,6 +56,7 @@ import {
     LocalStrategy,
     SessionSerializer,
     JwtAccessStrategy,
+    JwtTwoFactorStrategy,
     JwtRefreshStrategy,
     {
       provide: 'AUTH_SERVICE',

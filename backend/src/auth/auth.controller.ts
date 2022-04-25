@@ -1,10 +1,12 @@
 import {
+  Body,
   Controller,
   Get,
   Post,
   Redirect,
   Req,
   Res,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -17,9 +19,11 @@ import {
   GithubGuard,
   JwtRefreshGuard,
   LocalAuthGuard,
+  JwtTwoFactorGuard,
 } from './guards';
 import { AuthenticationProvider } from './auth.interface';
 import { Inject } from '@nestjs/common';
+import { twoFactorAuthenticationCodeDTO } from './dto/twoFactorAuthenticationCode.dto';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -48,6 +52,11 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   async loginLocal(@Req() req: RequestWithUser, @Res() res: Response) {
     const { user } = req;
+    if (user.isTwoFactorAuthenticationEnabled) {
+      console.log('2FA enabled');
+      // return { statusCode: 303, url: '/twofactorauth' };
+      return res.setHeader('url', '/twofactorauth').status(303).end();
+    }
     const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
       user.id,
     );
@@ -62,17 +71,21 @@ export class AuthController {
    * This is the redirect URL the OAuth2 provider will call
    */
   @Get('redirect')
-  @Redirect('/')
+  @Redirect()
   @UseGuards(FortyTwoAuthGuard)
   async redirect(@Req() req: RequestWithUser, @Res() res: Response) {
     const { user } = req;
+    if (user.isTwoFactorAuthenticationEnabled) {
+      console.log('2FA enabled');
+      return { statusCode: 303, url: '/twofactorauth' };
+    }
     const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
       user.id,
     );
     const refreshToken = this.authService.getCookieWithJwtRefreshToken(user.id);
     await this.authService.setCurrentRefreshToken(refreshToken.token, user.id);
     res.setHeader('Set-Cookie', [accessTokenCookie, refreshToken.cookie]);
-    return;
+    return { url: '/' };
   }
 
   @Get('redirect/github')
@@ -80,13 +93,17 @@ export class AuthController {
   @UseGuards(GithubGuard)
   async redirectGithub(@Req() req: RequestWithUser, @Res() res: Response) {
     const { user } = req;
+    if (user.isTwoFactorAuthenticationEnabled) {
+      console.log('2FA enabled');
+      return { statusCode: 303, url: '/twofactorauth' };
+    }
     const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
       user.id,
     );
     const refreshToken = this.authService.getCookieWithJwtRefreshToken(user.id);
     await this.authService.setCurrentRefreshToken(refreshToken.token, user.id);
     res.setHeader('Set-Cookie', [accessTokenCookie, refreshToken.cookie]);
-    return;
+    return { url: '/' };
   }
 
   /**
@@ -115,6 +132,57 @@ export class AuthController {
     res.setHeader('Set-Cookie', accessTokenCookie);
     const { id, username, avatar } = req.user;
     return res.send({ id, username, avatar });
+  }
+
+  @Post('generate-2fa')
+  @UseGuards(JwtTwoFactorGuard)
+  async register(@Res() response: Response, @Req() request: RequestWithUser) {
+    const { otpauthUrl } =
+      await this.authService.generateTwoFactorAuthenticationSecret(
+        request.user,
+      );
+    return this.authService.pipeQrCodeStream(response, otpauthUrl);
+  }
+
+  @Post('turn-2fa-on')
+  @UseGuards(JwtTwoFactorGuard)
+  async turnOnTwoFactorAuthentication(
+    @Req() request: RequestWithUser,
+    @Body() { twoFactorAuthenticationCode }: twoFactorAuthenticationCodeDTO,
+  ) {
+    const { user } = request;
+    console.log(user);
+
+    const isCodeValid =
+      await this.authService.isTwoFactorAuthenticationCodeValid(
+        twoFactorAuthenticationCode,
+        request.user.id,
+      );
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Wrong authentication code');
+    }
+    return await this.authService.turnOnTwoFactorAuthentication(request.user);
+  }
+
+  @Post('authenticate-2fa')
+  async authenticateWith2FA(
+    @Req() request: RequestWithUser,
+    @Body() { twoFactorAuthenticationCode }: twoFactorAuthenticationCodeDTO,
+  ) {
+    const isCodeValid =
+      await this.authService.isTwoFactorAuthenticationCodeValid(
+        twoFactorAuthenticationCode,
+        request.user.id,
+      );
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Wrong authentication code');
+    }
+    const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
+      request.user.id,
+      true,
+    );
+    request.res.setHeader('Set-Cookie', [accessTokenCookie]);
+    return request.user;
   }
 
   /**
