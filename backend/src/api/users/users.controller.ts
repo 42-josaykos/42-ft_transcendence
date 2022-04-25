@@ -35,7 +35,7 @@ export class UsersController {
 
   // CRUD related
   @Get()
-  @UseGuards(JwtAccessGuard)
+  // @UseGuards(JwtAccessGuard)
   async getAllUsers(): Promise<User[]> {
     return await this.usersService.getAllUsers();
   }
