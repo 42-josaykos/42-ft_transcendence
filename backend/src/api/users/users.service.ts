@@ -231,7 +231,7 @@ export class UsersService {
         );
       if ('removeBlockedUsers' in updatedUser)
         user.blockedUsers = await this.removeUsersFromArray(
-          updatedUser.blockedUsers,
+          updatedUser.removeBlockedUsers,
           user.blockedUsers,
         );
 
