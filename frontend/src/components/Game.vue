@@ -22,6 +22,10 @@
 			'pong': Pong,
 			'modale-play': ModalePlay,
 		},
+		created() {
+			// this.$emit('paddleSizeChange', this.paddleSize);
+			// this.$emit('ballSpeedChange', this.ballSpeed);
+		},
 		methods: {
 			toggleModaleSettings_2: function(){
 				// console.log("here: " + this.reveleSettings);

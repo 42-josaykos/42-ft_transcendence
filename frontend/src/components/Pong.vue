@@ -14,6 +14,13 @@
 		},
 		data: function() {
 			return {
+
+				// received_paddleSize: {},
+				// received_ballSpeed: {},
+				received_paddleSize: 1,
+				received_ballSpeed: 1,
+
+
 				canvas: { w: 1000, h: 600 }, // à voir pour mettre juste un ratio et faire réactive
 				paddle: {},
 				bound: 25,
@@ -33,18 +40,12 @@
 				startTime: {},
 
 
-				sounds: {},
-
-				received_paddleSize: 1,
-				received_ballSpeed: 1,
-
-				
+				sounds: {},		
 			}
 		},
 		// COMPUTED DATA
 		computed: {
 			getPaddle: function () {
-				console.log("received:" + this.received_paddleSize);
 				this.paddle.h = 0.2 * this.canvas.h * this.received_paddleSize; // *this.paddleSize 
 				this.paddle.w = 0.2 * this.paddle.h / this.received_paddleSize;
 				this.paddle.speed = 15;
@@ -87,6 +88,14 @@
 				this.sounds.loose = new Audio("./src/components/sounds/loose.wav");
 				this.sounds.loose.volume = 0.1;
 				return (this.sounds);
+			},
+			getPaddleSize: function() {
+				this.received_paddleSize = this.paddleSize;
+				return (this.received_paddleSize);
+			},
+			getBallSpeed: function() {
+				this.received_ballSpeed = this.ballSpeed;
+				return (this.received_ballSpeed);
 			}
 		},
 		// LIFECYCLE HOOKS
@@ -95,11 +104,18 @@
 			return ; //keypress does not work for arrows
 		},
 		mounted() {
+			// let BS = this.getBallSpeed;
+			// let PS = this.getPaddleSize;
+		
+
 			let gamePaddle = this.getPaddle;
 			let leftPlayer = this.getPlayerL;
 			let rightPlayer = this.getPlayerR;
 			let gameBall = this.getBall;
 			let sounds = this.getSounds;
+
+			// let BS = this.getBallSpeed;
+			// let PS = this.getPaddleSize;
 		
 			// this.drawPlayerLeft(this.getPaddle);
 			// this.drawPlayerRight(this.getPaddle);
@@ -120,10 +136,22 @@
 				return ;
 			},
 			game: function() {
+				this.received_paddleSize = this.paddleSize;
+				this.received_ballSpeed = this.ballSpeed;
+				console.log("PADDLE received:" + this.received_paddleSize);
+				console.log("BALL received:" + this.received_ballSpeed);
+				// if (this.revelePlay == false) {
+				// 	this.received_paddleSize = this.paddleSize;
+				// 	this.received_ballSpeed = this.ballSpeed;
+				// 	console.log("PADDLE received:" + this.received_paddleSize);
+				// 	console.log("BALL received:" + this.received_ballSpeed);
+				// }
 				if (this.revelePlay == true) {
 					this.gameplay = true;
-					this.received_paddleSize = this.paddleSize;
-					this.received_ballSpeed = this.ballSpeed;
+					// this.received_paddleSize = this.paddleSize;
+					// this.received_ballSpeed = this.ballSpeed;
+					// console.log("PADDLE received:" + this.received_paddleSize);
+					// console.log("BALL received:" + this.received_ballSpeed);
 				}
 				if (this.gameplay == true && this.endgame == false) {
 					if (this.newgame == false)
@@ -198,7 +226,8 @@
 				this.drawPlayerLeft(this.getPaddle);
 				this.drawPlayerRight(this.getPaddle);
 				this.drawBall();
-        this.drawScore(this.player_L, this.player_R);
+       		
+			this.drawScore(this.player_L, this.player_R);
 				return ;
 			},
 			drawPlayerLeft: function(paddle) {
@@ -403,7 +432,8 @@
 
 <template>
 	<div class=PongGame>
-		{{ ballSpeed }} /// {{ paddleSize }}
+		{{ ballSpeed }} /// {{ paddleSize }} ---
+		{{ received_ballSpeed }} /// {{ received_paddleSize }}
 				<!-- {{ revelePlay }} -->
 		<canvas ref="Pong" class="Pong" id="Pong" :width="canvas.w" :height="canvas.h"> </canvas>
 		<!-- v-bind:gameplay="revelePlay -->

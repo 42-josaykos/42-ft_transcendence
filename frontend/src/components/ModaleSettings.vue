@@ -12,7 +12,13 @@
 		},
         // props: ['reveleSettings', 'toggleModaleSettings'],
         props: ['revelePlay', 'toggleModaleSettings_1', 'launch'],
-        methods: {
+       
+       created() {
+			this.$emit('paddleSizeChange', this.paddleSize);
+            this.$emit('ballSpeedChange', this.ballSpeed);
+			return ;
+		},
+       methods: {
 			updatePaddleSize: function(variable) {
 				this.paddleSize = variable;
 				
