@@ -8,6 +8,7 @@ import { useUserStore } from "@/stores/user";
 import { useChannelStore } from "@/stores/channel";
 import type { User } from "@/models/user.model";
 import type { Channel } from "@/models/channel.model";
+import { computed } from "@vue/reactivity";
 
 const userStore = useUserStore();
 const { loggedUser, socketChat, usersOnline } = storeToRefs(userStore);
@@ -104,6 +105,26 @@ const isOnline = (user: User) => {
   return true;
 };
 
+const numberUsersOnline = computed(() => {
+  let totalOnline = 0;
+  for (const user of usersMembers.value) {
+    if (usersOnline.value.findIndex((el) => el === user.id) != -1) {
+      totalOnline++;
+    }
+  }
+  return totalOnline.toString()
+})
+
+const numberUsersOffline = computed(() => {
+  let totalOffline = 0;
+  for (const user of usersMembers.value) {
+    if (usersOnline.value.findIndex((el) => el === user.id) == -1) {
+      totalOffline++;
+    }
+  }
+  return totalOffline.toString()
+})
+
 </script>
 
 <template>
@@ -111,7 +132,7 @@ const isOnline = (user: User) => {
     <div v-if="usersMembers" class="ps-2">
       <span class="d-flex mb-3">
         <span class="horizontal-line-center"></span>
-          Online - {{usersOnline.length}}
+          Online - {{numberUsersOnline}}
         <span class="horizontal-line-center"></span>
       </span>
       <span v-for="user in usersMembers" :key="user.id">
@@ -127,7 +148,7 @@ const isOnline = (user: User) => {
       </span>
       <span class="d-flex my-3">
         <span class="horizontal-line-center"></span>
-          Offline - {{usersMembers.length -  usersOnline.length}}
+          Offline - {{numberUsersOffline}}
         <span class="horizontal-line-center"></span>
       </span>
       <span v-for="user in usersMembers" :key="user.id">
