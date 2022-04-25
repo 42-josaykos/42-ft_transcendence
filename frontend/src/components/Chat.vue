@@ -178,59 +178,9 @@ const scrollFunction = () => {
     </div>
   </div>
 
-  <!-- Modal -->
-  <!--Formulaire pour envoyer un direct message-->
-  <!-- <div class="modal fade modal-dialog-scrollable" id="directMessage" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="staticBackdropLabel">
-              {{ userDirectMessage?.username }}
-            </h5>
-            <button
-              @click="textDirectMsg = ''"
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-
-          <div class="modal-body">
-            <div class="form form-new-channel">
-              <input v-model="textDirectMsg" type="text" class="input" />
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button
-              @click="textDirectMsg = ''"
-              type="button"
-              class="btn btn-danger"
-              data-bs-dismiss="modal"
-            >
-              Cancel
-            </button>
-            <button
-              @click="sendDirectMessage"
-              type="submit"
-              class="btn btn-info"
-              data-bs-dismiss="modal"
-            >
-              Send
-            </button>
-          </div>
-        </div>
-      </div>
-    </div> -->
 </template>
 
 <style>
-.chat {
-  height: calc(100vh - 70px);
-  display: flex;
-}
 
 .chatMenu {
   flex: 2;
@@ -238,67 +188,15 @@ const scrollFunction = () => {
   margin-top: 10px;
 }
 
-/*.btn-channel {
-  margin-bottom: 5px;
-}*/
-
-.chatBox {
-  flex: 6;
-  text-align: center;
-}
-
-.chatFriends {
-  flex: 2;
-  text-align: center;
-}
-
-.chatFriendsInput {
-  width: 90%;
-  padding: 10px 0;
-  border: none;
-  border-bottom: 1px solid rgb(168, 164, 164);
-  background-color: rgba(209, 209, 208, 0.542);
-}
-
-.chatBoxWrapper {
-  height: 100%;
-}
-
-.chatMenuWrapper,
-.chatFriendsWrapper {
-  padding: 10px;
-}
-
-.vertical-line {
-  border-left: 2px solid rgba(170, 170, 167, 0.542);
-  display: inline-block;
-  height: 100%;
-  flex: 0;
-}
-
-/* .scroller {
-  overflow-y: scroll;
-  scrollbar-width: thin;
-  height: 100%;
-} */
-
 .form {
   background: rgba(0, 0, 0, 0.15);
   padding: 0.25rem;
-
   bottom: 0;
   left: 0;
   right: 0;
   display: flex;
   height: 3rem;
   box-sizing: border-box;
-}
-
-.form-new-channel {
-  color: #fff;
-  background-color: #6c757d;
-  border-color: #6c757d;
-  align-items: center;
 }
 
 .input {
@@ -309,35 +207,11 @@ const scrollFunction = () => {
   margin: 0.25rem;
 }
 
-.send {
-  background: #333;
-  border: none;
-  padding: 0 1rem;
-  margin: 0.25rem;
-  border-radius: 3px;
-  outline: none;
-  color: #fff;
-}
-
 .msg {
   list-style-type: none;
-  /* margin: 0; */
-  /* padding: 0; */
-  /* padding: 0.5rem 1rem; */
-  /* margin-bottom: 10px; */
-  /* background: #efefef; */
   border-radius: 2rem;
-  /* border: #fff961 3px solid; */
   margin-left: 10px;
   margin-right: 5px;
-}
-
-.wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  /*height: 100vh;
-    background: black*/
 }
 
 :root {
@@ -345,33 +219,6 @@ const scrollFunction = () => {
   --clr-bg: hsl(323 21% 16%);
 }
 
-.neons {
-  font-size: 25px;
-  height: 60px;
-  width: 150px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  font-family: "Balsamiq Sans", cursive;
-  text-decoration: none;
-  color: var(--clr-neon);
-  border: var(--clr-neon) 3px solid;
-  background-color: transparent;
-  border-radius: 0.25em;
-  text-shadow: 0 0 0.125em hsl(0 0% 100% / 0.3), 0 0 0.45em currentColor;
-  box-shadow: inset 0 0 0.5em 0 var(--clr-neon), 0 0 0.5em 0 var(--clr-neon);
-  transition: all 0.5s;
-}
-
-.neons:hover {
-  background-color: var(--clr-neon);
-  color: #fff;
-}
-
-/*--------------------------*/
-/*--------------------------*/
-/*--------------------------*/
 .padding-chat {
   padding: 1% !important;
   padding-top: 5% !important;
@@ -380,10 +227,8 @@ const scrollFunction = () => {
 .col-chat {
   min-height: 90vh;
   width: -webkit-fill-available;
-  /* display: flex; */
   justify-content: center;
   text-decoration: none;
-  /* color: #fff961; */
   border: #fff961 3px solid;
   background-color: transparent;
   border-radius: 0.25em;
@@ -420,9 +265,6 @@ const scrollFunction = () => {
   border-radius: 20px;
 }
 
-/*--------------------------*/
-/*--------------------------*/
-/*--------------------------*/
 .horizontal-line-bottom {
   border-bottom: #fff961 1.5px solid;
   display: block;
@@ -449,12 +291,9 @@ const scrollFunction = () => {
   margin: auto;
   border-top: #fff961 1.5px solid;
   display: block;
-  /* height: 60px; */
   text-shadow: 0 0 0.125em hsl(0 0% 100% / 0.3), 0 0 0.45em currentColor;
-
   background: rgba(0, 0, 0, 0.15);
   padding: 0.25rem;
-
   bottom: 0;
   left: 0;
   right: 0;

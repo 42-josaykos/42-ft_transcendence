@@ -6,6 +6,7 @@ import { useUserStore } from "@/stores/user";
 import { useMessageStore } from "@/stores/message";
 import { useChannelStore } from "@/stores/channel";
 import { useInputStore } from "@/stores/input";
+import { computed } from "@vue/reactivity";
 
 const userStore = useUserStore();
 const { loggedUser, socketChat } = storeToRefs(userStore);
@@ -35,6 +36,20 @@ const sendNewMessage = (channelId: Number | undefined) => {
   }
   textMsg.value = "";
 };
+
+const timerBan = computed(() => {
+  const index = timerIntervalBan.value.findIndex((el: any) => el.channelId == channel.value?.id)
+  if (index != -1) {
+    return `You are muted from this channel for ${ timerIntervalBan.value[index].timeLeft } time`
+  }
+})
+
+const timerMute = computed(() => {
+  const index = timerIntervalMute.value.findIndex((el: any) => el.channelId == channel.value?.id)
+  if (index != -1) {
+    return `You are muted from this channel for ${ timerIntervalMute.value[index].timeLeft } time`
+  }
+})
 
 </script>
 
@@ -121,7 +136,7 @@ const sendNewMessage = (channelId: Number | undefined) => {
         <div v-if="channelStore.isMute(channel, loggedUser?.id) == true" style="display: contents;">
           <div class="msg timer mx-3 mb-3">
             <div class="flex-shrink-1 rounded ml-3 text-msg-left">
-                <div style="text-align: center">You are muted from this channel for {{ timerIntervalMute.find((el: any) => el.channelId == channel.id).timeLeft }} time</div>
+                <div style="text-align: center">{{ timerMute }}</div>
             </div>
           </div>
         </div>
@@ -129,7 +144,7 @@ const sendNewMessage = (channelId: Number | undefined) => {
       <div v-else style="display: contents;">
         <div class="msg timer mx-3 mt-3">
           <div class="flex-shrink-1 rounded ml-3 text-msg-left">
-              <div style="text-align: center">You are banned from this channel for {{ timerIntervalBan.find((el: any) => el.channelId == channel.id).timeLeft }} time</div>
+              <div style="text-align: center">{{ timerBan }}</div>
           </div>
         </div>
       </div>

@@ -162,8 +162,11 @@ if (isAuthenticated.value) {
   })
 
   socketChat.value.on('userRemoveBan', (updateChannel: Channel) => {
-    if (channel.value != undefined && loggedUser.value != null && channel.value.id == updateChannel.id) {
-      channel.value = updateChannel;
+    if (loggedUser.value != null) {
+      channelStore.stopTimer({...updateChannel}, true)
+      if (channel.value != undefined && channel.value.id == updateChannel.id) {
+        channel.value = updateChannel;
+      }
     }
   })
 
@@ -174,8 +177,11 @@ if (isAuthenticated.value) {
   })
 
   socketChat.value.on('userRemoveMute', (updateChannel: Channel) => {
-    if (channel.value != undefined && loggedUser.value != null && channel.value.id == updateChannel.id) {
-      channel.value = updateChannel;
+    if (undefined && loggedUser.value != null) {
+      channelStore.stopTimer({...updateChannel}, false)
+      if (channel.value != undefined && channel.value.id == updateChannel.id) {
+        channel.value = updateChannel;
+      }
     }
   })
 } 

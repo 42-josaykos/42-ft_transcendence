@@ -261,11 +261,15 @@ export const useChannelStore = defineStore('channel', () => {
       }
       if (isBan) {
         const index = timerIntervalBan.value.findIndex((el: any) => el.channelId == channelId)
-        timerIntervalBan.value[index].timeLeft = strH + hours + ":" + strM + minutes + ":" + strS + seconds ;
+        if (index != -1) {
+          timerIntervalBan.value[index].timeLeft = strH + hours + ":" + strM + minutes + ":" + strS + seconds ;
+        }
       }
       else {
         const index = timerIntervalMute.value.findIndex((el: any) => el.channelId == channelId)
-        timerIntervalMute.value[index].timeLeft = strH + hours + ":" + strM + minutes + ":" + strS + seconds ;
+        if (index != -1) {
+          timerIntervalMute.value[index].timeLeft = strH + hours + ":" + strM + minutes + ":" + strS + seconds ;
+        }
       }
     }  
 
@@ -276,17 +280,20 @@ export const useChannelStore = defineStore('channel', () => {
       }
       else {
         if (isBan) {
-          console.log("Clear Interval")
           const index = timerIntervalBan.value.findIndex((el: any) => el.channelId == channelItem.id)
-          clearInterval(timerIntervalBan.value[index].idInterval)
-          socketChat.value?.emit('updateMember', channelItem.id, {removeBans: [{user: {id: loggedUser.value?.id}}]}, null, loggedUser.value)
-          timerIntervalBan.value.slice(index, 1)
+          if (index != -1) {
+            clearInterval(timerIntervalBan.value[index].idInterval)
+            socketChat.value?.emit('updateMember', channelItem.id, {removeBans: [{user: {id: loggedUser.value?.id}}]}, null, loggedUser.value)
+            timerIntervalBan.value.splice(index, 1)
+          }
         }
         else {
-          const index = timerIntervalBan.value.findIndex((el: any) => el.channelId == channelItem.id)
-          clearInterval(timerIntervalMute.value[index].idInterval)
-          socketChat.value?.emit('updateMember', channelItem.id, {removeMutes: [{user: {id: loggedUser.value?.id}}]}, null, loggedUser.value)
-          timerIntervalMute.value.slice(index, 1)
+          const index = timerIntervalMute.value.findIndex((el: any) => el.channelId == channelItem.id)
+          if (index != -1) {
+            clearInterval(timerIntervalMute.value[index].idInterval)
+            socketChat.value?.emit('updateMember', channelItem.id, {removeMutes: [{user: {id: loggedUser.value?.id}}]}, null, loggedUser.value)
+            timerIntervalMute.value.splice(index, 1)
+          }
         }
       }
     
@@ -366,22 +373,33 @@ export const useChannelStore = defineStore('channel', () => {
     }
 
     const updateBanMute = (data: any) => {
-      console.log("Data => ", data)
       const channelsBan = data[0].banChannels
       const channelsMute = data[0].muteChannels
-      console.log("ChannelsBan => ", channelsBan)
-      console.log("ChannelsMute => ", channelsMute)
       if (channelsBan != undefined) {
         for (const ban of channelsBan) {
-          console.log("ban => ", ban)
           const channelItem = allChannels.value.find((el: Channel) => el.id === ban.channel.id)
-          console.log("channelItem => ", channelItem)
           if (channelItem != undefined) {
             handleBanMute(channelItem, true)
           }
         }
       }
-    console.log("timerIntervalBan => ", timerIntervalBan.value)
+    }
+
+    const stopTimer = (channelItem: Channel, isBan: boolean) => {
+      if (isBan) {
+        const index = timerIntervalBan.value.findIndex((el: any) => el.channelId == channelItem.id)
+        if (index != -1) {
+          clearInterval(timerIntervalBan.value[index].idInterval)
+          timerIntervalBan.value.splice(index, 1)
+        }
+      }
+      else {
+        const index = timerIntervalMute.value.findIndex((el: any) => el.channelId == channelItem.id)
+        if (index !=-1) {
+          clearInterval(timerIntervalMute.value[index].idInterval)
+          timerIntervalMute.value.splice(index, 1)
+        }
+      }
     }
 
     const searchName = (channelItem: Channel | undefined): string => {
@@ -436,6 +454,7 @@ export const useChannelStore = defineStore('channel', () => {
         deleteChannelInvite,
         handleBanMute,
         updateBanMute,
+        stopTimer,
         searchName
     };
 });

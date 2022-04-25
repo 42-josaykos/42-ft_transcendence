@@ -44,22 +44,20 @@ const {
 } = storeToRefs(channelStore);
 
 const displayMessages = (channel_item: Channel) => {
-  console.log("All channels => ", allChannels.value)
   Get(
     "/channels/search?id=" +
       channel_item.id.toString() +
       "&messages&owner&admins&members&mutes&bans"
   ).then((res) => {
     channel.value = res.data[0];
-    // if (channel.value != undefined && loggedUser.value != null) {
-    //   console.log("Channel.value => ", channel.value)
-    //   if (channelStore.isBan(channel.value, loggedUser.value?.id)) {
-    //     channelStore.handleBanMute({...channel.value}, true)
-    //   }
-    //   else if (channelStore.isMute(channel.value, loggedUser.value?.id)) {
-    //     channelStore.handleBanMute({...channel.value}, false)
-    //   }
-    // }
+    if (channel.value != undefined && loggedUser.value != null) {
+      if (channelStore.isBan(channel.value, loggedUser.value?.id)) {
+        channelStore.handleBanMute({...channel.value}, true)
+      }
+      else if (channelStore.isMute(channel.value, loggedUser.value?.id)) {
+        channelStore.handleBanMute({...channel.value}, false)
+      }
+    }
     messageStore.sortMessages(res.data[0].messages);
     usersMembers.value = res.data[0].members;
   });
@@ -818,7 +816,6 @@ const updateUsersInvite = (user: User) => {
       </h2>
     </template>
     <template v-slot:body>
-      <!-- <div class="form form-new-channel"> -->
       <div class="form-signin pb-3">
         <label for="name" class="sr-only">Channel name</label>
         <input

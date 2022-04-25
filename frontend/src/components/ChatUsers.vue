@@ -108,7 +108,7 @@ const isOnline = (user: User) => {
 const numberUsersOnline = computed(() => {
   let totalOnline = 0;
   for (const user of usersMembers.value) {
-    if (usersOnline.value.findIndex((el) => el === user.id) != -1) {
+    if (usersOnline.value.findIndex((el) => el === user.id) != -1 && !channelStore.isBan(channel.value, user.id)) {
       totalOnline++;
     }
   }
@@ -118,11 +118,21 @@ const numberUsersOnline = computed(() => {
 const numberUsersOffline = computed(() => {
   let totalOffline = 0;
   for (const user of usersMembers.value) {
-    if (usersOnline.value.findIndex((el) => el === user.id) == -1) {
+    if (usersOnline.value.findIndex((el) => el === user.id) == -1 && !channelStore.isBan(channel.value, user.id)) {
       totalOffline++;
     }
   }
   return totalOffline.toString()
+})
+
+const numberUsersBan = computed(() => {
+  let totalBan = 0;
+  for (const user of usersMembers.value) {
+    if (channelStore.isBan(channel.value, user.id)) {
+      totalBan++;
+    }
+  }
+  return totalBan.toString()
 })
 
 </script>
@@ -136,7 +146,7 @@ const numberUsersOffline = computed(() => {
         <span class="horizontal-line-center"></span>
       </span>
       <span v-for="user in usersMembers" :key="user.id">
-        <div v-if="isOnline(user)" class="list-group">
+        <div v-if="isOnline(user) && !channelStore.isBan(channel, user.id)" class="list-group">
           <UserCard
             :user="user"
             @open="
@@ -152,7 +162,23 @@ const numberUsersOffline = computed(() => {
         <span class="horizontal-line-center"></span>
       </span>
       <span v-for="user in usersMembers" :key="user.id">
-        <div v-if="!isOnline(user)" class="list-group">
+        <div v-if="!isOnline(user) && !channelStore.isBan(channel, user.id)" class="list-group">
+          <UserCard
+            :user="user"
+            @open="
+              userClickBool = true;
+              userClick = user;
+            "
+          />
+        </div>
+      </span>
+      <span class="d-flex my-3">
+        <span class="horizontal-line-center"></span>
+          Ban - {{numberUsersBan}}
+        <span class="horizontal-line-center"></span>
+      </span>
+      <span v-for="user in usersMembers" :key="user.id">
+        <div v-if="channelStore.isBan(channel, user.id)" class="list-group">
           <UserCard
             :user="user"
             @open="
