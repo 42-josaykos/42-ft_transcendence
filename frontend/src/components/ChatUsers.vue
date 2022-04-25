@@ -2,7 +2,7 @@
 import UserCard from "./UserCard.vue";
 import ModalChat from "./ModalChat.vue";
 
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
 import { useChannelStore } from "@/stores/channel";
@@ -10,7 +10,7 @@ import type { User } from "@/models/user.model";
 import type { Channel } from "@/models/channel.model";
 
 const userStore = useUserStore();
-const { usersOnline, loggedUser, socketChat } = storeToRefs(userStore);
+const { loggedUser, socketChat } = storeToRefs(userStore);
 
 const channelStore = useChannelStore();
 
@@ -99,7 +99,7 @@ const removeBanMute = (boolBan: Boolean) => {
 
 </script>
 
-<template>{{usersOnline}}
+<template>
   <div v-if="channel != undefined">
     <div v-if="usersMembers" class="ps-2">
       <div class="list-group" v-for="user in usersMembers" :key="user.id">

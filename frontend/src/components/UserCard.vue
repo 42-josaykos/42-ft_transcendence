@@ -2,6 +2,7 @@
 import { computed, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
+
 const userStore = useUserStore();
 const { usersOnline } = storeToRefs(userStore);
 
@@ -17,21 +18,16 @@ const isOnlineBool = ref<boolean>(false)
 
 const isOnline = computed(() => {
   if (usersOnline.value.findIndex((el: Number) => el == props.user?.id) == -1) {
+    isOnlineBool.value = false
     return 'Offline';
   }
+  isOnlineBool.value = true
   return 'Online';
-});
-
-const chooseClass = computed(() => {
-  if (usersOnline.value.findIndex((el: Number) => el == props.user?.id) == -1) {
-    return 'offline';
-  }
-  return 'online';
 });
 
 </script>
 
-<template>    
+<template>
   <button  @click="open()" type="button" class="btn-user-card">
     <div class="row no-gutters">
       <div class="col-md-4 cercle-user-card">
@@ -43,10 +39,14 @@ const chooseClass = computed(() => {
             {{props.user?.username}}
           </div>
           <div class="info">
-            <div class="status">
-              <!-- <i class="fa fa-circle" :class="{'online': isOnlineBool == true, 'offline': isOnlineBool == false}"></i> -->
-              <i class="fa fa-circle" :class="chooseClass"></i> 
-              <small class="text-muted">{{ isOnline }}</small>
+            <div class="status d-flex">
+              <div  v-if="isOnlineBool == true" >
+                <i class="fa fa-circle online"></i>
+              </div>
+              <div v-else>
+                <i class="fa fa-circle offline"></i>
+              </div>
+              <small class="text-muted ps-1">{{ isOnline }}</small>
             </div>
           </div>
           </div>
@@ -84,15 +84,15 @@ const chooseClass = computed(() => {
   {
     margin-right: 2px;
     font-size: 8px;
-    vertical-align: middle
+    vertical-align: middle;
   }
 
   .online {
-    color: #86c541
+    color: #86c541;
   }
 
   .offline {
-    color: #e47297
+    color: #e47297;
   }
 
   .btn-user-card {
