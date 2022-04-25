@@ -67,8 +67,9 @@ export class GameGateway
     // Detect which player moved
     // Will later need to send ONLY to people watching / playing the game
     // if (data.id === this.games[gameIndex].players[0].userID)
-    this.server.emit('playerOneMoveLeft');
-    this.server.emit('playerTwoMoveLeft');
+    // console.log('verif: ', client.data.test);
+    if (data.id === 1) this.server.emit('playerOneMoveLeft');
+    else this.server.emit('playerTwoMoveLeft');
     // else this.server.emit('playerTwoMoveLeft');
   }
 
@@ -89,8 +90,8 @@ export class GameGateway
     // Detect which player moved
     // Will later need to send ONLY to people watching / playing the game
     // if (data.id === this.games[gameIndex].players[0].userID)
-    this.server.emit('playerOneMoveRight');
-    this.server.emit('playerTwoMoveRight');
+    if (data.id === 1) this.server.emit('playerOneMoveRight');
+    else this.server.emit('playerTwoMoveRight');
     // else this.server.emit('playerTwoMoveRight');
   }
 }

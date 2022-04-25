@@ -20,27 +20,27 @@ database:
 ### Prod environment ###
 
 build:
-	-docker-compose build
+	-docker compose build
 
 up:
-	-docker-compose up -V -d
+	-docker compose up -V -d
 
 down:
-	-docker-compose down -v
+	-docker compose down -v
 
 start:
-	-docker-compose start
+	-docker compose start
 
 stop:
-	-docker-compose stop
+	-docker compose stop
 
 ###
 
 ps:
-	-docker-compose ps
+	-docker compose ps
 
 images:
-	-docker-compose images
+	-docker compose images
 
 exec:
 	-docker exec -it postgres-transcendence-${USER} bash

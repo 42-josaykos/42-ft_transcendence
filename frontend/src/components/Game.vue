@@ -1,66 +1,65 @@
 <!-- <script setup lang="ts"></script> -->
 
 <script>
-	import PowerUps from './PowerUps.vue'
-	import ModaleSettings from './ModaleSettings.vue'
-	import Pong from './Pong.vue'
-	import ModalePlay from './ModalePlay.vue'
+import PowerUps from "./PowerUps.vue";
+import ModaleSettings from "./ModaleSettings.vue";
+import Pong from "./Pong.vue";
+import ModalePlay from "./ModalePlay.vue";
 
-	export default {
-		name: 'Contenu',
-		data() {
-			return {
-				// reveleSettings: false,
-				revelePlay: false,
-			}
-		},
-		components: {
-			'powerups': PowerUps,
-			'modale-settings': ModaleSettings,
-			'pong': Pong,
-			'modale-play': ModalePlay,
-		},
-		methods: {
-			toggleModaleSettings_2: function(){
-				console.log("here: " + this.reveleSettings);
-				this.reveleSettings = !this.reveleSettings;
-				console.log(" became: " + this.reveleSettings);
-				return ;
-			},
-			toggleModaleSettings_1: function(){
-				console.log("this.revelePlay in Game.vue : " + this.revelePlay);
-				if (this.revelePlay == false)
-					this.revelePlay = !this.revelePlay;
-				console.log("THEN this.revelePlay in Game.vue : " + this.revelePlay);
-				return ;
-			},
-			// toggleModalePlay: function(){
-			// 	console.log("this.revelePlay in Game.vue : " + this.revelePlay);
-			// 	if (this.revelePlay == false)
-			// 		this.revelePlay = !this.revelePlay;
-			// 	console.log("THEN this.revelePlay in Game.vue : " + this.revelePlay);
-			// 	return ;
-			// },
-		},
-	}
+export default {
+  name: "Contenu",
+  data() {
+    return {
+      // reveleSettings: false,
+      revelePlay: true,
+    };
+  },
+  components: {
+    powerups: PowerUps,
+    "modale-settings": ModaleSettings,
+    pong: Pong,
+    "modale-play": ModalePlay,
+  },
+  methods: {
+    toggleModaleSettings_2: function () {
+      console.log("here: " + this.reveleSettings);
+      this.reveleSettings = !this.reveleSettings;
+      console.log(" became: " + this.reveleSettings);
+      return;
+    },
+    toggleModaleSettings_1: function () {
+      console.log("this.revelePlay in Game.vue : " + this.revelePlay);
+      if (this.revelePlay == false) this.revelePlay = !this.revelePlay;
+      console.log("THEN this.revelePlay in Game.vue : " + this.revelePlay);
+      return;
+    },
+    // toggleModalePlay: function(){
+    // 	console.log("this.revelePlay in Game.vue : " + this.revelePlay);
+    // 	if (this.revelePlay == false)
+    // 		this.revelePlay = !this.revelePlay;
+    // 	console.log("THEN this.revelePlay in Game.vue : " + this.revelePlay);
+    // 	return ;
+    // },
+  },
+};
 </script>
 
 <template>
-	<div class="Game">
-		<h2>Game</h2>
-			<!-- <div>
+  <div class="Game">
+    <h2>Game</h2>
+    <!-- <div>
 				<modale-settings class="ModaleSettings" v-bind:reveleSettings="reveleSettings" v-bind:toggleModaleSettings="toggleModaleSettings">X</modale-settings>
 				<div v-on:click="toggleModaleSettings" class="btn btn-success">OUVRE LA MODALE YOLO LA VIE</div>
 			</div> -->
-			<div class=PongGame>
-				<modale-settings class="ModaleSettings" v-bind:revelePlay="revelePlay" v-bind:toggleModaleSettings_1="toggleModaleSettings_1"></modale-settings>
-				<pong v-bind:revelePlay="revelePlay"></pong>
-			</div>
-			<!-- <div class=PongGame>
+    <div class="PongGame">
+      <!-- <modale-settings class="ModaleSettings" v-bind:revelePlay="revelePlay" v-bind:toggleModaleSettings_1="toggleModaleSettings_1"></modale-settings> -->
+      <pong v-bind:revelePlay="revelePlay"></pong>
+    </div>
+    <!-- <div class=PongGame>
 				<modale-play class="ModalePlay" v-bind:revelePlay="revelePlay" v-bind:toggleModalePlay="toggleModalePlay"></modale-play>
 				<pong v-bind:revelePlay="revelePlay"></pong>
 			</div> -->
-	</div>
+  </div>
 </template>
 
 <style>

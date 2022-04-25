@@ -95,6 +95,7 @@ export default {
     let rightPlayer = this.getPlayerR;
     let gameBall = this.getBall;
     let sounds = this.getSounds;
+
     // this.render();
 
     // Socket Events
