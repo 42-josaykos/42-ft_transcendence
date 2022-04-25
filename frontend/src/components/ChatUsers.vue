@@ -10,7 +10,7 @@ import type { User } from "@/models/user.model";
 import type { Channel } from "@/models/channel.model";
 
 const userStore = useUserStore();
-const { loggedUser, socketChat } = storeToRefs(userStore);
+const { loggedUser, socketChat, usersOnline } = storeToRefs(userStore);
 
 const channelStore = useChannelStore();
 
@@ -97,20 +97,50 @@ const removeBanMute = (boolBan: Boolean) => {
   }
 }
 
+const isOnline = (user: User) => {
+  if (usersOnline.value.findIndex((el: Number) => el == user.id) == -1) {
+    return false;
+  }
+  return true;
+};
+
 </script>
 
 <template>
   <div v-if="channel != undefined">
     <div v-if="usersMembers" class="ps-2">
-      <div class="list-group" v-for="user in usersMembers" :key="user.id">
-        <UserCard
-          :user="user"
-          @open="
-            userClickBool = true;
-            userClick = user;
-          "
-        />
-      </div>
+      <span class="d-flex mb-3">
+        <span class="horizontal-line-center"></span>
+          Online - {{usersOnline.length}}
+        <span class="horizontal-line-center"></span>
+      </span>
+      <span v-for="user in usersMembers" :key="user.id">
+        <div v-if="isOnline(user)" class="list-group">
+          <UserCard
+            :user="user"
+            @open="
+              userClickBool = true;
+              userClick = user;
+            "
+          />
+        </div>
+      </span>
+      <span class="d-flex my-3">
+        <span class="horizontal-line-center"></span>
+          Offline - {{usersMembers.length -  usersOnline.length}}
+        <span class="horizontal-line-center"></span>
+      </span>
+      <span v-for="user in usersMembers" :key="user.id">
+        <div v-if="!isOnline(user)" class="list-group">
+          <UserCard
+            :user="user"
+            @open="
+              userClickBool = true;
+              userClick = user;
+            "
+          />
+        </div>
+      </span>
     </div>
   </div>
 

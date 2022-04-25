@@ -61,6 +61,7 @@ const isOnline = computed(() => {
     display: flex;
     align-items: center;
     padding-left: 10px !important;
+    padding-top: 4px;
   }
 
   .info {

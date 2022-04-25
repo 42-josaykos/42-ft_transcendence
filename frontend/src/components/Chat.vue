@@ -445,6 +445,22 @@ const scrollFunction = () => {
   box-sizing: border-box;
 }
 
+.horizontal-line-center {
+  margin: auto;
+  border-top: #fff961 1.5px solid;
+  display: block;
+  /* height: 60px; */
+  text-shadow: 0 0 0.125em hsl(0 0% 100% / 0.3), 0 0 0.45em currentColor;
+
+  background: rgba(0, 0, 0, 0.15);
+  padding: 0.25rem;
+
+  bottom: 0;
+  left: 0;
+  right: 0;
+  box-sizing: border-box;
+}
+
 .chat-message-left,
 .chat-message-right {
   display: flex;
