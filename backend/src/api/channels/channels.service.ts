@@ -221,7 +221,7 @@ export class ChannelsService {
         throw new ForbiddenException(
           "Can't create new Channel (name must be unique)",
         );
-      
+
       const channelData = { ...channel };
       if (channelData.password) {
         const hash = await bcrypt.hash(channel.password, 10);
@@ -231,7 +231,7 @@ export class ChannelsService {
       const newChannel = this.channelsRepository.create(channelData);
       await this.channelsRepository.save(newChannel);
 
-      delete newChannel.password
+      delete newChannel.password;
       return newChannel;
     } catch (error) {
       throw error;
@@ -299,10 +299,11 @@ export class ChannelsService {
         channel.mutes = await this.addUsersToArray(addMutes, channel.mutes);
       }
       if ('removeMutes' in updatedChannel) {
-        const oldMutes = await this.mutesRepository.find({
+        let oldMutes = await this.mutesRepository.find({
           where: updatedChannel.removeMutes,
           relations: ['user', 'channel'],
         });
+        oldMutes = oldMutes.filter((value) => value.channel.id === channelID);
         await this.mutesRepository.remove(oldMutes);
         channel.mutes = await this.mutesRepository.find({
           where: { channel: channelID },
@@ -314,10 +315,11 @@ export class ChannelsService {
         channel.bans = await this.addUsersToArray(addBans, channel.bans);
       }
       if ('removeBans' in updatedChannel) {
-        const oldBans = await this.bansRepository.find({
+        let oldBans = await this.bansRepository.find({
           where: updatedChannel.removeBans,
           relations: ['user', 'channel'],
         });
+        oldBans = oldBans.filter((value) => value.channel.id === channelID);
         await this.bansRepository.remove(oldBans);
         channel.bans = await this.bansRepository.find({
           where: { channel: channelID },

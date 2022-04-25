@@ -67,10 +67,10 @@ export const isMeteor = ref(false);
 </template>
 
 <style>
-@media all and (min-width: 992px){
-    .routerView {
-       margin-left: 8vh;
-    }
+
+:root {
+  --sidebar-bg-color: #0c2039;
+  --sidebar-icon-color: #1d508f;
 }
 
 #app {
