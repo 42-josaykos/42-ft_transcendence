@@ -119,8 +119,8 @@ export class AuthController {
   @Get('jwt-status')
   @UseGuards(JwtAccessGuard)
   jwtStatus(@Req() req: RequestWithUser) {
-    const { id, username, avatar } = req.user;
-    return { id, username, avatar };
+    const { id, username, avatar, isTwoFactorAuthenticationEnabled } = req.user;
+    return { id, username, avatar, isTwoFactorAuthenticationEnabled };
   }
 
   @Get('refresh')
