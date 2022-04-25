@@ -3,14 +3,9 @@
     
     export default {
         name: 'ModaleSettings',
-        // data() {
-        //     return {
-        //     }
-        // },
 		components: {
 			'powerups': PowerUps,
 		},
-        // props: ['reveleSettings', 'toggleModaleSettings'],
         props: ['revelePlay', 'toggleModaleSettings_1', 'launch'],
        
        created() {
@@ -21,16 +16,10 @@
        methods: {
 			updatePaddleSize: function(variable) {
 				this.paddleSize = variable;
-				
-                // console.log("ModaleSettings updated, now emitting from ModaleSettings to parent Game");
-                // console.log("paddleSize : " + this.paddleSize);
 				this.$emit('paddleSizeChange', this.paddleSize);
 			},
             updateBallSpeed: function(variable) {
 				this.ballSpeed = variable; 
-
-				// console.log("ModaleSettings updated, now emitting from ModaleSettings to parent Game");
-				// console.log("ballSpeed : " + this.ballSpeed);
 				this.$emit('ballSpeedChange', this.ballSpeed);
 			}
 		},
@@ -39,12 +28,8 @@
 
 <template>
 <div>
-    <!-- <div class="bloc-modale" v-if="reveleSettings">
-        <div class="overlay" v-on:click="toggleModaleSettings"></div> -->
-    <!-- <div class="bloc-modale" v-if="!revelePlay" v-on:click="toggleModaleSettings_1"> -->
     <div class="bloc-modale" v-if="!revelePlay">
-        <!-- <div class="overlay" v-on:click="toggleModaleSettings_1"></div> -->
-        <div class="overlay"></div> <!-- canvas ? -->
+        <div class="overlay"></div>
         <div class="modale card">
             <div class=Modale_Header>
                 <div class="btn-modale btn btn-danger" v-on:click="toggleModaleSettings_1">X</div>

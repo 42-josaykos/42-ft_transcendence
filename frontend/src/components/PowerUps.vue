@@ -15,23 +15,16 @@
 				features: [
 					{ id: id++, featureName: 'paddle size', min: 1, max: 3, updateFunc: this.updatePaddleSize},
 					{ id: id++, featureName: 'ball speed', min: 1, max: 5, updateFunc: this.updateBallSpeed },
-					// { id: id++, featureName: 'number of balls' },
 				]
 			}
 		},
 		methods: {
 			updatePaddleSize: function(variable) {
 				this.paddleSize = variable; 
-
-				// console.log("Powerups updated, now emitting from Powerups (paddleSize) to parent Modale-Settings");
-				// console.log("paddleSize : " + this.paddleSize);
 				this.$emit('paddleSizeChange', this.paddleSize);
 			},
 			updateBallSpeed: function(variable) {
-				this.ballSpeed = variable; 
-
-				// console.log("Powerups updated, now emitting from Powerups (ballSpeed) to parent Modale-Settings");
-				// console.log("ballSpeed : " + this.ballSpeed);
+				this.ballSpeed = variable;
 				this.$emit('ballSpeedChange', this.ballSpeed);
 			}
 		},

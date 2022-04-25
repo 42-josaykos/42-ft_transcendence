@@ -4,20 +4,12 @@
 	export default {
 		name: 'Pong',
 		props: ['revelePlay', 'msg', 'paddleSize', 'ballSpeed'],
-		// props: {
-		// 	msg: String,
-		// 	revelePlay: Boolean,
-		// 	// gameplay: Boolean,
-		// },
 		components: {
 			'modale-play': ModalePlay, 
 		},
 		data: function() {
 			return {
-
-				// received_paddleSize: {},
-				// received_ballSpeed: {},
-				received_paddleSize: 1,
+				received_paddleSize: 1, // à creuser
 				received_ballSpeed: 1,
 
 
@@ -104,22 +96,11 @@
 			return ; //keypress does not work for arrows
 		},
 		mounted() {
-			// let BS = this.getBallSpeed;
-			// let PS = this.getPaddleSize;
-		
-
 			let gamePaddle = this.getPaddle;
 			let leftPlayer = this.getPlayerL;
 			let rightPlayer = this.getPlayerR;
 			let gameBall = this.getBall;
 			let sounds = this.getSounds;
-
-			// let BS = this.getBallSpeed;
-			// let PS = this.getPaddleSize;
-		
-			// this.drawPlayerLeft(this.getPaddle);
-			// this.drawPlayerRight(this.getPaddle);
-			// this.drawScore(this.player_L, this.player_R);
 			this.launch();
 			return ;
 		},
@@ -138,20 +119,8 @@
 			game: function() {
 				this.received_paddleSize = this.paddleSize;
 				this.received_ballSpeed = this.ballSpeed;
-				console.log("PADDLE received:" + this.received_paddleSize);
-				console.log("BALL received:" + this.received_ballSpeed);
-				// if (this.revelePlay == false) {
-				// 	this.received_paddleSize = this.paddleSize;
-				// 	this.received_ballSpeed = this.ballSpeed;
-				// 	console.log("PADDLE received:" + this.received_paddleSize);
-				// 	console.log("BALL received:" + this.received_ballSpeed);
-				// }
 				if (this.revelePlay == true) {
 					this.gameplay = true;
-					// this.received_paddleSize = this.paddleSize;
-					// this.received_ballSpeed = this.ballSpeed;
-					// console.log("PADDLE received:" + this.received_paddleSize);
-					// console.log("BALL received:" + this.received_ballSpeed);
 				}
 				if (this.gameplay == true && this.endgame == false) {
 					if (this.newgame == false)
@@ -249,8 +218,6 @@
 				return ;
 			},
 			drawBall: function() {
-				// console.log("x : " + this.ball.x);
-				// console.log("y : " + this.ball.y);
 				let canvas = document.getElementById('Pong');
 				if (canvas.getContext) {
 					let context = canvas.getContext('2d');
@@ -400,8 +367,6 @@
 				return ;
 			},
 			runWild: function() {
-				// console.log("into it x : " + this.ball.x);
-				// console.log("into it y : " + this.ball.y);
 				this.ball.x += this.ball.velocityX;
 				this.ball.y += this.ball.velocityY;
 
@@ -409,8 +374,6 @@
 				this.ball.Xmax = this.ball.x + this.ball.size;
 				this.ball.Ymin = this.ball.y - this.ball.size;
 				this.ball.Ymax = this.ball.y + this.ball.size;
-				// console.log("into it x : " + this.ball.x);
-				// console.log("into it y : " + this.ball.y);
 				return ;
 			},
 			collision: function (ball, player){
@@ -432,13 +395,7 @@
 
 <template>
 	<div class=PongGame>
-		{{ ballSpeed }} /// {{ paddleSize }} ---
-		{{ received_ballSpeed }} /// {{ received_paddleSize }}
-				<!-- {{ revelePlay }} -->
 		<canvas ref="Pong" class="Pong" id="Pong" :width="canvas.w" :height="canvas.h"> </canvas>
-		<!-- v-bind:gameplay="revelePlay -->
-		<!-- <canvas ref="Pong" class="Pong" id="Pong" :width="canvas.w" :height="canvas.h" v-on:click="launch"> </canvas> -->
-		
 	</div>
 </template>
 
@@ -451,7 +408,6 @@
 .Pong {
 	background: #0C2039;
 	border: 7.5px solid #FFF961;
-	margin: 
 	/* justify-content: center; */
 }
 </style>

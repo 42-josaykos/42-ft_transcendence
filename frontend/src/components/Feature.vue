@@ -7,10 +7,6 @@
                 max: {},
             }
         },
-        // props: {
-        //     name: String,
-
-        // },
         props: ['name', 'levelMin', 'levelMax', 'startLevel'], //readonly
         /*  Intéressant pour avoir des données en cache */
         computed: {
