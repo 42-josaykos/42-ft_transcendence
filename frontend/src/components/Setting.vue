@@ -19,6 +19,7 @@ const qrcode = ref(null);
 const twoFactorInput = ref('');
 const turnOffForm = ref(false);
 
+// Convert QR code image file stream from response to base64 string
 function getBase64(file: any) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -28,6 +29,7 @@ function getBase64(file: any) {
   });
 }
 
+// Generate 2FA QR code
 function generate2FA() {
   ax({
     method: 'post',
@@ -40,6 +42,7 @@ function generate2FA() {
   });
 }
 
+// 2FA code validation handler
 function validateCode() {
   Post('/auth/turn-2fa-on', {
     twoFactorAuthenticationCode: twoFactorInput.value
@@ -70,6 +73,7 @@ function validateCode() {
   });
 }
 
+// 2FA option handler
 function toggleTwoFactorAuthentication() {
   if (isTwoFactorAuth.value === true) {
     isTwoFactorAuth.value = false;
@@ -86,7 +90,17 @@ function toggleTwoFactorAuthentication() {
   <div class="btn-close-modale btn" @click="setting_open = false">
     <i class="fa-solid fa-xmark fa-2x"></i>
   </div>
-  <h2 style="margin: 0px 40px 20px"><b>Settings</b></h2>
+
+  <!-- Avatar -->
+  <img :src="loggedUser ? loggedUser.avatar : ''" alt="" width="150" />
+
+  <!-- Menu title: settings or username  -->
+  <h2 v-if="!loggedUser" style="margin: 0px 40px 20px"><b>Settings</b></h2>
+  <h2 v-else style="margin: 0px 40px 20px">
+    <b>{{ loggedUser.username }}</b>
+  </h2>
+
+  <!-- Meteor animation option -->
   <span class="element-set">
     Meteor:
     <Toggle
@@ -96,6 +110,10 @@ function toggleTwoFactorAuthentication() {
       class="toggle-style"
     />
   </span>
+
+  <!-- Update username -->
+
+  <!-- 2FA option -->
   <span v-if="isAuthenticated" class="element-set">
     Two-Factor Authentication (2FA):
     <Toggle
@@ -106,6 +124,8 @@ function toggleTwoFactorAuthentication() {
       class="toggle-style"
     />
   </span>
+
+  <!-- QR code if toggle 2FA on -->
   <div v-if="qrcode">
     <hr />
     <img :src="qrcode" alt="" width="150" />
@@ -116,6 +136,8 @@ function toggleTwoFactorAuthentication() {
       <button type="submit">Submit</button>
     </form>
   </div>
+
+  <!-- 2FA validation if toggle off -->
   <div v-if="turnOffForm">
     <hr />
     <form @submit.prevent.trim.lazy="validateCode">
@@ -126,8 +148,9 @@ function toggleTwoFactorAuthentication() {
   </div>
 </template>
 
-<style src="@vueform/toggle/themes/default.css"></style>
 <style>
+@import '@vueform/toggle/themes/default.css';
+
 .toggle-style {
   --toggle-bg-on: var(--sidebar-icon-color);
   --toggle-border-on: var(--sidebar-icon-color);
@@ -137,5 +160,12 @@ function toggleTwoFactorAuthentication() {
 .element-set {
   margin-bottom: 10px;
   font-size: large;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  width: 50rem;
+  overflow: hidden;
 }
 </style>
