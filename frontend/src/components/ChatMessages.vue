@@ -25,7 +25,7 @@ const {
 
 const sendNewMessage = (channelId: Number | undefined) => {
   if (channelId != undefined) {
-    if (textMsg.value !== "") {
+    if (textMsg.value.trim() != "") {
       const newMessage = {
         author: loggedUser.value?.id,
         channel: { id: channelId },

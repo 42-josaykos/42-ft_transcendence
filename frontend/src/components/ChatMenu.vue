@@ -1205,9 +1205,9 @@ const updateUsersInvite = (user: User) => {
   border: 0;
   border-radius: 0;
   overflow-anchor: none;
-  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
-    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out,
-    border-radius 0.15s ease;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+  border-color: 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  border-radius: 0.15s ease;
 }
 
 .accordion-btn::after {
@@ -1223,35 +1223,37 @@ const updateUsersInvite = (user: User) => {
 }
 
 .btn-neons-channels-menu {
-  /*font-size: 25px;*/
-  height: 10px;
+  background-color: transparent;
+  color: #c4c4c4;
+  box-shadow: 0px 0px 10px 2px #e58703;
+  position: relative;
+  border-radius: 10px;
+  border: #e58703 3px solid;
+  transition: 0.4s;
+  margin: 5px 15px 5px;
   width: -webkit-fill-available;
+  width: -moz-available;
+  height: 40px;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   text-decoration: none;
-  color: #fff961;
-  border: #fff961 3px solid;
-  background-color: transparent;
-  border-radius: 0.25em;
   text-shadow: 0 0 0.125em hsl(0 0% 100% / 0.3), 0 0 0.45em currentColor;
-  box-shadow: inset 0 0 0.5em 0 #fff961, 0 0 0.5em 0 #fff961;
-  /*box-shadow: 0px 0px 10px #fff961, 0px 0px 15px 2vh #fff961;*/
-  transition: all 0.5s;
-  border-radius: 50px !important;
-  margin-bottom: 5px;
+  font-weight: normal;
 }
 
 .btn-neons-channels-menu:hover {
-  background-color: #fff961;
+  background-color: #e58703;
   color: #000;
 }
 
 .btn-channel {
   background-color: transparent !important;
   border-color: transparent !important;
-  color: #fff961;
+  color: #c4c4c4;
+  font-size: initial;
+  font-weight:bolder;
 }
 
 .btn-channel:hover {
@@ -1259,7 +1261,7 @@ const updateUsersInvite = (user: User) => {
 }
 
 .wrapper-icon-leave {
-  color: #fff961;
+  color: #e58703;
 }
 
 .scrollspy-example2 {

@@ -216,7 +216,7 @@ const numberUsersBan = computed(() => {
             ADD FRIEND => si pas encore ami
           </button>
           <button type="button" class="btn-user-click my-2">
-            BLOQUER => retirer de la liste d'ami??
+            BLOCK => retirer de la liste d'ami??
           </button>
           <div
             v-if="channelStore.isAdmin(channel, loggedUser?.id) && !channelStore.isOwner(channel, userClick.id)"
