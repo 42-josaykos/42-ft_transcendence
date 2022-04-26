@@ -27,6 +27,7 @@ const modalUpdateChannel = ref<boolean>(false);
 const modalValidate = ref<boolean>(false);
 const modalAcceptJoinChannel = ref<boolean>(false);
 const modalRefuseJoinChannel = ref<boolean>(false);
+const errorBool = ref<boolean>(false);
 
 const channelStore = useChannelStore();
 
@@ -368,6 +369,17 @@ const updateUsersInvite = (user: User) => {
     }
   }
 };
+
+const isNum = (char: any) => {
+  const str = "0123456789";
+  for (const letter of str) {
+    if (letter == char) {
+      return true;
+    }
+  }
+  return false;
+}
+
 </script>
 
 <template>
@@ -678,6 +690,7 @@ const updateUsersInvite = (user: User) => {
       channelName = '';
       inputPassword = '';
       channelType = 0;
+      errorBool = false;
     "
   >
     <template v-slot:header>
@@ -695,6 +708,10 @@ const updateUsersInvite = (user: User) => {
           required
           autofocus
         />
+      </div>
+      <div v-if="errorBool" class="mb-3" style="color: red; text-align: start;">
+        - Please, enter a name for the channel <br>
+        - Must not start with a number (0-9)
       </div>
       <div class="form-check form-check-inline">
         <input
@@ -781,6 +798,7 @@ const updateUsersInvite = (user: User) => {
           channelName = '';
           inputPassword = '';
           channelType = 0;
+          errorBool = false;
         "
         type="button"
         class="mod-btn mod-btn-yellow"
@@ -788,9 +806,14 @@ const updateUsersInvite = (user: User) => {
         Cancel
       </button>
       <button
-        @click="
+        @click="if (channelName.trim() != '' && !isNum(channelName.trim()[0])) {
           modalNewChannel = false;
           createChannel();
+          errorBool = false;
+        } else {
+          errorBool = true;
+        }
+
         "
         type="submit"
         class="mod-btn mod-btn-blue"
@@ -808,6 +831,7 @@ const updateUsersInvite = (user: User) => {
       channelName = '';
       inputPassword = '';
       channelType = 0;
+      errorBool = false;
     "
   >
     <template v-slot:header>
@@ -827,6 +851,10 @@ const updateUsersInvite = (user: User) => {
           required
           autofocus
         />
+      </div>
+      <div v-if="errorBool" class="mb-3" style="color: red; text-align: start;">
+        - Please, enter a name for the channel <br>
+        - Must not start with a number (0-9)
       </div>
       <div class="form-check form-check-inline">
         <input
@@ -916,6 +944,7 @@ const updateUsersInvite = (user: User) => {
           channelName = '';
           inputPassword = '';
           channelType = 0;
+          errorBool = false;
         "
         type="button"
         class="mod-btn mod-btn-yellow"
@@ -923,9 +952,13 @@ const updateUsersInvite = (user: User) => {
         Cancel
       </button>
       <button
-        @click="
+        @click="if (channelName.trim() != '' && !isNum(channelName.trim()[0])) {
           modalUpdateChannel = false;
           updateChannel();
+          errorBool = false;
+        } else {
+          errorBool = true;
+        }
         "
         type="submit"
         class="mod-btn mod-btn-blue"
