@@ -1,69 +1,71 @@
 <script>
-    export default {
-        data() {
-            return {
-                level: {},
-                min: {},
-                max: {},
-            }
-        },
-        props: ['name', 'levelMin', 'levelMax', 'startLevel'], //readonly
-        /*  Intéressant pour avoir des données en cache */
-        computed: {
-            getLevel: function(){
-                this.level = this.startLevel;
-                return (this.level);
-            },
-            isMin: function(){
-                if (this.level == this.levelMin)
-                    return (true);
-                return (false);
-            },
-            isMax: function(){
-                if (this.level == this.levelMax)
-                    return (true);
-                return (false);
-            }
-        },
-        created() {
-            this.$emit('levelChange', this.startLevel);
-        },
-        mounted() {
-            let l = this.getLevel;
-        },
-        destroyed() {},
-        methods: {
-            levelUp: function()
-            {
-                if (this.level < this.levelMax) 
-                    this.level++;
-                this.$emit('levelChange', this.level);
-            },
-            levelDown: function()
-            {
-                if (this.level > this.levelMin)
-                    this.level--;
-                this.$emit('levelChange', this.level);
-            },
-        }
+export default {
+  data() {
+    return {
+      level: {},
+      min: {},
+      max: {},
     }
-
+  },
+  props: ['name', 'levelMin', 'levelMax', 'startLevel'], /* Props are read-only */
+  computed: { /*  Interesting in order to have cached data */
+    getLevel: function() {
+      this.level = this.startLevel;
+      return (this.level);
+    },
+    isMin: function() {
+      if (this.level == this.levelMin)
+        return (true);
+      return (false);
+    },
+    isMax: function() {
+      if (this.level == this.levelMax)
+        return (true);
+      return (false);
+    },
+  },
+  /*  Lifecycle Hooks */
+  beforeCreate() {},
+  created() {
+    this.$emit('levelChange', this.startLevel);
+  },
+  beforeMount() {},
+  mounted() {
+    let l = this.getLevel;
+  },
+  beforeUnmount() {},
+  unmounted() {},
+  beforeUpdate() {},
+  updated() {},
+  destroyed() {},
+  /*  Methods */
+  methods: {
+    levelUp: function() {
+      if (this.level < this.levelMax) 
+          this.level++;
+      this.$emit('levelChange', this.level);
+      return ;
+    },
+    levelDown: function() {
+      if (this.level > this.levelMin)
+        this.level--;
+      this.$emit('levelChange', this.level);
+      return ;
+    },
+  }
+}
 </script>
+
 <template>
-    <section class=Feature>
-        <h2 class="FeatureName">
-            {{ name }} : {{ level }}
-
-        </h2>
-        <section class=FeatureButtons>
-            <button class="UpAndDown" v-on:click="levelDown" :disabled="isMin == true"> - </button>
-            <input class="LevelBar" type="range" v-model="level" :min=levelMin :max=levelMax>
-            <button class="UpAndDown" v-on:click="levelUp" :disabled="isMax == true"> + </button>
-            
-        </section>
-    </section>
+<section class=Feature>
+  <h2 class="FeatureName"> {{ name }} : {{ level }} </h2>
+  <section class=FeatureButtons>
+    <button class="UpAndDown" v-on:click="levelDown" :disabled="isMin == true"> - </button>
+    <input class="LevelBar" type="range" v-model="level" :min=levelMin :max=levelMax>
+    <button class="UpAndDown" v-on:click="levelUp" :disabled="isMax == true"> + </button>
+  </section>
+</section>
 </template>
-
 
 <style>
 .Feature {
@@ -71,7 +73,6 @@
     margin-top: 5%;
     margin-bottom: 5%;
 }
-
 .FeatureName {
     color: #FFF961;
     margin-bottom: 0;
@@ -85,7 +86,6 @@
     margin-right: auto; 
     text-align: center;
 }
-
 .FeatureButtons {
     position: relative;
     width: 50%;
@@ -94,7 +94,6 @@
     text-align: center;
     margin-top: 1.5%;
 }
-
 .UpAndDown{
     /* display: inline-flexbox; */
     -webkit-appearance: none;
@@ -123,7 +122,6 @@
     background: #FFF961;
     box-shadow: 0 0 50px #FFF961;
 }
-
 .LevelBar {
     -webkit-appearance: none;
     width: 65%;
@@ -160,39 +158,4 @@
     border: 5px solid lawngreen;
     border-radius: 4px;
 } */
-
-
 </style>
-
-
-
-// /*styling background*/
-//         body {
-//             margin: 0;
-//             padding: 0;
-//             display: flex;
-//             height: 100vh;
-//             justify-content: center;
-//             align-items: center;
-//             background-color: #000;
-//             font-family: sans-serif;
-//         }
- 
-//         /* styling the button*/
-//         a {
-//             padding: 20px 20px;
-//             display: inline-block;
-//             color: #008000;
-//             letter-spacing: 2px;
-//             text-transform: uppercase;
-//             text-decoration: none;
-//             font-size: 3em;
-//             overflow: hidden;
-//         }
- 
-//         /*creating animation effect*/
-//         a:hover {
-//             color: #111;
-//             background: #39ff14;
-//             box-shadow: 0 0 50px #39ff14;
-//         }
