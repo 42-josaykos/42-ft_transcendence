@@ -65,8 +65,12 @@ export class GameGateway
       // Remove players from queue
       const playerOne = this.queue.shift();
       const playerTwo = this.queue.shift();
+      console.log('playerOne: ', playerOne);
+      console.log('playerTwo: ', playerTwo);
 
-      // Start game
+      // Create and start game
+      const newGame: Game = { players: [playerOne, playerTwo], spectators: [] };
+      this.games.push(newGame);
       this.server
         .to(playerOne.socketID[0])
         .to(playerTwo.socketID[0])
@@ -76,22 +80,24 @@ export class GameGateway
 
   @SubscribeMessage('moveLeft')
   handleMoveLeft(@ConnectedSocket() client: Socket, @MessageBody() data: User) {
-    // const gameIndex = this.games.findIndex((game) =>
-    //   game.players.findIndex((connection) => connection.userID === data.id),
-    // );
+    // Determining which game
+    const gameIndex = this.games.findIndex(
+      (game) =>
+        game.players[0].user.id === data.id ||
+        game.players[1].user.id === data.id,
+    );
+    // console.log('gameIndex left: ', gameIndex);
 
     // Should never append, but prevention is better than cure
-    // if (gameIndex === -1) {
-    //   throw new WsException('Game was not found');
-    // }
+    if (gameIndex === -1) {
+      throw new WsException('Game was not found');
+    }
 
     // Detect which player moved
     // Will later need to send ONLY to people watching / playing the game
-    // if (data.id === this.games[gameIndex].players[0].userID)
-    // console.log('verif: ', client.data.test);
-    if (data.id === 1) this.server.emit('playerOneMoveLeft');
+    if (data.id === this.games[gameIndex].players[0].user.id)
+      this.server.emit('playerOneMoveLeft');
     else this.server.emit('playerTwoMoveLeft');
-    // else this.server.emit('playerTwoMoveLeft');
   }
 
   @SubscribeMessage('moveRight')
@@ -99,20 +105,23 @@ export class GameGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() data: User,
   ) {
-    // const gameIndex = this.games.findIndex((game) =>
-    //   game.players.findIndex((connection) => connection.userID === data.id),
-    // );
+    // Determining which game
+    const gameIndex = this.games.findIndex(
+      (game) =>
+        game.players[0].user.id === data.id ||
+        game.players[1].user.id === data.id,
+    );
+    // console.log('gameIndex right: ', gameIndex);
 
     // Should never append, but prevention is better than cure
-    // if (gameIndex === -1) {
-    //   throw new WsException('Game was not found');
-    // }
+    if (gameIndex === -1) {
+      throw new WsException('Game was not found');
+    }
 
     // Detect which player moved
     // Will later need to send ONLY to people watching / playing the game
-    // if (data.id === this.games[gameIndex].players[0].userID)
-    if (data.id === 1) this.server.emit('playerOneMoveRight');
+    if (data.id === this.games[gameIndex].players[0].user.id)
+      this.server.emit('playerOneMoveRight');
     else this.server.emit('playerTwoMoveRight');
-    // else this.server.emit('playerTwoMoveRight');
   }
 }

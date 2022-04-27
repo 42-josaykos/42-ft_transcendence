@@ -302,29 +302,10 @@ export default {
     move(event) {
       if (event.keyCode == 37)
         this.gameSocket.emit("moveLeft", this.loggedUser);
-      //   if (event.keyCode == 37) this.moveLeft();
       else if (event.keyCode == 39)
         this.gameSocket.emit("moveRight", this.loggedUser);
-      // else if (event.keyCode == 39) this.moveRight();
       return;
     },
-    // moveRight: function () {
-    //   let oldY = this.player_L.y;
-    //   if (
-    //     this.player_L.y + this.paddle.h + this.paddle.speed <=
-    //     this.canvas.h
-    //   ) {
-    //     this.player_L.y += this.paddle.speed;
-    //   }
-    //   return;
-    // },
-    // moveLeft: function () {
-    //   let oldY = this.player_L.y;
-    //   if (this.player_L.y - this.paddle.speed >= 0) {
-    //     this.player_L.y -= this.paddle.speed;
-    //   }
-    //   return;
-    // },
     // UPDATING DATA AND ADJUSTING
     update: function () {
       if (this.ball.Xmin - 50 > this.canvas.w || this.ball.Xmax + 50 < 0)
