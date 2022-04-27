@@ -46,11 +46,10 @@ if (isAuthenticated.value) {
     }
   });
 
-  socketChat.value.on("newChannel", (data: any) => {
+  socketChat.value.on("newChannel", async (data: any) => {
     const { newChannel, message, user } = data;
     if (loggedUser.value != undefined) {
       if (loggedUser.value?.id === newChannel.owner.id) {
-        channelStore.joinChannel(newChannel);
         messages.value = [];
         if (newChannel.isPrivate == true && newChannel.isDirectChannel == false) {
           socketChat.value?.emit(
@@ -59,7 +58,7 @@ if (isAuthenticated.value) {
             usersInvite.value ? usersInvite.value : null
           );
         }
-        Get(
+        await Get(
           "/channels/search?id=" +
             newChannel.id.toString() +
             "&members&bans&mutes&admins&owner"
@@ -71,13 +70,7 @@ if (isAuthenticated.value) {
       channelStore.createChannel(newChannel);
       channelStore.updateMember(loggedUser.value?.id);
       channelStore.updateOwner(loggedUser.value.id);
-      if (
-        loggedUser.value.id != newChannel.owner.id &&
-        newChannel.admins.findIndex(
-          (el: User) => el.id === loggedUser.value?.id
-        ) != -1
-      ) {
-        channelStore.joinChannel(newChannel);
+      if (message != null) {
         socketChat.value?.emit("newMessage", message, user);
       }
     }

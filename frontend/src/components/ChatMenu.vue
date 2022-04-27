@@ -9,8 +9,6 @@ import type { Channel } from "@/models/channel.model";
 import type { User } from "@/models/user.model";
 import { Get } from "@/services/requests";
 import { ref } from "vue";
-import type { Message } from "@/models/message.model";
-// import { time, timeStamp } from "console";
 
 const messageStore = useMessageStore();
 const { messages } = storeToRefs(messageStore);

@@ -152,10 +152,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const message = data[1];
     const userID = data[2];
 
-    const newChannel = await this.channelsService.createChannel(channel);
+    let newChannel = await this.channelsService.createChannel(channel);
     if (message != null) {
       message.channel.id = newChannel.id;
     }
+
+    [newChannel] = await this.channelsService.getChannelsByFilter({
+      id: newChannel.id,
+      members: true,
+      mutes: false,
+      bans: false,
+      invites: false,
+      owner: false
+    });
 
     const [user] = await this.usersService.getUsersByFilter({
       id: userID.id,

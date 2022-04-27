@@ -306,9 +306,10 @@ const numberUsersBan = computed(() => {
 
     <template v-slot:footer>
       <button
-        @click="
+        @click="if (stringSendMessage.trim() != '') {
           modalSendMessage = false;
           sendDirectMessage();
+        }
         "
         type="button"
         class="mod-btn mod-btn-blue"
