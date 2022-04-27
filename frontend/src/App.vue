@@ -27,9 +27,7 @@ onMounted(() => {
         console.log('[App] loggedUser: ', res.data);
       }
     })
-    .catch(error => {
-      console.log('error system status');
-    });
+    .catch(error => {});
 });
 </script>
 
