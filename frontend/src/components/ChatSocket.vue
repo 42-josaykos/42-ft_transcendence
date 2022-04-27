@@ -177,5 +177,17 @@ if (isAuthenticated.value) {
       }
     }
   })
+
+  socketChat.value.on('addUserBlocked', (userBlocked: User) => {
+    if (loggedUser.value != null) {
+      userStore.addUserBlocked(userBlocked)
+    }
+  })
+
+  socketChat.value.on('removeUserBlocked', (userBlocked: User) => {
+    if (loggedUser.value != null) {
+      userStore.removeUserBlocked(userBlocked.id)
+    }
+  })
 } 
 </script>

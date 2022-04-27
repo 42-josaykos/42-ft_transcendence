@@ -74,6 +74,7 @@ const timerMute = computed(() => {
             v-for="item in messages"
             :key="item.id"
           >
+          <span v-if="!userStore.isBlocked(item.author)" style="display: contents;">
             <div v-if="channelStore.isBan(channel, item.author.id) == true" style="display: contents;">
               <div class="msg chat-message-delete mb-4">
                 <div class="flex-shrink-1 rounded ml-3 text-msg-left">
@@ -131,6 +132,7 @@ const timerMute = computed(() => {
                 </div>
               </div>
             </div>
+          </span>
           </div>
         </div>
         <div v-if="channelStore.isMute(channel, loggedUser?.id) == true" style="display: contents;">

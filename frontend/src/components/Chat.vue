@@ -13,7 +13,7 @@ import ChatUsers from "./ChatUsers.vue";
 import ChatMessages from "./ChatMessages.vue";
 
 const userStore = useUserStore();
-const { loggedUser, socketChat } = storeToRefs(userStore);
+const { loggedUser, socketChat, usersBlocked } = storeToRefs(userStore);
 
 const channelStore = useChannelStore();
 const {
@@ -32,8 +32,9 @@ onBeforeMount(async () => {
       allChannels.value = res.data;
       if (loggedUser.value != undefined) {
         channelStore.updateInvite(loggedUser.value?.id)
-          Get("/users/search?id=" + loggedUser.value?.id + "&banChannels&muteChannels").then((res) => {
-            channelStore.updateBanMute(res.data)
+          Get("/users/search?id=" + loggedUser.value?.id + "&banChannels&muteChannels&blockedUsers").then((res) => {
+            channelStore.updateBanMute(res.data);
+            usersBlocked.value = res.data[0].blockedUsers;
           })
       }
     }

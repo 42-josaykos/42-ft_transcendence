@@ -381,6 +381,14 @@ export const useChannelStore = defineStore('channel', () => {
           }
         }
       }
+      if (channelsMute != undefined) {
+        for (const mute of channelsMute) {
+          const channelItem = allChannels.value.find((el: Channel) => el.id === mute.channel.id)
+          if (channelItem != undefined) {
+            handleBanMute(channelItem, false)
+          }
+        }
+      }
     }
 
     const stopTimer = (channelItem: Channel, isBan: boolean) => {

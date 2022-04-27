@@ -11,7 +11,7 @@ import type { Channel } from "@/models/channel.model";
 import { computed } from "@vue/reactivity";
 
 const userStore = useUserStore();
-const { loggedUser, socketChat, usersOnline } = storeToRefs(userStore);
+const { loggedUser, socketChat, usersOnline, usersBlocked } = storeToRefs(userStore);
 
 const channelStore = useChannelStore();
 
@@ -25,6 +25,7 @@ const modalAddAdmin = ref<boolean>(false);
 const modalRemoveAdmin = ref<boolean>(false);
 const modalBan = ref<boolean>(false);
 const modalMute = ref<boolean>(false);
+const modalBlock = ref<boolean>(false);
 const stringSendMessage = ref<string>("");
 const inputTime = ref<string>("");
 
@@ -192,7 +193,7 @@ const numberUsersBan = computed(() => {
   </div>
 
   <ModalChat v-if="userClickBool" @close="userClickBool = false">
-    <template v-slot:header>
+    <template v-slot:header>q
       <h2 style="padding-top: 10px">{{ userClick?.username }}</h2>
     </template>
     <template v-slot:body>
@@ -215,8 +216,10 @@ const numberUsersBan = computed(() => {
           <button type="button" class="btn-user-click my-2">
             ADD FRIEND => si pas encore ami
           </button>
-          <button type="button" class="btn-user-click my-2">
-            BLOCK => retirer de la liste d'ami??
+          <button
+            @click="modalBlock = true"
+            type="button" class="btn-user-click my-2">
+            {{userStore.isBlocked(userClick) ? 'UNBLOCK' : 'BLOCK'}}
           </button>
           <div
             v-if="channelStore.isAdmin(channel, loggedUser?.id) && !channelStore.isOwner(channel, userClick.id)"
@@ -238,19 +241,16 @@ const numberUsersBan = computed(() => {
             </button>
             <!-- voir pour les bans et mutes -->
             <button
-              v-if="!channelStore.isAdmin(channel, userClick.id)"
-              @click="modalAddAdmin = true"
+              @click="if (channelStore.isAdmin(channel, userClick.id)) {
+                modalRemoveAdmin = true;
+              } else {
+                modalAddAdmin = true
+              }
+              "
               type="button"
               class="btn-user-click my-2"
             >
-              ADD ADMIN
-            </button>
-            <button v-else
-              @click="modalRemoveAdmin = true"
-              type="button"
-              class="btn-user-click my-2"
-            >
-              REMOVE ADMIN
+              {{ channelStore.isAdmin(channel, userClick.id) ? 'REMOVE ADMIN' : 'ADD ADMIN'}}
             </button>
           </div>
         </div>
@@ -331,12 +331,50 @@ const numberUsersBan = computed(() => {
   </ModalChat>
 
   <ModalChat
+    v-if="modalBlock == true"
+    @close="modalBlock = false"
+  >
+    <template v-slot:header>
+      <h2 style="padding-top: 10px">
+      <span v-if="userStore.isBlocked(userClick)">
+        <u>Are you sure you want to unblock {{userClick?.username}} ?</u>
+      </span>
+      <span v-else>
+        <u>Are you sure you want to block {{userClick?.username}} ?</u>
+      </span>
+      </h2>
+    </template>
+    <template v-slot:footer>
+      <button
+        @click="if (userStore.isBlocked(userClick)) {
+          socketChat.emit('removeUserBlocked', userClick, {removeBlockedUsers: [{id: userClick.id}]}, loggedUser.id)
+        } else {
+          socketChat.emit('addUserBlocked', userClick, {addBlockedUsers: [{id: userClick.id}]}, loggedUser.id)
+        }
+        modalBlock = false;
+        "
+        type="button"
+        class="mod-btn mod-btn-blue"
+      >
+        Yes
+      </button>
+      <button
+        @click="modalBlock = false"
+        type="button"
+        class="mod-btn mod-btn-yellow"
+      >
+        No
+      </button>
+    </template>
+  </ModalChat>
+
+  <ModalChat
     v-if="modalAddAdmin == true"
     @close="modalAddAdmin = false"
   >
     <template v-slot:header>
       <h2 style="padding-top: 10px">
-        <u>Are you sure you want to add {{userClick?.username}} as an administrator of this channel</u>
+        <u>Are you sure you want to add {{userClick?.username}} as an administrator of this channel ?</u>
       </h2>
     </template>
     <template v-slot:footer>
@@ -366,7 +404,7 @@ const numberUsersBan = computed(() => {
   >
     <template v-slot:header>
       <h2 style="padding-top: 10px">
-        <u>Are you sure you want to remove {{userClick?.username}} as the administrator of this channel</u>
+        <u>Are you sure you want to remove {{userClick?.username}} as the administrator of this channel ?</u>
       </h2>
     </template>
     <template v-slot:footer>
