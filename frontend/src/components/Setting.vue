@@ -5,8 +5,9 @@ import Toggle from '@vueform/toggle';
 import { useUserStore } from '@/stores/user';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
-import { Post } from '@/services/requests';
+import { Patch, Post } from '@/services/requests';
 import ax from '@/services/interceptors';
+import type { User } from '@/models/user.model';
 
 const userStore = useUserStore();
 const { isTwoFactorAuth, isAuthenticated, loggedUser } = storeToRefs(userStore);
@@ -17,6 +18,7 @@ if (loggedUser.value && loggedUser.value.isTwoFactorAuthenticationEnabled) {
 }
 const qrcode = ref(null);
 const twoFactorInput = ref('');
+const usernameInput = ref('');
 const turnOffForm = ref(false);
 
 // Convert QR code image file stream from response to base64 string
@@ -84,6 +86,26 @@ function toggleTwoFactorAuthentication() {
     turnOffForm.value = true;
   }
 }
+
+// Update username
+function updateUsername() {
+  if (usernameInput.value) {
+    Patch(`/users/${loggedUser.value?.id}`, {
+      username: usernameInput.value
+    }).then(res => {
+      if (res.status === 200) {
+        if (loggedUser.value) {
+          let updatedUser: User = { ...loggedUser.value };
+          console.log('BEFORE', updatedUser);
+
+          updatedUser.username = res.data.username;
+          console.log('AFTER', updatedUser);
+          loggedUser.value = updatedUser;
+        }
+      }
+    });
+  }
+}
 </script>
 
 <template>
@@ -111,40 +133,47 @@ function toggleTwoFactorAuthentication() {
     />
   </span>
 
-  <!-- Update username -->
-
-  <!-- 2FA option -->
-  <span v-if="isAuthenticated" class="element-set">
-    Two-Factor Authentication (2FA):
-    <Toggle
-      @change="toggleTwoFactorAuthentication"
-      v-model="isTwoFactorAuth"
-      on-label="On"
-      off-label="Off"
-      class="toggle-style"
-    />
-  </span>
-
-  <!-- QR code if toggle 2FA on -->
-  <div v-if="qrcode">
-    <hr />
-    <img :src="qrcode" alt="" width="150" />
-    <button @click="generate2FA">Generate</button>
-    <form @submit.prevent.trim.lazy="validateCode">
-      Validate code to enable 2FA:
-      <input v-model="twoFactorInput" type="text" />
-      <button type="submit">Submit</button>
+  <div v-if="isAuthenticated">
+    <!-- Update username -->
+    <form @submit.prevent.trim.lazy="updateUsername">
+      <label for="username">Username: </label>
+      <input v-model="usernameInput" name="username" type="text" />
+      <button type="submit">Update</button>
     </form>
-  </div>
 
-  <!-- 2FA validation if toggle off -->
-  <div v-if="turnOffForm">
-    <hr />
-    <form @submit.prevent.trim.lazy="validateCode">
-      Validate code to disable 2FA:
-      <input v-model="twoFactorInput" type="text" />
-      <button type="submit">Submit</button>
-    </form>
+    <!-- 2FA option -->
+    <span class="element-set">
+      Two-Factor Authentication (2FA):
+      <Toggle
+        @change="toggleTwoFactorAuthentication"
+        v-model="isTwoFactorAuth"
+        on-label="On"
+        off-label="Off"
+        class="toggle-style"
+      />
+    </span>
+
+    <!-- QR code if toggle 2FA on -->
+    <div v-if="qrcode">
+      <hr />
+      <img :src="qrcode" alt="" width="150" />
+      <button @click="generate2FA">Generate</button>
+      <form @submit.prevent.trim.lazy="validateCode">
+        Validate code to enable 2FA:
+        <input v-model="twoFactorInput" type="text" />
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+
+    <!-- 2FA validation if toggle off -->
+    <div v-if="turnOffForm">
+      <hr />
+      <form @submit.prevent.trim.lazy="validateCode">
+        Validate code to disable 2FA:
+        <input v-model="twoFactorInput" type="text" />
+        <button type="submit">Submit</button>
+      </form>
+    </div>
   </div>
 </template>
 
