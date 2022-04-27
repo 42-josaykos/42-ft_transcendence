@@ -25,9 +25,10 @@ export default {
 	},
 	computed: {
 		getPaddle: function () {
-			this.paddle.h = 0.2 * this.canvas.h * ( 1 + (this.rcv_paddleSize * 2 / 10));
-			this.paddle.w = 0.2 * this.paddle.h / ( 1 + (this.rcv_paddleSize * 2 / 10));
-			this.paddle.speed = 15;
+			this.paddle.h = (0.2 + ((this.rcv_paddleSize - 1) * 0.05)) * this.canvas.h;
+			this.paddle.w = 0.2 * 0.2 * this.canvas.h;
+			this.paddle.speed = 0.05 * ((this.canvas.h / 2) - (this.paddle.h / 2));
+
 			return (this.paddle);
 		},
 		getPlayerL: function() {
@@ -96,7 +97,7 @@ export default {
 		// GAME LOOP
 		launch: function() {
 			const framePerSec = 50;
-			setInterval(this.game, 1000 /framePerSec);
+			setInterval(this.game, 1000/framePerSec);
 			return ;
 		},
 		game: function() {
@@ -242,14 +243,16 @@ export default {
 			return ;
 		},
 		moveRight: function() {
-			let oldY = this.player_L.y;
+			let res = this.player_L.y + this.paddle.speed + this.paddle.h;
+			console.log("mooving right: " + res);
 			if (this.player_L.y + this.paddle.h + this.paddle.speed <= this.canvas.h) {
 				this.player_L.y += this.paddle.speed;
 			}
 			return ;
 		},
 		moveLeft: function() {
-			let oldY = this.player_L.y;
+			let res = this.player_L.y - this.paddle.speed;
+			console.log("mooving left: " + res);
 			if (this.player_L.y - this.paddle.speed >= 0) {
 				this.player_L.y -= this.paddle.speed;
 			}

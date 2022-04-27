@@ -39,7 +39,6 @@ export default {
 	<h2>Game</h2>
 		<section class=pong-game>
 			<modalesettings class="modale-settings" v-bind:revelePlay="revelePlay" v-bind:toggleModaleSettings="toggleModaleSettings" @paddleSizeChange="updatePaddleSize" @ballSpeedChange="updateBallSpeed" />
-			paddleSize : {{ paddleSize }} ET ballSpeed : {{ ballSpeed }}
 			<pong v-bind:revelePlay="revelePlay" v-bind:paddleSize="paddleSize" v-bind:ballSpeed="ballSpeed" />
 		</section>
 </section>
