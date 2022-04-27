@@ -13,6 +13,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import User from 'src/api/users/entities/user.entity';
+import axios from 'axios';
 
 class Connection {
   user: User;
@@ -75,6 +76,42 @@ export class GameGateway
         .to(playerOne.socketID[0])
         .to(playerTwo.socketID[0])
         .emit('startGame', { playerOne: playerOne, playerTwo: playerTwo });
+    }
+  }
+
+  @SubscribeMessage('endGame')
+  async handleEndGame(
+    @ConnectedSocket() clientInformation,
+    @MessageBody() data: any,
+  ) {
+    // Determining which game
+    const gameIndex = this.games.findIndex(
+      (game) =>
+        game.players[0].user.id === data.user.id ||
+        game.players[1].user.id === data.user.id,
+    );
+
+    // Logic will only run on playerOne
+    if (
+      gameIndex !== -1 &&
+      data.user.id === this.games[gameIndex].players[0].user.id
+    ) {
+      const body = {
+        players: [
+          { id: this.games[gameIndex].players[0].user.id },
+          { id: this.games[gameIndex].players[1].user.id },
+        ],
+        score: [data.score.playerOne, data.score.playerTwo],
+      };
+      const match = await axios({
+        url: 'http://localhost:4000/matches',
+        method: 'POST',
+        data: body,
+      });
+      console.log('Match: ', match);
+
+      // Remove match from game array
+      this.games.splice(gameIndex, 1);
     }
   }
 

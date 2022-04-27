@@ -187,6 +187,13 @@ export default {
             this.countdown();
         }
       }
+      // When the game is finished
+      else {
+        this.gameSocket.emit("endGame", {
+          user: this.loggedUser,
+          score: [this.player_L.score, this.player_R.score],
+        });
+      }
       return;
     },
     countdown: function () {
