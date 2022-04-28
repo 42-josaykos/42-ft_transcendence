@@ -6,6 +6,7 @@ import { ChatGateway } from './gateway/chat.gateway';
 import { UploadController } from './upload/upload.controller';
 import { UploadModule } from './upload/upload.module';
 import { StatusModule } from './status/status.module';
+import { GameModule } from './game/game.module';
 import * as Joi from 'joi';
 
 const envSchema = Joi.object({
@@ -31,6 +32,7 @@ const envSchema = Joi.object({
     ApiModule,
     StatusModule,
     UploadModule,
+    GameModule,
   ],
   controllers: [UploadController],
   providers: [ChatGateway],

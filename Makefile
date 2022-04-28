@@ -43,7 +43,7 @@ images:
 	-docker-compose images
 
 exec:
-	-docker exec -it postgres-transcendence-${USER} bash
+	-docker exec -it postgres-transcendence bash
 
 
 .PHONY: frontend backend
