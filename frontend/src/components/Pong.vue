@@ -36,7 +36,8 @@ export default {
 
       sounds: {},
 
-      status: {},
+      intervalID: {},
+      keyState: {},
     };
   },
   // COMPUTED DATA
@@ -88,7 +89,8 @@ export default {
   },
   // LIFECYCLE HOOKS
   created() {
-    window.addEventListener("keydown", this.move);
+    window.addEventListener("keydown", this.getKeyDown, true);
+    window.addEventListener("keyup", this.getKeyUp, true);
     return; //keypress does not work for arrows
   },
   mounted() {
@@ -156,7 +158,7 @@ export default {
     launch: function () {
       const framePerSec = 50;
       // this.newgame = true;
-      this.status = setInterval(this.game, 1000 / framePerSec); // setInterval(this.game, 1000/framePerSec);
+      this.intervalID = setInterval(this.game, 1000 / framePerSec); // setInterval(this.game, 1000/framePerSec);
       return;
     },
     game: function () {
@@ -180,6 +182,7 @@ export default {
             this.ball.Ymax = this.ball.y + this.ball.size;
           } else this.newround = false;
         }
+        this.move();
         this.update();
         this.clearCanvas();
         this.render();
@@ -191,7 +194,7 @@ export default {
       }
       // When the game is finished
       else {
-        clearInterval(this.status);
+        clearInterval(this.intervalID);
         console.log("scoreL: ", this.player_L.score);
         console.log("scoreR: ", this.player_R.score);
         this.gameSocket.emit("endGame", {
@@ -311,10 +314,15 @@ export default {
       return;
     },
     // KEYBOARD EVENT MANAGEMENT
-    move(event) {
-      if (event.keyCode == 37)
-        this.gameSocket.emit("moveLeft", this.loggedUser);
-      else if (event.keyCode == 39)
+    getKeyDown: function (e) {
+      this.keyState[e.keyCode || e.which] = true;
+    },
+    getKeyUp: function (e) {
+      this.keyState[e.keyCode || e.which] = false;
+    },
+    move() {
+      if (this.keyState[37]) this.gameSocket.emit("moveLeft", this.loggedUser);
+      else if (this.keyState[39])
         this.gameSocket.emit("moveRight", this.loggedUser);
       return;
     },

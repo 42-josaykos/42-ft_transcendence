@@ -66,8 +66,8 @@ export class GameGateway
       // Remove players from queue
       const playerOne = this.queue.shift();
       const playerTwo = this.queue.shift();
-      console.log('playerOne: ', playerOne);
-      console.log('playerTwo: ', playerTwo);
+      // console.log('playerOne: ', playerOne);
+      // console.log('playerTwo: ', playerTwo);
 
       // Create and start game
       const newGame: Game = { players: [playerOne, playerTwo], spectators: [] };
@@ -96,6 +96,7 @@ export class GameGateway
       gameIndex !== -1 &&
       data.user.id === this.games[gameIndex].players[0].user.id
     ) {
+      // POST match data in the database through the API
       const body = {
         players: [
           { id: this.games[gameIndex].players[0].user.id },
@@ -108,7 +109,7 @@ export class GameGateway
         method: 'POST',
         data: body,
       });
-      console.log('Match: ', match);
+      // console.log('Match: ', match.data);
 
       // Remove match from game array
       this.games.splice(gameIndex, 1);
