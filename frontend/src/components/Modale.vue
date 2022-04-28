@@ -3,11 +3,34 @@ import { ref } from 'vue';
 import Setting from './Setting.vue';
 import Login from './Login.vue';
 import Register from './Register.vue';
+import { useMessageStore } from '@/stores/message';
+import { useChannelStore } from '@/stores/channel';
+import { useUserStore } from '@/stores/user';
+import { storeToRefs } from 'pinia';
+import { Get } from '@/services/requests';
 
 defineProps<{
   isAuthenticated: boolean;
   loggedUser: any;
 }>();
+
+const { messages } = storeToRefs(useMessageStore());
+const { channel, usersMembers } = storeToRefs(useChannelStore());
+const { loggedUser } = storeToRefs(useUserStore());
+
+function updateUsername(username: string) {
+  if (channel.value) {
+    Get(
+      '/channels/search?id=' +
+        channel.value.id.toString() +
+        '&messages&owner&admins&members&mutes&bans'
+    ).then(res => {
+      channel.value = res.data[0];
+      messages.value = res.data[0].messages;
+      usersMembers.value = res.data[0].members;
+    });
+  }
+}
 </script>
 
 <script lang="ts">
@@ -17,15 +40,11 @@ export const login_open = ref(false);
 export const register_open = ref(false);
 </script>
 
-<style>
-@import url('../assets/modal.css');
-</style>
-
 <template>
   <div class="bloc_modale" v-if="setting_open">
     <div class="overlay" @click="setting_open = !setting_open"></div>
     <div class="modale card">
-      <Setting />
+      <Setting @updateUsername="updateUsername" />
     </div>
   </div>
   <div class="bloc_modale" v-if="register_open && !isAuthenticated">
@@ -69,6 +88,7 @@ export const register_open = ref(false);
 </template>
 
 <style>
+@import url('../assets/modal.css');
 .modale.card {
   overflow: hidden;
   max-height: fit-content;

@@ -21,6 +21,10 @@ const twoFactorInput = ref('');
 const usernameInput = ref('');
 const turnOffForm = ref(false);
 
+const emit = defineEmits<{
+  (e: 'updateUsername', value: string): void;
+}>();
+
 // Convert QR code image file stream from response to base64 string
 function getBase64(file: any) {
   return new Promise((resolve, reject) => {
@@ -96,11 +100,9 @@ function updateUsername() {
       if (res.status === 200) {
         if (loggedUser.value) {
           let updatedUser: User = { ...loggedUser.value };
-          console.log('BEFORE', updatedUser);
-
           updatedUser.username = res.data.username;
-          console.log('AFTER', updatedUser);
           loggedUser.value = updatedUser;
+          emit('updateUsername', updatedUser.username);
         }
       }
     });
