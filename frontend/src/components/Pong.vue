@@ -35,6 +35,8 @@ export default {
       startTime: {},
 
       sounds: {},
+
+      status: {},
     };
   },
   // COMPUTED DATA
@@ -154,7 +156,7 @@ export default {
     launch: function () {
       const framePerSec = 50;
       // this.newgame = true;
-      setInterval(this.game, 1000 / framePerSec); // setInterval(this.game, 1000/framePerSec);
+      this.status = setInterval(this.game, 1000 / framePerSec); // setInterval(this.game, 1000/framePerSec);
       return;
     },
     game: function () {
@@ -189,6 +191,9 @@ export default {
       }
       // When the game is finished
       else {
+        clearInterval(this.status);
+        console.log("scoreL: ", this.player_L.score);
+        console.log("scoreR: ", this.player_R.score);
         this.gameSocket.emit("endGame", {
           user: this.loggedUser,
           score: [this.player_L.score, this.player_R.score],

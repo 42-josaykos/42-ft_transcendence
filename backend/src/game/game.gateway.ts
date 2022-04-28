@@ -101,7 +101,7 @@ export class GameGateway
           { id: this.games[gameIndex].players[0].user.id },
           { id: this.games[gameIndex].players[1].user.id },
         ],
-        score: [data.score.playerOne, data.score.playerTwo],
+        score: [data.score[0], data.score[1]],
       };
       const match = await axios({
         url: 'http://localhost:4000/matches',
