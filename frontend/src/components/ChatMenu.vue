@@ -159,172 +159,176 @@ const deleteChannel = () => {
 const leaveChannel = () => {
   if (loggedUser.value != undefined && socketChat.value != undefined) {
     if (channelLeave.value !== undefined) {
-      if (channelLeave.value.isDirectChannel) {
-      } else if (
-        channelStore.isOwner(channelLeave.value, loggedUser.value.id)
-      ) {
+      const msg = {
+                    author: loggedUser.value.id,
+                    channel: { id: channelLeave.value?.id },
+                    data: `${loggedUser.value.username} has leaved the channel.`,
+                  }
+      const msgOwner = {
+                          author: loggedUser.value.id,
+                          channel: { id: channelLeave.value.id },
+                          data: `${loggedUser.value.username} the channel owner has left the channel - - ${newOwner.value?.username} becomes the owner.`,
+                        }
+      if (!channelLeave.value.isDirectChannel) {
         if (
-          channelStore.isAdmin(
-            channelLeave.value,
-            newOwner.value != undefined ? newOwner.value.id : -1
-          ) == true
+          channelStore.isOwner(channelLeave.value, loggedUser.value.id)
         ) {
-          socketChat.value.emit(
-            "updateMember",
-            channelLeave.value.id,
-            {
-              owner: { id: newOwner.value?.id },
-              removeAdmins: [{ id: loggedUser.value.id }],
-              removeMembers: [{ id: loggedUser.value.id }],
-            },
-            {
-              author: loggedUser.value.id,
-              channel: { id: channelLeave.value.id },
-              data: `${loggedUser.value.username} the channel owner has left the channel - - ${newOwner.value?.username} becomes the owner.`,
-            },
-            loggedUser.value
-          );
-        } else {
           if (
-            channelStore.isBan(channelLeave.value, loggedUser.value.id) == true
+            channelStore.isAdmin(channelLeave.value, newOwner.value?.id
+            )
           ) {
             socketChat.value.emit(
               "updateMember",
-              channelLeave.value?.id,
+              channelLeave.value.id,
               {
                 owner: { id: newOwner.value?.id },
-                addAdmins: [{ id: newOwner.value?.id }],
-                removeMutes: [{ id: newOwner.value?.id }],
-                removeBans: [{ id: loggedUser.value.id }],
-                removeAdmins: [{ id: loggedUser.value.id}],
-                removeMembers: [{ id: loggedUser.value.id }],
-              },
-              {
-                author: loggedUser.value.id,
-                channel: { id: channelLeave.value?.id },
-                data: `${loggedUser.value.username} has leaved the channel.`,
-              },
-              loggedUser.value
-            );
-          } else if (
-            channelStore.isMute(
-              channelLeave.value,
-              newOwner.value != undefined ? newOwner.value.id : -1
-            ) == true
-          ) {
-            socketChat.value.emit(
-              "updateMember",
-              channelLeave.value?.id,
-              {
-                owner: { id: newOwner.value?.id },
-                addAdmins: [{ id: newOwner.value?.id }],
-                removeMutes: [{ id: newOwner.value?.id }],
                 removeAdmins: [{ id: loggedUser.value.id }],
                 removeMembers: [{ id: loggedUser.value.id }],
               },
-              {
-                author: loggedUser.value.id,
-                channel: { id: channelLeave.value?.id },
-                data: `${loggedUser.value.username} has leaved the channel.`,
-              },
+              msgOwner,
               loggedUser.value
             );
           } else {
-            socketChat.value.emit(
-              "updateMember",
-              channelLeave.value?.id,
-              {
-                owner: { id: newOwner.value?.id },
-                removeAdmins: [{ id: loggedUser.value.id }],
-                addAdmins: [{ id: newOwner.value?.id }],
-                removeMembers: [{ id: loggedUser.value.id }],
-              },
-              {
-                author: loggedUser.value.id,
-                channel: { id: channelLeave.value?.id },
-                data: `${loggedUser.value.username} has leaved the channel.`,
-              },
-              loggedUser.value
-            );
+            if (
+              channelStore.isBan(channelLeave.value, newOwner.value?.id) && !channelStore.isMute(channelLeave.value, newOwner.value?.id)
+            ) {
+              socketChat.value.emit(
+                "updateMember",
+                channelLeave.value?.id,
+                {
+                  owner: { id: newOwner.value?.id },
+                  addAdmins: [{ id: newOwner.value?.id }],
+                  removeBans: [{user: {id: newOwner.value?.id}}],
+                  removeAdmins: [{ id: loggedUser.value.id}],
+                  removeMembers: [{ id: loggedUser.value.id }],
+                },
+                msgOwner,
+                loggedUser.value
+              );
+            } else if (
+              channelStore.isMute(channelLeave.value, newOwner.value?.id) && !channelStore.isBan(channelLeave.value, newOwner.value?.id)
+            ) {
+              socketChat.value.emit(
+                "updateMember",
+                channelLeave.value?.id,
+                {
+                  owner: { id: newOwner.value?.id },
+                  addAdmins: [{ id: newOwner.value?.id }],
+                  removeMutes: [{user: {id: newOwner.value?.id}}],
+                  removeAdmins: [{ id: loggedUser.value.id }],
+                  removeMembers: [{ id: loggedUser.value.id }],
+                },
+                msgOwner,
+                loggedUser.value
+              );
+            } else if (
+              channelStore.isMute(channelLeave.value, newOwner.value?.id) && channelStore.isBan(channelLeave.value, newOwner.value?.id)
+            ) {
+              socketChat.value.emit(
+                "updateMember",
+                channelLeave.value?.id,
+                {
+                  owner: { id: newOwner.value?.id },
+                  addAdmins: [{ id: newOwner.value?.id }],
+                  removeBans: [{user: {id: newOwner.value?.id}}],
+                  removeMutes: [{user: {id: newOwner.value?.id}}],
+                  removeAdmins: [{ id: loggedUser.value.id }],
+                  removeMembers: [{ id: loggedUser.value.id }],
+                },
+                msgOwner,
+                loggedUser.value
+              );
+            } else {
+              socketChat.value.emit(
+                "updateMember",
+                channelLeave.value?.id,
+                {
+                  owner: { id: newOwner.value?.id },
+                  addAdmins: [{ id: newOwner.value?.id }],
+                  removeAdmins: [{ id: loggedUser.value.id }],
+                  removeMembers: [{ id: loggedUser.value.id }],
+                },
+                msgOwner,
+                loggedUser.value
+              );
+            }
           }
-        }
-      } else {
-        if (
-          channelStore.isAdmin(channelLeave.value, loggedUser.value.id) == true
-        ) {
-          socketChat.value.emit(
-            "updateMember",
-            channelLeave.value?.id,
-            {
-              removeAdmins: [{ id: loggedUser.value.id }],
-              removeMembers: [{ id: loggedUser.value.id }],
-            },
-            {
-              author: loggedUser.value.id,
-              channel: { id: channelLeave.value?.id },
-              data: `${loggedUser.value.username} has leaved the channel.`,
-            },
-            loggedUser.value
-          );
         } else {
           if (
-            channelStore.isBan(channelLeave.value, loggedUser.value.id) == true
+            channelStore.isAdmin(channelLeave.value, loggedUser.value.id)
           ) {
             socketChat.value.emit(
               "updateMember",
               channelLeave.value?.id,
               {
-                removeBans: [{ id: loggedUser.value.id }],
-                removeMutes: [{ id: loggedUser.value.id }],
+                removeAdmins: [{ id: loggedUser.value.id }],
                 removeMembers: [{ id: loggedUser.value.id }],
               },
-              {
-                author: loggedUser.value.id,
-                channel: { id: channelLeave.value?.id },
-                data: `${loggedUser.value.username} has leaved the channel.`,
-              },
-              loggedUser.value
-            );
-          } else if (
-            channelStore.isMute(channelLeave.value, loggedUser.value.id) == true
-          ) {
-            socketChat.value.emit(
-              "updateMember",
-              channelLeave.value?.id,
-              {
-                removeMutes: [{ id: loggedUser.value.id }],
-                removeMembers: [{ id: loggedUser.value.id }],
-              },
-              {
-                author: loggedUser.value.id,
-                channel: { id: channelLeave.value?.id },
-                data: `${loggedUser.value.username} has leaved the channel.`,
-              },
+              msg,
               loggedUser.value
             );
           } else {
-            socketChat.value.emit(
-              "updateMember",
-              channelLeave.value?.id,
-              { removeMembers: [{ id: loggedUser.value.id }] },
-              {
-                author: loggedUser.value.id,
-                channel: { id: channelLeave.value?.id },
-                data: `${loggedUser.value.username} has leaved the channel.`,
-              },
-              loggedUser.value
-            );
+            if (
+              channelStore.isBan(channelLeave.value, loggedUser.value.id) && !channelStore.isMute(channelLeave.value, loggedUser.value.id)
+            ) {
+              socketChat.value.emit(
+                "updateMember",
+                channelLeave.value?.id,
+                {
+                  removeBans: [{user: {id: loggedUser.value?.id}}],
+                  removeMembers: [{ id: loggedUser.value.id }],
+                },
+                msg,
+                loggedUser.value
+              );
+            } else if (
+              channelStore.isMute(channelLeave.value, loggedUser.value.id) && !channelStore.isBan(channelLeave.value, loggedUser.value.id)
+            ) {
+              socketChat.value.emit(
+                "updateMember",
+                channelLeave.value?.id,
+                {
+                  removeMutes: [{user: {id: loggedUser.value?.id}}],
+                  removeMembers: [{ id: loggedUser.value.id }],
+                },
+                msg,
+                loggedUser.value
+              );
+            } else if (
+              channelStore.isMute(channelLeave.value, loggedUser.value.id) && channelStore.isBan(channelLeave.value, loggedUser.value.id)
+            ) {
+              socketChat.value.emit(
+                "updateMember",
+                channelLeave.value?.id,
+                {
+                  removeBans: [{user: {id: loggedUser.value?.id}}],
+                  removeMutes: [{user: {id: loggedUser.value?.id}}],
+                  removeMembers: [{ id: loggedUser.value.id }],
+                },
+                msg,
+                loggedUser.value
+              );
+            } else {
+              socketChat.value.emit(
+                "updateMember",
+                channelLeave.value?.id,
+                { removeMembers: [{ id: loggedUser.value.id }] },
+                msg,
+                loggedUser.value
+              );
+            }
           }
         }
+        // channelStore.leaveChannel(channelLeave.value);
+
+        channel.value =
+          channel.value?.id === channelLeave.value?.id
+            ? undefined
+            : channel.value;
+        messages.value =
+          channel.value?.id === channelLeave.value?.id ? [] : messages.value;
+        channelStore.updateMember(loggedUser.value.id);
       }
-      channelStore.leaveChannel(channelLeave.value);
-      channel.value =
-        channel.value?.id === channelLeave.value?.id
-          ? undefined
-          : channel.value;
-      messages.value =
-        channel.value?.id === channelLeave.value?.id ? [] : messages.value;
-      channelStore.updateMember(loggedUser.value.id);
     }
   }
 };
@@ -385,8 +389,8 @@ const isNum = (char: any) => {
     <h2 class="accordion-header" id="channels-heading">
       <button
         @click="
-          channelStore?.updateOwner(loggedUser.id),
-            channelStore?.updateMember(loggedUser.id)
+          channelStore?.updateOwner(loggedUser?.id),
+            channelStore?.updateMember(loggedUser?.id)
         "
         class="accordion-btn collapsed btn-neons-channels-menu"
         type="button"
@@ -477,7 +481,7 @@ const isNum = (char: any) => {
   <div class="wrapper-accordion">
     <h2 class="accordion-header" id="all-channels-heading">
       <button
-        @click="channelStore?.updateMember(loggedUser.id)"
+        @click="channelStore?.updateMember(loggedUser?.id)"
         class="accordion-btn collapsed btn-neons-channels-menu"
         type="button"
         data-bs-toggle="collapse"
@@ -537,8 +541,8 @@ const isNum = (char: any) => {
     <h2 class="accordion-header" id="direct-msg-heading">
       <button
         @click="
-          channelStore?.updateOwner(loggedUser.id),
-            channelStore?.updateMember(loggedUser.id)
+          channelStore?.updateOwner(loggedUser?.id),
+            channelStore?.updateMember(loggedUser?.id)
         "
         class="accordion-btn collapsed btn-neons-channels-menu"
         type="button"
@@ -1073,7 +1077,7 @@ const isNum = (char: any) => {
         @click="
           newOwner = undefined;
           modalValidate = false;
-          channelStore.isOwner(channelLeave, loggedUser.id)
+          channelStore.isOwner(channelLeave, loggedUser?.id)
             ? (modalDelChannel = true)
             : (modalDelChannel = false);
         "

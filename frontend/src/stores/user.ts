@@ -24,8 +24,8 @@ export const useUserStore = defineStore("user", () => {
     users.value.splice(index, 1, { ...users.value[index], ...updatedData });
   };
 
-   const isBlocked = (user: User) => {
-    if (usersBlocked.value.findIndex(el => el.id === user.id) != -1) {
+   const isBlocked = (user: User | undefined) => {
+    if (user != undefined && usersBlocked.value.findIndex(el => el.id === user.id) != -1) {
       return true
     }
     return false

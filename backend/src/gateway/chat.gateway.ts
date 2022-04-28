@@ -249,7 +249,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             this.server.to(socketId).emit('inviteChannel', channel);
            }
         }
-      };
+      }
     }
   }
 
@@ -282,7 +282,12 @@ async updateInvite(client: Socket, data: any[]) {
     const updateChannel = data[1];
     const message = data[2];
     const user = data[3];
+    console.log("updateChannel => ", updateChannel)
 
+    let userMember :User = undefined;
+    if (updateChannel.removeMembers != undefined) {
+      userMember = updateChannel.removeMembers[0]
+    }
     let userAddBan :User = undefined;
     if (updateChannel.addBans != undefined) {
       userAddBan = updateChannel.addBans[0].user
@@ -290,6 +295,7 @@ async updateInvite(client: Socket, data: any[]) {
     let userRemoveBan :User = undefined;
     if (updateChannel.removeBans != undefined) {
       userRemoveBan = updateChannel.removeBans[0].user
+      console.log("userRemoveBan => ", userRemoveBan)
     }
     let userAddMute :User = undefined;
     if (updateChannel.addMutes != undefined) {
@@ -304,14 +310,17 @@ async updateInvite(client: Socket, data: any[]) {
       channelID,
       updateChannel,
     );
+    console.log("newChannel => ", newChannel)
     let [channel] = await this.channelsService.getChannelsByFilter({
       id: channelID,
       members: true,
     });
+    console.log("Channel => ", channel)
     const members = channel.members;
-
+    console.log("members => ", members)
     for (const member of members) {
       const index = this.connectedClients.findIndex((el) => el.userID === member.id)
+      console.log("index => ", index)
       if (index != -1) {
         const socketIds = this.connectedClients[index].socketID;
         for (const socketId of socketIds) {
@@ -320,6 +329,7 @@ async updateInvite(client: Socket, data: any[]) {
             this.server.to(socketId).emit('userAddBan', newChannel)
           }
           if (userRemoveBan != undefined && this.connectedClients[index].userID == userRemoveBan.id) {
+            console.log(">>>> 2222 ")
             this.server.to(socketId).emit('userRemoveBan', newChannel)
           }
           if (userAddMute != undefined && this.connectedClients[index].userID == userAddMute.id) {
@@ -331,6 +341,18 @@ async updateInvite(client: Socket, data: any[]) {
         }
       }
     }
+
+  if (userMember != undefined) {
+    const index = this.connectedClients.findIndex((el) => el.userID === userMember.id)
+    if (index !=-1) {
+      if (userMember != undefined && this.connectedClients[index].userID == userMember.id) {
+        const socketIds = this.connectedClients[index].socketID;
+        for (const socketId of socketIds) {
+          this.server.to(socketId).emit('userRemoveMember', newChannel)
+        }
+      }
+    }
+  }
 
     if (message != null) {
       this.newMessage(client, [message, user]);
@@ -347,7 +369,13 @@ async updateInvite(client: Socket, data: any[]) {
 
     if (updateChannel.removeInvites != []) {
       for (const invite of updateChannel.removeInvites) {
-        this.server.to(invite.socketID).emit('uninviteChannel', updateChannel);
+        const index = this.connectedClients.findIndex((el) => el.userID === invite.id)
+        if (index != -1) {
+          const socketIds = this.connectedClients[index].socketID;
+          for (const socketId of socketIds) {
+            this.server.to(socketId).emit('uninviteChannel', updateChannel);
+           }
+        }
       }
     }
 

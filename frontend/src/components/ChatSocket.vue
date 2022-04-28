@@ -81,7 +81,7 @@ if (isAuthenticated.value) {
     if (loggedUser.value != undefined) {
       channelStore.deleteChannelInvite(inviteChannel);
       if (inviteBool == true) {
-        channelStore.joinChannel(inviteChannel);
+        // channelStore.joinChannel(inviteChannel);
         channelStore.updateMember(loggedUser.value.id);
       }
     }
@@ -98,8 +98,8 @@ if (isAuthenticated.value) {
   socketChat.value.on("joinChannel", () => {
     if (loggedUser.value != undefined) {
       if (channelJoin.value != undefined) {
-        channelStore.joinChannel(channelJoin.value);
-        channel.value = channelStore.getChannelByID(channelJoin.value.id);
+        // channelStore.joinChannel(channelJoin.value);
+        channel.value = channelJoin.value;
         messages.value = channelJoin.value.messages;
         socketChat.value?.emit(
           "updateMember",
@@ -187,6 +187,13 @@ if (isAuthenticated.value) {
   socketChat.value.on('removeUserBlocked', (userBlocked: User) => {
     if (loggedUser.value != null) {
       userStore.removeUserBlocked(userBlocked.id)
+    }
+  })
+
+  socketChat.value.on('userRemoveMember', (updateChannel: Channel) => {
+    if (loggedUser.value != null) {
+      channelStore.updateChannel(updateChannel.id, updateChannel, loggedUser.value.id)
+      channelStore.updateMember(loggedUser.value.id)
     }
   })
 } 

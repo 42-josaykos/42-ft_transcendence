@@ -304,7 +304,6 @@ const scrollFunction = () => {
 .chat-message-left,
 .chat-message-right {
   display: flex;
-  flex-shrink: 0;
 }
 
 .chat-message-left {

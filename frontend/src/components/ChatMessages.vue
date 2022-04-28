@@ -104,6 +104,7 @@ const timerMute = computed(() => {
                     {{ item.author.username }}
                   </div>
                   <div style="text-align: start">{{ item.data }}</div>
+                  <!-- <p class="text-break">{{item.data}}</p> -->
                 </div>
               </div>
             </div>
@@ -129,9 +130,12 @@ const timerMute = computed(() => {
                     {{ item.author.username }}
                   </div>
                   <div style="text-align: start">{{ item.data }}</div>
+                  <!-- <p class="text-break">{{item.data}}</p> -->
                 </div>
               </div>
             </div>
+              <!-- <p class="text-break">{{item.data}}</p> -->
+
           </span>
           </div>
         </div>

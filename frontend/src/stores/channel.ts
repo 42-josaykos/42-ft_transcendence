@@ -58,15 +58,15 @@ export const useChannelStore = defineStore('channel', () => {
       allChannels.value.push(newChannel);
     }
 
-    const joinChannel = (newChannel: Channel) => {
-      newChannel.isMember = true;
-      channels.value.push(newChannel);
-    }
+    // const joinChannel = (newChannel: Channel) => {
+    //   newChannel.isMember = true;
+    //   channels.value.push(newChannel);
+    // }
 
-    const leaveChannel = (newChannel: Channel) => {
-      const index = channels.value.findIndex((el: Channel) => el.id === newChannel.id);
-      channels.value.splice(index, 1);
-    }
+    // const leaveChannel = (newChannel: Channel) => {
+    //   const index = channels.value.findIndex((el: Channel) => el.id === newChannel.id);
+    //   channels.value.splice(index, 1);
+    // }
 
     const updateMember = (userID: number) => {
       
@@ -201,13 +201,15 @@ export const useChannelStore = defineStore('channel', () => {
       return false;
     }
 
-    const isMute = (channel_item: Channel | undefined, userID: number) => {
+    const isMute = (channel_item: Channel | undefined, userID: number | undefined) => {
       if (channel_item != undefined) {
-        const mutes = channel_item.mutes;
-        if (mutes != undefined) {
-          const index = mutes.findIndex((el: any) => el.user.id === userID);
-          if (index != -1) {
-            return true;
+        if (userID != undefined) {
+          const mutes = channel_item.mutes;
+          if (mutes != undefined) {
+            const index = mutes.findIndex((el: any) => el.user.id === userID);
+            if (index != -1) {
+              return true;
+            }
           }
         }
       }
@@ -439,8 +441,8 @@ export const useChannelStore = defineStore('channel', () => {
         timerIntervalMute,
         //channelTypeUpdate,
         createChannel,
-        joinChannel,
-        leaveChannel,
+        // joinChannel,
+        // leaveChannel,
         updateMember,
         updateOwner,
         updateInvite,
