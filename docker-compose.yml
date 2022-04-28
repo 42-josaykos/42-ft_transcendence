@@ -1,7 +1,7 @@
 version: "3"
 services:
   postgres:
-    container_name: postgres-transcendence-${USER}
+    container_name: postgres-transcendence
     image: postgres:14
     environment:
       - POSTGRES_HOST=${POSTGRES_HOST}

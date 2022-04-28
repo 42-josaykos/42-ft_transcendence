@@ -1,52 +1,42 @@
 <script>
-import ModalePlay from "./ModalePlay.vue";
 import { io } from "socket.io-client";
 import { storeToRefs, mapState } from "pinia";
 import { useUserStore } from "@/stores/user";
 
 export default {
   name: "Pong",
-  props: ["revelePlay", "msg"],
-  // props: {
-  // 	msg: String,
-  // 	revelePlay: Boolean,
-  // 	// gameplay: Boolean,
-  // },
-  components: {
-    "modale-play": ModalePlay,
-  },
+  props: ["revelePlay", "msg", "paddleSize", "ballSpeed"],
   data: function () {
     return {
-      canvas: { w: 1000, h: 600 }, // à voir pour mettre juste un ratio et faire réactive
+      rcv_paddleSize: 1,
+      rcv_ballSpeed: 1,
+
+      canvas: { w: 1000, h: 600 },
       paddle: {},
       bound: 25,
       player_L: {},
       player_R: {},
       ball: {},
 
-      // gameplay: this.revelePlay,
       gameplay: false,
       newround: false,
-      newpause: true, //false,
-
+      newpause: true,
       newgame: true,
       endgame: false,
-
       startTime: {},
-
       sounds: {},
 
       intervalID: {},
       keyState: {},
     };
   },
-  // COMPUTED DATA
   computed: {
     ...mapState(useUserStore, ["gameSocket", "loggedUser"]),
     getPaddle: function () {
-      this.paddle.h = 0.2 * this.canvas.h;
-      this.paddle.w = 0.2 * this.paddle.h;
-      this.paddle.speed = 15;
+      this.paddle.h = (0.2 + (this.rcv_paddleSize - 1) * 0.05) * this.canvas.h;
+      this.paddle.w = 0.2 * 0.2 * this.canvas.h;
+      this.paddle.speed = 0.05 * (this.canvas.h / 2 - this.paddle.h / 2);
+
       return this.paddle;
     },
     getPlayerL: function () {
@@ -68,9 +58,9 @@ export default {
       this.ball.y = this.canvas.h / 2;
       this.ball.size = this.paddle.w / 2;
       this.ball.color = "yellow";
-      this.ball.speed = 7;
+      this.ball.speed = 5 * (1 + (this.rcv_ballSpeed * 2) / 10);
       this.ball.velocityX = 1 * this.ball.speed;
-      this.ball.velocityY = 1 * this.ball.speed; //velocity = speed & dir
+      this.ball.velocityY = 1 * this.ball.speed; //	Velocity = Speed & Direction
       return this.ball;
     },
     getSounds: function () {
@@ -86,21 +76,25 @@ export default {
       this.sounds.loose.volume = 0.1;
       return this.sounds;
     },
+    getPaddleSize: function () {
+      this.rcv_paddleSize = this.paddleSize;
+      return this.rcv_paddleSize;
+    },
+    getBallSpeed: function () {
+      this.rcv_ballSpeed = this.ballSpeed;
+      return this.rcv_ballSpeed;
+    },
   },
-  // LIFECYCLE HOOKS
   created() {
     window.addEventListener("keydown", this.getKeyDown, true);
     window.addEventListener("keyup", this.getKeyUp, true);
-    return; //keypress does not work for arrows
+    return; //	Keypress does not work for arrows
   },
   mounted() {
     let gamePaddle = this.getPaddle;
     let leftPlayer = this.getPlayerL;
     let rightPlayer = this.getPlayerR;
-    let gameBall = this.getBall;
     let sounds = this.getSounds;
-
-    // this.render();
 
     // Socket Events
     //######################################################################
@@ -143,26 +137,26 @@ export default {
     });
     //######################################################################
 
-    this.drawPlayerLeft(this.getPaddle);
-    this.drawPlayerRight(this.getPaddle);
-    this.drawScore(this.player_L, this.player_R);
     this.launch();
     return;
   },
   destroyed() {
-    window.removeEventListener("keydown", this.move);
+    window.removeEventListener("keydown", this.getKeyDown);
+    window.removeEventListener("keyup", this.getKeyUp);
     return;
   },
-  // METHODS
   methods: {
+    // GAME LOOP
     launch: function () {
       const framePerSec = 50;
-      // this.newgame = true;
-      this.intervalID = setInterval(this.game, 1000 / framePerSec); // setInterval(this.game, 1000/framePerSec);
+      this.intervalID = setInterval(this.game, 1000 / framePerSec);
       return;
     },
     game: function () {
       if (this.revelePlay == true) {
+        this.rcv_paddleSize = this.paddleSize;
+        this.rcv_ballSpeed = this.ballSpeed;
+        let gameBall = this.getBall;
         this.gameplay = true;
       }
       if (this.gameplay == true && this.endgame == false) {
@@ -187,16 +181,18 @@ export default {
         this.clearCanvas();
         this.render();
         if (this.gameplay == true) {
-          if (this.newgame == true)
-            // this.clearCanvas();
+          if (this.newgame == true) {
             this.countdown();
+            this.player_L.x = this.bound;
+            this.player_L.y = this.canvas.h / 2 - this.paddle.h / 2;
+            this.player_R.x = this.canvas.w - this.bound - this.paddle.w;
+            this.player_R.y = this.canvas.h / 2 - this.paddle.h / 2;
+          }
         }
       }
       // When the game is finished
       else {
         clearInterval(this.intervalID);
-        console.log("scoreL: ", this.player_L.score);
-        console.log("scoreR: ", this.player_R.score);
         this.gameSocket.emit("endGame", {
           user: this.loggedUser,
           score: [this.player_L.score, this.player_R.score],
@@ -205,7 +201,7 @@ export default {
       return;
     },
     countdown: function () {
-      let canvas = document.getElementById("Pong");
+      let canvas = document.getElementById("pong");
       if (canvas.getContext) {
         let context = canvas.getContext("2d");
         context.clearRect(0, 0, this.canvas.w, this.canvas.h);
@@ -221,25 +217,15 @@ export default {
           this.newpause = false;
         }
         var end = new Date().getTime();
-        if (end < this.startTime + 1500) {
-          this.ball.x = this.canvas.w / 2;
-          this.ball.y = this.canvas.h / 2;
-          context.fillText("3", x, y); // si je remets ça alors la balle est au même endroit avec et sans modale
-        } else if (
-          end >= this.startTime + 1500 &&
-          end < this.startTime + 3000
-        ) {
-          this.ball.x = this.canvas.w / 2;
-          this.ball.y = this.canvas.h / 2;
+        this.ball.x = this.canvas.w / 2;
+        this.ball.y = this.canvas.h / 2;
+
+        if (end < this.startTime + 1500) context.fillText("3", x, y);
+        else if (end >= this.startTime + 1500 && end < this.startTime + 3000)
           context.fillText("2", x, y);
-        } else if (
-          end >= this.startTime + 3000 &&
-          end < this.startTime + 4500
-        ) {
-          this.ball.x = this.canvas.w / 2;
-          this.ball.y = this.canvas.h / 2;
+        else if (end >= this.startTime + 3000 && end < this.startTime + 4500)
           context.fillText("1", x, y);
-        } else this.newgame = false;
+        else this.newgame = false;
       }
       return;
     },
@@ -252,7 +238,7 @@ export default {
       return;
     },
     drawPlayerLeft: function (paddle) {
-      let canvas = document.getElementById("Pong");
+      let canvas = document.getElementById("pong");
       if (canvas.getContext) {
         let context = canvas.getContext("2d");
         context.fillStyle = this.player_L.color;
@@ -261,7 +247,7 @@ export default {
       return;
     },
     drawPlayerRight: function (paddle) {
-      let canvas = document.getElementById("Pong");
+      let canvas = document.getElementById("pong");
       if (canvas.getContext) {
         let context = canvas.getContext("2d");
         context.fillStyle = this.player_R.color;
@@ -270,9 +256,7 @@ export default {
       return;
     },
     drawBall: function () {
-      //   console.log("x : " + this.ball.x);
-      //   console.log("y : " + this.ball.y);
-      let canvas = document.getElementById("Pong");
+      let canvas = document.getElementById("pong");
       if (canvas.getContext) {
         let context = canvas.getContext("2d");
         context.fillStyle = "yellow";
@@ -291,7 +275,7 @@ export default {
       return;
     },
     clearCanvas: function () {
-      let canvas = document.getElementById("Pong");
+      let canvas = document.getElementById("pong");
       if (canvas.getContext) {
         let context = canvas.getContext("2d");
         context.clearRect(0, 0, this.canvas.w, this.canvas.h);
@@ -299,7 +283,7 @@ export default {
       return;
     },
     drawScore: function (leftPlayer, rightPlayer) {
-      let canvas = document.getElementById("Pong");
+      let canvas = document.getElementById("pong");
       if (canvas.getContext) {
         let context = canvas.getContext("2d");
         let size = 0.2 * this.canvas.h;
@@ -329,13 +313,11 @@ export default {
     // UPDATING DATA AND ADJUSTING
     update: function () {
       if (this.ball.Xmin - 50 > this.canvas.w || this.ball.Xmax + 50 < 0)
-        // pas très propre d'écrire comme ça
         this.updateScore();
       if (this.ball.Ymax >= this.canvas.h || this.ball.Ymin <= 0) {
         this.ball.velocityY *= -1;
         this.sounds.wall.play();
       }
-
       let player =
         this.ball.x + this.ball.size < this.canvas.w / 2
           ? this.player_L
@@ -370,14 +352,11 @@ export default {
       if (this.ball.Xmax + 10 < 0) this.player_R.score++;
       else if (this.ball.Xmin - 10 > this.canvas.w) this.player_L.score++;
       if (this.player_R.score == 10 || this.player_L.score == 10) {
-        this.gameplay = false; // rajouter un endofgame car comme le "revelplay" est true, ca remet aussi le gameplay a true au debut
+        this.gameplay = false;
         this.endgame = true;
         this.sounds.win.play();
         return;
       }
-      //game over: winer : // this.sounds.win.play();
-
-      // else
       this.sounds.score.play();
       this.resetPlay();
       return;
@@ -386,8 +365,6 @@ export default {
       this.newround = true;
       this.newpause = true;
       this.resetBall();
-      // this.resetPlayerLeft();
-      // this.resetPlayerRight(); // Au final plus fluide sans
       return;
     },
     resetBall: function () {
@@ -421,17 +398,12 @@ export default {
       return;
     },
     runWild: function () {
-      //   console.log("into it x : " + this.ball.x);
-      //   console.log("into it y : " + this.ball.y);
       this.ball.x += this.ball.velocityX;
       this.ball.y += this.ball.velocityY;
-
       this.ball.Xmin = this.ball.x - this.ball.size;
       this.ball.Xmax = this.ball.x + this.ball.size;
       this.ball.Ymin = this.ball.y - this.ball.size;
       this.ball.Ymax = this.ball.y + this.ball.size;
-      //   console.log("into it x : " + this.ball.x);
-      //   console.log("into it y : " + this.ball.y);
       return;
     },
     collision: function (ball, player) {
@@ -439,12 +411,10 @@ export default {
       player.Xmax = player.x + this.paddle.w;
       player.Ymin = player.y;
       player.Ymax = player.y + this.paddle.h;
-
       ball.Xmin = ball.x - ball.size;
       ball.Xmax = ball.x + ball.size;
       ball.Ymin = ball.y - ball.size;
       ball.Ymax = ball.y + ball.size;
-
       return (
         player.Xmin < ball.Xmax &&
         player.Ymin < ball.Ymax &&
@@ -457,30 +427,26 @@ export default {
 </script>
 
 <template>
-  <div class="PongGame">
-    <!-- {{ revelePlay }} -->
+  <div class="pong-game">
     <canvas
-      ref="Pong"
-      class="Pong"
-      id="Pong"
+      ref="pong"
+      class="pong"
+      id="pong"
       :width="canvas.w"
       :height="canvas.h"
     >
     </canvas>
-    <!-- v-bind:gameplay="revelePlay -->
-    <!-- <canvas ref="Pong" class="Pong" id="Pong" :width="canvas.w" :height="canvas.h" v-on:click="launch"> </canvas> -->
   </div>
 </template>
 
 <style scoped>
-.PongGame {
+.pong-game {
   align-items: center;
   justify-content: center;
 }
-.Pong {
+.pong {
   background: #0c2039;
   border: 7.5px solid #fff961;
-  margin: ;
   /* justify-content: center; */
 }
 </style>
