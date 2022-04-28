@@ -14,6 +14,7 @@ export const useUserStore = defineStore("user", () => {
     })
   );
   const isAuthenticated = ref(false);
+  const isTwoFactorAuth = ref<boolean>(false);
 
   const createUser = (newUser: User) => {
     users.value.push(newUser);
@@ -34,6 +35,7 @@ export const useUserStore = defineStore("user", () => {
     usersOnline,
     isAuthenticated,
     gameSocket,
+    isTwoFactorAuth,
     createUser,
     deleteUser,
     updateUser,

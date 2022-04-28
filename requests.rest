@@ -10,7 +10,7 @@
 // Users requests
 // #############
 
-GET http://{{host}}/users
+GET http://{{host}}/users/2
 
 ###
 
@@ -27,7 +27,7 @@ PATCH http://{{host}}/users/1
 Content-Type: {{contentType}}
 
 {
-    "addFriends": [{"id": 3}, {"id": 2}]
+    "addBlockedUsers": [{"id": 2}]
 }
 
 ###
@@ -92,23 +92,26 @@ DELETE http://{{host}}/messages/1
 // Channels requests
 // #################
 
+GET http://{{host}}/channels/2
+
+###
+
 POST http://{{host}}/channels
 Content-Type: {{contentType}}
 
 {
-    "name": "Channel1",
+    "name": "Channel2",
     "owner": {"id": 1},
     "members": [{"id": 1}, {"id": 2}]
 }
 
 ###
 
-PATCH http://{{host}}/channels/1
+PATCH http://{{host}}/channels/2
 Content-Type: {{contentType}}
 
 {
-    "mutes": [{"user": {"id": 2}}, {"user": {"id": 1}}],
-    "bans": [{"user": {"id": 2}}, {"user": {"id": 1}}]
+    "removeBans": [{"user": {"id": 2}}, {"user": {"id": 1}}]
 }
 
 ###

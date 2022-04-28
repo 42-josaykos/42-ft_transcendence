@@ -128,4 +128,9 @@ export class FilterUserDTO {
   @IsEmpty()
   @IsOptional()
   readonly refreshToken?: boolean;
+
+  @ApiProperty({ required: false })
+  @IsEmpty()
+  @IsOptional()
+  readonly twoFactorAuthenticationSecret?: boolean;
 }
