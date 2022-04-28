@@ -1,12 +1,18 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import type { User } from '@/models/user.model';
+import { defineStore } from "pinia";
+import { ref } from "vue";
+import type { User } from "@/models/user.model";
+import { io, type Socket } from "socket.io-client";
 
 // Tracks users database
-export const useUserStore = defineStore('user', () => {
+export const useUserStore = defineStore("user", () => {
   const users = ref<User[]>([]);
   const usersOnline = ref<Number[]>([]);
   const loggedUser = ref<User | null>(null);
+  const gameSocket = ref<Socket>(
+    io("ws://localhost:6060/game", {
+      withCredentials: true,
+    })
+  );
   const isAuthenticated = ref(false);
   const isTwoFactorAuth = ref<boolean>(false);
 
@@ -28,9 +34,10 @@ export const useUserStore = defineStore('user', () => {
     loggedUser,
     usersOnline,
     isAuthenticated,
+    gameSocket,
     isTwoFactorAuth,
     createUser,
     deleteUser,
-    updateUser
+    updateUser,
   };
 });
