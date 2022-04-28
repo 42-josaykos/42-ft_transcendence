@@ -15,17 +15,19 @@ const { loggedUser, isAuthenticated } = storeToRefs(userStore);
 
 // Verify if user is already logged
 onMounted(() => {
-  Get('/auth/jwt-status').then(res => {
-    if (res.status == 403) {
-      console.log('[App] isAuthenticated: ', false);
-      isAuthenticated.value = false;
-    } else {
-      console.log('[App] isAuthenticated: ', true);
-      isAuthenticated.value = true;
-      loggedUser.value = res.data;
-      console.log('[App] loggedUser: ', res.data);
-    }
-  });
+  Get('/auth/jwt-status')
+    .then(res => {
+      if (res.status == 403) {
+        console.log('[App] isAuthenticated: ', false);
+        isAuthenticated.value = false;
+      } else {
+        console.log('[App] isAuthenticated: ', true);
+        isAuthenticated.value = true;
+        loggedUser.value = res.data;
+        console.log('[App] loggedUser: ', res.data);
+      }
+    })
+    .catch(error => {});
 });
 </script>
 

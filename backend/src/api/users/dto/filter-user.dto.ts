@@ -133,4 +133,9 @@ export class FilterUserDTO {
   @IsEmpty()
   @IsOptional()
   readonly twoFactorAuthenticationSecret?: boolean;
+
+  @ApiProperty({ required: false })
+  @IsEmpty()
+  @IsOptional()
+  readonly isTwoFactorAuthenticationEnabled?: boolean;
 }

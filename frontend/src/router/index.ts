@@ -79,19 +79,20 @@ function routeGuard(to: any, from: any, next: any) {
   if (isAuthenticated) {
     next(); // allow to enter route
   } else {
-    next('/login'); // go to '/login';
+    Get('/auth/jwt-status')
+      .then(res => {
+        if (res.status != 401) {
+          const userStore = useUserStore();
+          const { isAuthenticated } = storeToRefs(userStore);
+          isAuthenticated.value = true;
+          next(); // allow to enter route
+        }
+        next('/login'); // go to '/login';
+      })
+      .catch(err => {
+        next('/login'); // go to '/login';
+      });
   }
 }
-
-router.beforeEach(() => {
-  console.log(document.cookie);
-  Get('/auth/jwt-status').then(res => {
-    if (res.status != 401) {
-      const userStore = useUserStore();
-      const { isAuthenticated } = storeToRefs(userStore);
-      isAuthenticated.value = true;
-    }
-  });
-});
 
 export default router;
