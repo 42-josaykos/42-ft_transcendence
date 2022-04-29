@@ -424,4 +424,42 @@ async updateInvite(client: Socket, data: any[]) {
     }
   }
 
+  @SubscribeMessage('addUserFriend')
+  async addUserFriend(client: Socket, data: any) {
+    const userFriend = data[0];
+    const updateUser = data[1];
+    const userID = data[2];
+
+    const newUser = await this.usersService.updateUser(
+      userID,
+      updateUser,
+    );
+    const index = this.connectedClients.findIndex((el) => el.userID === userID)
+    if (index != -1) {
+      const socketIds = this.connectedClients[index].socketID;
+      for (const socketId of socketIds) {
+        this.server.to(socketId).emit('addUserFriend', userFriend);
+      }
+    }
+  }
+
+  @SubscribeMessage('removeUserFriend')
+  async removeUserFriend(client: Socket, data: any) {
+    const userFriend = data[0];
+    const updateUser = data[1];
+    const userID = data[2];
+
+    const newUser = await this.usersService.updateUser(
+      userID,
+      updateUser,
+    );
+    const index = this.connectedClients.findIndex((el) => el.userID === userID)
+    if (index != -1) {
+      const socketIds = this.connectedClients[index].socketID;
+      for (const socketId of socketIds) {
+        this.server.to(socketId).emit('removeUserFriend', userFriend);
+      }
+    }
+  }
+
 }

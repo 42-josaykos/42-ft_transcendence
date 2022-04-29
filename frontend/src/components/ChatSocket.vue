@@ -196,5 +196,17 @@ if (isAuthenticated.value) {
       channelStore.updateMember(loggedUser.value.id)
     }
   })
+
+  socketChat.value.on('addUserFriend', (userFriend: User) => {
+    if (loggedUser.value != null) {
+      userStore.addUserFriend(userFriend)
+    }
+  })
+
+  socketChat.value.on('removeUserFriend', (userFriend: User) => {
+    if (loggedUser.value != null) {
+      userStore.removeUserFriend(userFriend.id)
+    }
+  })
 } 
 </script>

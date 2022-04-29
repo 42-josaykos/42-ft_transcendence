@@ -11,7 +11,7 @@ import type { Channel } from "@/models/channel.model";
 import { computed } from "@vue/reactivity";
 
 const userStore = useUserStore();
-const { loggedUser, socketChat, usersOnline, usersBlocked } = storeToRefs(userStore);
+const { loggedUser, socketChat, usersOnline } = storeToRefs(userStore);
 
 const channelStore = useChannelStore();
 
@@ -25,6 +25,7 @@ const modalAdmin = ref<boolean>(false);
 const modalBan = ref<boolean>(false);
 const modalMute = ref<boolean>(false);
 const modalBlock = ref<boolean>(false);
+const modalFriend = ref<boolean>(false);
 const stringSendMessage = ref<string>("");
 const inputTime = ref<string>("");
 
@@ -239,8 +240,10 @@ const addAdmin = () => {
           >
             Send message
           </button>
-          <button type="button" class="btn-user-click my-2">
-            ADD FRIEND => si pas encore ami
+          <button
+            @click="modalFriend = true"
+            type="button" class="btn-user-click my-2">
+            {{userStore.isFriend(userClick) ? 'REMOVE FRIEND' : 'ADD FRIEND'}}
           </button>
           <button
             @click="modalBlock = true"
@@ -381,6 +384,44 @@ const addAdmin = () => {
       </button>
       <button
         @click="modalBlock = false"
+        type="button"
+        class="mod-btn mod-btn-yellow"
+      >
+        No
+      </button>
+    </template>
+  </ModalChat>
+
+  <ModalChat
+    v-if="modalFriend == true"
+    @close="modalFriend = false"
+  >
+    <template v-slot:header>
+      <h2 style="padding-top: 10px">
+      <span v-if="userStore.isFriend(userClick)">
+        <u>Are you sure you want to remove {{userClick?.username}} from your friends ?</u>
+      </span>
+      <span v-else>
+        <u>Are you sure you want to add {{userClick?.username}} as a friend ?</u>
+      </span>
+      </h2>
+    </template>
+    <template v-slot:footer>
+      <button
+        @click="if (userStore.isFriend(userClick)) {
+          socketChat?.emit('removeUserFriend', userClick, {removeFriends: [{id: userClick?.id}]}, loggedUser?.id)
+        } else {
+          socketChat?.emit('addUserFriend', userClick, {addFriends: [{id: userClick?.id}]}, loggedUser?.id)
+        }
+        modalFriend = false;
+        "
+        type="button"
+        class="mod-btn mod-btn-blue"
+      >
+        Yes
+      </button>
+      <button
+        @click="modalFriend = false"
         type="button"
         class="mod-btn mod-btn-yellow"
       >

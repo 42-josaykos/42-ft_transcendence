@@ -10,6 +10,7 @@ export const useUserStore = defineStore("user", () => {
   const isAuthenticated = ref(false);
   const socketChat = ref<Socket>();
   const usersBlocked = ref<User[]>([]);
+  const usersFriends = ref<User[]>([]);
 
   const createUser = (newUser: User) => {
     users.value.push(newUser);
@@ -40,6 +41,22 @@ export const useUserStore = defineStore("user", () => {
     usersBlocked.value.splice(index, 1);
   };
 
+  const isFriend = (user: User | undefined) => {
+    if (user != undefined && usersFriends.value.findIndex(el => el.id === user.id) != -1) {
+      return true
+    }
+    return false
+   }
+
+   const addUserFriend = (newUser: User) => {
+    usersFriends.value.push(newUser);
+  };
+
+  const removeUserFriend = (userID: number) => {
+    const index = usersFriends.value.findIndex((el: User) => el.id === userID);
+    usersFriends.value.splice(index, 1);
+  };
+
   return {
     users,
     loggedUser,
@@ -47,11 +64,15 @@ export const useUserStore = defineStore("user", () => {
     isAuthenticated,
     socketChat,
     usersBlocked,
+    usersFriends,
     createUser,
     deleteUser,
     updateUser,
     isBlocked,
     addUserBlocked,
-    removeUserBlocked
+    removeUserBlocked,
+    isFriend,
+    addUserFriend,
+    removeUserFriend
   };
 });
