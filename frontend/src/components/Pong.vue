@@ -144,35 +144,10 @@ export default {
 			return;
 		},
 		game: function () {
-			if (this.revelePlay == true) {
-				//  Both rcv_ are updated here because the props 'revelPlay' is set at true, meaning the user is done modifying
-				//  the game settings.
-				this.rcv_paddleSize = this.paddleSize;
-				this.rcv_ballSpeed = this.ballSpeed;
-				//  Calls getBall to update its attributes, then set the boolean gameplay at true so that the game can properly
-				//  start now that all is up to date.
-				let gameBall = this.getBall;
-				this.gameplay = true;
-			}
+			if (this.revelePlay == true) this.updateSettings();
 			if (this.gameplay == true && this.endgame == false) {
 				if (this.newgame == false) this.runWild();
-				if (this.newround == true) {
-					//  Sets the ball at is default position each time the current time does not equal the amount chosen, creating
-					//  a pause from when the point is scored to when the game carries on.
-					if (this.newpause == true) {
-						this.startTime = new Date().getTime();
-						this.newpause = false;
-					}
-					var end = new Date().getTime();
-					if (end < this.startTime + 1500) {
-						this.ball.x = this.canvas.w / 2;
-						this.ball.y = this.canvas.h / 2;
-						this.ball.Xmin = this.ball.x - this.ball.size;
-						this.ball.Xmax = this.ball.x + this.ball.size;
-						this.ball.Ymin = this.ball.y - this.ball.size;
-						this.ball.Ymax = this.ball.y + this.ball.size;
-					} else this.newround = false;
-				}
+				if (this.newround == true) this.pauseRound();
 				//  Loops over the classical pattern: checks for a key event, updates, clears and render the new positions on
 				//  the virgin canvas and then
 				this.move();
@@ -182,13 +157,7 @@ export default {
 				if (this.gameplay == true) {
 					//  If it is the very beggining of the game (and not just a new round), fixes both player positions so that
 					//  users cannot moove without seing their paddle and before the game starts.
-					if (this.newgame == true) {
-						this.countdown();
-						this.player_L.x = this.bound;
-						this.player_L.y = this.canvas.h / 2 - this.paddle.h / 2;
-						this.player_R.x = this.canvas.w - this.bound - this.paddle.w;
-						this.player_R.y = this.canvas.h / 2 - this.paddle.h / 2;
-					}
+					if (this.newgame == true) this.pauseGame();
 				}
 			}
 			// When the game is finished
@@ -200,6 +169,43 @@ export default {
 				});
 			}
 			return;
+		},
+		updateSettings: function() {
+			//  Both rcv_ are updated here because the props 'revelPlay' is set at true, meaning the user is done modifying
+			//  the game settings.
+			this.rcv_paddleSize = this.paddleSize;
+			this.rcv_ballSpeed = this.ballSpeed;
+			//  Calls getBall to update its attributes, then set the boolean gameplay at true so that the game can properly
+			//  start now that all is up to date.
+			let gameBall = this.getBall;
+			this.gameplay = true;
+			return ;
+		},
+		pauseRound: function () {
+			//  Sets the ball at is default position each time the current time does not equal the amount chosen, creating
+			//  a pause from when the point is scored to when the game carries on.
+			if (this.newpause == true) {
+				this.startTime = new Date().getTime();
+				this.newpause = false;
+			}
+			var end = new Date().getTime();
+			if (end < this.startTime + 1500) {
+				this.ball.x = this.canvas.w / 2;
+				this.ball.y = this.canvas.h / 2;
+				this.ball.Xmin = this.ball.x - this.ball.size;
+				this.ball.Xmax = this.ball.x + this.ball.size;
+				this.ball.Ymin = this.ball.y - this.ball.size;
+				this.ball.Ymax = this.ball.y + this.ball.size;
+			} else this.newround = false;
+			return ;
+		},
+		pauseGame: function() {
+			this.countdown();
+			this.player_L.x = this.bound;
+			this.player_L.y = this.canvas.h / 2 - this.paddle.h / 2;
+			this.player_R.x = this.canvas.w - this.bound - this.paddle.w;
+			this.player_R.y = this.canvas.h / 2 - this.paddle.h / 2;
+			return ;
 		},
 		countdown: function () {
 			let canvas = document.getElementById("pong");
