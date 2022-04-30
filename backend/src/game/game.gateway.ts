@@ -13,17 +13,13 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import User from 'src/api/users/entities/user.entity';
+import { Game } from 'src/game/game.class';
+import { Connection } from 'src/game/game.class';
+import { Player } from 'src/game/game.class';
+import { Spectator } from 'src/game/game.class';
+import { Ball } from 'src/game/game.class';
 import axios from 'axios';
-
-class Connection {
-  user: User;
-  socketID: string[];
-}
-
-class Game {
-  players: Connection[];
-  spectators: Connection[];
-}
+import { GameService } from './game.service';
 
 @WebSocketGateway({
   namespace: 'game',
@@ -35,6 +31,8 @@ class Game {
 export class GameGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
+  constructor(private gameService: GameService) {}
+
   @WebSocketServer()
   private server: Server;
 
@@ -64,18 +62,17 @@ export class GameGateway
     // Start a game if there is at least 2 players in the queue waiting
     while (this.queue.length >= 2) {
       // Remove players from queue
-      const playerOne = this.queue.shift();
-      const playerTwo = this.queue.shift();
+      const playerOne: Player = { player: this.queue.shift() };
+      const playerTwo: Player = { player: this.queue.shift() };
       // console.log('playerOne: ', playerOne);
       // console.log('playerTwo: ', playerTwo);
 
       // Create and start game
-      const newGame: Game = { players: [playerOne, playerTwo], spectators: [] };
-      this.games.push(newGame);
-      this.server
-        .to(playerOne.socketID[0])
-        .to(playerTwo.socketID[0])
-        .emit('startGame', { playerOne: playerOne, playerTwo: playerTwo });
+      this.gameService.createGame(playerOne, playerTwo, this.server);
+      // this.server
+      //   .to(playerOne.player.socketID[0])
+      //   .to(playerTwo.player.socketID[0])
+      //   .emit('startGame', { playerOne: playerOne, playerTwo: playerTwo });
     }
   }
 
@@ -87,20 +84,20 @@ export class GameGateway
     // Determining which game
     const gameIndex = this.games.findIndex(
       (game) =>
-        game.players[0].user.id === data.user.id ||
-        game.players[1].user.id === data.user.id,
+        game.players[0].player.user.id === data.user.id ||
+        game.players[1].player.user.id === data.user.id,
     );
 
     // Logic will only run on playerOne
     if (
       gameIndex !== -1 &&
-      data.user.id === this.games[gameIndex].players[0].user.id
+      data.user.id === this.games[gameIndex].players[0].player.user.id
     ) {
       // POST match data in the database through the API
       const body = {
         players: [
-          { id: this.games[gameIndex].players[0].user.id },
-          { id: this.games[gameIndex].players[1].user.id },
+          { id: this.games[gameIndex].players[0].player.user.id },
+          { id: this.games[gameIndex].players[1].player.user.id },
         ],
         score: [data.score[0], data.score[1]],
       };
@@ -121,8 +118,8 @@ export class GameGateway
     // Determining which game
     const gameIndex = this.games.findIndex(
       (game) =>
-        game.players[0].user.id === data.id ||
-        game.players[1].user.id === data.id,
+        game.players[0].player.user.id === data.id ||
+        game.players[1].player.user.id === data.id,
     );
     // console.log('gameIndex left: ', gameIndex);
 
@@ -133,7 +130,7 @@ export class GameGateway
 
     // Detect which player moved
     // Will later need to send ONLY to people watching / playing the game
-    if (data.id === this.games[gameIndex].players[0].user.id)
+    if (data.id === this.games[gameIndex].players[0].player.user.id)
       this.server.emit('playerOneMoveLeft');
     else this.server.emit('playerTwoMoveLeft');
   }
@@ -146,8 +143,8 @@ export class GameGateway
     // Determining which game
     const gameIndex = this.games.findIndex(
       (game) =>
-        game.players[0].user.id === data.id ||
-        game.players[1].user.id === data.id,
+        game.players[0].player.user.id === data.id ||
+        game.players[1].player.user.id === data.id,
     );
     // console.log('gameIndex right: ', gameIndex);
 
@@ -158,8 +155,12 @@ export class GameGateway
 
     // Detect which player moved
     // Will later need to send ONLY to people watching / playing the game
-    if (data.id === this.games[gameIndex].players[0].user.id)
+    if (data.id === this.games[gameIndex].players[0].player.user.id)
       this.server.emit('playerOneMoveRight');
     else this.server.emit('playerTwoMoveRight');
+  }
+
+  broadcastEndGame() {
+    console.log('YES!');
   }
 }
