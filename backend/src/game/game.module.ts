@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
 import { GameGateway } from './game.gateway';
 import { GameService } from './game.service';
-import { MatchesService } from 'src/api/matches/matches.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import User from 'src/api/users/entities/user.entity';
-import Match from 'src/api/matches/entities/matches.entity';
-import { MatchesModule } from 'src/api/matches/matches.module';
+import { Game } from 'src/game/game.class';
+import { Connection } from 'src/game/game.class';
+import { Player } from 'src/game/game.class';
+import { Spectator } from 'src/game/game.class';
+import { Ball } from 'src/game/game.class';
 
 @Module({
+  // imports: [Game, Connection, Player, Spectator, Ball],
   providers: [GameGateway, GameService],
 })
 export class GameModule {}

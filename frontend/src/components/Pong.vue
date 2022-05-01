@@ -2,6 +2,7 @@
 import { io } from "socket.io-client";
 import { storeToRefs, mapState } from "pinia";
 import { useUserStore } from "@/stores/user";
+import { Player } from "src/../../backend/src/game/game.class.ts";
 
 export default {
   name: "Pong",
@@ -100,6 +101,13 @@ export default {
 
     // Socket Events
     //##########################################################################
+    this.gameSocket.on("updatePlayerMoved", (players) => {
+      console.log("updatePlayerMoved data: ", players);
+      this.player_L.x = players[0].x;
+      this.player_L.y = players[0].y;
+      this.player_R.x = players[1].x;
+      this.player_R.y = players[1].y;
+    });
     this.gameSocket.on("playerOneMoveLeft", () => {
       if (this.player_L.y - this.paddle.speed >= 0) {
         this.player_L.y -= this.paddle.speed;

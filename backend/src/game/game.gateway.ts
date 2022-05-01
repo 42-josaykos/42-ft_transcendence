@@ -68,11 +68,15 @@ export class GameGateway
       // console.log('playerTwo: ', playerTwo);
 
       // Create and start game
-      this.gameService.createGame(playerOne, playerTwo, this.server);
-      // this.server
-      //   .to(playerOne.player.socketID[0])
-      //   .to(playerTwo.player.socketID[0])
-      //   .emit('startGame', { playerOne: playerOne, playerTwo: playerTwo });
+      const players = this.gameService.createGame(
+        playerOne,
+        playerTwo,
+        this.server,
+      );
+      this.server
+        .to(playerOne.player.socketID[0])
+        .to(playerTwo.player.socketID[0])
+        .emit('startGame', players);
     }
   }
 
@@ -115,24 +119,25 @@ export class GameGateway
 
   @SubscribeMessage('moveLeft')
   handleMoveLeft(@ConnectedSocket() client: Socket, @MessageBody() data: User) {
-    // Determining which game
-    const gameIndex = this.games.findIndex(
-      (game) =>
-        game.players[0].player.user.id === data.id ||
-        game.players[1].player.user.id === data.id,
-    );
-    // console.log('gameIndex left: ', gameIndex);
+    // // Determining which game
+    // const gameIndex = this.games.findIndex(
+    //   (game) =>
+    //     game.players[0].player.user.id === data.id ||
+    //     game.players[1].player.user.id === data.id,
+    // );
+    // // console.log('gameIndex left: ', gameIndex);
 
-    // Should never append, but prevention is better than cure
-    if (gameIndex === -1) {
-      throw new WsException('Game was not found');
+    // // Should never append, but prevention is better than cure
+    // if (gameIndex === -1) {
+    //   throw new WsException('Game was not found');
+    // }
+
+    try {
+      const players = this.gameService.moveLeft(client.id, data);
+      this.server.emit('updatePlayerMoved', players);
+    } catch (error) {
+      throw error;
     }
-
-    // Detect which player moved
-    // Will later need to send ONLY to people watching / playing the game
-    if (data.id === this.games[gameIndex].players[0].player.user.id)
-      this.server.emit('playerOneMoveLeft');
-    else this.server.emit('playerTwoMoveLeft');
   }
 
   @SubscribeMessage('moveRight')
@@ -141,23 +146,29 @@ export class GameGateway
     @MessageBody() data: User,
   ) {
     // Determining which game
-    const gameIndex = this.games.findIndex(
-      (game) =>
-        game.players[0].player.user.id === data.id ||
-        game.players[1].player.user.id === data.id,
-    );
-    // console.log('gameIndex right: ', gameIndex);
+    // const gameIndex = this.games.findIndex(
+    //   (game) =>
+    //     game.players[0].player.user.id === data.id ||
+    //     game.players[1].player.user.id === data.id,
+    // );
+    // // console.log('gameIndex right: ', gameIndex);
 
-    // Should never append, but prevention is better than cure
-    if (gameIndex === -1) {
-      throw new WsException('Game was not found');
+    // // Should never append, but prevention is better than cure
+    // if (gameIndex === -1) {
+    //   throw new WsException('Game was not found');
+    // }
+
+    // // Detect which player moved
+    // // Will later need to send ONLY to people watching / playing the game
+    // if (data.id === this.games[gameIndex].players[0].player.user.id)
+    //   this.server.emit('playerOneMoveRight');
+    // else this.server.emit('playerTwoMoveRight');
+    try {
+      const players = this.gameService.moveRight(client.id, data);
+      this.server.emit('updatePlayerMoved', players);
+    } catch (error) {
+      throw error;
     }
-
-    // Detect which player moved
-    // Will later need to send ONLY to people watching / playing the game
-    if (data.id === this.games[gameIndex].players[0].player.user.id)
-      this.server.emit('playerOneMoveRight');
-    else this.server.emit('playerTwoMoveRight');
   }
 
   broadcastEndGame() {

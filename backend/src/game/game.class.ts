@@ -16,6 +16,8 @@ export class Player {
   player: Connection;
   x?: number;
   y?: number;
+  paddle?: Paddle;
+  color?: string;
   score?: number;
 }
 
@@ -26,4 +28,18 @@ export class Spectator {
 export class Ball {
   x: number;
   y: number;
+}
+
+export class Paddle {
+  h: number;
+  w: number;
+  speed: number;
+}
+
+export class Canvas {
+  h: number;
+  w: number;
+  bound: number;
+  paddleSize: number;
+  refreshRate: number;
 }
