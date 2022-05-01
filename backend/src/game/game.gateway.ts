@@ -119,22 +119,9 @@ export class GameGateway
 
   @SubscribeMessage('moveLeft')
   handleMoveLeft(@ConnectedSocket() client: Socket, @MessageBody() data: User) {
-    // // Determining which game
-    // const gameIndex = this.games.findIndex(
-    //   (game) =>
-    //     game.players[0].player.user.id === data.id ||
-    //     game.players[1].player.user.id === data.id,
-    // );
-    // // console.log('gameIndex left: ', gameIndex);
-
-    // // Should never append, but prevention is better than cure
-    // if (gameIndex === -1) {
-    //   throw new WsException('Game was not found');
-    // }
-
     try {
       const players = this.gameService.moveLeft(client.id, data);
-      this.server.emit('updatePlayerMoved', players);
+      // this.server.emit('updatePlayerMoved', players);
     } catch (error) {
       throw error;
     }
@@ -145,33 +132,35 @@ export class GameGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() data: User,
   ) {
-    // Determining which game
-    // const gameIndex = this.games.findIndex(
-    //   (game) =>
-    //     game.players[0].player.user.id === data.id ||
-    //     game.players[1].player.user.id === data.id,
-    // );
-    // // console.log('gameIndex right: ', gameIndex);
-
-    // // Should never append, but prevention is better than cure
-    // if (gameIndex === -1) {
-    //   throw new WsException('Game was not found');
-    // }
-
-    // // Detect which player moved
-    // // Will later need to send ONLY to people watching / playing the game
-    // if (data.id === this.games[gameIndex].players[0].player.user.id)
-    //   this.server.emit('playerOneMoveRight');
-    // else this.server.emit('playerTwoMoveRight');
     try {
       const players = this.gameService.moveRight(client.id, data);
-      this.server.emit('updatePlayerMoved', players);
+      // this.server.emit('updatePlayerMoved', players);
     } catch (error) {
       throw error;
     }
   }
 
-  broadcastEndGame() {
+  sendGameUpdate(game: Game) {
+    const gameUpdate = {
+      playerOne: {
+        x: game.players[0].x,
+        y: game.players[0].y,
+        score: game.players[0].score,
+      },
+      playerTwo: {
+        x: game.players[1].x,
+        y: game.players[1].y,
+        score: game.players[1].score,
+      },
+      ball: { x: game.ball.x, y: game.ball.y, size: game.ball.size },
+    };
+
+    // console.log('gameUpdate: ', gameUpdate);
+    this.server.emit('gameUpdate', gameUpdate);
+  }
+
+  broadcastEndGame(game: Game) {
     console.log('YES!');
+    this.server.emit('endGame');
   }
 }

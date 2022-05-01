@@ -2,6 +2,7 @@
 import { io } from "socket.io-client";
 import { storeToRefs, mapState } from "pinia";
 import { useUserStore } from "@/stores/user";
+import { useRouter } from "vue-router";
 import { Player } from "src/../../backend/src/game/game.class.ts";
 
 export default {
@@ -29,6 +30,8 @@ export default {
 
       intervalID: {},
       keyState: {},
+
+      router: {},
     };
   },
   computed: {
@@ -99,40 +102,50 @@ export default {
     let rightPlayer = this.getPlayerR;
     let sounds = this.getSounds;
 
+    this.router = useRouter();
+
     // Socket Events
     //##########################################################################
-    this.gameSocket.on("updatePlayerMoved", (players) => {
-      console.log("updatePlayerMoved data: ", players);
-      this.player_L.x = players[0].x;
-      this.player_L.y = players[0].y;
-      this.player_R.x = players[1].x;
-      this.player_R.y = players[1].y;
+    // this.gameSocket.on("updatePlayerMoved", (players) => {
+    //   console.log("updatePlayerMoved data: ", players);
+    //   this.player_L.x = players[0].x;
+    //   this.player_L.y = players[0].y;
+    //   this.player_R.x = players[1].x;
+    //   this.player_R.y = players[1].y;
+    // });
+
+    this.gameSocket.on("gameUpdate", (data) => {
+      // console.log("gameUpdate: ", data);
+      this.updateGame(data);
     });
-    this.gameSocket.on("playerOneMoveLeft", () => {
-      if (this.player_L.y - this.paddle.speed >= 0) {
-        this.player_L.y -= this.paddle.speed;
-      }
-    });
-    this.gameSocket.on("playerTwoMoveLeft", () => {
-      if (this.player_R.y - this.paddle.speed >= 0) {
-        this.player_R.y -= this.paddle.speed;
-      }
-    });
-    this.gameSocket.on("playerOneMoveRight", () => {
-      if (
-        this.player_L.y + this.paddle.h + this.paddle.speed <=
-        this.canvas.h
-      ) {
-        this.player_L.y += this.paddle.speed;
-      }
-    });
-    this.gameSocket.on("playerTwoMoveRight", () => {
-      if (
-        this.player_R.y + this.paddle.h + this.paddle.speed <=
-        this.canvas.h
-      ) {
-        this.player_R.y += this.paddle.speed;
-      }
+    // this.gameSocket.on("playerOneMoveLeft", () => {
+    //   if (this.player_L.y - this.paddle.speed >= 0) {
+    //     this.player_L.y -= this.paddle.speed;
+    //   }
+    // });
+    // this.gameSocket.on("playerTwoMoveLeft", () => {
+    //   if (this.player_R.y - this.paddle.speed >= 0) {
+    //     this.player_R.y -= this.paddle.speed;
+    //   }
+    // });
+    // this.gameSocket.on("playerOneMoveRight", () => {
+    //   if (
+    //     this.player_L.y + this.paddle.h + this.paddle.speed <=
+    //     this.canvas.h
+    //   ) {
+    //     this.player_L.y += this.paddle.speed;
+    //   }
+    // });
+    // this.gameSocket.on("playerTwoMoveRight", () => {
+    //   if (
+    //     this.player_R.y + this.paddle.h + this.paddle.speed <=
+    //     this.canvas.h
+    //   ) {
+    //     this.player_R.y += this.paddle.speed;
+    //   }
+    // });
+    this.gameSocket.on("endGame", () => {
+      router.push("/debug");
     });
     //  ##########################################################################
     this.launch();
@@ -148,35 +161,46 @@ export default {
     //  ##########################################################################
     launch: function () {
       const framePerSec = 50;
-      this.intervalID = setInterval(this.game, 1000 / framePerSec);
+      this.intervalID = setInterval(this.game, 1000 / 30);
       return;
     },
     game: function () {
-      if (this.revelePlay == true) this.updateSettings();
-      if (this.gameplay == true && this.endgame == false) {
-        if (this.newgame == false) this.runWild();
-        if (this.newround == true) this.pauseRound();
-        //  Loops over the classical pattern: checks for a key event, updates, clears and render the new positions on
-        //  the virgin canvas and then
-        this.move();
-        this.update();
-        this.clearCanvas();
-        this.render();
-        if (this.gameplay == true) {
-          //  If it is the very beggining of the game (and not just a new round), fixes both player positions so that
-          //  users cannot moove without seing their paddle and before the game starts.
-          if (this.newgame == true) this.pauseGame();
-        }
-      }
+      // if (this.revelePlay == true) this.updateSettings();
+      // if (this.gameplay == true && this.endgame == false) {
+      // if (this.newgame == false) this.runWild();
+      // if (this.newround == true) this.pauseRound();
+      //  Loops over the classical pattern: checks for a key event, updates, clears and render the new positions on
+      //  the virgin canvas and then
+      this.move();
+      // this.update();
+      this.clearCanvas();
+      this.render();
+      // if (this.gameplay == true) {
+      //  If it is the very beggining of the game (and not just a new round), fixes both player positions so that
+      //  users cannot moove without seing their paddle and before the game starts.
+      // if (this.newgame == true) this.pauseGame();
+      // }
+
       // When the game is finished
-      else {
-        clearInterval(this.intervalID);
-        this.gameSocket.emit("endGame", {
-          user: this.loggedUser,
-          score: [this.player_L.score, this.player_R.score],
-        });
-      }
+      // else {
+      //   clearInterval(this.intervalID);
+      //   this.gameSocket.emit("endGame", {
+      //     user: this.loggedUser,
+      //     score: [this.player_L.score, this.player_R.score],
+      //   });
+      // }
       return;
+    },
+    updateGame: function (data) {
+      this.player_L.x = data.playerOne.x;
+      this.player_L.y = data.playerOne.y;
+      this.player_R.x = data.playerTwo.x;
+      this.player_R.y = data.playerTwo.y;
+      this.player_L.score = data.playerOne.score;
+      this.player_R.score = data.playerTwo.score;
+      this.ball.x = data.ball.x;
+      this.ball.y = data.ball.y;
+      this.ball.size = data.ball.size;
     },
     updateSettings: function () {
       //  Both rcv_ are updated here because the props 'revelPlay' is set at true, meaning the user is done modifying

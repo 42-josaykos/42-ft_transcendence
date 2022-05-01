@@ -9,7 +9,10 @@ export class Game {
   players: Player[];
   spectators?: Spectator[];
   ball?: Ball;
-  intervalID?: NodeJS.Timer;
+  finished?: boolean;
+  winner?: Player;
+  intervalID?: number;
+  // intervalID?: NodeJS.Timer;
 }
 
 export class Player {
@@ -28,6 +31,18 @@ export class Spectator {
 export class Ball {
   x: number;
   y: number;
+  velocityX: number;
+  velocityY: number;
+  speed: number;
+  size: number;
+  color: string;
+}
+
+export class BallBoundaries {
+  Xmin: number;
+  Xmax: number;
+  Ymin: number;
+  Ymax: number;
 }
 
 export class Paddle {
@@ -40,6 +55,10 @@ export class Canvas {
   h: number;
   w: number;
   bound: number;
-  paddleSize: number;
   refreshRate: number;
+}
+
+export class GameOptions {
+  paddleSize: number;
+  ballSpeed: number;
 }
