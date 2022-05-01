@@ -35,7 +35,6 @@ if (isAuthenticated.value) {
   }
 
   socketChat.value.on('askInfo', () => {
-    console.log("Send Info => ", loggedUser.value)
     socketChat.value?.emit('sendInfo', loggedUser.value);
   })
 
@@ -70,7 +69,7 @@ if (isAuthenticated.value) {
       channelStore.createChannel(newChannel);
       channelStore.updateMember(loggedUser.value?.id);
       channelStore.updateOwner(loggedUser.value.id);
-      if (message != null) {
+      if (message != null && loggedUser.value.id == newChannel.owner.id) {
         socketChat.value?.emit("newMessage", message, user);
       }
     }
@@ -81,7 +80,6 @@ if (isAuthenticated.value) {
     if (loggedUser.value != undefined) {
       channelStore.deleteChannelInvite(inviteChannel);
       if (inviteBool == true) {
-        // channelStore.joinChannel(inviteChannel);
         channelStore.updateMember(loggedUser.value.id);
       }
     }
@@ -98,7 +96,6 @@ if (isAuthenticated.value) {
   socketChat.value.on("joinChannel", () => {
     if (loggedUser.value != undefined) {
       if (channelJoin.value != undefined) {
-        // channelStore.joinChannel(channelJoin.value);
         channel.value = channelJoin.value;
         messages.value = channelJoin.value.messages;
         socketChat.value?.emit(

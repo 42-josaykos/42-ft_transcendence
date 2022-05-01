@@ -66,8 +66,8 @@ const sendDirectMessage = async () => {
       },
       loggedUser.value
     );
-    stringSendMessage.value = "";
   }
+  stringSendMessage.value = "";
 };
 
 const addBanMute = (boolBan: Boolean) => {
@@ -161,6 +161,14 @@ const addAdmin = () => {
       loggedUser.value
     )
   }
+  else {
+    socketChat.value?.emit('updateMember',
+      channel.value?.id,
+      {addAdmins: [{id: userClick.value?.id}]},
+      null,
+      loggedUser.value
+    )
+  }
 }
 
 </script>
@@ -240,6 +248,13 @@ const addAdmin = () => {
           >
             Send message
           </button>
+            <button
+              @click=""
+              type="button"
+              class="btn-user-click my-2"
+            >
+              INVITE TO PLAY
+            </button>
           <button
             @click="modalFriend = true"
             type="button" class="btn-user-click my-2">
@@ -268,7 +283,6 @@ const addAdmin = () => {
             >
               BAN
             </button>
-            <!-- voir pour les bans et mutes -->
             <button
               @click="modalAdmin = true"
               type="button"

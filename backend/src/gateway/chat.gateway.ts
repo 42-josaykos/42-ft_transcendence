@@ -10,14 +10,10 @@ import {
 } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
-import Channel from 'src/api/channels/entities/channel.entity';
 import User from 'src/api/users/entities/user.entity';
 import { ChannelsService } from 'src/api/channels/channels.service';
 import { UsersService } from 'src/api/users/users.service';
 import { AuthService } from 'src/auth/auth.service';
-import { UpdateUserDTO } from 'src/api/users/dto/update-user.dto';
-import { getRepository } from 'typeorm';
-import { TypeORMSession } from 'src/auth/entities/session.entity';
 import { MessagesService } from 'src/api/messages/messages.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -39,8 +35,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly channelsService: ChannelsService,
     private readonly usersService: UsersService,
     private readonly messagesService: MessagesService,
-    private readonly jwtService: JwtService,
-    private readonly authService: AuthService,
   ) {}
 
   @WebSocketServer() server: Server;
@@ -81,8 +75,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!this.connectedClients[userIndex].socketID.length) {
       this.connectedClients.splice(userIndex, 1);
     }
-    console.log('Clients connected after disconnect: ', this.connectedClients);
-
   }
 
   @SubscribeMessage('sendInfo')
@@ -282,7 +274,6 @@ async updateInvite(client: Socket, data: any[]) {
     const updateChannel = data[1];
     const message = data[2];
     const user = data[3];
-    console.log("updateChannel => ", updateChannel)
 
     let userMember :User = undefined;
     if (updateChannel.removeMembers != undefined) {
@@ -295,7 +286,6 @@ async updateInvite(client: Socket, data: any[]) {
     let userRemoveBan :User = undefined;
     if (updateChannel.removeBans != undefined) {
       userRemoveBan = updateChannel.removeBans[0].user
-      console.log("userRemoveBan => ", userRemoveBan)
     }
     let userAddMute :User = undefined;
     if (updateChannel.addMutes != undefined) {
@@ -310,17 +300,15 @@ async updateInvite(client: Socket, data: any[]) {
       channelID,
       updateChannel,
     );
-    console.log("newChannel => ", newChannel)
+
     let [channel] = await this.channelsService.getChannelsByFilter({
       id: channelID,
       members: true,
     });
-    console.log("Channel => ", channel)
+
     const members = channel.members;
-    console.log("members => ", members)
     for (const member of members) {
       const index = this.connectedClients.findIndex((el) => el.userID === member.id)
-      console.log("index => ", index)
       if (index != -1) {
         const socketIds = this.connectedClients[index].socketID;
         for (const socketId of socketIds) {
@@ -329,7 +317,6 @@ async updateInvite(client: Socket, data: any[]) {
             this.server.to(socketId).emit('userAddBan', newChannel)
           }
           if (userRemoveBan != undefined && this.connectedClients[index].userID == userRemoveBan.id) {
-            console.log(">>>> 2222 ")
             this.server.to(socketId).emit('userRemoveBan', newChannel)
           }
           if (userAddMute != undefined && this.connectedClients[index].userID == userAddMute.id) {

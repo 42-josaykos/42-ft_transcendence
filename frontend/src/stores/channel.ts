@@ -2,13 +2,9 @@ import { defineStore, storeToRefs } from "pinia";
 import { ref } from "vue";
 import type { Channel } from '@/models/channel.model';
 import type { User } from "@/models/user.model";
-import type { Timer } from '@/models/timer.model';
 import { Get } from "@/services/requests";
 import { useUserStore } from "@/stores/user";
 
-
-// const userStore = useUserStore();
-// const { loggedUser, socketChat } = storeToRefs(userStore);
 
 export const useChannelStore = defineStore('channel', () => {
 
@@ -45,10 +41,8 @@ export const useChannelStore = defineStore('channel', () => {
   // Les users que l'on souhaite invité dans un channel privé
     const usersInvite = ref<User[]>([]);
 
-    //const channelsJoin = ref<boolean>();
     const newOwner = ref<User>();
     const channelType = ref<number>();
-    //const channelTypeUpdate = ref<number>();
 
     const arrayTime = ref<string[]>(["00:00:15", "00:15:00", "00:30:00", "01:00:00", "02:00:00", "12:00:00", "23:59:59", "indefinite time"])
     const timerIntervalBan = ref<any[]>([]);
@@ -57,16 +51,6 @@ export const useChannelStore = defineStore('channel', () => {
     const createChannel = (newChannel: Channel) => {
       allChannels.value.push(newChannel);
     }
-
-    // const joinChannel = (newChannel: Channel) => {
-    //   newChannel.isMember = true;
-    //   channels.value.push(newChannel);
-    // }
-
-    // const leaveChannel = (newChannel: Channel) => {
-    //   const index = channels.value.findIndex((el: Channel) => el.id === newChannel.id);
-    //   channels.value.splice(index, 1);
-    // }
 
     const updateMember = (userID: number) => {
       
@@ -426,7 +410,6 @@ export const useChannelStore = defineStore('channel', () => {
         allChannels,
         channels,
         channel,
-        //channelsJoin,
         channelJoin,
         channelLeave,
         channelsInvite,
@@ -439,10 +422,7 @@ export const useChannelStore = defineStore('channel', () => {
         arrayTime,
         timerIntervalBan,
         timerIntervalMute,
-        //channelTypeUpdate,
         createChannel,
-        // joinChannel,
-        // leaveChannel,
         updateMember,
         updateOwner,
         updateInvite,
