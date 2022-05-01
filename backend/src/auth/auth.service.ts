@@ -11,6 +11,9 @@ import { FilterUserDTO } from 'src/api/users/dto/filter-user.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { authenticator } from 'otplib';
+import { toFileStream } from 'qrcode';
+import { Response } from 'express';
 
 /**
  * Create a new student user if not found in database
@@ -101,8 +104,11 @@ export class AuthService implements AuthenticationProvider {
   /*****************************************************************************
    * Jwt
    */
-  public getCookieWithJwtAccessToken(userID: number) {
-    const payload: TokenPayload = { userID };
+  public getCookieWithJwtAccessToken(
+    userID: number,
+    isSecondFactorAuthenticated = false,
+  ) {
+    const payload: TokenPayload = { userID, isSecondFactorAuthenticated };
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_ACCESS_SECRET'),
       expiresIn: `${this.configService.get('JWT_ACCESS_EXPIRATION_TIME')}s`,
@@ -141,6 +147,61 @@ export class AuthService implements AuthenticationProvider {
 
   async removeRefreshToken(userID: number) {
     return this.usersService.removeRefreshToken(userID);
+  }
+
+  /*****************************************************************************
+   * 2-FA
+   */
+  public async generateTwoFactorAuthenticationSecret(user: User) {
+    const secret = authenticator.generateSecret();
+    const otpauthUrl = authenticator.keyuri(
+      user.username,
+      this.configService.get('TWO_FACTOR_AUTHENTICATION_APP_NAME'),
+      secret,
+    );
+    await this.usersService.setTwoFactorAuthenticationSecret(secret, user.id);
+
+    return {
+      secret,
+      otpauthUrl,
+    };
+  }
+
+  public async pipeQrCodeStream(stream: Response, otpauthUrl: string) {
+    return toFileStream(
+      stream.setHeader('Content-Type', 'image/png'),
+      otpauthUrl,
+    );
+  }
+
+  public async isTwoFactorAuthenticationCodeValid(
+    twoFactorAuthenticationCode: string,
+    userId: number,
+  ) {
+    const filter = {
+      id: userId,
+      twoFactorAuthenticationSecret: true,
+    };
+
+    const [user] = await this.usersService.getUsersByFilter(filter);
+    console.log('istwofactor:', user);
+
+    if (!user.twoFactorAuthenticationSecret) {
+      return null;
+    }
+    return authenticator.verify({
+      token: twoFactorAuthenticationCode,
+      secret: user.twoFactorAuthenticationSecret,
+    });
+  }
+
+  public async turnOnTwoFactorAuthentication(user: User) {
+    const filter = {
+      id: user.id,
+      isTwoFactorAuthenticationEnabled: true,
+    };
+    const [filteredUser] = await this.usersService.getUsersByFilter(filter);
+    return this.usersService.turnOnTwoFactorAuthentication(filteredUser);
   }
 }
 

@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { onBeforeMount, ref } from 'vue';
-import { Get, Post, Delete, Patch } from '@/services/requests';
+import { onBeforeMount, ref } from "vue";
+import { Get, Post, Delete, Patch } from "@/services/requests";
 
-import { storeToRefs } from 'pinia';
-import { useUserStore } from '@/stores/user';
-import type { User } from '@/models/user.model';
-import type { Input, InputStore } from '@/stores/input';
+import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/user";
+import type { User } from "@/models/user.model";
+import type { Input, InputStore } from "@/stores/input";
+import { useRouter } from "vue-router";
 
 // Props
 const props = defineProps<{
@@ -15,18 +16,28 @@ const props = defineProps<{
 }>();
 
 // Request url to API
-const baseUrl = '/users';
+const baseUrl = "/users";
 
 // Single element
 const user = ref<User | null>(null);
 
 // Stores
 const userStore = useUserStore();
-const { users } = storeToRefs(userStore);
+const { users, loggedUser, gameSocket } = storeToRefs(userStore);
+
+const router = useRouter();
+
+gameSocket.value.on("startGame", (data: any) => {
+  router.push("/matchmaking");
+});
+
+const match = () => {
+  gameSocket.value.emit("queue", loggedUser.value);
+};
 
 // CRUD functions
 const getUser = () => {
-  Get(baseUrl + '?username=' + props.input.search).then(res => {
+  Get(baseUrl + "?username=" + props.input.search).then((res) => {
     if (res.status == 200) {
       user.value = res.data[0];
     }
@@ -35,7 +46,7 @@ const getUser = () => {
 };
 
 const createUser = () => {
-  Post(baseUrl, { username: props.input.create }).then(res => {
+  Post(baseUrl, { username: props.input.create }).then((res) => {
     if (res.status == 201) {
       userStore.createUser(res.data);
       // Get(baseUrl).then(res => (users.value = res.data));
@@ -45,9 +56,9 @@ const createUser = () => {
 };
 
 const updateUser = () => {
-  Patch(baseUrl + '/' + props.input.user_id, {
-    username: props.input.update_username
-  }).then(res => {
+  Patch(baseUrl + "/" + props.input.user_id, {
+    username: props.input.update_username,
+  }).then((res) => {
     if (res.status == 200) {
       userStore.updateUser(res.data.id, res.data);
       // Get(baseUrl).then(res => (users.value = res.data));
@@ -57,7 +68,7 @@ const updateUser = () => {
 };
 
 const deleteUser = (id: number) => {
-  Delete(baseUrl + '/' + id.toString()).then(res => {
+  Delete(baseUrl + "/" + id.toString()).then((res) => {
     if (res.status == 200) {
       userStore.deleteUser(id);
       // Get(baseUrl).then(res => (users.value = res.data));
@@ -66,7 +77,7 @@ const deleteUser = (id: number) => {
 };
 
 onBeforeMount(() => {
-  Get(baseUrl).then(res => (users.value = res.data));
+  Get(baseUrl).then((res) => (users.value = res.data));
 });
 </script>
 
@@ -105,4 +116,8 @@ onBeforeMount(() => {
     </li>
   </ul>
   <p v-else>Not Found</p>
+
+  <div>
+    <button @click="match">Start a new match!</button>
+  </div>
 </template>

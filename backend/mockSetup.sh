@@ -1,6 +1,6 @@
 #!/usr/bin/zsh
 
-API="http://localhost:4000"
+API="http://localhost:4001"
 CONTENT_TYPE="Content-Type: application/json"
 
 # Populate Database with users

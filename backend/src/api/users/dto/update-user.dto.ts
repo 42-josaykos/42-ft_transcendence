@@ -49,6 +49,12 @@ export class UpdateUserDTO {
   @IsOptional()
   readonly refreshToken?: string;
 
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  readonly twoFactorAuthenticationSecret?: string;
+
   @IsNotEmpty()
   @IsOptional()
   readonly blockedUsers?: User[];
