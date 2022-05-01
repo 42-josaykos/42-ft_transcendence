@@ -121,7 +121,6 @@ export class GameGateway
   handleMoveLeft(@ConnectedSocket() client: Socket, @MessageBody() data: User) {
     try {
       const players = this.gameService.moveLeft(client.id, data);
-      // this.server.emit('updatePlayerMoved', players);
     } catch (error) {
       throw error;
     }
@@ -134,7 +133,6 @@ export class GameGateway
   ) {
     try {
       const players = this.gameService.moveRight(client.id, data);
-      // this.server.emit('updatePlayerMoved', players);
     } catch (error) {
       throw error;
     }
@@ -159,8 +157,26 @@ export class GameGateway
     this.server.emit('gameUpdate', gameUpdate);
   }
 
-  broadcastEndGame(game: Game) {
-    console.log('YES!');
-    this.server.emit('endGame');
+  async broadcastEndGame(game: Game) {
+    try {
+      // POST match data in the database through the API
+      const body = {
+        players: [
+          { id: game.players[0].player.user.id },
+          { id: game.players[1].player.user.id },
+        ],
+        score: [game.players[0].score, game.players[1].score],
+      };
+      const match = await axios({
+        url: 'http://localhost:4000/matches',
+        method: 'POST',
+        data: body,
+      });
+      // console.log('Match Result: ', match.data);
+
+      this.server.emit('endGame');
+    } catch (error) {
+      throw error;
+    }
   }
 }

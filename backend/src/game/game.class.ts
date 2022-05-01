@@ -11,8 +11,8 @@ export class Game {
   ball?: Ball;
   finished?: boolean;
   winner?: Player;
-  intervalID?: number;
-  // intervalID?: NodeJS.Timer;
+  // intervalID?: number;
+  intervalID?: NodeJS.Timer;
 }
 
 export class Player {

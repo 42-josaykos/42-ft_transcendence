@@ -161,7 +161,7 @@ export default {
     //  ##########################################################################
     launch: function () {
       const framePerSec = 50;
-      this.intervalID = setInterval(this.game, 1000 / 30);
+      this.intervalID = setInterval(this.game, 1000 / 60);
       return;
     },
     game: function () {

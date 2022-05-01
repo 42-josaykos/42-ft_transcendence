@@ -3,15 +3,18 @@ import { ModuleRef } from '@nestjs/core';
 import { WsException } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { GameGateway } from 'src/game/game.gateway';
-import { Game } from 'src/game/game.class';
-import { Connection } from 'src/game/game.class';
-import { Player } from 'src/game/game.class';
-import { Spectator } from 'src/game/game.class';
-import { Ball } from 'src/game/game.class';
-import { BallBoundaries } from 'src/game/game.class';
-import { Paddle } from 'src/game/game.class';
-import { Canvas } from 'src/game/game.class';
-import { GameOptions } from 'src/game/game.class';
+import {
+  Game,
+  Player,
+  Paddle,
+  Ball,
+  BallBoundaries,
+  Canvas,
+  GameOptions,
+  Connection,
+  Spectator,
+} from 'src/game/game.class';
+
 import User from 'src/api/users/entities/user.entity';
 
 @Injectable()
@@ -25,7 +28,7 @@ export class GameService implements OnModuleInit {
     h: 600,
     w: 1000,
     bound: 25,
-    refreshRate: 1000 / 30,
+    refreshRate: 1000 / 60,
   };
 
   onModuleInit() {
@@ -50,35 +53,23 @@ export class GameService implements OnModuleInit {
     this.games.push(game);
 
     // no more intervalID !!
-    setInterval(() => {
-      // //	Checks whether the ball passed throught the canvas boundaries by the left or by the right (the extra 50 pixels
-      // //	make the rendering smoother).
-      // console.log(game);
-
-      const gameIndex = this.games.indexOf(game);
-      // console.log('gameIndex LOOP: ', gameIndex);
-      game = this.games[gameIndex];
-
-      // console.log('Ball x: ', game.ball.x);
-      // console.log('Ball y: ', game.ball.y);
-      // console.log('P1 x: ', game.players[0].x);
-      // console.log('P1 y: ', game.players[0].y);
-      // console.log('P2 x: ', game.players[1].x);
-      // console.log('P2 y: ', game.players[1].y);
-
+    game.intervalID = setInterval(async () => {
+      // Updating ball position
       game.ball.x += game.ball.velocityX;
       game.ball.y += game.ball.velocityY;
       const ballBoundaries = this.getBallBoundaries(game.ball);
+
+      // Checking if a player score
+      // Checks whether the ball passed throught the canvas boundaries by the left or by the right
+      // (the extra 50 pixels make the rendering smoother).
       if (
         ballBoundaries.Xmin - 50 > this.canvas.w ||
         ballBoundaries.Xmax + 50 < 0
       ) {
         game = this.updateScore(game);
-        if (game.winner) {
-          console.log('WINNERRR !!!');
-          this.endGame(game);
-        }
+        if (game.winner) this.endGame(game);
       }
+
       // Checks if the ball passed has hit one of the canvas boundaries by the top or by the bottom. If so, it bounces.
       if (ballBoundaries.Ymax >= this.canvas.h || ballBoundaries.Ymin <= 0) {
         game.ball.velocityY *= -1;
@@ -93,12 +84,10 @@ export class GameService implements OnModuleInit {
           : game.players[1];
       if (this.computeCollision(game.ball, player)) {
         // this.sounds.hit.play();
-        // console.log('Collision!!!');
         game.ball = this.computeNewVelocity(game.ball, player);
       }
 
       this.gateway.sendGameUpdate(game);
-      // return;
     }, this.canvas.refreshRate);
   }
 
@@ -123,19 +112,21 @@ export class GameService implements OnModuleInit {
     //  Else, the new score is rendered and the ball is sent at its default position for a new round.
     // this.sounds.score.play();
     // this.resetPlay();
-    game.ball = this.initNewBall(-1);
+
+    // Setting new ball direction
+    const newBallDirection = game.ball.velocityX < 0 ? 1 : -1;
+    game.ball = this.initNewBall(newBallDirection);
     return game;
   }
 
   endGame(game: Game) {
-    console.log('endGame');
-    // const game = this.games[0];
-    // const playerOne = game.players[0];
-    // const playerTwo = game.players[1];
-    // const spectators = game.spectators;
+    // Destroy game loop
+    clearInterval(game.intervalID);
 
+    // Remove game from games array
     const gameIndex = this.games.indexOf(game);
     this.games.splice(gameIndex, 1);
+
     this.gateway.broadcastEndGame(game);
   }
 
@@ -156,14 +147,11 @@ export class GameService implements OnModuleInit {
     let playerTwo = this.games[gameIndex].players[1];
 
     // Detect which player moved
-    // Will later need to send ONLY to people watching / playing the game
     if (player.id === playerOne.player.user.id)
       playerOne = this.computePlayerMoveLeft(playerOne);
     else playerTwo = this.computePlayerMoveLeft(playerTwo);
 
     return [playerOne, playerTwo];
-    // this.server.emit('playerOneMoveLeft');
-    // else this.server.emit('playerTwoMoveLeft');
   }
 
   moveRight(socketID: string, player: User): Player[] {
@@ -182,28 +170,14 @@ export class GameService implements OnModuleInit {
     let playerTwo = this.games[gameIndex].players[1];
 
     // Detect which player moved
-    // Will later need to send ONLY to people watching / playing the game
-    // console.log('PlayerOne RIGHT BEFORE: ', this.games[gameIndex].players[0]);
-    // console.log('PlayerTwo RIGHT BEFORE: ', this.games[gameIndex].players[1]);
     if (player.id === playerOne.player.user.id)
       playerOne = this.computePlayerMoveRight(playerOne);
     else playerTwo = this.computePlayerMoveRight(playerTwo);
-    // console.log(
-    //   'PlayerOne ALIAS RIGHT AFTER: ',
-    //   this.games[gameIndex].players[0],
-    // );
-    // console.log(
-    //   'PlayerTwo ALIAS RIGHT AFTER: ',
-    //   this.games[gameIndex].players[1],
-    // );
-    // console.log('PlayerOne RIGHT AFTER: ', this.games[gameIndex].players[0]);
-    // console.log('PlayerTwo RIGHT AFTER: ', this.games[gameIndex].players[1]);
 
     return [playerOne, playerTwo];
-    // this.server.emit('playerOneMoveLeft');
-    // else this.server.emit('playerTwoMoveLeft');
   }
 
+  // Data Computation
   computePlayerMoveLeft(player: Player) {
     if (player.y - player.paddle.speed >= 0) {
       player.y -= player.paddle.speed;
