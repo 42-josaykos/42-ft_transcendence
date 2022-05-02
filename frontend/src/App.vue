@@ -65,7 +65,6 @@ export const isMeteor = ref(false);
       </div>
       <div class="routerView"><router-view /></div>
     </div>
-    <div class="routerView"><router-view /></div>
   </div>
 </template>
 
