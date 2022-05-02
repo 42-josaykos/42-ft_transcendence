@@ -21,7 +21,7 @@ const twoFactorInput = ref('');
 const usernameInput = ref('');
 const turnOffForm = ref(false);
 const error = ref(false);
-const file = ref<File | null>();
+const fileInput = ref<HTMLInputElement | null>(null);
 
 const emit = defineEmits<{
   (e: 'updateUsername', value: string): void;
@@ -119,17 +119,21 @@ function updateUsername() {
 
 function updateAvatar(event: any) {
   console.log(event);
-  console.log(event.target);
-  const formData = new FormData(event.target);
-  console.log(formData);
-
-  // ax.post('/upload', event.target, {
-  //   headers: { 'Content-Type': 'multipart/form-data' }
-  // }).then(res => {
-  //   if (res) {
-  //     console.log(res);
-  //   }
-  // });
+  if (fileInput.value !== null) {
+    const file = fileInput.value.files?.item(0);
+    if (file) {
+      let formData = new FormData();
+      formData.append('avatarUpload', file);
+      ax.post('/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      }).then(res => {
+        if (res.status === 201) {
+          console.log(res);
+          fileInput.value = null;
+        }
+      });
+    }
+  }
 }
 </script>
 
@@ -150,9 +154,9 @@ function updateAvatar(event: any) {
   <div v-if="isAuthenticated">
     <!-- Update avatar -->
 
-    <form @submit.prevent="updateAvatar" enctype="multipart/form-data">
+    <form @submit.prevent="updateAvatar">
       <div>
-        <input type="file" id="file" name="avatarUpload" />
+        <input type="file" accept="image/*" id="file" ref="fileInput" />
         <button type="submit">Upload</button>
       </div>
     </form>

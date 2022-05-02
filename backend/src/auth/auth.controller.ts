@@ -145,7 +145,7 @@ export class AuthController {
   }
 
   @Post('turn-2fa-on')
-  @UseGuards(JwtTwoFactorGuard)
+  @UseGuards(JwtAccessGuard)
   async turnOnTwoFactorAuthentication(
     @Req() request: RequestWithUser,
     @Body() { twoFactorAuthenticationCode }: twoFactorAuthenticationCodeDTO,
