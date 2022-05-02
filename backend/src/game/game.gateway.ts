@@ -29,10 +29,7 @@ import { Game, Player, Spectator } from 'src/game/game.class';
 export class GameGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  constructor(
-    private readonly statusGateway: StatusGateway,
-    private gameService: GameService,
-  ) {}
+  constructor(private gameService: GameService) {}
 
   @WebSocketServer()
   private server: Server;
@@ -60,15 +57,19 @@ export class GameGateway
     @MessageBody() data: User,
   ) {
     // Adding player to queue
-    this.queue.push({ user: data, socketID: [client.id] });
+    this.queue.push({
+      user: data,
+      socketID: this.gameService.getUserSockets(data),
+    });
+    console.log('queue: ', this.queue);
 
     // Start a game if there is at least 2 players in the queue waiting
     while (this.queue.length >= 2) {
       // Remove players from queue
       const playerOne: Player = { player: this.queue.shift() };
       const playerTwo: Player = { player: this.queue.shift() };
-      // console.log('playerOne: ', playerOne);
-      // console.log('playerTwo: ', playerTwo);
+      console.log('playerOne: ', playerOne);
+      console.log('playerTwo: ', playerTwo);
 
       // Create and start game
       const players = this.gameService.createGame(
@@ -77,6 +78,7 @@ export class GameGateway
         this.server,
       );
       this.server
+        .of('/game')
         .to(playerOne.player.socketID[0])
         .to(playerTwo.player.socketID[0])
         .emit('startGame', players);
