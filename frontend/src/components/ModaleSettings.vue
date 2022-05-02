@@ -40,7 +40,7 @@ export default {
 <!-- </section> -->
 </template>
 
-<style>
+<style scoped>
 .powerups {
 		width: 100%
 }
