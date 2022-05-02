@@ -285,7 +285,7 @@ const addAdmin = () => {
             </button>
           </div>
           <div
-            v-if="channelStore.isOwner(channel, loggedUser?.id)"
+            v-if="channelStore.isOwner(channel, loggedUser?.id) && !channel?.isDirectChannel"
             style="display: grid"
           >
             <button

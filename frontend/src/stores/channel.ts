@@ -341,29 +341,21 @@ export const useChannelStore = defineStore('channel', () => {
           }
         }
         else {
+          const newTimer = {
+            channelId: channelItem.id,
+            timeLeft: ''
+          }
           if (isBan) {
-            if (indexBan != -1) {
-              timerIntervalBan.value[index].timeLeft = "undefinite"
-            }
-            else {
-              const newTimer = {
-                channelId: channelItem.id,
-                timeLeft: ''
-              }
+            if (indexBan == -1) {
               timerIntervalBan.value.push(newTimer)
             }
+            timerIntervalBan.value[index].timeLeft = "undefinite"
           }
           else {
-            if (indexBan != -1) {
-              timerIntervalMute.value[index].timeLeft = "undefinite"
-            }
-            else {
-              const newTimer = {
-                channelId: channelItem.id,
-                timeLeft: ''
-              }
+            if (indexMute == -1) {
               timerIntervalMute.value.push(newTimer)
             }
+            timerIntervalMute.value[index].timeLeft = "undefinite"
           }
         }
       }
