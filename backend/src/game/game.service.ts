@@ -13,6 +13,7 @@ import {
   GameOptions,
   Connection,
   Spectator,
+  Events,
 } from 'src/game/game.class';
 
 import User from 'src/api/users/entities/user.entity';
@@ -41,11 +42,13 @@ export class GameService implements OnModuleInit {
     playerOne = this.initNewPlayerOne(playerOne.player);
     playerTwo = this.initNewPlayerTwo(playerTwo.player);
     const newBall = this.initNewBall();
+    const events = this.initEvents();
 
     let game: Game = {
       players: [playerOne, playerTwo],
       spectators: [],
       ball: newBall,
+      events: events,
       finished: false,
       winner: null,
     };
@@ -73,7 +76,7 @@ export class GameService implements OnModuleInit {
       // Checks if the ball passed has hit one of the canvas boundaries by the top or by the bottom. If so, it bounces.
       if (ballBoundaries.Ymax >= this.canvas.h || ballBoundaries.Ymin <= 0) {
         game.ball.velocityY *= -1;
-        // this.sounds.wall.play();
+        game.events.sounds.wall = true;
       }
 
       // //	Checks in which part of the canvas the ball is in order to send the appropriate player to collision() that'll
@@ -83,11 +86,13 @@ export class GameService implements OnModuleInit {
           ? game.players[0]
           : game.players[1];
       if (this.computeCollision(game.ball, player)) {
-        // this.sounds.hit.play();
         game.ball = this.computeNewVelocity(game.ball, player);
+        game.events.sounds.hit = true;
       }
 
+      // Sending game changes and re initializing sound events
       this.gateway.sendGameUpdate(game);
+      for (let field in game.events.sounds) game.events.sounds[field] = false;
     }, this.canvas.refreshRate);
   }
 
@@ -98,6 +103,7 @@ export class GameService implements OnModuleInit {
     const ballBoundaries = this.getBallBoundaries(game.ball);
     if (ballBoundaries.Xmin - 10 > this.canvas.w) ++game.players[0].score;
     else if (ballBoundaries.Xmax + 10 < 0) ++game.players[1].score;
+    game.events.sounds.score = true;
 
     //  Ends game if one of the two players reached 10.
     if (game.players[0].score == 10 || game.players[1].score == 10) {
@@ -107,6 +113,8 @@ export class GameService implements OnModuleInit {
       // this.gameplay = false;
       // this.endgame = true;
       // this.sounds.win.play();
+      // game.events.sounds.win = true;
+      // game.events.sounds.loose = true;
       return game;
     }
     //  Else, the new score is rendered and the ball is sent at its default position for a new round.
@@ -315,5 +323,19 @@ export class GameService implements OnModuleInit {
     };
 
     return playerTwo;
+  }
+
+  initEvents(): Events {
+    const events: Events = {
+      sounds: {
+        hit: false,
+        wall: false,
+        score: false,
+        win: false,
+        loose: false,
+      },
+    };
+
+    return events;
   }
 }

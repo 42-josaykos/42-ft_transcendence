@@ -111,7 +111,6 @@ export default {
       this.updateGame(data);
     });
     this.gameSocket.on("endGame", () => {
-      console.log("in endGame event");
       this.router.push("/debug");
     });
     //  ##########################################################################
@@ -168,6 +167,11 @@ export default {
       this.ball.x = data.ball.x;
       this.ball.y = data.ball.y;
       this.ball.size = data.ball.size;
+
+      // Playing sound events
+      for (const field in data.events.sounds) {
+        if (data.events.sounds[field]) this.sounds[field].play();
+      }
     },
     updateSettings: function () {
       //  Both rcv_ are updated here because the props 'revelPlay' is set at true, meaning the user is done modifying

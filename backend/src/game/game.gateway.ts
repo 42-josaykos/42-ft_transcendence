@@ -151,6 +151,7 @@ export class GameGateway
         score: game.players[1].score,
       },
       ball: { x: game.ball.x, y: game.ball.y, size: game.ball.size },
+      events: game.events,
     };
 
     // console.log('gameUpdate: ', gameUpdate);

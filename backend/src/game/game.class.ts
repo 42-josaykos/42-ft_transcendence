@@ -9,6 +9,7 @@ export class Game {
   players: Player[];
   spectators?: Spectator[];
   ball?: Ball;
+  events: Events;
   finished?: boolean;
   winner?: Player;
   // intervalID?: number;
@@ -61,4 +62,16 @@ export class Canvas {
 export class GameOptions {
   paddleSize: number;
   ballSpeed: number;
+}
+
+export class Events {
+  sounds: Sound;
+}
+
+export class Sound {
+  hit: boolean;
+  wall: boolean;
+  score: boolean;
+  win: boolean;
+  loose: boolean;
 }
