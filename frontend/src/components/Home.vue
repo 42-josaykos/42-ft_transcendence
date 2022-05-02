@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import TeamProfil from './TeamProfil.vue';
+import { storeToRefs } from 'pinia';
+import { useUserStore } from '@/stores/user';
 
 const profil_vmoreau = ref(false);
 const profil_mabriand = ref(false);
 const profil_josaykos = ref(false);
 const profil_lchapren = ref(false);
 const profil_adupuy = ref(false);
+
+const userStore = useUserStore();
+const { isAuthenticated } = storeToRefs(userStore);
 </script>
 
 <template>
@@ -86,136 +91,147 @@ const profil_adupuy = ref(false);
                 <b>SPACE PONG</b>
               </div>
             </div>
+
             <div class="infoGame mb-5">
-              <div
-                class="neon-typo pt-4"
-                style="font-size: xx-large; font-weight: bold"
-              >
-                Live Game
+              <div class="req neon-typo" v-if="!isAuthenticated">
+                Log in to access
               </div>
-              <hr />
-              <br />
-              <table style="width: 90%; table-layout: fixed; margin-left: 5%">
-                <tr>
-                  <th class="watch_player">Josaykos</th>
-                  <td class="neon-typo versus">VS</td>
-                  <th class="watch_player">Lchapren</th>
-                  <td><i class="fa-solid fa-eye fa-xl watch_icon"></i></td>
-                </tr>
-                <tr>
-                  <th class="watch_player">Vmoreau</th>
-                  <td class="neon-typo versus">VS</td>
-                  <th class="watch_player">Adupuy</th>
-                  <td><i class="fa-solid fa-eye fa-xl watch_icon"></i></td>
-                </tr>
-                <tr>
-                  <th class="watch_player">Mabriand</th>
-                  <td class="neon-typo versus">VS</td>
-                  <th class="watch_player">Josaykos</th>
-                  <td><i class="fa-solid fa-eye fa-xl watch_icon"></i></td>
-                </tr>
-                <tr>
-                  <th class="watch_player">Adupuy</th>
-                  <td class="neon-typo versus">VS</td>
-                  <th class="watch_player">Lchapren</th>
-                  <td><i class="fa-solid fa-eye fa-xl watch_icon"></i></td>
-                </tr>
-                <tr>
-                  <th class="watch_player">Dicayne Dicayne Dicayne</th>
-                  <td class="neon-typo versus">VS</td>
-                  <th class="watch_player">Mabriand Mabriand Mabriand</th>
-                  <td><i class="fa-solid fa-eye fa-xl watch_icon"></i></td>
-                </tr>
-              </table>
-            </div>
+              <div class="cont">
+                <div
+                  class="neon-typo pt-4"
+                  style="font-size: xx-large; font-weight: bold"
+                >
+                  Live Game
+                </div>
+                <hr />
+                <br />
+                <table style="width: 90%; table-layout: fixed; margin-left: 5%">
+                  <tr>
+                    <th class="watch_player">Josaykos</th>
+                    <td class="neon-typo versus">VS</td>
+                    <th class="watch_player">Lchapren</th>
+                    <td><i class="fa-solid fa-eye fa-xl action_icon"></i></td>
+                  </tr>
+                  <tr>
+                    <th class="watch_player">Vmoreau</th>
+                    <td class="neon-typo versus">VS</td>
+                    <th class="watch_player">Adupuy</th>
+                    <td><i class="fa-solid fa-eye fa-xl action_icon"></i></td>
+                  </tr>
+                  <tr>
+                    <th class="watch_player">Mabriand</th>
+                    <td class="neon-typo versus">VS</td>
+                    <th class="watch_player">Josaykos</th>
+                    <td><i class="fa-solid fa-eye fa-xl action_icon"></i></td>
+                  </tr>
+                  <tr>
+                    <th class="watch_player">Adupuy</th>
+                    <td class="neon-typo versus">VS</td>
+                    <th class="watch_player">Lchapren</th>
+                    <td><i class="fa-solid fa-eye fa-xl action_icon"></i></td>
+                  </tr>
+                  <tr>
+                    <th class="watch_player">Dicayne Dicayne Dicayne</th>
+                    <td class="neon-typo versus">VS</td>
+                    <th class="watch_player">Mabriand Mabriand Mabriand</th>
+                    <td><i class="fa-solid fa-eye fa-xl action_icon"></i></td>
+                  </tr>
+                </table>
+              </div>
+              </div>
             <div class="infoGame">
-              <div
-                class="neon-typo pt-4"
-                style="font-size: xx-large; font-weight: bold"
-              >
-                Online Player
+              <div class="req neon-typo" v-if="!isAuthenticated">
+                Log in to access
               </div>
-              <hr />
-              <br />
-              <table style="width: 90%; table-layout: fixed; margin-left: 5%">
-                <tr>
-                  <th class="watch_player">Mabriand</th>
-                  <td>
-                    <i
-                      class="fa-solid fa-circle"
-                      style="color: greenyellow"
-                    ></i>
-                  </td>
-                  <td>
-                    <i class="fa-solid fa-comment-dots fa-xl watch_icon"></i>
-                  </td>
-                  <td><i class="fa-solid fa-gamepad fa-xl watch_icon"></i></td>
-                  <td>
-                    <i
-                      class="fa-solid fa-ellipsis-vertical fa-xl watch_icon"
-                    ></i>
-                  </td>
-                </tr>
-                <tr>
-                  <th class="watch_player">Adupuy</th>
-                  <td><i class="fa-solid fa-circle" style="color: red"></i></td>
-                  <td>
-                    <i class="fa-solid fa-comment-dots fa-xl watch_icon"></i>
-                  </td>
-                  <td><i class="fa-solid fa-gamepad fa-xl watch_icon"></i></td>
-                  <td>
-                    <i
-                      class="fa-solid fa-ellipsis-vertical fa-xl watch_icon"
-                    ></i>
-                  </td>
-                </tr>
-                <tr>
-                  <th class="watch_player">Lchapren</th>
-                  <td><i class="fa-solid fa-circle" style="color: red"></i></td>
-                  <td>
-                    <i class="fa-solid fa-comment-dots fa-xl watch_icon"></i>
-                  </td>
-                  <td><i class="fa-solid fa-gamepad fa-xl watch_icon"></i></td>
-                  <td>
-                    <i
-                      class="fa-solid fa-ellipsis-vertical fa-xl watch_icon"
-                    ></i>
-                  </td>
-                </tr>
-                <tr>
-                  <th class="watch_player">Josaykos</th>
-                  <td>
-                    <i
-                      class="fa-solid fa-circle"
-                      style="color: greenyellow"
-                    ></i>
-                  </td>
-                  <td>
-                    <i class="fa-solid fa-comment-dots fa-xl watch_icon"></i>
-                  </td>
-                  <td><i class="fa-solid fa-gamepad fa-xl watch_icon"></i></td>
-                  <td>
-                    <i
-                      class="fa-solid fa-ellipsis-vertical fa-xl watch_icon"
-                    ></i>
-                  </td>
-                </tr>
-                <tr>
-                  <th class="watch_player">
-                    Vmoreau Vmoreau Vmoreau Vmoreau Vmoreau
-                  </th>
-                  <td><i class="fa-solid fa-circle" style="color: red"></i></td>
-                  <td>
-                    <i class="fa-solid fa-comment-dots fa-xl watch_icon"></i>
-                  </td>
-                  <td><i class="fa-solid fa-gamepad fa-xl watch_icon"></i></td>
-                  <td>
-                    <i
-                      class="fa-solid fa-ellipsis-vertical fa-xl watch_icon"
-                    ></i>
-                  </td>
-                </tr>
-              </table>
+              <div class="cont">
+                <div
+                  class="neon-typo pt-4"
+                  style="font-size: xx-large; font-weight: bold"
+                >
+                  Online Player
+                </div>
+                <hr />
+                <br />
+                <table style="width: 90%; table-layout: fixed; margin-left: 5%">
+                  <tr>
+                    <th class="watch_player">Mabriand</th>
+                    <td>
+                      <i
+                        class="fa-solid fa-circle"
+                        style="color: greenyellow"
+                      ></i>
+                    </td>
+                    <td>
+                      <i class="fa-solid fa-comment-dots fa-xl action_icon"></i>
+                    </td>
+                    <td><i class="fa-solid fa-gamepad fa-xl action_icon"></i></td>
+                    <td>
+                      <i
+                        class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
+                      ></i>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th class="watch_player">Adupuy</th>
+                    <td><i class="fa-solid fa-circle" style="color: red"></i></td>
+                    <td>
+                      <i class="fa-solid fa-comment-dots fa-xl action_icon"></i>
+                    </td>
+                    <td><i class="fa-solid fa-gamepad fa-xl action_icon"></i></td>
+                    <td>
+                      <i
+                        class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
+                      ></i>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th class="watch_player">Lchapren</th>
+                    <td><i class="fa-solid fa-circle" style="color: red"></i></td>
+                    <td>
+                      <i class="fa-solid fa-comment-dots fa-xl action_icon"></i>
+                    </td>
+                    <td><i class="fa-solid fa-gamepad fa-xl action_icon"></i></td>
+                    <td>
+                      <i
+                        class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
+                      ></i>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th class="watch_player">Josaykos</th>
+                    <td>
+                      <i
+                        class="fa-solid fa-circle"
+                        style="color: greenyellow"
+                      ></i>
+                    </td>
+                    <td>
+                      <i class="fa-solid fa-comment-dots fa-xl action_icon"></i>
+                    </td>
+                    <td><i class="fa-solid fa-gamepad fa-xl action_icon"></i></td>
+                    <td>
+                      <i
+                        class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
+                      ></i>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th class="watch_player">
+                      Vmoreau Vmoreau Vmoreau Vmoreau Vmoreau
+                    </th>
+                    <td><i class="fa-solid fa-circle" style="color: red"></i></td>
+                    <td>
+                      <i class="fa-solid fa-comment-dots fa-xl action_icon"></i>
+                    </td>
+                    <td><i class="fa-solid fa-gamepad fa-xl action_icon"></i></td>
+                    <td>
+                      <i
+                        class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
+                      ></i>
+                    </td>
+                  </tr>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -288,14 +304,37 @@ const profil_adupuy = ref(false);
 </template>
 
 <style scoped>
+
 .infoGame {
-  background-color: rgba(0, 0, 0, 0.397);
+  display: grid;
+
+  background-color: rgba(0, 0, 0, 0.4);
   padding-bottom: 4vh;
   min-height: 400px;
   max-height: 400px;
   overflow-y: scroll;
   border-radius: 30px;
   box-shadow: 0px 0px 10px 2px #fff961, inset 0px 0px 4px 2px #fff961;
+}
+
+.req , .cont
+{
+  grid-area: 1 / 1;
+}
+.req{
+  font-size: xx-large;
+  font-weight: bold;
+  background-color: rgba(0, 0, 0, 0.89);
+  min-height: 400px;
+  text-align: center;
+  align-items: center;
+  z-index: 2;
+  display: grid;
+}
+
+.cont
+{
+  z-index: 1;
 }
 
 #Footer {
@@ -367,13 +406,14 @@ th {
   overflow-x: hidden;
 }
 
-.watch_icon {
+.action_icon {
   color: var(--sidebar-icon-color);
 }
 
-.watch_icon:hover {
+.action_icon:hover {
   transform: scale(1.5);
   transition: 0.4s;
+  cursor:pointer;
 }
 
 th {
