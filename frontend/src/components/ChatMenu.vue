@@ -346,7 +346,7 @@ const updateChannel = () => {
       const updateChannel = {
         name: channelName.value,
         isPrivate: channelType.value == 2 ? true : false,
-        password: channelType.value == 3 ? inputPassword : null,
+        password: channelType.value == 3 ? inputPassword.value : null,
         isProtected: channelType.value == 3 ? true : false,
         addInvites: channelType.value == 2 ? usersArray : [],
         removeInvites:

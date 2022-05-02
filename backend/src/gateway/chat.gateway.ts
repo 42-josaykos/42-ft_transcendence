@@ -174,11 +174,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const channel = data[1];
     const password = data[2];
 
-    if (channel.password) {
+    if (channel.isProtected) {
       if (password) {
+        const [channelItem] = await this.channelsService.getChannelsByFilter({
+          id: channel.id,
+          password: true
+        });
         const isPasswordMatching = await bcrypt.compare(
           password,
-          channel.password,
+          channelItem.password,
         );
         if (!isPasswordMatching) {
           console.log('Password false');
