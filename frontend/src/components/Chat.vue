@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, onUnmounted, onUpdated } from "vue";
+import { onBeforeMount, onUnmounted } from "vue";
 
 import { storeToRefs } from "pinia";
 
@@ -21,10 +21,6 @@ const {
   newOwner,
   channelType
 } = storeToRefs(channelStore);
-
-onUpdated(() => {
-  scrollFunction();
-});
 
 onBeforeMount(async () => {
   Get("/channels/search?&members&invites&bans&mutes").then((res) => {
@@ -53,13 +49,6 @@ onUnmounted(() => {
   socketChat.value?.off("updateChannel");
   socketChat.value?.off("inviteChannel");
 });
-
-const scrollFunction = () => {
-  const scroll = document.getElementById("scroll-bar");
-  if (scroll != null) {
-    scroll.scrollTop = scroll.scrollHeight;
-  }
-};
 
 </script>
 
@@ -102,7 +91,6 @@ const scrollFunction = () => {
   left: 0;
   right: 0;
   display: flex;
-  height: 3rem;
   box-sizing: border-box;
 }
 
@@ -182,7 +170,7 @@ const scrollFunction = () => {
 .horizontal-line-top {
   border-top: #fff961 1.5px solid;
   display: block;
-  height: 60px;
+  max-height: 100px;
   text-shadow: 0 0 0.125em hsl(0 0% 100% / 0.3), 0 0 0.45em currentColor;
 
   background: rgba(0, 0, 0, 0.15);

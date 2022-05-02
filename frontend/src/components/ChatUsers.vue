@@ -238,7 +238,7 @@ const addAdmin = () => {
           type="button"
           class="btn-user-click my-2"
         >
-          Profil
+          PROFIL
         </button>
         <div v-if="loggedUser?.id != userClick?.id" style="display: grid">
           <button
@@ -334,11 +334,11 @@ const addAdmin = () => {
 
     <template v-slot:body>
       <textarea
-        class="form-control"
-        placeholder="Message"
-        id="message"
+        class="form-control" id="sendMessage"
+        style="margin-left: 0px !important; width: 80vh;"
         v-model="stringSendMessage"
-      ></textarea>
+      >
+      </textarea>
       <label for="message" class="sr-only">Messgae</label>
     </template>
 

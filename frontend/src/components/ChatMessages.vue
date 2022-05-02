@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { onUpdated } from "vue";
 
 import { storeToRefs } from "pinia";
 
 import { useUserStore } from "@/stores/user";
 import { useMessageStore } from "@/stores/message";
 import { useChannelStore } from "@/stores/channel";
-import { useInputStore } from "@/stores/input";
 import { computed } from "@vue/reactivity";
 
 const userStore = useUserStore();
@@ -14,14 +14,23 @@ const { loggedUser, socketChat } = storeToRefs(userStore);
 const messageStore = useMessageStore();
 const { messages, textMsg } = storeToRefs(messageStore);
 
-const inputStore = useInputStore();
-
 const channelStore = useChannelStore();
 const {
   channel,
   timerIntervalBan,
   timerIntervalMute
 } = storeToRefs(channelStore);
+
+onUpdated(() => {
+  scrollFunction();
+});
+
+const scrollFunction = () => {
+  const scroll = document.getElementById("scroll-bar");
+  if (scroll != null) {
+    scroll.scrollTop = scroll.scrollHeight;
+  }
+};
 
 const sendNewMessage = (channelId: Number | undefined) => {
   if (channelId != undefined) {
@@ -70,7 +79,7 @@ const timerMute = computed(() => {
       <div v-if="channelStore.isBan(channel, loggedUser?.id) == false">
         <div v-if="messages">
           <div
-            style="display: flex"
+            style="display: flex; margin-left: 10px; margin-right: 5px;"
             v-for="item in messages"
             :key="item.id"
           >
@@ -103,8 +112,7 @@ const timerMute = computed(() => {
                   <div class="font-weight-bold mb-1">
                     {{ item.author.username }}
                   </div>
-                  <div style="text-align: start">{{ item.data }}</div>
-                  <!-- <p class="text-break">{{item.data}}</p> -->
+                  <div class="text-break" style="text-align: start">{{ item.data }}</div>
                 </div>
               </div>
             </div>
@@ -129,13 +137,10 @@ const timerMute = computed(() => {
                   <div class="font-weight-bold mb-1">
                     {{ item.author.username }}
                   </div>
-                  <div style="text-align: start">{{ item.data }}</div>
-                  <!-- <p class="text-break">{{item.data}}</p> -->
+                  <div class="text-break" style="text-align: start">{{ item.data }}</div>
                 </div>
               </div>
             </div>
-              <!-- <p class="text-break">{{item.data}}</p> -->
-
           </span>
           </div>
         </div>
@@ -163,19 +168,56 @@ const timerMute = computed(() => {
       method="POST"
       class="form"
     >
-      <input v-model="textMsg" type="text" class="input ms-3" />
+      <textarea
+        @keydown.enter.prevent.stop="sendNewMessage(channel?.id)"
+        class="form-control input" id="sendMessage"
+        v-model="textMsg"
+      >
+      </textarea>
       <button
         type="submit"
         class="rounded btn-channel wrapper-icon-leave ms-auto"
       >
         <i class="fa-solid fa-paper-plane"></i>
       </button>
-
     </form>
   </div>
 </template>
 
 
 <style>
+#sendMessage{
+	overflow: auto;
+	overflow-x: hidden;
+}
+
+#sendMessage::-webkit-scrollbar-track{
+	background-color: #F5F5F5;
+}
+
+#sendMessage::-webkit-scrollbar{
+	width: 6px;
+	background-color: #F5F5F5;
+}
+
+#sendMessage::-webkit-scrollbar-thumb {
+  background-color: #F5F5F5;
+  border-radius: 20px;
+}
+
+#sendMessage::-webkit-scrollbar-thumb{
+	border-radius: 0px;
+	background-color: #e58703;
+}
+
+#sendMessage {
+  border-color: transparent !important;
+  box-shadow: none !important;
+  border-bottom-left-radius: 10px !important;
+  border-top-left-radius: 10px  !important;;
+  max-height: 80px !important;
+  margin-left: 2rem !important
+}
+
 
 </style>
