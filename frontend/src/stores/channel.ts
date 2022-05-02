@@ -9,7 +9,7 @@ import { useUserStore } from "@/stores/user";
 export const useChannelStore = defineStore('channel', () => {
 
   const userStore = useUserStore();
-  const { loggedUser, socketChat } = storeToRefs(userStore);
+  const { loggedUser, socketChat, users } = storeToRefs(userStore);
 
   // Tous les channels
     const allChannels = ref<Channel[]>([]);
@@ -132,6 +132,19 @@ export const useChannelStore = defineStore('channel', () => {
       }
       const index = allChannels.value.findIndex((el: Channel) => el.id === id);
       allChannels.value.splice(index, 1, { ...allChannels.value[index], ...updatedData });
+    }
+
+    const checkIfUserInTheChannel = () => {
+      if (channelUpdate.value != undefined) {
+        if (users.value != undefined) {
+          for (const user of users.value) {
+            if (channelUpdate.value.members.findIndex(el => el.id == user.id) == -1) {
+              return false;
+            }
+          }
+        }
+      }
+      return true;
     }
 
     const isAdmin = (channel_item: Channel | undefined, userID: number | undefined ) => {
@@ -430,6 +443,7 @@ export const useChannelStore = defineStore('channel', () => {
         getChannelByName,
         deleteChannel,
         updateChannel,
+        checkIfUserInTheChannel,
         isAdmin,
         isOwner,
         isMember,

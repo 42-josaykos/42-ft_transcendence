@@ -903,7 +903,7 @@ const isNum = (char: any) => {
         </div>
       </div>
       <div v-else-if="channelType == 2">
-        <div v-if="users.length != 1">
+        <div v-if="users.length != 1 && !channelStore.checkIfUserInTheChannel()">
           <h5 class="pt-3" style="text-align: start"><u>Choose users :</u></h5>
           <div class="scrollspy-example2 card-choose-users">
             <div
