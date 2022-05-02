@@ -234,7 +234,7 @@ const addAdmin = () => {
     <template v-slot:body>
       <div style="display: grid">
         <button
-          @click="modalShowProfil = true"
+          @click="modalShowProfil = true; userClickBool = false"
           type="button"
           class="btn-user-click my-2"
         >
@@ -242,49 +242,54 @@ const addAdmin = () => {
         </button>
         <div v-if="loggedUser?.id != userClick?.id" style="display: grid">
           <button
-            @click="modalSendMessage = true"
+            @click="modalSendMessage = true; userClickBool = false"
             type="button"
             class="btn-user-click my-2"
           >
             SEND MESSAGE
           </button>
             <button
-              @click=""
+              @click="userClickBool = false"
               type="button"
               class="btn-user-click my-2"
             >
               INVITE TO PLAY
             </button>
           <button
-            @click="modalFriend = true"
+            @click="modalFriend = true; userClickBool = false"
             type="button" class="btn-user-click my-2">
             {{userStore.isFriend(userClick) ? 'REMOVE FRIEND' : 'ADD FRIEND'}}
           </button>
           <button
-            @click="modalBlock = true"
+            @click="modalBlock = true; userClickBool = false"
             type="button" class="btn-user-click my-2">
             {{userStore.isBlocked(userClick) ? 'UNBLOCK' : 'BLOCK'}}
           </button>
           <div
-            v-if="channelStore.isAdmin(channel, loggedUser?.id) && !channelStore.isOwner(channel, userClick?.id)"
+            v-if="channelStore.isAdmin(channel, loggedUser?.id) && !channelStore.isAdmin(channel, userClick?.id)"
             style="display: grid"
           >
             <button
-              @click="modalMute = true"
+              @click="modalMute = true; userClickBool = false"
               type="button"
               class="btn-user-click my-2"
             >
               MUTE
             </button>
             <button
-              @click="modalBan = true"
+              @click="modalBan = true; userClickBool = false"
               type="button"
               class="btn-user-click my-2"
             >
               BAN
             </button>
+          </div>
+          <div
+            v-if="channelStore.isOwner(channel, loggedUser?.id)"
+            style="display: grid"
+          >
             <button
-              @click="modalAdmin = true"
+              @click="modalAdmin = true; userClickBool = false"
               type="button"
               class="btn-user-click my-2"
             >
