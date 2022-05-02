@@ -12,15 +12,12 @@ import {
   WsResponse,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import User from 'src/api/users/entities/user.entity';
-import { Game } from 'src/game/game.class';
-import { Connection } from 'src/game/game.class';
-import { Player } from 'src/game/game.class';
-import { Spectator } from 'src/game/game.class';
-import { Ball } from 'src/game/game.class';
 import axios from 'axios';
+import User from 'src/api/users/entities/user.entity';
+import { Connection } from 'src/status/status.class';
 import { GameService } from './game.service';
 import { StatusGateway } from 'src/status/status.gateway';
+import { Game, Player, Spectator } from 'src/game/game.class';
 
 @WebSocketGateway({
   namespace: 'game',
@@ -58,7 +55,10 @@ export class GameGateway
   }
 
   @SubscribeMessage('queue')
-  async handleQueue(@ConnectedSocket() client, @MessageBody() data: User) {
+  async handleQueue(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: User,
+  ) {
     // Adding player to queue
     this.queue.push({ user: data, socketID: [client.id] });
 
@@ -85,7 +85,7 @@ export class GameGateway
 
   @SubscribeMessage('endGame')
   async handleEndGame(
-    @ConnectedSocket() clientInformation,
+    @ConnectedSocket() clientInformation: Socket,
     @MessageBody() data: any,
   ) {
     // Determining which game

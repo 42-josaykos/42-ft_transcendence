@@ -1,9 +1,4 @@
-import User from 'src/api/users/entities/user.entity';
-
-export class Connection {
-  user: User;
-  socketID: string[];
-}
+import { Connection } from 'src/status/status.class';
 
 export class Game {
   players: Player[];
@@ -12,7 +7,6 @@ export class Game {
   events: Events;
   finished?: boolean;
   winner?: Player;
-  // intervalID?: number;
   intervalID?: NodeJS.Timer;
 }
 

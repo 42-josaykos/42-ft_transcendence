@@ -3,6 +3,7 @@ import { ModuleRef } from '@nestjs/core';
 import { WsException } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { GameGateway } from 'src/game/game.gateway';
+import { Connection } from 'src/status/status.class';
 import {
   Game,
   Player,
@@ -11,7 +12,6 @@ import {
   BallBoundaries,
   Canvas,
   GameOptions,
-  Connection,
   Spectator,
   Events,
 } from 'src/game/game.class';
@@ -57,6 +57,9 @@ export class GameService implements OnModuleInit {
 
     // Main game loop
     game.intervalID = setInterval(async () => {
+      // Socket client updates
+      this.updateClientSockets(game);
+
       // Updating ball position
       game.ball.x += game.ball.velocityX;
       game.ball.y += game.ball.velocityY;
@@ -136,6 +139,8 @@ export class GameService implements OnModuleInit {
 
     this.gateway.broadcastEndGame(game);
   }
+
+  updateClientSockets(game: Game) {}
 
   // Player moving handlers
   moveLeft(socketID: string, player: User): Player[] {
