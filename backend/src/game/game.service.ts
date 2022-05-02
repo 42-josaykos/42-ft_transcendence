@@ -52,7 +52,7 @@ export class GameService implements OnModuleInit {
 
     this.games.push(game);
 
-    // no more intervalID !!
+    // Main game loop
     game.intervalID = setInterval(async () => {
       // Updating ball position
       game.ball.x += game.ball.velocityX;
@@ -114,8 +114,7 @@ export class GameService implements OnModuleInit {
     // this.resetPlay();
 
     // Setting new ball direction
-    const newBallDirection = game.ball.velocityX < 0 ? 1 : -1;
-    game.ball = this.initNewBall(newBallDirection);
+    game.ball = this.initNewBall();
     return game;
   }
 
@@ -256,14 +255,20 @@ export class GameService implements OnModuleInit {
     return newPaddle;
   }
 
-  initNewBall(direction: number = 1): Ball {
+  initNewBall(): Ball {
     const paddle = this.initNewPaddle();
     const ballX = this.canvas.w / 2;
     const ballY = this.canvas.h / 2;
     const ballSize = paddle.w / 2;
     const ballSpeed = 5 * (1 + (this.options.ballSpeed * 2) / 10);
-    const ballVelocityX = direction * ballSpeed;
-    const ballVelocityY = direction * ballSpeed;
+
+    // Giving the new ball a random direction (left / right and angle)
+    const randDirectionX = Math.round(Math.random());
+    const randDirectionY = Math.round(Math.random());
+    const newBallDirectionX = randDirectionX === 1 ? 1 : -1;
+    const newBallDirectionY = randDirectionY === 1 ? 1 : -1;
+    const ballVelocityX = newBallDirectionX * ballSpeed;
+    const ballVelocityY = newBallDirectionY * ballSpeed;
 
     const newBall: Ball = {
       x: ballX,

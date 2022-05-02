@@ -10,8 +10,8 @@ export default {
   props: ["revelePlay", "msg", "paddleSize", "ballSpeed"],
   data: function () {
     return {
-      rcv_paddleSize: 1,
-      rcv_ballSpeed: 1,
+      rcv_paddleSize: 2,
+      rcv_ballSpeed: 3,
 
       canvas: { w: 1000, h: 600 },
       paddle: {},
@@ -106,46 +106,13 @@ export default {
 
     // Socket Events
     //##########################################################################
-    // this.gameSocket.on("updatePlayerMoved", (players) => {
-    //   console.log("updatePlayerMoved data: ", players);
-    //   this.player_L.x = players[0].x;
-    //   this.player_L.y = players[0].y;
-    //   this.player_R.x = players[1].x;
-    //   this.player_R.y = players[1].y;
-    // });
-
     this.gameSocket.on("gameUpdate", (data) => {
       // console.log("gameUpdate: ", data);
       this.updateGame(data);
     });
-    // this.gameSocket.on("playerOneMoveLeft", () => {
-    //   if (this.player_L.y - this.paddle.speed >= 0) {
-    //     this.player_L.y -= this.paddle.speed;
-    //   }
-    // });
-    // this.gameSocket.on("playerTwoMoveLeft", () => {
-    //   if (this.player_R.y - this.paddle.speed >= 0) {
-    //     this.player_R.y -= this.paddle.speed;
-    //   }
-    // });
-    // this.gameSocket.on("playerOneMoveRight", () => {
-    //   if (
-    //     this.player_L.y + this.paddle.h + this.paddle.speed <=
-    //     this.canvas.h
-    //   ) {
-    //     this.player_L.y += this.paddle.speed;
-    //   }
-    // });
-    // this.gameSocket.on("playerTwoMoveRight", () => {
-    //   if (
-    //     this.player_R.y + this.paddle.h + this.paddle.speed <=
-    //     this.canvas.h
-    //   ) {
-    //     this.player_R.y += this.paddle.speed;
-    //   }
-    // });
     this.gameSocket.on("endGame", () => {
-      router.push("/debug");
+      console.log("in endGame event");
+      this.router.push("/debug");
     });
     //  ##########################################################################
     this.launch();
