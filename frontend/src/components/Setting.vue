@@ -20,6 +20,8 @@ const qrcode = ref(null);
 const twoFactorInput = ref('');
 const usernameInput = ref('');
 const turnOffForm = ref(false);
+const error = ref(false);
+const file = ref<File | null>();
 
 const emit = defineEmits<{
   (e: 'updateUsername', value: string): void;
@@ -102,11 +104,32 @@ function updateUsername() {
           let updatedUser: User = { ...loggedUser.value };
           updatedUser.username = res.data.username;
           loggedUser.value = updatedUser;
+          usernameInput.value = '';
           emit('updateUsername', updatedUser.username);
         }
+      } else {
+        error.value = true;
+        setTimeout(() => {
+          error.value = false;
+        }, 5000);
       }
     });
   }
+}
+
+function updateAvatar(event: any) {
+  console.log(event);
+  console.log(event.target);
+  const formData = new FormData(event.target);
+  console.log(formData);
+
+  // ax.post('/upload', event.target, {
+  //   headers: { 'Content-Type': 'multipart/form-data' }
+  // }).then(res => {
+  //   if (res) {
+  //     console.log(res);
+  //   }
+  // });
 }
 </script>
 
@@ -124,24 +147,36 @@ function updateUsername() {
     <b>{{ loggedUser.username }}</b>
   </h2>
 
-  <!-- Meteor animation option -->
-  <span class="element-set">
-    Meteor:
-    <Toggle
-      v-model="isMeteor"
-      on-label="On"
-      off-label="Off"
-      class="toggle-style"
-    />
-  </span>
-
   <div v-if="isAuthenticated">
+    <!-- Update avatar -->
+
+    <form @submit.prevent="updateAvatar" enctype="multipart/form-data">
+      <div>
+        <input type="file" id="file" name="avatarUpload" />
+        <button type="submit">Upload</button>
+      </div>
+    </form>
+
     <!-- Update username -->
     <form @submit.prevent.trim.lazy="updateUsername">
-      <label for="username">Username: </label>
-      <input v-model="usernameInput" name="username" type="text" />
-      <button type="submit">Update</button>
+      <div class="mb-3">
+        <label class="form-label" for="username">Update username</label>
+        <input
+          v-model="usernameInput"
+          name="username"
+          type="text"
+          :class="{ 'form-control is-invalid': error === true }"
+        />
+        <div v-if="error">
+          <small id="passwordHelp" class="text-danger">
+            Can't update username. This user already exists.
+          </small>
+        </div>
+        <button type="submit">Update</button>
+      </div>
     </form>
+
+    <br />
 
     <!-- 2FA option -->
     <span class="element-set">
@@ -177,6 +212,17 @@ function updateUsername() {
       </form>
     </div>
   </div>
+
+  <!-- Meteor animation option -->
+  <span class="element-set">
+    Meteor:
+    <Toggle
+      v-model="isMeteor"
+      on-label="On"
+      off-label="Off"
+      class="toggle-style"
+    />
+  </span>
 </template>
 
 <style>
