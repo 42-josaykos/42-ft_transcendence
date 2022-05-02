@@ -246,7 +246,7 @@ const addAdmin = () => {
             type="button"
             class="btn-user-click my-2"
           >
-            Send message
+            SEND MESSAGE
           </button>
             <button
               @click=""
@@ -354,7 +354,6 @@ const addAdmin = () => {
       >
         Send Message
       </button>
-
       <button
         @click="
           modalSendMessage = false;

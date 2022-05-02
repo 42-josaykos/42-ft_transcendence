@@ -794,20 +794,6 @@ const isNum = (char: any) => {
     </template>
     <template v-slot:footer>
       <button
-        @click="
-          usersInvite = [];
-          modalNewChannel = false;
-          channelName = '';
-          inputPassword = '';
-          channelType = 0;
-          errorBool = false;
-        "
-        type="button"
-        class="mod-btn mod-btn-yellow"
-      >
-        Cancel
-      </button>
-      <button
         @click="if (channelName.trim() != '' && !isNum(channelName.trim()[0])) {
           modalNewChannel = false;
           createChannel();
@@ -821,6 +807,20 @@ const isNum = (char: any) => {
         class="mod-btn mod-btn-blue"
       >
         Create
+      </button>
+      <button
+        @click="
+          usersInvite = [];
+          modalNewChannel = false;
+          channelName = '';
+          inputPassword = '';
+          channelType = 0;
+          errorBool = false;
+        "
+        type="button"
+        class="mod-btn mod-btn-yellow"
+      >
+        Cancel
       </button>
     </template>
   </ModalChat>
@@ -940,20 +940,6 @@ const isNum = (char: any) => {
     </template>
     <template v-slot:footer>
       <button
-        @click="
-          usersInvite = [];
-          modalUpdateChannel = false;
-          channelName = '';
-          inputPassword = '';
-          channelType = 0;
-          errorBool = false;
-        "
-        type="button"
-        class="mod-btn mod-btn-yellow"
-      >
-        Cancel
-      </button>
-      <button
         @click="if (channelName.trim() != '' && !isNum(channelName.trim()[0])) {
           modalUpdateChannel = false;
           updateChannel();
@@ -966,6 +952,20 @@ const isNum = (char: any) => {
         class="mod-btn mod-btn-blue"
       >
         Update
+      </button>
+      <button
+        @click="
+          usersInvite = [];
+          modalUpdateChannel = false;
+          channelName = '';
+          inputPassword = '';
+          channelType = 0;
+          errorBool = false;
+        "
+        type="button"
+        class="mod-btn mod-btn-yellow"
+      >
+        Cancel
       </button>
     </template>
   </ModalChat>
@@ -1114,13 +1114,6 @@ const isNum = (char: any) => {
     </template>
     <template v-slot:footer>
       <button
-        @click="modalJoinChannel = false"
-        type="button"
-        class="mod-btn mod-btn-yellow"
-      >
-        Cancel
-      </button>
-      <button
         @click="
           joinChannel();
           modalJoinChannel = false;
@@ -1129,6 +1122,13 @@ const isNum = (char: any) => {
         class="mod-btn mod-btn-blue"
       >
         Join
+      </button>
+      <button
+        @click="modalJoinChannel = false"
+        type="button"
+        class="mod-btn mod-btn-yellow"
+      >
+        Cancel
       </button>
     </template>
   </ModalChat>
