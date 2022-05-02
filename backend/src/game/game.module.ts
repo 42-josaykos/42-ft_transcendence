@@ -1,14 +1,11 @@
 import { Module } from '@nestjs/common';
 import { GameGateway } from './game.gateway';
 import { GameService } from './game.service';
-import { Game } from 'src/game/game.class';
-import { Connection } from 'src/game/game.class';
-import { Player } from 'src/game/game.class';
-import { Spectator } from 'src/game/game.class';
-import { Ball } from 'src/game/game.class';
+import { GameController } from './game.controller';
+import { StatusGateway } from 'src/status/status.gateway';
 
 @Module({
-  // imports: [Game, Connection, Player, Spectator, Ball],
-  providers: [GameGateway, GameService],
+  controllers: [GameController],
+  providers: [GameGateway, GameService, StatusGateway],
 })
 export class GameModule {}

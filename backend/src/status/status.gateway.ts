@@ -12,12 +12,9 @@ import {
   WsResponse,
 } from '@nestjs/websockets';
 import User from 'src/api/users/entities/user.entity';
+import { Connection } from 'src/status/status.class';
 import { Logger } from '@nestjs/common';
-
-class Connections {
-  userID: number;
-  socketID: string[];
-}
+import axios from 'axios';
 
 @WebSocketGateway({
   namespace: 'status',
@@ -33,11 +30,10 @@ export class StatusGateway
   private server: Server;
 
   private logger: Logger = new Logger('StatusSystem');
-  private connectedClients: Connections[] = new Array();
+  private connectedClients: Connection[] = [];
 
   // Init, connection, disconnect event handlers
   afterInit(server: any) {
-    this.connectedClients = new Array();
     this.logger.log('StatusSystem gateway is initialized');
   }
 
@@ -71,9 +67,12 @@ export class StatusGateway
       // console.log('Clients connected: ', this.connectedClients);
       this.server.emit(
         'update',
-        this.connectedClients.map(({ userID, ...rest }) => userID),
+        this.connectedClients.map(({ user, ...rest }) => user.id),
       );
     }
+
+    // Sending updated full list to the Game app
+    axios.post('http://localhost:6060/status', this.connectedClients);
     // console.log('Clients connected: ', this.connectedClients);
   }
 
@@ -81,29 +80,32 @@ export class StatusGateway
   handleNewConnection(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: User,
-  ): WsResponse<number[]> {
+  ) {
     // Checking if the user already exists
     const userIndex = this.connectedClients.findIndex(
-      (connection) => connection.userID === data.id,
+      (connection) => connection.user.id === data.id,
     );
 
     // If user was not already connected, add the new user, and send the updated list
     if (userIndex === -1) {
-      this.connectedClients.push({ userID: data.id, socketID: [client.id] });
+      this.connectedClients.push({ user: data, socketID: [client.id] });
       this.server.emit(
         'update',
-        this.connectedClients.map(({ userID, ...rest }) => userID),
+        this.connectedClients.map(({ user, ...rest }) => user.id),
       );
       // console.log('Clients connected: ', this.connectedClients);
     }
     // Else, add the new socket to the corresponding Connections object and send client list to new client
     else {
       this.connectedClients[userIndex].socketID.push(client.id);
-      return {
-        event: 'update',
-        data: this.connectedClients.map(({ userID, ...rest }) => userID),
-      };
+      this.server.to(client.id).emit(
+        'update',
+        this.connectedClients.map(({ user, ...rest }) => user.id),
+      );
     }
+
+    // Sending updated full list to the Game app
+    axios.post('http://localhost:6060/status', this.connectedClients);
     // console.log('Clients connected: ', this.connectedClients);
   }
 }

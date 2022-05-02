@@ -20,6 +20,7 @@ import { Spectator } from 'src/game/game.class';
 import { Ball } from 'src/game/game.class';
 import axios from 'axios';
 import { GameService } from './game.service';
+import { StatusGateway } from 'src/status/status.gateway';
 
 @WebSocketGateway({
   namespace: 'game',
@@ -31,18 +32,20 @@ import { GameService } from './game.service';
 export class GameGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  constructor(private gameService: GameService) {}
+  constructor(
+    private readonly statusGateway: StatusGateway,
+    private gameService: GameService,
+  ) {}
 
   @WebSocketServer()
   private server: Server;
 
   private logger: Logger = new Logger('GameGateway');
-  private games: Game[];
-  private queue: Connection[];
+  public connectedClients: Connection[] = [];
+  private queue: Connection[] = [];
+  private games: Game[] = [];
 
   afterInit(server: any) {
-    this.games = new Array();
-    this.queue = new Array();
     this.logger.log('Game gateway is initialized');
   }
 
@@ -55,7 +58,7 @@ export class GameGateway
   }
 
   @SubscribeMessage('queue')
-  handleQueue(@ConnectedSocket() client, @MessageBody() data: User) {
+  async handleQueue(@ConnectedSocket() client, @MessageBody() data: User) {
     // Adding player to queue
     this.queue.push({ user: data, socketID: [client.id] });
 
