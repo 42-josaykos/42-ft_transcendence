@@ -18,7 +18,7 @@ const { messages } = storeToRefs(useMessageStore());
 const { channel, usersMembers } = storeToRefs(useChannelStore());
 const { loggedUser } = storeToRefs(useUserStore());
 
-function updateUsername(username: string) {
+function getUserData() {
   if (channel.value) {
     Get(
       '/channels/search?id=' +
@@ -44,7 +44,7 @@ export const register_open = ref(false);
   <div class="bloc_modale" v-if="setting_open">
     <div class="overlay" @click="setting_open = !setting_open"></div>
     <div class="modale card">
-      <Setting @updateUsername="updateUsername" />
+      <Setting @updateUserProfil="getUserData" />
     </div>
   </div>
   <div class="bloc_modale" v-if="register_open && !isAuthenticated">

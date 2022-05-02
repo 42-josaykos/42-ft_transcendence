@@ -24,7 +24,7 @@ const error = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
 
 const emit = defineEmits<{
-  (e: 'updateUsername', value: string): void;
+  (e: 'updateUserProfil'): void;
 }>();
 
 // Convert QR code image file stream from response to base64 string
@@ -105,7 +105,7 @@ function updateUsername() {
           updatedUser.username = res.data.username;
           loggedUser.value = updatedUser;
           usernameInput.value = '';
-          emit('updateUsername', updatedUser.username);
+          emit('updateUserProfil');
         }
       } else {
         error.value = true;
@@ -117,21 +117,33 @@ function updateUsername() {
   }
 }
 
-function updateAvatar(event: any) {
-  console.log(event);
+async function updateAvatar(event: any) {
   if (fileInput.value !== null) {
     const file = fileInput.value.files?.item(0);
     if (file) {
       let formData = new FormData();
       formData.append('avatarUpload', file);
-      ax.post('/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      }).then(res => {
-        if (res.status === 201) {
-          console.log(res);
-          fileInput.value = null;
+      let response;
+      try {
+        response = await ax.post('/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        if (response.status === 201) {
+          Patch(`/users/${loggedUser.value?.id}`, {
+            avatar: response.data.path
+          }).then(res => {
+            if (res.status === 200) {
+              if (loggedUser.value) {
+                loggedUser.value.avatar = res.data.avatar;
+                fileInput.value = null;
+                emit('updateUserProfil');
+              }
+            }
+          });
         }
-      });
+      } catch (er: any) {
+        alert(er.response.data.message);
+      }
     }
   }
 }
