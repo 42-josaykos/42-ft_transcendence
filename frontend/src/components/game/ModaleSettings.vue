@@ -1,28 +1,28 @@
 <script>
-import PowerUps from './PowerUps.vue';
+import PowerUps from "./PowerUps.vue";
 export default {
-  name: 'ModaleSettings',
+  name: "ModaleSettings",
   components: {
-    powerups: PowerUps
+    powerups: PowerUps,
   },
-  props: ['revelePlay', 'toggleModaleSettings', 'launch'],
+  props: ["revelePlay", "toggleModaleSettings", "launch"],
   created() {
-    this.$emit('paddleSizeChange', this.paddleSize);
-    this.$emit('ballSpeedChange', this.ballSpeed);
+    this.$emit("paddleSizeChange", this.paddleSize);
+    this.$emit("ballSpeedChange", this.ballSpeed);
     return;
   },
   methods: {
     updatePaddleSize: function (variable) {
       this.paddleSize = variable;
-      this.$emit('paddleSizeChange', this.paddleSize);
+      this.$emit("paddleSizeChange", this.paddleSize);
       return;
     },
     updateBallSpeed: function (variable) {
       this.ballSpeed = variable;
-      this.$emit('ballSpeedChange', this.ballSpeed);
+      this.$emit("ballSpeedChange", this.ballSpeed);
       return;
-    }
-  }
+    },
+  },
 };
 </script>
 

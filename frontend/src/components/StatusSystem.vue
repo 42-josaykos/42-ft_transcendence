@@ -15,18 +15,18 @@ console.log("[StatusStore] isAuthenticated: ", isAuthenticated.value);
 
 if (isAuthenticated.value) {
   console.log("[StatusStore] loggedUser: ", loggedUser.value);
-  const socket = io("ws://localhost:3615/status", {
+  const statusSocket = io("ws://localhost:3615/status", {
     withCredentials: true,
   });
 
   // After socker connection, the server needs the logged user id
-  socket.on("requestUserInfo", function (data: any) {
+  statusSocket.on("requestUserInfo", function (data: any) {
     console.log("Sending info: ", loggedUser.value);
-    socket.emit("connection", loggedUser.value);
+    statusSocket.emit("connection", loggedUser.value);
   });
 
   // Listening for updates on the user list
-  socket.on("update", (data: number[]) => {
+  statusSocket.on("update", (data: number[]) => {
     usersOnline.value = data;
     console.log("[StatusStore] usersOnline: ", usersOnline.value);
   });
