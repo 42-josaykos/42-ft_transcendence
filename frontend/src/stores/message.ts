@@ -14,10 +14,16 @@ export const useMessageStore = defineStore('message', () => {
     }
   };
 
-  return {
-    messages,
-    textMsg,
-    textDirectMsg,
-    createMessage
-  };
-});
+    const sortMessages = (dataMsg: Message[]) => {
+        dataMsg.sort((a, b) => (a.id > b.id) ? 1 : -1)
+        messages.value = dataMsg;
+      }
+
+    return {
+        messages,
+        textMsg,
+        textDirectMsg,
+        createMessage,
+        sortMessages
+    }
+})

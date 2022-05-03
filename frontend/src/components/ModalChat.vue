@@ -29,5 +29,10 @@ const close = () => {
   display: flex;
   padding: 1rem;
 }
+
+[type=button], [type=reset], [type=submit], button {
+-webkit-appearance: none !important;
+}
+
 </style>
 
