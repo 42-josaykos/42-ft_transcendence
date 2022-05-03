@@ -93,7 +93,14 @@ export class AuthService implements AuthenticationProvider {
   }
 
   createUser(details: CreateUserDTO) {
-    return this.usersService.createUser(details);
+    const updatedDetails = { ...details };
+    updatedDetails.username =
+      details.username +
+      '#' +
+      Math.floor(Math.random() * 1000)
+        .toString()
+        .padStart(4, '0');
+    return this.usersService.createUser(updatedDetails);
   }
 
   async findUser(id: number) {

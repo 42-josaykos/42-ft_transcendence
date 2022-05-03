@@ -20,6 +20,12 @@ const qrcode = ref(null);
 const twoFactorInput = ref('');
 const usernameInput = ref('');
 const turnOffForm = ref(false);
+const error = ref(false);
+const fileInput = ref<HTMLInputElement | null>(null);
+
+const emit = defineEmits<{
+  (e: 'updateUserProfil'): void;
+}>();
 
 // Convert QR code image file stream from response to base64 string
 function getBase64(file: any) {
@@ -96,14 +102,49 @@ function updateUsername() {
       if (res.status === 200) {
         if (loggedUser.value) {
           let updatedUser: User = { ...loggedUser.value };
-          console.log('BEFORE', updatedUser);
-
           updatedUser.username = res.data.username;
-          console.log('AFTER', updatedUser);
           loggedUser.value = updatedUser;
+          usernameInput.value = '';
+          emit('updateUserProfil');
         }
+      } else {
+        error.value = true;
+        setTimeout(() => {
+          error.value = false;
+        }, 5000);
       }
     });
+  }
+}
+
+async function updateAvatar(event: any) {
+  if (fileInput.value !== null) {
+    const file = fileInput.value.files?.item(0);
+    if (file) {
+      let formData = new FormData();
+      formData.append('avatarUpload', file);
+      let response;
+      try {
+        response = await ax.post('/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        if (response.status === 201) {
+          Patch(`/users/${loggedUser.value?.id}`, {
+            avatar: response.data.path
+          }).then(res => {
+            if (res.status === 200) {
+              if (loggedUser.value) {
+                loggedUser.value.avatar = res.data.avatar;
+                fileInput.value = null;
+                emit('updateUserProfil');
+              }
+            }
+          });
+        }
+      } catch (er: any) {
+        alert(er.response.data.message);
+      }
+    }
   }
 }
 </script>
@@ -122,24 +163,36 @@ function updateUsername() {
     <b>{{ loggedUser.username }}</b>
   </h2>
 
-  <!-- Meteor animation option -->
-  <span class="element-set">
-    Meteor:
-    <Toggle
-      v-model="isMeteor"
-      on-label="On"
-      off-label="Off"
-      class="toggle-style"
-    />
-  </span>
-
   <div v-if="isAuthenticated">
+    <!-- Update avatar -->
+
+    <form @submit.prevent="updateAvatar">
+      <div>
+        <input type="file" accept="image/*" id="file" ref="fileInput" />
+        <button type="submit">Upload</button>
+      </div>
+    </form>
+
     <!-- Update username -->
     <form @submit.prevent.trim.lazy="updateUsername">
-      <label for="username">Username: </label>
-      <input v-model="usernameInput" name="username" type="text" />
-      <button type="submit">Update</button>
+      <div class="mb-3">
+        <label class="form-label" for="username">Update username</label>
+        <input
+          v-model="usernameInput"
+          name="username"
+          type="text"
+          :class="{ 'form-control is-invalid': error === true }"
+        />
+        <div v-if="error">
+          <small id="passwordHelp" class="text-danger">
+            Can't update username. This user already exists.
+          </small>
+        </div>
+        <button type="submit">Update</button>
+      </div>
     </form>
+
+    <br />
 
     <!-- 2FA option -->
     <span class="element-set">
@@ -175,6 +228,17 @@ function updateUsername() {
       </form>
     </div>
   </div>
+
+  <!-- Meteor animation option -->
+  <span class="element-set">
+    Meteor:
+    <Toggle
+      v-model="isMeteor"
+      on-label="On"
+      off-label="Off"
+      class="toggle-style"
+    />
+  </span>
 </template>
 
 <style>
