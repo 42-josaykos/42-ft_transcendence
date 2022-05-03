@@ -7,6 +7,8 @@ export const useMessageStore = defineStore('message', () => {
 
     const textMsg = ref<string>('');
     const textDirectMsg = ref<string>('');
+    const stringSendMessage = ref<string>("");
+    const modalSendMessage = ref<boolean>(false);
 
     const createMessage = (newMessage: Message) => {
         if (messages.value != undefined) {
@@ -23,6 +25,8 @@ export const useMessageStore = defineStore('message', () => {
         messages,
         textMsg,
         textDirectMsg,
+        stringSendMessage,
+        modalSendMessage,
         createMessage,
         sortMessages
     }

@@ -11,8 +11,8 @@ import { Get } from "@/services/requests";
 import ChatMenu from "./ChatMenu.vue";
 import ChatUsers from "./ChatUsers.vue";
 import ChatMessages from "./ChatMessages.vue";
-import Modale from "./Modale.vue";
 import ModalChat from "./ModalChat.vue";
+import UsersFriends from "./UsersFriends.vue";
 
 const userStore = useUserStore();
 const { loggedUser, socketChat, usersBlocked, usersFriends } = storeToRefs(userStore);
@@ -25,6 +25,7 @@ const {
 } = storeToRefs(channelStore);
 
 const modalError = ref<boolean>(false)
+const modalFriends = ref<boolean>(false);
 const msgError = ref<string>('')
 
 onBeforeMount(async () => {
@@ -88,7 +89,20 @@ if (socketChat.value != undefined){
       </div>
 
       <div class="col-md-3 col-chat ms-auto">
-        <div class="scrollspy-example my-5 px-2 py-2" style="min-height: 80vh">
+        <div class="horizontal-line-bottom">
+          <div class="wrapper-btn-friends">
+            <button
+              @click="modalFriends = true
+              "
+              type="button"
+              class="rounded btn-channel"
+              style="color: var(--clr-neon) !important;"
+            >
+              <i class="fa-solid fa-users fa-2x"></i>
+            </button>
+          </div>
+        </div>
+        <div class="scrollspy-example mb-5 px-2 py-2" style="min-height: 80vh">
           <ChatUsers />
         </div>
       </div>
@@ -105,6 +119,17 @@ if (socketChat.value != undefined){
       <div>
         {{msgError}}
       </div>
+    </template>
+  </ModalChat>
+
+  <ModalChat v-if="modalFriends == true" @close="modalFriends = false;">
+    <template v-slot:header>
+      <h2 style="padding-top: 10px">
+        <u>Friends list</u>
+      </h2>
+    </template>
+    <template v-slot:body>
+      <UsersFriends/>
     </template>
   </ModalChat>
 
@@ -271,6 +296,13 @@ if (socketChat.value != undefined){
 .text-msg-right {
   color: white;
   padding: 10px;
+}
+
+.wrapper-btn-friends {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 10px;
 }
 
 @media (min-width: 950px) {

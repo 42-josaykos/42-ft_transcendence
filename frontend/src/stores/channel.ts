@@ -4,49 +4,31 @@ import type { Channel } from '@/models/channel.model';
 import type { User } from "@/models/user.model";
 import { Get } from "@/services/requests";
 import { useUserStore } from "@/stores/user";
-
+import { useMessageStore } from "@/stores/message";
 
 export const useChannelStore = defineStore('channel', () => {
 
   const userStore = useUserStore();
   const { loggedUser, socketChat, users } = storeToRefs(userStore);
 
-  // Tous les channels
-    const allChannels = ref<Channel[]>([]);
+  const messageStore = useMessageStore();
+  const { stringSendMessage } = storeToRefs(messageStore);
 
-  // Les channels auquels le user appartient
-    const channels = ref<Channel[]>([]);
+  const allChannels = ref<Channel[]>([]);
+  const channelsInvite = ref<Channel[]>([]);
+  const channel = ref<Channel>();
+  const channelLeave = ref<Channel>();
+  const channelJoin = ref<Channel>();
+  const channelUpdate = ref<Channel>();
 
-  // Les channels auquels le user a reçu une invitation
-    const channelsInvite = ref<Channel[]>([]);
+  const usersMembers = ref<User[]>([]);
+  const usersInvite = ref<User[]>([]);
+  const newOwner = ref<User>();
 
-  // Le chanel sélectionné
-    const channel = ref<Channel>();
-
-  // Le channel que le user cherche à quitter
-    const channelLeave = ref<Channel>();
-
-  // Le channel que le user cherche à joindre
-    const channelJoin = ref<Channel>();
-
-  // Le channel que le user veut mettre à jour
-    const channelUpdate = ref<Channel>();
-
-  // Les users appartenant au channel selectionné
-    const usersMembers = ref<User[]>([]);
-
-  // Le user à qui on envoit un direct message
-    const userDirectMessage = ref<User>();
-
-  // Les users que l'on souhaite invité dans un channel privé
-    const usersInvite = ref<User[]>([]);
-
-    const newOwner = ref<User>();
-    const channelType = ref<number>();
-
-    const arrayTime = ref<string[]>(["00:00:15", "00:15:00", "00:30:00", "01:00:00", "02:00:00", "12:00:00", "23:59:59", "indefinite time"])
-    const timerIntervalBan = ref<any[]>([]);
-    const timerIntervalMute = ref<any[]>([]);
+  const channelType = ref<number>();
+  const arrayTime = ref<string[]>(["00:00:15", "00:15:00", "00:30:00", "01:00:00", "02:00:00", "12:00:00", "23:59:59", "indefinite time"])
+  const timerIntervalBan = ref<any[]>([]);
+  const timerIntervalMute = ref<any[]>([]);
 
     const createChannel = (newChannel: Channel) => {
       allChannels.value.push(newChannel);
@@ -91,30 +73,9 @@ export const useChannelStore = defineStore('channel', () => {
       }
     }
 
-    const getChannelByID = (id: number): Channel => {
-      const index = channels.value.findIndex(
-        (el: Channel) => el.id === id
-      );
-        return channels.value[index];
-    }
-
-    const getChannelByName = (channelName: string | undefined): Channel | null => {
-      if (channelName != undefined) {
-        const index = channels.value.findIndex(
-          (el: Channel) => el.name === channelName
-        );
-        if (index != -1) {
-          return channels.value[index];
-        }
-      }
-      return null;
-    }
 
     const deleteChannel = (id: number) => {
-      let index = channels.value.findIndex((el: Channel) => el.id === id);
-      if (index != -1) {
-        channels.value.splice(index, 1);
-      }
+      let index = allChannels.value.findIndex((el: Channel) => el.id === id);
       index = allChannels.value.findIndex((el: Channel) => el.id === id);
       if (index != -1) {
         allChannels.value.splice(index, 1);
@@ -125,10 +86,6 @@ export const useChannelStore = defineStore('channel', () => {
       if (isInvite(updatedData, userID)) {
         const index = channelsInvite.value.findIndex((el: Channel) => el.id === id);
         channelsInvite.value.splice(index, 1, { ...channelsInvite.value[index], ...updatedData });
-      }
-      if (isMember(updatedData, userID)) {
-        const index = channels.value.findIndex((el: Channel) => el.id === id);
-        channels.value.splice(index, 1, { ...channels.value[index], ...updatedData });
       }
       const index = allChannels.value.findIndex((el: Channel) => el.id === id);
       allChannels.value.splice(index, 1, { ...allChannels.value[index], ...updatedData });
@@ -411,9 +368,51 @@ export const useChannelStore = defineStore('channel', () => {
       return nameChan[0].username;
     };
 
+    const sendDirectChannel = async (user: User | undefined) => {
+      if (user != undefined) {
+        const name1 = `${user.id} ${loggedUser.value?.id}`;
+        const name2 = `${loggedUser.value?.id} ${user.id}`;
+        const channelItem = allChannels.value.find(
+          (el: Channel) => el.name === name1 || el.name === name2
+        );
+        if (channelItem == undefined) {
+          const newChannel = {
+            name: `${user.id} ${loggedUser.value?.id}`,
+            isPrivate: true,
+            password: null,
+            owner: { id: loggedUser.value?.id },
+            admins: [{ id: loggedUser.value?.id }, { id: user.id }],
+            members: [{ id: loggedUser.value?.id }, { id: user.id }],
+            isDirectChannel: true,
+            isProtected: false,
+          };
+          socketChat.value?.emit(
+            "newChannel",
+            newChannel,
+            {
+              author: loggedUser.value?.id,
+              channel: { id: null },
+              data: stringSendMessage.value,
+            },
+            loggedUser.value
+          );
+        } else {
+          socketChat.value?.emit(
+            "newMessage",
+            {
+              author: loggedUser.value?.id,
+              channel: { id: channelItem?.id },
+              data: stringSendMessage.value,
+            },
+            loggedUser.value
+          );
+        }
+      }
+      stringSendMessage.value = ""; 
+    };
+
     return {
         allChannels,
-        channels,
         channel,
         channelJoin,
         channelLeave,
@@ -421,7 +420,6 @@ export const useChannelStore = defineStore('channel', () => {
         channelUpdate,
         newOwner,
         usersMembers,
-        userDirectMessage,
         usersInvite,
         channelType,
         arrayTime,
@@ -431,8 +429,6 @@ export const useChannelStore = defineStore('channel', () => {
         updateMember,
         updateOwner,
         updateInvite,
-        getChannelByID,
-        getChannelByName,
         deleteChannel,
         updateChannel,
         checkIfUserInTheChannel,
@@ -449,6 +445,7 @@ export const useChannelStore = defineStore('channel', () => {
         handleBanMute,
         updateBanMute,
         stopTimer,
-        searchName
+        searchName,
+        sendDirectChannel
     };
 });
