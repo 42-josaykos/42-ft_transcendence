@@ -185,9 +185,8 @@ export class UsersService {
     }
 
     // Avatar
-    userData.avatar = `https://avatars.dicebear.com/api/gridy/${
-      userData.username + Math.floor(Math.random() * 100)
-    }.svg`;
+    userData.avatar = `https://avatars.dicebear.com/api/gridy/
+      ${userData.username.replace('#', '')}.svg`;
 
     // Creating a new user and it's stats
     const newUser = this.usersRepository.create(userData);
@@ -382,6 +381,18 @@ export class UsersService {
   }
 
   async validateUser(user: UpdateUserDTO): Promise<void> {
+    // Checking if username already exist
+    if ('username' in user) {
+      if (
+        await this.usersRepository.findOne({
+          where: { username: user.username },
+        })
+      )
+        throw new ForbiddenException(
+          "Can't update username (username already exists)",
+        );
+    }
+
     // Checking if all friends exist
     if ('friends' in user) {
       for (const friend of user.friends) {
