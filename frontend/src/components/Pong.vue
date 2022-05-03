@@ -15,16 +15,11 @@ export default {
 
       canvas: { w: 1000, h: 600 },
       paddle: {},
-      bound: 25,
       player_L: {},
       player_R: {},
       ball: {},
 
-      gameplay: false,
-      newround: false,
       newpause: true,
-      newgame: true,
-      endgame: false,
       startTime: {},
       sounds: {},
 
@@ -97,23 +92,25 @@ export default {
     return;
   },
   mounted() {
-    let gamePaddle = this.getPaddle;
-    let leftPlayer = this.getPlayerL;
-    let rightPlayer = this.getPlayerR;
-    let sounds = this.getSounds;
+    this.getPaddle;
+    this.getPlayerL;
+    this.getPlayerR;
+    this.getSounds;
 
     this.router = useRouter();
 
     // Socket Events
-    //##########################################################################
+    // ##########################################################################
     this.gameSocket.on("gameUpdate", (data) => {
       // console.log("gameUpdate: ", data);
       this.updateGame(data);
     });
     this.gameSocket.on("endGame", () => {
+      clearInterval(this.intervalID);
       this.router.push("/debug");
     });
-    //  ##########################################################################
+    // ##########################################################################
+
     this.launch();
     return;
   },
@@ -126,35 +123,17 @@ export default {
     //  Game Loop
     //  ##########################################################################
     launch: function () {
-      const framePerSec = 50;
-      this.intervalID = setInterval(this.game, 1000 / 60);
+      // if (this.revelePlay == true) this.updateSettings();
+      const framePerSec = 1000 / 60;
+      this.intervalID = setInterval(this.game, framePerSec);
+
       return;
     },
     game: function () {
-      // if (this.revelePlay == true) this.updateSettings();
-      // if (this.gameplay == true && this.endgame == false) {
-      // if (this.newgame == false) this.runWild();
-      // if (this.newround == true) this.pauseRound();
-      //  Loops over the classical pattern: checks for a key event, updates, clears and render the new positions on
-      //  the virgin canvas and then
       this.move();
-      // this.update();
       this.clearCanvas();
       this.render();
-      // if (this.gameplay == true) {
-      //  If it is the very beggining of the game (and not just a new round), fixes both player positions so that
-      //  users cannot moove without seing their paddle and before the game starts.
-      // if (this.newgame == true) this.pauseGame();
-      // }
 
-      // When the game is finished
-      // else {
-      //   clearInterval(this.intervalID);
-      //   this.gameSocket.emit("endGame", {
-      //     user: this.loggedUser,
-      //     score: [this.player_L.score, this.player_R.score],
-      //   });
-      // }
       return;
     },
     updateGame: function (data) {
@@ -182,32 +161,6 @@ export default {
       //  start now that all is up to date.
       let gameBall = this.getBall;
       this.gameplay = true;
-      return;
-    },
-    pauseRound: function () {
-      //  Sets the ball at is default position each time the current time does not equal the amount chosen, creating
-      //  a pause from when the point is scored to when the game carries on.
-      if (this.newpause == true) {
-        this.startTime = new Date().getTime();
-        this.newpause = false;
-      }
-      var end = new Date().getTime();
-      if (end < this.startTime + 1500) {
-        this.ball.x = this.canvas.w / 2;
-        this.ball.y = this.canvas.h / 2;
-        this.ball.Xmin = this.ball.x - this.ball.size;
-        this.ball.Xmax = this.ball.x + this.ball.size;
-        this.ball.Ymin = this.ball.y - this.ball.size;
-        this.ball.Ymax = this.ball.y + this.ball.size;
-      } else this.newround = false;
-      return;
-    },
-    pauseGame: function () {
-      this.countdown();
-      this.player_L.x = this.bound;
-      this.player_L.y = this.canvas.h / 2 - this.paddle.h / 2;
-      this.player_R.x = this.canvas.w - this.bound - this.paddle.w;
-      this.player_R.y = this.canvas.h / 2 - this.paddle.h / 2;
       return;
     },
     countdown: function () {
@@ -319,109 +272,6 @@ export default {
       if (this.keyState[37]) this.gameSocket.emit("moveLeft", this.loggedUser);
       else if (this.keyState[39])
         this.gameSocket.emit("moveRight", this.loggedUser);
-      return;
-    },
-    //  Updating Data and Adjusting
-    //  ##########################################################################
-    update: function () {
-      //	Checks whether the ball passed throught the canvas boundaries by the left or by the right (the extra 50 pixels
-      //	make the rendering smoother).
-      if (this.ball.Xmin - 50 > this.canvas.w || this.ball.Xmax + 50 < 0)
-        this.updateScore();
-      // Checks if the ball passed has hit one of the canvas boundaries by the top or by the bottom. If so, it bounces.
-      if (this.ball.Ymax >= this.canvas.h || this.ball.Ymin <= 0) {
-        this.ball.velocityY *= -1;
-        this.sounds.wall.play();
-      }
-      //	Checks in which part of the canvas the ball is in order to send the appropriate player to collision() that'll
-      //	return true if such event occurs.
-      let player =
-        this.ball.x + this.ball.size < this.canvas.w / 2
-          ? this.player_L
-          : this.player_R;
-      if (this.collision(this.ball, player)) {
-        this.sounds.hit.play();
-        this.updateVelocity(player);
-      }
-      return;
-    },
-    collision: function (ball, player) {
-      //	Defines the values of the paddle sides' positions and then the ball sides's position given their respective
-      //	position: Xmin = left side, Xmax = right side, Ymin = top, Ymax = bottom
-      player.Xmin = player.x;
-      player.Xmax = player.x + this.paddle.w;
-      player.Ymin = player.y;
-      player.Ymax = player.y + this.paddle.h;
-      ball.Xmax = ball.x + ball.size;
-      ball.Ymin = ball.y - ball.size;
-      ball.Ymax = ball.y + ball.size;
-      //	Returns 1 or 0 given if there is a collision or not.
-      return (
-        player.Xmin < ball.Xmax &&
-        player.Ymin < ball.Ymax &&
-        player.Xmax > ball.Xmin &&
-        player.Ymax > ball.Ymin
-      );
-    },
-    updateVelocity: function (player) {
-      let middleY = player.y + this.paddle.h / 2; //	Y value of the middle of the paddle
-      let collisionPoint = this.ball.y - middleY; //	Computes where the ball hits the paddle
-      collisionPoint /= this.paddle.h / 2; //	Normalizing the number : to have something between -1 and 1
-
-      let angleRad = (Math.PI / 4) * collisionPoint; // PI/4 = 45° is arbitrary, I could have chose another angle!
-      let direction = this.ball.x + this.ball.size < this.canvas.w / 2 ? 1 : -1;
-
-      this.ball.velocityX = direction * this.ball.speed * Math.cos(angleRad);
-      this.ball.velocityY = this.ball.speed * Math.sin(angleRad);
-      return;
-    },
-    waitForPlayers: function (ms) {
-      var start = new Date().getTime();
-      var end = start;
-      while (end < start + ms) {
-        end = new Date().getTime();
-      }
-      return;
-    },
-    updateScore: function () {
-      //  Checks whether the ball passed throught the canvas boundaries by the left or by the right (the extra 10 pixels
-      //  make it visually smoother: the ball has time to cross before it is sent to its default position) and given the
-      //  the score is updated.
-      if (this.ball.Xmax + 10 < 0) this.player_R.score++;
-      else if (this.ball.Xmin - 10 > this.canvas.w) this.player_L.score++;
-      //  Ends game if one of the two players reached 10.
-      if (this.player_R.score == 10 || this.player_L.score == 10) {
-        this.gameplay = false;
-        this.endgame = true;
-        this.sounds.win.play();
-        return;
-      }
-      //  Else, the new score is rendered and the ball is sent at its default position for a new round.
-      this.sounds.score.play();
-      this.resetPlay();
-      return;
-    },
-    resetPlay: function () {
-      //  Booleans to true for a pause between rounds when game() is called again.
-      this.newround = true;
-      this.newpause = true;
-      this.resetBall();
-      return;
-    },
-    resetBall: function () {
-      // Sets the ball at the middle of the canvas.
-      this.ball.x = this.canvas.w / 2;
-      this.ball.y = this.canvas.h / 2;
-      this.ball.velocityX *= -1; // So that each player receives the ball one at a time.
-      return;
-    },
-    runWild: function () {
-      this.ball.x += this.ball.velocityX;
-      this.ball.y += this.ball.velocityY;
-      this.ball.Xmin = this.ball.x - this.ball.size;
-      this.ball.Xmax = this.ball.x + this.ball.size;
-      this.ball.Ymin = this.ball.y - this.ball.size;
-      this.ball.Ymax = this.ball.y + this.ball.size;
       return;
     },
   },

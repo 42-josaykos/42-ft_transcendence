@@ -83,43 +83,6 @@ export class GameGateway
     }
   }
 
-  @SubscribeMessage('endGame')
-  async handleEndGame(
-    @ConnectedSocket() clientInformation: Socket,
-    @MessageBody() data: any,
-  ) {
-    // Determining which game
-    const gameIndex = this.games.findIndex(
-      (game) =>
-        game.players[0].player.user.id === data.user.id ||
-        game.players[1].player.user.id === data.user.id,
-    );
-
-    // Logic will only run on playerOne
-    if (
-      gameIndex !== -1 &&
-      data.user.id === this.games[gameIndex].players[0].player.user.id
-    ) {
-      // POST match data in the database through the API
-      const body = {
-        players: [
-          { id: this.games[gameIndex].players[0].player.user.id },
-          { id: this.games[gameIndex].players[1].player.user.id },
-        ],
-        score: [data.score[0], data.score[1]],
-      };
-      const match = await axios({
-        url: 'http://localhost:4000/matches',
-        method: 'POST',
-        data: body,
-      });
-      // console.log('Match: ', match.data);
-
-      // Remove match from game array
-      this.games.splice(gameIndex, 1);
-    }
-  }
-
   @SubscribeMessage('moveLeft')
   handleMoveLeft(@ConnectedSocket() client: Socket, @MessageBody() data: User) {
     try {

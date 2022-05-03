@@ -110,16 +110,10 @@ export class GameService implements OnModuleInit {
       game.finished = true;
       game.winner =
         game.players[0].score == 10 ? game.players[0] : game.players[1];
-      // this.gameplay = false;
-      // this.endgame = true;
-      // this.sounds.win.play();
       // game.events.sounds.win = true;
       // game.events.sounds.loose = true;
       return game;
     }
-    //  Else, the new score is rendered and the ball is sent at its default position for a new round.
-    // this.sounds.score.play();
-    // this.resetPlay();
 
     // Setting new ball direction
     game.ball = this.initNewBall();
@@ -275,8 +269,8 @@ export class GameService implements OnModuleInit {
     const randDirectionY = Math.round(Math.random());
     const newBallDirectionX = randDirectionX === 1 ? 1 : -1;
     const newBallDirectionY = randDirectionY === 1 ? 1 : -1;
-    const ballVelocityX = newBallDirectionX * ballSpeed;
-    const ballVelocityY = newBallDirectionY * ballSpeed;
+    const ballVelocityX = newBallDirectionX * ballSpeed * 0.5;
+    const ballVelocityY = newBallDirectionY * ballSpeed * 0.5;
 
     const newBall: Ball = {
       x: ballX,
