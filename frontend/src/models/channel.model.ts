@@ -1,4 +1,4 @@
-import type { User } from './user.model'
+import type { User, BanedUser, MutedUser } from './user.model'
 import type { Message } from './message.model'
 
 export interface Channel {
@@ -12,8 +12,8 @@ export interface Channel {
     owner: User;
     admins: User[];
     members: User[];
-    mutes: User[];
-    bans: User[];
+    mutes: MutedUser[];
+    bans: BanedUser[];
     invites: User[];
     isMember: boolean;
     isOwner: boolean;

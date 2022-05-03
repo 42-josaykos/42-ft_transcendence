@@ -252,8 +252,10 @@ export class ChannelsService {
         channel.isPrivate = updatedChannel.isPrivate;
       if ('isProtected' in updatedChannel)
         channel.isProtected = updatedChannel.isProtected;
-      if ('password' in updatedChannel)
-        channel.password = updatedChannel.password;
+      if ('password' in updatedChannel) {
+        const hash = await bcrypt.hash(updatedChannel.password, 10);
+        channel.password = hash;
+      }
       if ('owner' in updatedChannel) channel.owner = updatedChannel.owner;
       if ('admins' in updatedChannel) channel.admins = updatedChannel.admins;
       if ('members' in updatedChannel) channel.members = updatedChannel.members;

@@ -145,7 +145,7 @@ export class AuthController {
   }
 
   @Post('turn-2fa-on')
-  @UseGuards(JwtTwoFactorGuard)
+  @UseGuards(JwtAccessGuard)
   async turnOnTwoFactorAuthentication(
     @Req() request: RequestWithUser,
     @Body() { twoFactorAuthenticationCode }: twoFactorAuthenticationCodeDTO,
@@ -191,6 +191,7 @@ export class AuthController {
    */
   @Get('logout')
   @Redirect('/')
+  @UseGuards(JwtTwoFactorGuard)
   async logout(@Req() req, @Res() res: Response) {
     await this.authService.removeRefreshToken(req.user.id);
     res.setHeader('Set-Cookie', this.authService.getCookieForLogout());

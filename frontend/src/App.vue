@@ -1,17 +1,15 @@
 <script setup lang="ts">
-import Navbar from './components/Navbar.vue';
-import StatusSystem from './components/StatusSystem.vue';
-import { storeToRefs } from 'pinia';
-import { useUserStore } from '@/stores/user';
-import { useStatusStore } from '@/stores/status';
-import { onMounted, ref } from 'vue';
-import { Get } from './services/requests';
+import Navbar from "./components/Navbar.vue";
+import StatusSystem from "./components/StatusSystem.vue";
+import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/user";
+import { useStatusStore } from "@/stores/status";
+import { onMounted, ref } from "vue";
+import { Get } from "./services/requests";
+import ChatSocket from "./components/ChatSocket.vue";
 
 const userStore = useUserStore();
 const { loggedUser, isAuthenticated } = storeToRefs(userStore);
-
-// const statusStore = useStatusStore();
-// const { loggedUser, isAuthenticated, usersOnline } = storeToRefs(statusStore);
 
 // Verify if user is already logged
 onMounted(() => {
@@ -59,19 +57,14 @@ export const isMeteor = ref(false);
       <div class="meteor-14"></div>
       <div class="meteor-15"></div>
     </div>
-  </div>
-  <div
-    class="full-height full-width"
-    style="
-      z-index: 1;
-      background: radial-gradient(ellipse at top, #1b2735 0%, #080e21 70%);
-    "
-  >
-    <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
-    <div v-if="isAuthenticated">
-      <StatusSystem />
+    <div class="full-height full-width" style="z-index: 1; background: radial-gradient(ellipse at top, #1b2735 0%, #080e21 70%);">
+      <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
+      <div v-if="isAuthenticated">
+        <StatusSystem />
+        <ChatSocket />
+      </div>
+      <div class="routerView"><router-view /></div>
     </div>
-    <div class="routerView"><router-view /></div>
   </div>
 </template>
 
