@@ -269,8 +269,8 @@ export class GameService implements OnModuleInit {
     const randDirectionY = Math.round(Math.random());
     const newBallDirectionX = randDirectionX === 1 ? 1 : -1;
     const newBallDirectionY = randDirectionY === 1 ? 1 : -1;
-    const ballVelocityX = newBallDirectionX * ballSpeed * 0.5;
-    const ballVelocityY = newBallDirectionY * ballSpeed * 0.5;
+    const ballVelocityX = newBallDirectionX * ballSpeed;
+    const ballVelocityY = newBallDirectionY * ballSpeed;
 
     const newBall: Ball = {
       x: ballX,
