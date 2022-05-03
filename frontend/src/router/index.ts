@@ -1,12 +1,11 @@
 import { createWebHistory, createRouter } from "vue-router";
 import Home from "@/components/Home.vue";
-import Game from "@/components/Game.vue";
-import Matchmaking from "@/components/Matchmaking.vue";
+import Game from "@/components/game/Game.vue";
+import Matchmaking from "@/components/game/Matchmaking.vue";
 import Debug from "@/components/debug/Debug.vue";
 import PageNotFound from "@/components/PageNotFound.vue";
 import Login from "@/components/Login.vue";
 import Chat from "@/components/Chat.vue";
-import Toto from "@/components/Toto.vue";
 import Setting from "@/components/Setting.vue";
 import Register from "@/components/Register.vue";
 import { useUserStore } from "@/stores/user";
@@ -35,11 +34,6 @@ const routes = [
     path: "/debug",
     name: "Debug",
     component: Debug,
-  },
-  {
-    path: "/toto",
-    name: "TOTO",
-    component: Toto,
   },
   {
     path: "/login",
