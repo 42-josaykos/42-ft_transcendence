@@ -57,11 +57,6 @@ export class GameService implements OnModuleInit {
 
     // Main game loop
     game.intervalID = setInterval(async () => {
-      // Socket client updates
-      game = this.updateClientSockets(game);
-      console.log('verif sockets 1: ', game.players[0].player);
-      console.log('verif sockets 2: ', game.players[1].player);
-
       // Updating ball position
       game.ball.x += game.ball.velocityX;
       game.ball.y += game.ball.velocityY;
@@ -140,27 +135,6 @@ export class GameService implements OnModuleInit {
     this.games.splice(gameIndex, 1);
 
     this.gateway.broadcastEndGame(game);
-  }
-
-  // Socket updates
-  updateClientSockets(game: Game) {
-    for (let player in game.players)
-      game.players[player].player.socketID = this.getUserSockets(
-        game.players[player].player.user,
-      );
-    for (let spectator in game.spectators)
-      game.spectators[spectator].user.socketID = this.getUserSockets(
-        game.spectators[spectator].user.user,
-      );
-
-    return game;
-  }
-
-  getUserSockets(user: User) {
-    const connection = this.gateway.connectedClients.find(
-      (client) => client.user.id == user.id,
-    );
-    return connection.socketID;
   }
 
   // Player moving handlers

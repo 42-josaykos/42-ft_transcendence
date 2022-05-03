@@ -8,7 +8,6 @@ export const useUserStore = defineStore("user", () => {
   const users = ref<User[]>([]);
   const usersOnline = ref<Number[]>([]);
   const loggedUser = ref<User | null>(null);
-  const statusSocket = ref<Socket>();
   const gameSocket = ref<Socket>(
     io("ws://localhost:6060/game", {
       withCredentials: true,
@@ -36,7 +35,6 @@ export const useUserStore = defineStore("user", () => {
     usersOnline,
     isAuthenticated,
     gameSocket,
-    statusSocket,
     isTwoFactorAuth,
     createUser,
     deleteUser,

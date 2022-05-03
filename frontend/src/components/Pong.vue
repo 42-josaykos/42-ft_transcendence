@@ -35,7 +35,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(useUserStore, ["statusSocket", "loggedUser"]),
+    ...mapState(useUserStore, ["gameSocket", "loggedUser"]),
     //	Compute respectively the values of the component attributes that depend on data and props, sets some others to
     //	default, and returns them (Paddle, PlayerL, PlayeR, Ball, Sounds).
     getPaddle: function () {
@@ -106,11 +106,11 @@ export default {
 
     // Socket Events
     //##########################################################################
-    this.statusSocket.of("/game").on("gameUpdate", (data) => {
+    this.gameSocket.on("gameUpdate", (data) => {
       // console.log("gameUpdate: ", data);
       this.updateGame(data);
     });
-    this.statusSocket.of("/game").on("endGame", () => {
+    this.gameSocket.on("endGame", () => {
       this.router.push("/debug");
     });
     //  ##########################################################################

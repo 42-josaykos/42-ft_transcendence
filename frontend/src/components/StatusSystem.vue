@@ -9,25 +9,24 @@ import { Get } from "@/services/requests";
 // const { loggedUser, isAuthenticated, usersOnline } = storeToRefs(statusStore);
 
 const userStore = useUserStore();
-const { loggedUser, usersOnline, isAuthenticated, statusSocket } =
-  storeToRefs(userStore);
+const { loggedUser, usersOnline, isAuthenticated } = storeToRefs(userStore);
 
 console.log("[StatusStore] isAuthenticated: ", isAuthenticated.value);
 
 if (isAuthenticated.value) {
   console.log("[StatusStore] loggedUser: ", loggedUser.value);
-  statusSocket.value = io("ws://localhost:3615/status", {
+  const statusSocket = io("ws://localhost:3615/status", {
     withCredentials: true,
   });
 
   // After socker connection, the server needs the logged user id
-  statusSocket.value.on("requestUserInfo", function (data: any) {
+  statusSocket.on("requestUserInfo", function (data: any) {
     console.log("Sending info: ", loggedUser.value);
-    statusSocket.value?.emit("connection", loggedUser.value);
+    statusSocket.emit("connection", loggedUser.value);
   });
 
   // Listening for updates on the user list
-  statusSocket.value.on("update", (data: number[]) => {
+  statusSocket.on("update", (data: number[]) => {
     usersOnline.value = data;
     console.log("[StatusStore] usersOnline: ", usersOnline.value);
   });

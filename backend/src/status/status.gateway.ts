@@ -71,8 +71,6 @@ export class StatusGateway
       );
     }
 
-    // Sending updated full list to the Game app
-    axios.post('http://localhost:6060/status', this.connectedClients);
     // console.log('Clients connected: ', this.connectedClients);
   }
 
@@ -104,8 +102,6 @@ export class StatusGateway
       );
     }
 
-    // Sending updated full list to the Game app
-    axios.post('http://localhost:6060/status', this.connectedClients);
     // console.log('Clients connected: ', this.connectedClients);
   }
 }

@@ -35,7 +35,6 @@ export class GameGateway
   private server: Server;
 
   private logger: Logger = new Logger('GameGateway');
-  public connectedClients: Connection[] = [];
   private queue: Connection[] = [];
   private games: Game[] = [];
 
@@ -59,17 +58,17 @@ export class GameGateway
     // Adding player to queue
     this.queue.push({
       user: data,
-      socketID: this.gameService.getUserSockets(data),
+      socketID: [client.id],
     });
-    console.log('queue: ', this.queue);
+    // console.log('queue: ', this.queue);
 
     // Start a game if there is at least 2 players in the queue waiting
     while (this.queue.length >= 2) {
       // Remove players from queue
       const playerOne: Player = { player: this.queue.shift() };
       const playerTwo: Player = { player: this.queue.shift() };
-      console.log('playerOne: ', playerOne);
-      console.log('playerTwo: ', playerTwo);
+      // console.log('playerOne: ', playerOne);
+      // console.log('playerTwo: ', playerTwo);
 
       // Create and start game
       const players = this.gameService.createGame(
@@ -78,7 +77,6 @@ export class GameGateway
         this.server,
       );
       this.server
-        .of('/game')
         .to(playerOne.player.socketID[0])
         .to(playerTwo.player.socketID[0])
         .emit('startGame', players);
