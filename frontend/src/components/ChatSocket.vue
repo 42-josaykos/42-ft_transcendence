@@ -39,9 +39,22 @@ if (isAuthenticated.value) {
   })
 
 
-  socketChat.value.on("newMessage", (newMessage: Message) => {
+  socketChat.value.on("newMessage", async (newMessage: Message) => {
     if (channel.value != undefined && channel.value.id == newMessage.channel.id) {
       messageStore.createMessage(newMessage);
+    }
+    else if (channel.value != undefined && channel.value.id != newMessage.channel.id && loggedUser.value?.id == newMessage.author.id) {
+      await Get(
+        "/channels/search?id=" +
+          newMessage.channel.id.toString() +
+          "&members&bans&mutes&admins&owner&messages"
+      ).then((res) => {
+        if (res.data[0].isDirectChannel) {
+          channel.value = res.data[0];
+          usersMembers.value = res.data[0].members;
+          messageStore.sortMessages(res.data[0].messages);
+        }
+      });
     }
   });
 
