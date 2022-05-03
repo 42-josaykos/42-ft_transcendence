@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, onUnmounted } from "vue";
+import { onBeforeMount, onUnmounted, ref } from "vue";
 
 import { storeToRefs } from "pinia";
 
@@ -11,6 +11,8 @@ import { Get } from "@/services/requests";
 import ChatMenu from "./ChatMenu.vue";
 import ChatUsers from "./ChatUsers.vue";
 import ChatMessages from "./ChatMessages.vue";
+import Modale from "./Modale.vue";
+import ModalChat from "./ModalChat.vue";
 
 const userStore = useUserStore();
 const { loggedUser, socketChat, usersBlocked, usersFriends } = storeToRefs(userStore);
@@ -21,6 +23,9 @@ const {
   newOwner,
   channelType
 } = storeToRefs(channelStore);
+
+const modalError = ref<boolean>(false)
+const msgError = ref<string>('')
 
 onBeforeMount(async () => {
   Get("/channels/search?&members&invites&bans&mutes").then((res) => {
@@ -36,7 +41,6 @@ onBeforeMount(async () => {
       }
     }
   });
-
   newOwner.value = undefined;
   channelType.value = 0;
 });
@@ -49,6 +53,23 @@ onUnmounted(() => {
   socketChat.value?.off("updateChannel");
   socketChat.value?.off("inviteChannel");
 });
+
+const removeAlert = () => {
+  modalError.value = false
+}
+
+const addAlert = (message: string) => {
+  msgError.value = message
+  console.log("MsgError =>", msgError.value)
+  modalError.value = true
+  setTimeout(removeAlert, 5000);
+}
+
+if (socketChat.value != undefined){
+  socketChat.value.on('error', (data) => {
+    addAlert(data.message)
+  })
+}
 
 </script>
 
@@ -73,6 +94,19 @@ onUnmounted(() => {
       </div>
     </div>
   </div>
+
+  <ModalChat v-if="modalError == true" @close="modalError = false;">
+    <template v-slot:header>
+      <h2 style="padding-top: 10px">
+        <u>ERROR</u>
+      </h2>
+    </template>
+    <template v-slot:body>
+      <div>
+        {{msgError}}
+      </div>
+    </template>
+  </ModalChat>
 
 </template>
 

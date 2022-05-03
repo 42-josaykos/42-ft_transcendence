@@ -38,7 +38,6 @@ if (isAuthenticated.value) {
     socketChat.value?.emit('sendInfo', loggedUser.value);
   })
 
-
   socketChat.value.on("newMessage", async (newMessage: Message) => {
     if (channel.value != undefined && channel.value.id == newMessage.channel.id) {
       messageStore.createMessage(newMessage);
