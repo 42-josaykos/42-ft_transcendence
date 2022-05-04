@@ -43,23 +43,22 @@ const {
 } = storeToRefs(channelStore);
 
 const displayMessages = (channel_item: Channel) => {
-  Get(
-    "/channels/search?id=" +
-      channel_item.id.toString() +
-      "&messages&owner&admins&members&mutes&bans"
-  ).then((res) => {
-    channel.value = res.data[0];
-    if (channel.value != undefined && loggedUser.value != null) {
-      if (channelStore.isBan(channel.value, loggedUser.value?.id)) {
-        channelStore.handleBanMute({...channel.value}, true)
+  Get(`/channels/search?id=${channel_item.id.toString()}&messages&owner&admins&members&mutes&bans`)
+    .then((res) => {
+      if (res.status == 200) {
+        channel.value = res.data[0];
+        if (channel.value != undefined && loggedUser.value != null) {
+          if (channelStore.isBan(channel.value, loggedUser.value?.id)) {
+            channelStore.handleBanMute({...channel.value}, true)
+          }
+          else if (channelStore.isMute(channel.value, loggedUser.value?.id)) {
+            channelStore.handleBanMute({...channel.value}, false)
+          }
+        }
+        messageStore.sortMessages(res.data[0].messages);
+        usersMembers.value = res.data[0].members;
       }
-      else if (channelStore.isMute(channel.value, loggedUser.value?.id)) {
-        channelStore.handleBanMute({...channel.value}, false)
-      }
-    }
-    messageStore.sortMessages(res.data[0].messages);
-    usersMembers.value = res.data[0].members;
-  });
+    });
 };
 
 // Créer un nouveau channel
@@ -434,18 +433,17 @@ const isNum = (char: any) => {
                 <button
                   v-if="item.isOwner"
                   @click="
-                    Get('/users/search').then((res) => (users = res.data));
-                    Get(
-                      'channels/search?id=' +
-                        item.id.toString() +
-                        '&admins&mutes&members&invites&bans'
-                    ).then((res) => {
-                      [channelUpdate] = res.data;
-                      channelName = res.data[0].name;
-                      usersInvite = [];
-                      modalUpdateChannel = true;
-                      channelType = 0;
-                    });
+                    Get('/users/search').then((res) => {if (res.status == 200) {users = res.data}});
+                    Get(`channels/search?id=${item.id.toString()}&admins&mutes&members&invites&bans`)
+                      .then((res) => {
+                        if (res.status == 200) {
+                          [channelUpdate] = res.data;
+                          channelName = res.data[0].name;
+                          usersInvite = [];
+                          modalUpdateChannel = true;
+                          channelType = 0;
+                        }
+                      });
                   "
                   type="button"
                   class="rounded btn-channel wrapper-icon-leave ms-auto"
@@ -454,16 +452,15 @@ const isNum = (char: any) => {
                 </button>
                 <button
                   @click="
-                    Get(
-                      'channels/search?id=' +
-                        item.id.toString() +
-                        '&admins&mutes&members&bans&owner'
-                    ).then((res) => {
-                      [channelLeave] = res.data;
-                      item.isOwner
-                        ? (modalDelChannel = true)
-                        : (modalValidate = true);
-                    })
+                    Get(`channels/search?id=${item.id.toString()}&admins&mutes&members&bans&owner`)
+                      .then((res) => {
+                        if (res.status == 200) {
+                          [channelLeave] = res.data;
+                          item.isOwner
+                            ? (modalDelChannel = true)
+                            : (modalValidate = true);
+                        }
+                      })
                   "
                   type="button"
                   class="rounded btn-channel wrapper-icon-leave ms-auto"
@@ -520,9 +517,8 @@ const isNum = (char: any) => {
                 <button
                   @click="
                     modalJoinChannel = true;
-                    Get(
-                      'channels/search?id=' + item.id.toString() + '&messages'
-                    ).then((res) => ([channelJoin] = res.data));
+                    Get(`channels/search?id=${item.id.toString()}&messages`)
+                      .then((res) => {if (res.status == 200) {[channelJoin] = res.data}});
                   "
                   type="button"
                   class="rounded btn-channel wrapper-icon-leave ms-auto"
@@ -582,13 +578,6 @@ const isNum = (char: any) => {
                   {{ channelStore.searchName(item) }}
                 </button>
               </div>
-              <!-- <div class="ms-auto">
-                <button
-                  @click="modalJoinChannel = true; Get('channels/search?id=' + item.id.toString() + '&messages').then(res => [channelJoin] = res.data)"
-                  type="button" class="rounded btn-channel wrapper-icon-leave ms-auto">
-                  <i class="fa-solid fa-plus"></i>
-                </button>
-              </div> -->
             </div>
           </li>
         </div>
@@ -650,9 +639,8 @@ const isNum = (char: any) => {
                 <button
                   @click="
                     modalRefuseJoinChannel = true;
-                    Get(
-                      'channels/search?id=' + item.id.toString() + '&messages'
-                    ).then((res) => ([channelJoin] = res.data));
+                    Get(`channels/search?id=${item.id.toString()}&messages`)
+                      .then((res) => {if (res.status == 200) {[channelJoin] = res.data}});
                   "
                   type="button"
                   class="rounded btn-channel wrapper-icon-leave ms-auto"
@@ -671,10 +659,12 @@ const isNum = (char: any) => {
     <button
       @click="
         Get('/users/search').then((res) => {
-          users = res.data;
-          usersInvite = [];
-          modalNewChannel = true;
-          channelType = 1;
+          if (res.status == 200) {
+            users = res.data;
+            usersInvite = [];
+            modalNewChannel = true;
+            channelType = 1;
+          }
         })
       "
       type="button"

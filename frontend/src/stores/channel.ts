@@ -50,15 +50,17 @@ export const useChannelStore = defineStore('channel', () => {
 
     const updateOwner = (userID: number) => {
       if (userID != -1) {
-        Get('/users/search?id=' + userID.toString() + '&ownerChannels').then(res => {
-          const ownerChannels = res.data[0].ownerChannels;
-          for (const chan of allChannels.value) {
-            const index = ownerChannels.findIndex((el: Channel) => el.id === chan.id)
-            if (index != -1) {
-              chan.isOwner = true;
-            }
-            else {
-              chan.isOwner= false;
+        Get(`/users/search?id=${userID.toString()}&ownerChannels`).then(res => {
+          if (res.status == 200) {
+            const ownerChannels = res.data[0].ownerChannels;
+            for (const chan of allChannels.value) {
+              const index = ownerChannels.findIndex((el: Channel) => el.id === chan.id)
+              if (index != -1) {
+                chan.isOwner = true;
+              }
+              else {
+                chan.isOwner= false;
+              }
             }
           }
         })

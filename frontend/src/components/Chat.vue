@@ -29,15 +29,17 @@ const modalFriends = ref<boolean>(false);
 const msgError = ref<string>('')
 
 onBeforeMount(async () => {
-  Get("/channels/search?&members&invites&bans&mutes").then((res) => {
+  Get(`/channels/search?&members&invites&bans&mutes`).then((res) => {
     if (res.status == 200) {
       allChannels.value = res.data;
       if (loggedUser.value != undefined) {
         channelStore.updateInvite(loggedUser.value?.id)
-          Get("/users/search?id=" + loggedUser.value?.id + "&banChannels&muteChannels&blockedUsers&friends").then((res) => {
-            channelStore.updateBanMute(res.data);
-            usersBlocked.value = res.data[0].blockedUsers;
-            usersFriends.value = res.data[0].friends;
+          Get(`/users/search?id=${loggedUser.value?.id}&banChannels&muteChannels&blockedUsers&friends`).then((res) => {
+            if (res.status == 200) {
+              channelStore.updateBanMute(res.data);
+              usersBlocked.value = res.data[0].blockedUsers;
+              usersFriends.value = res.data[0].friends;
+            }
           })
       }
     }
@@ -57,11 +59,11 @@ onUnmounted(() => {
 
 const removeAlert = () => {
   modalError.value = false
+  msgError.value = ''
 }
 
 const addAlert = (message: string) => {
   msgError.value = message
-  console.log("MsgError =>", msgError.value)
   modalError.value = true
   setTimeout(removeAlert, 5000);
 }
