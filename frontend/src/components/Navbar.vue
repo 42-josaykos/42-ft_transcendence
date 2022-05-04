@@ -5,14 +5,12 @@
 		isAuthenticated: boolean;
 		loggedUser: any;
 	} > ();
-
 </script>
 
-<script lang="ts">
-</script>
+<script lang="ts"></script>
 
 <style>
-	/* @import url("../assets/sidebarStyles.css"); */
+/* @import url("../assets/sidebarStyles.css"); */
 </style>
 
 <template>
@@ -117,25 +115,25 @@
 	left: 5px;
 	display: flex;
 	z-index: 9999;
+
 }
-.btn_navbar{
-	position: fixed;
-	border: 0;
-	border-radius: 25%;
-	background-color: var(--sidebar-icon-color);
-	min-height: 40px;
-	min-width: 40px;
+.btn_navbar {
+  position: fixed;
+  border: 0;
+  border-radius: 25%;
+  background-color: var(--sidebar-icon-color);
+  min-height: 40px;
+  min-width: 40px;
 }
 
-li .row .icon_navbar{
-	transition: 0.4s;
+li .row .icon_navbar {
+  transition: 0.4s;
 }
-li .row:hover .icon_navbar{
-	transform: scale(1.3);
-	color: #fffed4;
-	filter:drop-shadow(0px 0px 5px #FFF961);
+li .row:hover .icon_navbar {
+  transform: scale(1.3);
+  color: #fffed4;
+  filter: drop-shadow(0px 0px 5px #fff961);
 }
-
 
 .animation {
   animation-duration: 0.1s;
@@ -144,11 +142,11 @@ li .row:hover .icon_navbar{
 @keyframes slideDownIn {
   0% {
     transform: translateY(-20px);
-	opacity: 0%;
+    opacity: 0%;
   }
   100% {
     transform: translateY(40px);
-	opacity: 100%;
+    opacity: 100%;
   }
   0% {
     transform: translateY(-20px);
@@ -158,22 +156,21 @@ li .row:hover .icon_navbar{
   animation-name: slideDownIn;
 }
 
-.dropdown-menu{
-	background: radial-gradient(ellipse at top, #1b2735 0%, #080e21 95%);
-	box-shadow: 0px 0px 10px 2px #fff961, inset 0px 0px 4px 2px #fff961;
-	border: none;
-	border-radius: 20px;
-	overflow-y: auto;
-	color: var(--sidebar-icon-color);
+.dropdown-menu {
+  background: radial-gradient(ellipse at top, #1b2735 0%, #080e21 95%);
+  box-shadow: 0px 0px 10px 2px #fff961, inset 0px 0px 4px 2px #fff961;
+  border: none;
+  border-radius: 20px;
+  overflow-y: auto;
+  color: var(--sidebar-icon-color);
 }
 
-.text_navbar{
-	font-family: "Vibure", cursive;
-	color: white;
+.text_navbar {
+  font-family: "Vibure", cursive;
+  color: white;
 }
 
-.navbar_concat ul li{
-	cursor: pointer;
+.navbar_concat ul li {
+  cursor: pointer;
 }
 </style>
-
