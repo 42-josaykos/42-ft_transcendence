@@ -5,10 +5,13 @@ import { useMatchStore } from '@/stores/match';
 import { storeToRefs } from 'pinia';
 import Stats from './Stats.vue';
 import Ladder from './Ladder.vue';
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
+import { computed } from '@vue/reactivity';
 
 const { loggedUser } = storeToRefs(useUserStore());
 const { matches } = storeToRefs(useMatchStore());
+const stats = ref([0, 0, 0, 0]);
+let wonMatches;
 
 async function getMatchHistory() {
   let response;
@@ -16,9 +19,21 @@ async function getMatchHistory() {
     response = await Get(`/users/${loggedUser.value?.id}/matches/played`);
     if (response.status === 200) {
       matches.value = response.data;
-      console.log(matches);
+      console.log(matches.value);
+
+      getStats();
     }
   } catch (error: any) {}
+}
+
+function getStats() {
+  stats.value[0] = matches.value.length;
+  wonMatches = matches.value.filter(
+    match => match.winner.id === loggedUser.value?.id
+  );
+  stats.value[1] = wonMatches.length;
+  stats.value[2] = stats.value[0] - stats.value[1];
+  stats.value[3] = (stats.value[1] / stats.value[0]) * 100;
 }
 
 onMounted(() => {
@@ -37,7 +52,7 @@ onMounted(() => {
 
   <div class="container">
     <div class="stats">
-      <Stats />
+      <Stats :stats="stats" />
       <Ladder />
     </div>
     <div class="history">
@@ -54,7 +69,7 @@ onMounted(() => {
         <tbody>
           <tr v-for="(match, index) in matches" :key="match.id">
             <th scope="row">{{ index + 1 }}</th>
-            <td class="winner">{{ match.players[0].username }}</td>
+            <td>{{ match.players[0].username }}</td>
             <td>{{ match.players[1].username }}</td>
             <td>{{ match.score[0] }} - {{ match.score[1] }}</td>
           </tr>
@@ -71,6 +86,10 @@ onMounted(() => {
 }
 
 .winner {
-  font-style: bold;
+  font-weight: bold;
+  color: green;
+}
+.loser {
+  color: red;
 }
 </style>
