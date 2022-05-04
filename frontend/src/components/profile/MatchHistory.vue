@@ -6,7 +6,6 @@ import { storeToRefs } from 'pinia';
 import Stats from './Stats.vue';
 import Ladder from './Ladder.vue';
 import { onMounted, ref } from 'vue';
-import { computed } from '@vue/reactivity';
 
 const { loggedUser } = storeToRefs(useUserStore());
 const { matches } = storeToRefs(useMatchStore());
@@ -18,7 +17,7 @@ async function getMatchHistory() {
   try {
     response = await Get(`/users/${loggedUser.value?.id}/matches/played`);
     if (response.status === 200) {
-      matches.value = response.data;
+      matches.value = response.data.reverse();
       console.log(matches.value);
 
       getStats();
@@ -83,13 +82,5 @@ onMounted(() => {
 .container {
   width: 75%;
   justify-items: center;
-}
-
-.winner {
-  font-weight: bold;
-  color: green;
-}
-.loser {
-  color: red;
 }
 </style>
