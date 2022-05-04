@@ -150,103 +150,207 @@ async function updateAvatar(event: any) {
 </script>
 
 <template>
-  <div class="btn-close-modale btn" @click="setting_open = false">
-    <i class="fa-solid fa-xmark fa-2x"></i>
-  </div>
+      <h2><b><u>Settings</u></b></h2>
+			<div class="btn-close-modale btn" @click="setting_open = false">
+				<i class="fa-solid fa-xmark fa-2x"></i>
+			</div>
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-md-4">
+						<div class="sticky-md-top" style="top: 17%">
+              <!-- Avatar -->
+							<img class="circular--square icon_navbar" style="width: auto; max-width: 150px;" v-bind:src=loggedUser?.avatar alt="Avatar" />
+                <!-- UserName -->
+							<div class="userName neon-typo"><b>{{ loggedUser?.username }}</b></div>
+                <!-- Logout Button -->
+							<button class="mod-btn mod-btn-red d-md-inline-block d-none" onclick="window.location.href='/auth/logout'"> Logout </button>
+						</div>
+					</div>
+					<hr class="d-md-none">
+					<div class="col-md-8 ml-auto p-0">
+            <div style="text-align: left;"><b><u>Cosmetic Setting:</u></b></div>
+            <div class="element-set"><b><u> </u></b></div>
+						  <!-- Meteor animation option -->
+						<span class="element-set">
+              <div class="container">
+                <div class="row">
+                  <div class="col-9 p-0" style="text-align: left; font-size:medium">
+                    Activate Meteor:
+                  </div>
+                  <div class="col-3">
+                    <Toggle
+                    v-model="isMeteor"
+                    on-label="On"
+                    off-label="Off"
+                    class="toggle-style"
+                    />
+                  </div>
+                </div>
+              </div>
+						</span>
 
-  <!-- Avatar -->
-  <img :src="loggedUser ? loggedUser.avatar : ''" alt="" width="150" />
+            <hr>
+            <div style="text-align: left;"><b><u>Profil Settings:</u></b></div>
+            <form @submit.prevent="updateAvatar">
+              <div class="container">
+                <div class="row">
+                  <div class="col-9 p-0" style="text-align: left;">
+                    Change Avatar:
+                  </div>
+                  <div class="col-3 p-0">
+                    <div class="container p-0">
+                      <div class="row">
+                        <div class="col-6">
+                          <input type="file" accept="image/*" id="file" ref="fileInput" class="input-file" />
 
-  <!-- Menu title: settings or username  -->
-  <h2 v-if="!loggedUser" style="margin: 0px 40px 20px"><b>Settings</b></h2>
-  <h2 v-else style="margin: 0px 40px 20px">
-    <b>{{ loggedUser.username }}</b>
-  </h2>
+                          <label for="file" class="label-file"><i class="fa-solid fa-upload"></i></label>
+                        </div>
+                        <div class="col-6">
+                          <button type="submit" class="submit-btn"><i class="fa-solid fa-circle-check"></i></button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
 
-  <div v-if="isAuthenticated">
-    <!-- Update avatar -->
+            <br>
 
-    <form @submit.prevent="updateAvatar">
-      <div>
-        <input type="file" accept="image/*" id="file" ref="fileInput" />
-        <button type="submit">Upload</button>
-      </div>
-    </form>
+            <!-- Update username -->
+						<div class="container">
+              <div class="row">
+                <div class="col-9 p-0" style="text-align: left;">
+                  Change Username:
+                </div>
+                <div class="col-3 p-0">
+                  <form @submit.prevent.trim.lazy="updateUsername">
+                    <div class="container p-0">
+                      <div class="row">
+                        <div class="col-10 p-0">
+                          <input v-model="usernameInput" name="username" type="text" style="width: 100%;"/>
+                        </div>
+                        <div class="col-2 p-0">
+                          <button type="submit" class="submit-btn"><i class="fa-solid fa-circle-check"></i></button>
+                        </div>
+                      </div>
+                    </div>
+							      <!-- <label for="username">Username: </label> -->
+							    </form>
+                </div>
+              </div>
+            </div>
 
-    <!-- Update username -->
-    <form @submit.prevent.trim.lazy="updateUsername">
-      <div class="mb-3">
-        <label class="form-label" for="username">Update username</label>
-        <input
-          v-model="usernameInput"
-          name="username"
-          type="text"
-          :class="{ 'form-control is-invalid': error === true }"
-        />
-        <div v-if="error">
-          <small id="passwordHelp" class="text-danger">
-            Can't update username. This user already exists.
-          </small>
-        </div>
-        <button type="submit">Update</button>
-      </div>
-    </form>
+            <hr>
+            <div>
+              <div style="text-align: left;"><b><u>Security Settings:</u></b></div>
+							<!-- 2FA option -->
+							<span class="element-set">
+							Two-Factor Authentication (2FA):
+							<Toggle
+								@change="toggleTwoFactorAuthentication"
+								v-model="isTwoFactorAuth"
+								on-label="On"
+								off-label="Off"
+								class="toggle-style"
+							/>
+							</span>
 
-    <br />
+							<!-- QR code if toggle 2FA on -->
+							<div v-if="qrcode">
+							<hr />
+							<img :src="qrcode" alt="" width="150" />
+							<button @click="generate2FA">Generate</button>
+							<form @submit.prevent.trim.lazy="validateCode">
+								Validate code to enable 2FA:
+								<input v-model="twoFactorInput" type="text" />
+								<button type="submit">Submit</button>
+							</form>
+							</div>
 
-    <!-- 2FA option -->
-    <span class="element-set">
-      Two-Factor Authentication (2FA):
-      <Toggle
-        @change="toggleTwoFactorAuthentication"
-        v-model="isTwoFactorAuth"
-        on-label="On"
-        off-label="Off"
-        class="toggle-style"
-      />
-    </span>
-
-    <!-- QR code if toggle 2FA on -->
-    <div v-if="qrcode">
-      <hr />
-      <img :src="qrcode" alt="" width="150" />
-      <button @click="generate2FA">Generate</button>
-      <form @submit.prevent.trim.lazy="validateCode">
-        Validate code to enable 2FA:
-        <input v-model="twoFactorInput" type="text" />
-        <button type="submit">Submit</button>
-      </form>
-    </div>
-
-    <!-- 2FA validation if toggle off -->
-    <div v-if="turnOffForm">
-      <hr />
-      <form @submit.prevent.trim.lazy="validateCode">
-        Validate code to disable 2FA:
-        <input v-model="twoFactorInput" type="text" />
-        <button type="submit">Submit</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Meteor animation option -->
-  <span class="element-set">
-    Meteor:
-    <Toggle
-      v-model="isMeteor"
-      on-label="On"
-      off-label="Off"
-      class="toggle-style"
-    />
-  </span>
+							<!-- 2FA validation if toggle off -->
+							<div v-if="turnOffForm">
+							<hr />
+							<form @submit.prevent.trim.lazy="validateCode">
+								Validate code to disable 2FA:
+								<input v-model="twoFactorInput" type="text" />
+								<button type="submit">Submit</button>
+							</form>
+							</div>
+						</div>
+						<button class="mod-btn mod-btn-red d-md-none d-inline-block" onclick="window.location.href='/auth/logout'"> Logout </button>
+					</div>
+				</div>
+			</div>
 </template>
 
 <style>
 @import '@vueform/toggle/themes/default.css';
 
+.button-1 {
+  background-color: #EA4C89;
+  border-radius: 8px;
+  border-style: none;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: inline-block;
+  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  height: 40px;
+  line-height: 20px;
+  list-style: none;
+  margin: 0;
+  outline: none;
+  padding: 10px 16px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  transition: color 100ms;
+  vertical-align: baseline;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.submit-btn{
+  border: none;
+  background: rgba(0, 0, 0, 0);
+  color: var(--sidebar-icon-color);
+  transition: 0.4s;
+
+}
+
+.submit-btn:hover{
+  color: #1c4e8b;
+  transform: scale(1.2);
+}
+
+.label-file {
+  cursor: pointer;
+  color: var(--sidebar-icon-color);
+  transition: 0.4s;
+}
+.label-file:hover {
+  color: #1c4e8b;
+  transform: scale(1.2);
+}
+
+.input-file {
+  display: none;
+}
+
+.neon-typo {
+  color: #ffffff;
+  text-shadow: 0px 4px 15px #fff961, 0px 0px 10px #fff961;
+}
+
 .toggle-style {
   --toggle-bg-on: var(--sidebar-icon-color);
   --toggle-border-on: var(--sidebar-icon-color);
+  --toggle-bg-off: rgb(187, 187, 187);
+  --toggle-border-off: rgb(187, 187, 187);
   --toggle-ring-width: 0;
 }
 
@@ -255,7 +359,7 @@ async function updateAvatar(event: any) {
   font-size: large;
 }
 
-.card {
+.carde {
   display: flex;
   align-items: center;
   width: 50rem;
