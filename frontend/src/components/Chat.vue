@@ -204,6 +204,10 @@ if (socketChat.value != undefined){
   height: 100px;
   margin-top: 0.5rem;
   overflow: auto;
+
+  overflow-y: scroll;
+  scrollbar-color: rgb(32, 31, 31) transparent;
+  scrollbar-width: thin !important;
 }
 
 .scrollspy-example::-webkit-scrollbar {
@@ -217,6 +221,11 @@ if (socketChat.value != undefined){
 .scrollspy-example::-webkit-scrollbar-thumb {
   background-color: rgb(32, 31, 31);
   border-radius: 20px;
+}
+
+.scrollspy-example:hover {
+  scrollbar-color: rgb(32, 31, 31) transparent;
+  scrollbar-width: thin !important;
 }
 
 .horizontal-line-bottom {

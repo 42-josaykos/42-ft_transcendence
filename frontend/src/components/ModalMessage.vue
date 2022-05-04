@@ -32,8 +32,8 @@ const channelStore = useChannelStore();
 
     <template v-slot:body>
       <textarea
-        class="form-control" id="sendMessage"
-        style="margin-left: 0px !important; width: 80vh;"
+        class="form-control scroller-msg" id="sendMessage"
+        style="margin-left: 0px !important; width: 500px;"
         v-model="stringSendMessage"
       >
       </textarea>

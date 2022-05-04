@@ -1,6 +1,6 @@
 ### Requests done with REST-Client for VSCode (humao.rest-client) ###
 @hostname = localhost
-@port = 4001
+@port = 4000
 @host = {{hostname}}:{{port}}
 @contentType = application/json
 
@@ -32,7 +32,7 @@ Content-Type: {{contentType}}
 
 ###
 
-DELETE http://{{host}}/users/1
+DELETE http://{{host}}/users/6
 
 ###
 

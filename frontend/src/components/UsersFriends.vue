@@ -14,7 +14,7 @@ const { modalSendMessage } = storeToRefs(messageStore);
 
 </script>
 
-<template>{{modalSendMessage}}
+<template>
   <div v-if="usersFriends.length > 0">
     <div class="scrollspy-example2 card-choose-users">
       <div
@@ -23,13 +23,13 @@ const { modalSendMessage } = storeToRefs(messageStore);
           :key="user.id"
         >
         <div
-          class="d-flex ms-auto"
+          class="d-flex"
           style="align-items: center"
         >
           <div class="px-3">
             <p class="pt-3" style="">{{ user.username }}</p>
           </div>
-          <div class="ms-auto px-3">
+          <div class="ms-auto px-2" style="width: 500px;">
             <button
               @click=""
               type="button"
