@@ -12,7 +12,7 @@ import ChatMenu from "./ChatMenu.vue";
 import ChatUsers from "./ChatUsers.vue";
 import ChatMessages from "./ChatMessages.vue";
 import ModalChat from "./ModalChat.vue";
-import UsersFriends from "./UsersFriends.vue";
+import UsersFriends from "../UsersFriends.vue";
 
 const userStore = useUserStore();
 const { loggedUser, socketChat, usersBlocked, usersFriends } = storeToRefs(userStore);
@@ -111,7 +111,7 @@ if (socketChat.value != undefined){
     </div>
   </div>
 
-  <ModalChat v-if="modalError == true" @close="modalError = false;">
+   <ModalChat v-if="modalError == true" @close="modalError = false;">
     <template v-slot:header>
       <h2 style="padding-top: 10px">
         <u>ERROR</u>

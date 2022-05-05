@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ModalChat from "@/components/ModalChat.vue";
+import ModalChat from "./ModalChat.vue";
 import { storeToRefs } from "pinia";
 import { useChannelStore } from "@/stores/channel";
 import { useMessageStore } from "@/stores/message";

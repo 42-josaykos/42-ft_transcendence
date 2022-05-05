@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import ModalMessage from "./ModalMessage.vue";
+import ModalMessage from "./chat/ModalMessage.vue";
 
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";

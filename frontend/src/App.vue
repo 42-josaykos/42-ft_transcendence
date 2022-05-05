@@ -6,7 +6,7 @@ import { useUserStore } from "@/stores/user";
 import { useStatusStore } from "@/stores/status";
 import { onMounted, ref } from "vue";
 import { Get } from "./services/requests";
-import ChatSocket from "./components/ChatSocket.vue";
+import ChatSocket from "./components/chat/ChatSocket.vue";
 
 const userStore = useUserStore();
 const { loggedUser, isAuthenticated } = storeToRefs(userStore);

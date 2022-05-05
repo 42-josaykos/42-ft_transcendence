@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import UserCard from "./UserCard.vue";
+import UserCard from "../UserCard.vue";
 import ModalChat from "./ModalChat.vue";
 import ModalMessage from "./ModalMessage.vue";
 
