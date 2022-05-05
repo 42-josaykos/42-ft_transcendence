@@ -12,6 +12,7 @@ import { useUserStore } from "@/stores/user";
 import { Get } from "@/services/requests";
 import { storeToRefs } from "pinia";
 import Authenticate2fa from "@/components/Authenticate2fa.vue";
+import MatchHistory from '@/components/profile/MatchHistory.vue';
 
 const routes = [
   {
