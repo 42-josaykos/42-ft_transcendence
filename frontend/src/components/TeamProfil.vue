@@ -18,7 +18,7 @@
 		<div class="modale card"  style="min-width: 40vw;">
 			<div class="container-fluid">
 				<div class="row">
-					<div class="col-md-6"><img src="../assets/vmoreau.jpeg" width="200" style="border-radius: 30%;" alt="vmoreau"></div>
+					<div class="col-md-6"><img src="../assets/team/vmoreau.jpeg" width="200" style="border-radius: 30%;" alt="vmoreau"></div>
 					<div class="col-md-6 ml-auto">
 						<h2>Victor Moreau</h2>
 						<br>
@@ -40,7 +40,7 @@
 		<div class="modale card"  style="min-width: 40vw;">
 			<div class="container-fluid">
 				<div class="row">
-					<div class="col-md-6"><img src="../assets/default-avatar.jpeg" width="200" style="border-radius: 30%;" alt="vmoreau"></div>
+					<div class="col-md-6"><img src="../assets/team/mabriand.jpeg" width="200" style="border-radius: 30%;" alt="mabriand"></div>
 					<div class="col-md-6 ml-auto">
 						<h2>Marie Briand</h2>
 						<br>
@@ -62,7 +62,7 @@
 		<div class="modale card"  style="min-width: 40vw;">
 			<div class="container-fluid">
 				<div class="row">
-					<div class="col-md-6"><img src="../assets/default-avatar.jpeg" width="200" style="border-radius: 30%;" alt="vmoreau"></div>
+					<div class="col-md-6"><img src="../assets/team/josaykos.jpeg" width="200" style="border-radius: 30%;" alt="josaykos"></div>
 					<div class="col-md-6 ml-auto">
 						<h2>Johnny Saykos</h2>
 						<br>
@@ -84,7 +84,7 @@
 		<div class="modale card" style="min-width: 40vw;">
 			<div class="container-fluid">
 				<div class="row">
-					<div class="col-md-6"><img src="../assets/default-avatar.jpeg" width="200" style="border-radius: 30%;" alt="vmoreau"></div>
+					<div class="col-md-6"><img src="../assets/team/lchapren.jpeg" width="200" style="border-radius: 30%;" alt="lchapren"></div>
 					<div class="col-md-6 ml-auto">
 						<h2>Lena Chapren</h2>
 						<br>
@@ -106,7 +106,7 @@
 		<div class="modale card"  style="min-width: 40vw;">
 			<div class="container-fluid">
 				<div class="row">
-					<div class="col-md-6"><img src="../assets/default-avatar.jpeg" width="200" style="border-radius: 30%;" alt="vmoreau"></div>
+					<div class="col-md-6"><img src="../assets/team/adupuy.jpeg" width="200" style="border-radius: 30%;" alt="adupuy"></div>
 					<div class="col-md-6 ml-auto">
 						<h2>Athenais Dupuy</h2>
 						<br>
