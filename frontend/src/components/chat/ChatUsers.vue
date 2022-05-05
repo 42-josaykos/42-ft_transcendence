@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import UserCard from "./UserCard.vue";
+import UserCard from "../UserCard.vue";
 import ModalChat from "./ModalChat.vue";
+import ModalMessage from "./ModalMessage.vue";
 
 import { ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
 import { useChannelStore } from "@/stores/channel";
+import { useMessageStore } from "@/stores/message";
 import type { User } from "@/models/user.model";
-import type { Channel } from "@/models/channel.model";
 import { computed } from "@vue/reactivity";
 
 const userStore = useUserStore();
@@ -15,60 +16,20 @@ const { loggedUser, socketChat, usersOnline } = storeToRefs(userStore);
 
 const channelStore = useChannelStore();
 
-const { allChannels, channel, usersMembers, arrayTime } = storeToRefs(channelStore);
+const { channel, usersMembers, arrayTime } = storeToRefs(channelStore);
+
+const messageStore = useMessageStore();
+const { stringSendMessage, modalSendMessage } = storeToRefs(messageStore);
 
 const userClick = ref<User>();
 const userClickBool = ref<boolean>(false);
 const modalShowProfil = ref<boolean>(false);
-const modalSendMessage = ref<boolean>(false);
 const modalAdmin = ref<boolean>(false);
 const modalBan = ref<boolean>(false);
 const modalMute = ref<boolean>(false);
 const modalBlock = ref<boolean>(false);
 const modalFriend = ref<boolean>(false);
-const stringSendMessage = ref<string>("");
 const inputTime = ref<string>("");
-
-const sendDirectMessage = async () => {
-  const name1 = `${userClick.value?.id} ${loggedUser.value?.id}`;
-  const name2 = `${loggedUser.value?.id} ${userClick.value?.id}`;
-  const channelItem = allChannels.value.find(
-    (el: Channel) => el.name === name1 || el.name === name2
-  );
-  if (channelItem == undefined) {
-    const newChannel = {
-      name: `${userClick.value?.id} ${loggedUser.value?.id}`,
-      isPrivate: true,
-      password: null,
-      owner: { id: loggedUser.value?.id },
-      admins: [{ id: loggedUser.value?.id }, { id: userClick.value?.id }],
-      members: [{ id: loggedUser.value?.id }, { id: userClick.value?.id }],
-      isDirectChannel: true,
-      isProtected: false,
-    };
-    socketChat.value?.emit(
-      "newChannel",
-      newChannel,
-      {
-        author: loggedUser.value?.id,
-        channel: { id: null },
-        data: stringSendMessage.value,
-      },
-      loggedUser.value
-    );
-  } else {
-    socketChat.value?.emit(
-      "newMessage",
-      {
-        author: loggedUser.value?.id,
-        channel: { id: channelItem?.id },
-        data: stringSendMessage.value,
-      },
-      loggedUser.value
-    );
-  }
-  stringSendMessage.value = "";
-};
 
 const addBanMute = (boolBan: Boolean) => {
   if (boolBan) {
@@ -326,51 +287,7 @@ const addAdmin = () => {
     </template>
   </ModalChat>
 
-  <ModalChat
-    v-if="modalSendMessage"
-    @close="
-      modalSendMessage = false;
-      stringSendMessage = '';
-    "
-  >
-    <template v-slot:header>
-      <h2 style="padding-top: 10px">{{ userClick?.username }}</h2>
-    </template>
-
-    <template v-slot:body>
-      <textarea
-        class="form-control" id="sendMessage"
-        style="margin-left: 0px !important; width: 80vh;"
-        v-model="stringSendMessage"
-      >
-      </textarea>
-      <label for="message" class="sr-only">Messgae</label>
-    </template>
-
-    <template v-slot:footer>
-      <button
-        @click="if (stringSendMessage.trim() != '') {
-          modalSendMessage = false;
-          sendDirectMessage();
-        }
-        "
-        type="button"
-        class="mod-btn mod-btn-blue"
-      >
-        Send Message
-      </button>
-      <button
-        @click="
-          modalSendMessage = false;
-          stringSendMessage = '';
-        "
-        type="button"
-        class="mod-btn mod-btn-yellow"
-      >
-        Cancel
-      </button>
-    </template>
-  </ModalChat>
+  <ModalMessage  v-if="modalSendMessage == true" :userClick="userClick"/>
 
   <ModalChat
     v-if="modalBlock == true"
