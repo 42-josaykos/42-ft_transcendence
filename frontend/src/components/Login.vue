@@ -25,6 +25,7 @@ function loginLocal() {
       router.push('/');
     } else if (res.status == 303) {
       isTwoFactorAuth.value = true;
+      login_open.value = false;
       router.push('/twofactorauth');
     }
   });

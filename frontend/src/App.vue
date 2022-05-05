@@ -6,7 +6,7 @@ import { useUserStore } from "@/stores/user";
 import { useStatusStore } from "@/stores/status";
 import { onMounted, ref } from "vue";
 import { Get } from "./services/requests";
-import ChatSocket from "./components/ChatSocket.vue";
+import ChatSocket from "./components/chat/ChatSocket.vue";
 
 const userStore = useUserStore();
 const { loggedUser, isAuthenticated } = storeToRefs(userStore);
@@ -71,7 +71,7 @@ export const isMeteor = ref(false);
 <style>
 :root {
   --sidebar-bg-color: #0c2039;
-  --sidebar-icon-color: #1d508f;
+  --sidebar-icon-color: #174275;
 }
 
 #app {
@@ -81,6 +81,10 @@ export const isMeteor = ref(false);
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #c4c4c4;
+}
+
+.circular--square {
+  border-radius: 50%;
 }
 
 .header {
