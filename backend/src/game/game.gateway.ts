@@ -107,6 +107,7 @@ export class GameGateway
     // return { event: 'receiveOngoingGames', data: games };
   }
 
+  // Queue handling
   @SubscribeMessage('queue')
   async handleQueue(
     @ConnectedSocket() client: Socket,
@@ -141,6 +142,16 @@ export class GameGateway
     }
   }
 
+  @SubscribeMessage('leaveQueue')
+  leaveQueue(@ConnectedSocket() client: Socket, @MessageBody() data: User) {
+    // Removes the user from the queue if they are in it
+    const userIndex = this.queue.findIndex(
+      (connection) => connection.user === data,
+    );
+
+    if (userIndex !== -1) this.queue.splice(userIndex, 0);
+  }
+
   // SocketIO room managment
   joinRoom(roomName: string, socketIDs: string[]) {
     for (const socketID of socketIDs)
@@ -153,30 +164,7 @@ export class GameGateway
   }
   emitToSockets(event: string, data: any, socketID: string[]) {
     for (const socket of socketID) {
-      console.log('socket: ', socket);
       this.server.to(socket).emit(event, data);
-    }
-  }
-
-  // Player Handling
-  @SubscribeMessage('moveLeft')
-  handleMoveLeft(@ConnectedSocket() client: Socket, @MessageBody() data: User) {
-    try {
-      const players = this.gameService.moveLeft(client.id, data);
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  @SubscribeMessage('moveRight')
-  handleMoveRight(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: User,
-  ) {
-    try {
-      const players = this.gameService.moveRight(client.id, data);
-    } catch (error) {
-      throw error;
     }
   }
 
@@ -221,6 +209,28 @@ export class GameGateway
 
       // Make the players / spectators leave the room
       this.server.to(game.socketRoom).socketsLeave(game.socketRoom);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Player Handling
+  @SubscribeMessage('moveLeft')
+  handleMoveLeft(@ConnectedSocket() client: Socket, @MessageBody() data: User) {
+    try {
+      const players = this.gameService.moveLeft(client.id, data);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @SubscribeMessage('moveRight')
+  handleMoveRight(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: User,
+  ) {
+    try {
+      const players = this.gameService.moveRight(client.id, data);
     } catch (error) {
       throw error;
     }
