@@ -92,6 +92,21 @@ export class GameGateway
     // console.log('Clients connected: ', this.connectedClients);
   }
 
+  @SubscribeMessage('getOngoingGames')
+  getOngoingGames(@ConnectedSocket() client: Socket) {
+    const games = this.gameService.getGames().map((value) => {
+      return {
+        id: value.id,
+        playerOne: value.players[0].player.user,
+        playerTwo: value.players[1].player.user,
+      };
+    });
+    console.log('games: ', games);
+
+    this.server.to(client.id).emit('receiveOngoingGames', games);
+    // return { event: 'receiveOngoingGames', data: games };
+  }
+
   @SubscribeMessage('queue')
   async handleQueue(
     @ConnectedSocket() client: Socket,

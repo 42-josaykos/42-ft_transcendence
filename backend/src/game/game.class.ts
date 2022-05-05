@@ -1,6 +1,7 @@
 import { Connection } from 'src/status/status.class';
 
 export class Game {
+  id: number;
   players: Player[];
   spectators?: Spectator[];
   ball: Ball;
