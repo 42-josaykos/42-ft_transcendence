@@ -6,7 +6,6 @@ import Debug from "@/components/debug/Debug.vue";
 import PageNotFound from "@/components/PageNotFound.vue";
 import Login from "@/components/Login.vue";
 import Chat from "@/components/chat/Chat.vue";
-import Toto from "@/components/Toto.vue";
 import Setting from "@/components/Setting.vue";
 import Register from "@/components/Register.vue";
 import { useUserStore } from "@/stores/user";
