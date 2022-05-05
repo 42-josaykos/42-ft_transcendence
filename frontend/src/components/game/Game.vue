@@ -6,6 +6,7 @@ export default {
   components: {
     modalesettings: ModaleSettings,
     pong: Pong,
+    notification: Notification,
   },
   data() {
     return {

@@ -15,6 +15,7 @@ export default {
   created() {},
   methods: {},
 };
+props: ["revelePlay", "toggleModaleSettings", "launch"]
 </script>
 
 <template>

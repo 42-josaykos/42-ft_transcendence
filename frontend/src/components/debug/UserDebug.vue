@@ -6,7 +6,11 @@ import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
 import type { User } from "@/models/user.model";
 import type { Input, InputStore } from "@/stores/input";
+
 import { useRouter } from "vue-router";
+
+import Notification from "../game/Notification.vue";
+// import ModaleNotif from "../game/ModaleNotif.vue";
 
 // Props
 const props = defineProps<{
@@ -15,13 +19,17 @@ const props = defineProps<{
   input: Input;
 }>();
 
+
 // Request url to API
+
 const baseUrl = "/users";
+
 
 // Single element
 const user = ref<User | null>(null);
 
 // Stores
+
 const userStore = useUserStore();
 const { users, loggedUser, gameSocket } = storeToRefs(userStore);
 
@@ -33,6 +41,7 @@ gameSocket.value.on("startGame", (data: any) => {
 
 const match = () => {
   gameSocket.value.emit("queue", loggedUser.value);
+  // toggleModaleNotifBool();
 };
 
 // CRUD functions
@@ -76,48 +85,82 @@ const deleteUser = (id: number) => {
   });
 };
 
+
+
 onBeforeMount(() => {
   Get(baseUrl).then((res) => (users.value = res.data));
 });
+
+
+//////////////////////////////////////////////////////////////////////////////////
+// let notifBool = false;
+// let firstTime = true;
+
+// const toggleModaleNotifBool = () => {
+//   if (notifBool == true)
+//     firstTime = false; 
+//   notifBool = true;
+//   console.log(notifBool);
+//   return ;
+// };
+//////////////////////////////////////////////////////////////////////////////////
+
+
 </script>
 
 <template>
-  <h3 class="title">{{ title }}</h3>
-
-  <h4>Get by name</h4>
-  <form @submit.prevent.trim.lazy="getUser" method="GET">
-    <label for="name">Username:</label>
-    <input v-model="input.search" name="username" type="text" />
-    <input type="submit" value="Submit" />
-  </form>
-  <p>{{ user }}</p>
-
-  <h4>Create User</h4>
-  <form @submit.prevent.trim.lazy="createUser" method="POST">
-    <label for="name">Username:</label>
-    <input v-model="input.create" name="name" type="text" />
-    <input type="submit" value="Submit" />
-  </form>
-
-  <h4>Update User</h4>
-  <form @submit.prevent.trim.lazy="updateUser" method="PATCH">
-    <label for="id">id:</label>
-    <input v-model="input.user_id" name="id" type="text" />
-    <label for="name">new username:</label>
-    <input v-model="input.update_username" name="name" type="text" />
-    <input type="submit" value="Submit" />
-  </form>
-
-  <h4>Get all - id, name</h4>
-  <ul v-if="users">
-    <li v-for="item in users" :key="item.id">
-      Id: {{ item.id }}, Username: {{ item.username }}
-      <button @click="deleteUser(item.id)">delete</button>
-    </li>
-  </ul>
-  <p v-else>Not Found</p>
-
   <div>
-    <button @click="match">Start a new match!</button>
+    <h3 class="title">{{ title }}</h3>
+
+    <h4>Get by name</h4>
+    <form @submit.prevent.trim.lazy="getUser" method="GET">
+      <label for="name">Username:</label>
+      <input v-model="input.search" name="username" type="text" />
+      <input type="submit" value="Submit" />
+    </form>
+    <p>{{ user }}</p>
+
+    <h4>Create User</h4>
+    <form @submit.prevent.trim.lazy="createUser" method="POST">
+      <label for="name">Username:</label>
+      <input v-model="input.create" name="name" type="text" />
+      <input type="submit" value="Submit" />
+    </form>
+
+    <h4>Update User</h4>
+    <form @submit.prevent.trim.lazy="updateUser" method="PATCH">
+      <label for="id">id:</label>
+      <input v-model="input.user_id" name="id" type="text" />
+      <label for="name">new username:</label>
+      <input v-model="input.update_username" name="name" type="text" />
+      <input type="submit" value="Submit" />
+    </form>
+
+    <h4>Get all - id, name</h4>
+    <ul v-if="users">
+      <li v-for="item in users" :key="item.id">
+        Id: {{ item.id }}, Username: {{ item.username }}
+        <button @click="deleteUser(item.id)">delete</button>
+      </li>
+    </ul>
+    <p v-else>Not Found</p>
+
+    <div>
+      <button @click="match">Start a new match (getting into queue)</button>
+    </div>
+    <div>
+      <modalenotif
+        v-bind:notifBool="notifBool"
+        v-bind:firstTime="firstTime"
+        ></modalenotif>
+
+    </div>
+    <div>
+      <Notification/>
+    </div>
+    
+  
   </div>
+ 
+  
 </template>
