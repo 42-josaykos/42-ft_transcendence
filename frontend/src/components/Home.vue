@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import TeamProfil from './TeamProfil.vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/user';
+import Ladder from './profile/Ladder.vue';
 
 const profil_vmoreau = ref(false);
 const profil_mabriand = ref(false);
@@ -56,7 +57,8 @@ const { isAuthenticated } = storeToRefs(userStore);
             <br /><br /><br />
             <div class="container-fluid p-0">
               <div class="row">
-                <div
+                <Ladder />
+                <!-- <div
                   class="col-lg-7 pb-3 watch_player"
                   style="color: white; text-align: start"
                 >
@@ -73,14 +75,14 @@ const { isAuthenticated } = storeToRefs(userStore);
                   back and forth. The goal is for each player to reach eleven
                   points before the opponent; points are earned when one fails
                   to return the ball to the other.
-                </div>
-                <div class="col-lg-5 d-flex align-items-center">
+                </div> -->
+                <!-- <div class="col-lg-5 d-flex align-items-center">
                   <img
                     src="../assets/home/Arcade-pong.jpeg"
                     alt="BorneArcade"
                     style="width: 100%"
                   />
-                </div>
+                </div> -->
               </div>
             </div>
           </div>
@@ -138,7 +140,7 @@ const { isAuthenticated } = storeToRefs(userStore);
                   </tr>
                 </table>
               </div>
-              </div>
+            </div>
             <div class="infoGame">
               <div class="req neon-typo" v-if="!isAuthenticated">
                 Log in to access
@@ -164,7 +166,9 @@ const { isAuthenticated } = storeToRefs(userStore);
                     <td>
                       <i class="fa-solid fa-comment-dots fa-xl action_icon"></i>
                     </td>
-                    <td><i class="fa-solid fa-gamepad fa-xl action_icon"></i></td>
+                    <td>
+                      <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
+                    </td>
                     <td>
                       <i
                         class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
@@ -173,11 +177,15 @@ const { isAuthenticated } = storeToRefs(userStore);
                   </tr>
                   <tr>
                     <th class="watch_player">Adupuy</th>
-                    <td><i class="fa-solid fa-circle" style="color: red"></i></td>
+                    <td>
+                      <i class="fa-solid fa-circle" style="color: red"></i>
+                    </td>
                     <td>
                       <i class="fa-solid fa-comment-dots fa-xl action_icon"></i>
                     </td>
-                    <td><i class="fa-solid fa-gamepad fa-xl action_icon"></i></td>
+                    <td>
+                      <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
+                    </td>
                     <td>
                       <i
                         class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
@@ -186,11 +194,15 @@ const { isAuthenticated } = storeToRefs(userStore);
                   </tr>
                   <tr>
                     <th class="watch_player">Lchapren</th>
-                    <td><i class="fa-solid fa-circle" style="color: red"></i></td>
+                    <td>
+                      <i class="fa-solid fa-circle" style="color: red"></i>
+                    </td>
                     <td>
                       <i class="fa-solid fa-comment-dots fa-xl action_icon"></i>
                     </td>
-                    <td><i class="fa-solid fa-gamepad fa-xl action_icon"></i></td>
+                    <td>
+                      <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
+                    </td>
                     <td>
                       <i
                         class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
@@ -208,7 +220,9 @@ const { isAuthenticated } = storeToRefs(userStore);
                     <td>
                       <i class="fa-solid fa-comment-dots fa-xl action_icon"></i>
                     </td>
-                    <td><i class="fa-solid fa-gamepad fa-xl action_icon"></i></td>
+                    <td>
+                      <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
+                    </td>
                     <td>
                       <i
                         class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
@@ -219,11 +233,15 @@ const { isAuthenticated } = storeToRefs(userStore);
                     <th class="watch_player">
                       Vmoreau Vmoreau Vmoreau Vmoreau Vmoreau
                     </th>
-                    <td><i class="fa-solid fa-circle" style="color: red"></i></td>
+                    <td>
+                      <i class="fa-solid fa-circle" style="color: red"></i>
+                    </td>
                     <td>
                       <i class="fa-solid fa-comment-dots fa-xl action_icon"></i>
                     </td>
-                    <td><i class="fa-solid fa-gamepad fa-xl action_icon"></i></td>
+                    <td>
+                      <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
+                    </td>
                     <td>
                       <i
                         class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
@@ -304,7 +322,6 @@ const { isAuthenticated } = storeToRefs(userStore);
 </template>
 
 <style scoped>
-
 .infoGame {
   display: grid;
 
@@ -317,11 +334,11 @@ const { isAuthenticated } = storeToRefs(userStore);
   box-shadow: 0px 0px 10px 2px #fff961, inset 0px 0px 4px 2px #fff961;
 }
 
-.req , .cont
-{
+.req,
+.cont {
   grid-area: 1 / 1;
 }
-.req{
+.req {
   font-size: xx-large;
   font-weight: bold;
   background-color: rgba(0, 0, 0, 0.89);
@@ -332,8 +349,7 @@ const { isAuthenticated } = storeToRefs(userStore);
   display: grid;
 }
 
-.cont
-{
+.cont {
   z-index: 1;
 }
 
@@ -413,7 +429,7 @@ th {
 .action_icon:hover {
   transform: scale(1.5);
   transition: 0.4s;
-  cursor:pointer;
+  cursor: pointer;
 }
 
 th {
