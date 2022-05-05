@@ -152,6 +152,17 @@ export class GameGateway
     if (userIndex !== -1) this.queue.splice(userIndex, 0);
   }
 
+  // Spectators handling
+  @SubscribeMessage('addSpectator')
+  addSpectator(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
+    // Add a spectator to a game
+    const games = this.gameService.getGames();
+    const spectatedGame = games[data.gameID];
+
+    // Add the spectator socket to the game room
+    this.server.to(client.id).socketsJoin(spectatedGame.socketRoom);
+  }
+
   // SocketIO room managment
   joinRoom(roomName: string, socketIDs: string[]) {
     for (const socketID of socketIDs)
