@@ -170,7 +170,7 @@ const timerMute = computed(() => {
     >
       <textarea
         @keydown.enter.prevent.stop="sendNewMessage(channel?.id)"
-        class="form-control input" id="sendMessage"
+        class="form-control input scroller-msg" id="sendMessage"
         v-model="textMsg"
       >
       </textarea>
@@ -216,8 +216,24 @@ const timerMute = computed(() => {
   border-bottom-left-radius: 10px !important;
   border-top-left-radius: 10px  !important;;
   max-height: 80px !important;
-  margin-left: 2rem !important
+  margin-left: 2rem !important;
+  border: transparent
 }
 
+.scroller-msg {
+  overflow-y: scroll;
+  scrollbar-color: #e58703 transparent;
+  scrollbar-width: thin !important;
+  border-bottom-right-radius: 0px !important;
+  border-top-right-radius: 0px  !important;;
+}
+
+.scroller-msg:hover {
+  overflow-y: scroll;
+  scrollbar-color: #e58703 transparent;
+  scrollbar-width: thin !important;
+  border-bottom-right-radius: 0px !important;
+  border-top-right-radius: 0px  !important;;
+}
 
 </style>

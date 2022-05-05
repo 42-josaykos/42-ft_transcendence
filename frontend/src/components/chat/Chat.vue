@@ -11,8 +11,8 @@ import { Get } from "@/services/requests";
 import ChatMenu from "./ChatMenu.vue";
 import ChatUsers from "./ChatUsers.vue";
 import ChatMessages from "./ChatMessages.vue";
-import Modale from "./Modale.vue";
 import ModalChat from "./ModalChat.vue";
+import UsersFriends from "../UsersFriends.vue";
 
 const userStore = useUserStore();
 const { loggedUser, socketChat, usersBlocked, usersFriends } = storeToRefs(userStore);
@@ -25,18 +25,21 @@ const {
 } = storeToRefs(channelStore);
 
 const modalError = ref<boolean>(false)
+const modalFriends = ref<boolean>(false);
 const msgError = ref<string>('')
 
 onBeforeMount(async () => {
-  Get("/channels/search?&members&invites&bans&mutes").then((res) => {
+  Get(`/channels/search?&members&invites&bans&mutes`).then((res) => {
     if (res.status == 200) {
       allChannels.value = res.data;
       if (loggedUser.value != undefined) {
         channelStore.updateInvite(loggedUser.value?.id)
-          Get("/users/search?id=" + loggedUser.value?.id + "&banChannels&muteChannels&blockedUsers&friends").then((res) => {
-            channelStore.updateBanMute(res.data);
-            usersBlocked.value = res.data[0].blockedUsers;
-            usersFriends.value = res.data[0].friends;
+          Get(`/users/search?id=${loggedUser.value?.id}&banChannels&muteChannels&blockedUsers&friends`).then((res) => {
+            if (res.status == 200) {
+              channelStore.updateBanMute(res.data);
+              usersBlocked.value = res.data[0].blockedUsers;
+              usersFriends.value = res.data[0].friends;
+            }
           })
       }
     }
@@ -56,11 +59,11 @@ onUnmounted(() => {
 
 const removeAlert = () => {
   modalError.value = false
+  msgError.value = ''
 }
 
 const addAlert = (message: string) => {
   msgError.value = message
-  console.log("MsgError =>", msgError.value)
   modalError.value = true
   setTimeout(removeAlert, 5000);
 }
@@ -88,14 +91,27 @@ if (socketChat.value != undefined){
       </div>
 
       <div class="col-md-3 col-chat ms-auto">
-        <div class="scrollspy-example my-5 px-2 py-2" style="min-height: 80vh">
+        <div class="horizontal-line-bottom">
+          <div class="wrapper-btn-friends">
+            <button
+              @click="modalFriends = true
+              "
+              type="button"
+              class="rounded btn-channel"
+              style="color: var(--clr-neon) !important;"
+            >
+              <i class="fa-solid fa-users fa-2x"></i>
+            </button>
+          </div>
+        </div>
+        <div class="scrollspy-example mb-5 px-2 py-2" style="min-height: 80vh">
           <ChatUsers />
         </div>
       </div>
     </div>
   </div>
 
-  <ModalChat v-if="modalError == true" @close="modalError = false;">
+   <ModalChat v-if="modalError == true" @close="modalError = false;">
     <template v-slot:header>
       <h2 style="padding-top: 10px">
         <u>ERROR</u>
@@ -105,6 +121,17 @@ if (socketChat.value != undefined){
       <div>
         {{msgError}}
       </div>
+    </template>
+  </ModalChat>
+
+  <ModalChat v-if="modalFriends == true" @close="modalFriends = false;">
+    <template v-slot:header>
+      <h2 style="padding-top: 10px">
+        <u>Friends list</u>
+      </h2>
+    </template>
+    <template v-slot:body>
+      <UsersFriends/>
     </template>
   </ModalChat>
 
@@ -179,6 +206,10 @@ if (socketChat.value != undefined){
   height: 100px;
   margin-top: 0.5rem;
   overflow: auto;
+
+  overflow-y: scroll;
+  scrollbar-color: rgb(32, 31, 31) transparent;
+  scrollbar-width: thin !important;
 }
 
 .scrollspy-example::-webkit-scrollbar {
@@ -192,6 +223,11 @@ if (socketChat.value != undefined){
 .scrollspy-example::-webkit-scrollbar-thumb {
   background-color: rgb(32, 31, 31);
   border-radius: 20px;
+}
+
+.scrollspy-example:hover {
+  scrollbar-color: rgb(32, 31, 31) transparent;
+  scrollbar-width: thin !important;
 }
 
 .horizontal-line-bottom {
@@ -271,6 +307,13 @@ if (socketChat.value != undefined){
 .text-msg-right {
   color: white;
   padding: 10px;
+}
+
+.wrapper-btn-friends {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 10px;
 }
 
 @media (min-width: 950px) {

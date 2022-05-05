@@ -1,18 +1,19 @@
-import { createWebHistory, createRouter } from 'vue-router';
-import Home from '@/components/Home.vue';
-import Game from '@/components/game/Game.vue';
-import Matchmaking from '@/components/game/Matchmaking.vue';
-import Debug from '@/components/debug/Debug.vue';
-import PageNotFound from '@/components/PageNotFound.vue';
-import Login from '@/components/Login.vue';
-import Chat from '@/components/Chat.vue';
-import Setting from '@/components/Setting.vue';
-import Register from '@/components/Register.vue';
-import { useUserStore } from '@/stores/user';
-import { Get } from '@/services/requests';
-import { storeToRefs } from 'pinia';
-import Authenticate2fa from '@/components/Authenticate2fa.vue';
+import { createWebHistory, createRouter } from "vue-router";
+import Home from "@/components/Home.vue";
+import Game from "@/components/game/Game.vue";
+import Matchmaking from "@/components/game/Matchmaking.vue";
+import Debug from "@/components/debug/Debug.vue";
+import PageNotFound from "@/components/PageNotFound.vue";
+import Login from "@/components/Login.vue";
+import Chat from "@/components/chat/Chat.vue";
+import Setting from "@/components/Setting.vue";
+import Register from "@/components/Register.vue";
+import { useUserStore } from "@/stores/user";
+import { Get } from "@/services/requests";
+import { storeToRefs } from "pinia";
+import Authenticate2fa from "@/components/Authenticate2fa.vue";
 import MatchHistory from '@/components/profile/MatchHistory.vue';
+
 const routes = [
   {
     path: '/',
