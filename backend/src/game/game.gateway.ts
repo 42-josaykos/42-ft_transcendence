@@ -12,18 +12,12 @@ import {
   WsResponse,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import User from 'src/api/users/entities/user.entity';
 import axios from 'axios';
-
-class Connection {
-  user: User;
-  socketID: string[];
-}
-
-class Game {
-  players: Connection[];
-  spectators: Connection[];
-}
+import User from 'src/api/users/entities/user.entity';
+import { Connection } from 'src/status/status.class';
+import { GameService } from './game.service';
+import { StatusGateway } from 'src/status/status.gateway';
+import { Game, Player, Spectator } from 'src/game/game.class';
 
 @WebSocketGateway({
   namespace: 'game',
@@ -35,16 +29,16 @@ class Game {
 export class GameGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
+  constructor(private gameService: GameService) {}
+
   @WebSocketServer()
   private server: Server;
 
   private logger: Logger = new Logger('GameGateway');
-  private games: Game[];
-  private queue: Connection[];
+  private queue: Connection[] = [];
+  private games: Game[] = [];
 
   afterInit(server: any) {
-    this.games = new Array();
-    this.queue = new Array();
     this.logger.log('Game gateway is initialized');
   }
 
@@ -57,85 +51,45 @@ export class GameGateway
   }
 
   @SubscribeMessage('queue')
-  handleQueue(@ConnectedSocket() client, @MessageBody() data: User) {
+  async handleQueue(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: User,
+  ) {
     // Adding player to queue
-    this.queue.push({ user: data, socketID: [client.id] });
+    this.queue.push({
+      user: data,
+      socketID: [client.id],
+    });
+    // console.log('queue: ', this.queue);
 
     // Start a game if there is at least 2 players in the queue waiting
     while (this.queue.length >= 2) {
       // Remove players from queue
-      const playerOne = this.queue.shift();
-      const playerTwo = this.queue.shift();
+      const playerOne: Player = { player: this.queue.shift() };
+      const playerTwo: Player = { player: this.queue.shift() };
       // console.log('playerOne: ', playerOne);
       // console.log('playerTwo: ', playerTwo);
 
       // Create and start game
-      const newGame: Game = { players: [playerOne, playerTwo], spectators: [] };
-      this.games.push(newGame);
+      const players = this.gameService.createGame(
+        playerOne,
+        playerTwo,
+        this.server,
+      );
       this.server
-        .to(playerOne.socketID[0])
-        .to(playerTwo.socketID[0])
-        .emit('startGame', { playerOne: playerOne, playerTwo: playerTwo });
-    }
-  }
-
-  @SubscribeMessage('endGame')
-  async handleEndGame(
-    @ConnectedSocket() clientInformation,
-    @MessageBody() data: any,
-  ) {
-    // Determining which game
-    const gameIndex = this.games.findIndex(
-      (game) =>
-        game.players[0].user.id === data.user.id ||
-        game.players[1].user.id === data.user.id,
-    );
-
-    // Logic will only run on playerOne
-    if (
-      gameIndex !== -1 &&
-      data.user.id === this.games[gameIndex].players[0].user.id
-    ) {
-      // POST match data in the database through the API
-      const body = {
-        players: [
-          { id: this.games[gameIndex].players[0].user.id },
-          { id: this.games[gameIndex].players[1].user.id },
-        ],
-        score: [data.score[0], data.score[1]],
-      };
-      const match = await axios({
-        url: 'http://localhost:4000/matches',
-        method: 'POST',
-        data: body,
-      });
-      // console.log('Match: ', match.data);
-
-      // Remove match from game array
-      this.games.splice(gameIndex, 1);
+        .to(playerOne.player.socketID[0])
+        .to(playerTwo.player.socketID[0])
+        .emit('startGame', players);
     }
   }
 
   @SubscribeMessage('moveLeft')
   handleMoveLeft(@ConnectedSocket() client: Socket, @MessageBody() data: User) {
-    // Determining which game
-    const gameIndex = this.games.findIndex(
-      (game) =>
-        game.players[0].user.id === data.id ||
-        game.players[1].user.id === data.id,
-    );
-    // console.log('gameIndex left: ', gameIndex);
-
-    // Should never append, but prevention is better than cure
-    if (gameIndex === -1) {
-      throw new WsException('Game was not found');
+    try {
+      const players = this.gameService.moveLeft(client.id, data);
+    } catch (error) {
+      throw error;
     }
-
-    // Detect which player moved
-    // Will later need to send ONLY to people watching / playing the game
-    if (data.id === this.games[gameIndex].players[0].user.id)
-      this.server.emit('playerOneMoveLeft');
-    else this.server.emit('playerTwoMoveLeft');
   }
 
   @SubscribeMessage('moveRight')
@@ -143,23 +97,53 @@ export class GameGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() data: User,
   ) {
-    // Determining which game
-    const gameIndex = this.games.findIndex(
-      (game) =>
-        game.players[0].user.id === data.id ||
-        game.players[1].user.id === data.id,
-    );
-    // console.log('gameIndex right: ', gameIndex);
-
-    // Should never append, but prevention is better than cure
-    if (gameIndex === -1) {
-      throw new WsException('Game was not found');
+    try {
+      const players = this.gameService.moveRight(client.id, data);
+    } catch (error) {
+      throw error;
     }
+  }
 
-    // Detect which player moved
-    // Will later need to send ONLY to people watching / playing the game
-    if (data.id === this.games[gameIndex].players[0].user.id)
-      this.server.emit('playerOneMoveRight');
-    else this.server.emit('playerTwoMoveRight');
+  sendGameUpdate(game: Game) {
+    const gameUpdate = {
+      playerOne: {
+        x: game.players[0].x,
+        y: game.players[0].y,
+        score: game.players[0].score,
+      },
+      playerTwo: {
+        x: game.players[1].x,
+        y: game.players[1].y,
+        score: game.players[1].score,
+      },
+      ball: { x: game.ball.x, y: game.ball.y, size: game.ball.size },
+      events: game.events,
+    };
+
+    // console.log('gameUpdate: ', gameUpdate);
+    this.server.emit('gameUpdate', gameUpdate);
+  }
+
+  async broadcastEndGame(game: Game) {
+    try {
+      // POST match data in the database through the API
+      const body = {
+        players: [
+          { id: game.players[0].player.user.id },
+          { id: game.players[1].player.user.id },
+        ],
+        score: [game.players[0].score, game.players[1].score],
+      };
+      const match = await axios({
+        url: 'http://localhost:4000/matches',
+        method: 'POST',
+        data: body,
+      });
+      // console.log('Match Result: ', match.data);
+
+      this.server.emit('endGame');
+    } catch (error) {
+      throw error;
+    }
   }
 }
