@@ -27,12 +27,13 @@ const { users, loggedUser, gameSocket } = storeToRefs(userStore);
 
 const router = useRouter();
 
-gameSocket.value.on("startGame", (data: any) => {
+gameSocket.value?.on("startGame", (data: any) => {
+  console.log("matchmaking here");
   router.push("/matchmaking");
 });
 
 const match = () => {
-  gameSocket.value.emit("queue", loggedUser.value);
+  gameSocket.value?.emit("queue", loggedUser.value);
 };
 
 // CRUD functions

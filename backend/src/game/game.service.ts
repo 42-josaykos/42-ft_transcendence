@@ -36,6 +36,11 @@ export class GameService implements OnModuleInit {
     this.gateway = this.moduleRef.get(GameGateway);
   }
 
+  getUser(users: Connection[], user: User) {
+    const connection = users.find((value) => value.user.id === user.id);
+    return connection;
+  }
+
   // Main game code
   createGame(playerOne: Player, playerTwo: Player, socket: Server) {
     // Create and start game
@@ -44,6 +49,7 @@ export class GameService implements OnModuleInit {
     const newBall = this.initNewBall();
     const events = this.initEvents();
 
+    const roomName = `${playerOne.player.user.id}-${playerTwo.player.user.id}`;
     let game: Game = {
       players: [playerOne, playerTwo],
       spectators: [],
@@ -51,6 +57,7 @@ export class GameService implements OnModuleInit {
       events: events,
       finished: false,
       winner: null,
+      socketRoom: roomName,
     };
 
     this.games.push(game);

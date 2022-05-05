@@ -1,18 +1,14 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import type { User } from "@/models/user.model";
-import { io, type Socket } from "socket.io-client";
+import type { Socket } from "socket.io-client";
 
 // Tracks users database
 export const useUserStore = defineStore("user", () => {
   const users = ref<User[]>([]);
   const usersOnline = ref<Number[]>([]);
   const loggedUser = ref<User | null>(null);
-  const gameSocket = ref<Socket>(
-    io("ws://localhost:6060/game", {
-      withCredentials: true,
-    })
-  );
+  const gameSocket = ref<Socket>();
   const isAuthenticated = ref(false);
   const socketChat = ref<Socket>();
   const usersBlocked = ref<User[]>([]);
@@ -32,14 +28,17 @@ export const useUserStore = defineStore("user", () => {
     users.value.splice(index, 1, { ...users.value[index], ...updatedData });
   };
 
-   const isBlocked = (user: User | undefined) => {
-    if (user != undefined && usersBlocked.value.findIndex(el => el.id === user.id) != -1) {
-      return true
+  const isBlocked = (user: User | undefined) => {
+    if (
+      user != undefined &&
+      usersBlocked.value.findIndex((el) => el.id === user.id) != -1
+    ) {
+      return true;
     }
-    return false
-   }
+    return false;
+  };
 
-   const addUserBlocked = (newUser: User) => {
+  const addUserBlocked = (newUser: User) => {
     usersBlocked.value.push(newUser);
   };
 
@@ -49,13 +48,16 @@ export const useUserStore = defineStore("user", () => {
   };
 
   const isFriend = (user: User | undefined) => {
-    if (user != undefined && usersFriends.value.findIndex(el => el.id === user.id) != -1) {
-      return true
+    if (
+      user != undefined &&
+      usersFriends.value.findIndex((el) => el.id === user.id) != -1
+    ) {
+      return true;
     }
-    return false
-   }
+    return false;
+  };
 
-   const addUserFriend = (newUser: User) => {
+  const addUserFriend = (newUser: User) => {
     usersFriends.value.push(newUser);
   };
 
@@ -82,6 +84,6 @@ export const useUserStore = defineStore("user", () => {
     removeUserBlocked,
     isFriend,
     addUserFriend,
-    removeUserFriend
+    removeUserFriend,
   };
 });
