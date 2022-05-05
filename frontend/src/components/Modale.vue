@@ -42,7 +42,10 @@ export const register_open = ref(false);
 <template>
   <div class="bloc_modale" v-if="setting_open">
     <div class="overlay" @click="setting_open = !setting_open"></div>
-    <div class="modale card" style="min-width: 40vw; max-height: 60%; max-width: 75%; overflow: scroll;">
+    <div
+      class="modale card"
+      style="min-width: 40vw; max-height: 60%; max-width: 75%"
+    >
       <Setting @updateUserProfil="getUserData" />
     </div>
   </div>
