@@ -33,30 +33,55 @@ function loginLocal() {
 </script>
 
 <template>
-  <h2><u>Login to Space Pong</u></h2>
-  <form @submit.prevent.trim.lazy="loginLocal" class="form-signin">
-    <label for="inputUsername" class="sr-only">Username</label>
-    <input
-      type="text"
-      id="inputUsername"
-      class="form-control"
-      placeholder="Username"
-      v-model="username"
-      required
-      autofocus
-    />
-    <label for="inputPassword" class="sr-only">Password</label>
-    <input
-      type="password"
-      id="inputPassword"
-      class="form-control"
-      placeholder="Password"
-      v-model="password"
-      required
-    />
-    <button class="mod-btn mod-btn-yellow" type="submit" style="margin: 20px">
-      Log in
-    </button>
+  <div class="container">
+    <div>
+      <h1 class="neonText display-1">Space Pong</h1>
+      <form @submit.prevent.trim.lazy="loginLocal" class="form-signin">
+        <label for="inputUsername" class="sr-only">Username</label>
+        <input
+          type="text"
+          id="inputUsername"
+          class="form-control"
+          placeholder="Username"
+          v-model="username"
+          required
+          autofocus
+        />
+        <label for="inputPassword" class="sr-only">Password</label>
+        <input
+          type="password"
+          id="inputPassword"
+          class="form-control"
+          placeholder="Password"
+          v-model="password"
+          required
+        />
+        <button
+          class="mod-btn mod-btn-yellow"
+          type="submit"
+          style="margin: 20px"
+        >
+          Login
+        </button>
+      </form>
+    </div>
+    <div>
+      <button
+        class="mod-btn mod-btn-blue"
+        style="margin: 10px"
+        onclick="window.location.href='/auth/login'"
+      >
+        <img src="../assets/42_Logo.svg" style="color: black; width: 30px" />
+        Student Login</button
+      ><br />
+      <button
+        class="mod-btn mod-btn-cyan"
+        style="margin: 10px"
+        onclick="window.location.href='/auth/login/github'"
+      >
+        <i class="fa-brands fa-github" style="color: black"></i> Github Login
+      </button>
+    </div>
     <div>Don't have an account ?</div>
     <div>
       <a
@@ -69,28 +94,16 @@ function loginLocal() {
         Register
       </a>
     </div>
-  </form>
-  <div>
-    <button
-      class="mod-btn mod-btn-blue"
-      style="margin: 10px"
-      onclick="window.location.href='/auth/login'"
-    >
-      <img src="../assets/42_Logo.svg" style="color: black; width: 30px" /> Log
-      in with 42</button
-    ><br />
-    <button
-      class="mod-btn mod-btn-cyan"
-      style="margin: 10px"
-      onclick="window.location.href='/auth/login/github'"
-    >
-      <i class="fa-brands fa-github" style="color: black"></i> Log in with
-      Github
-    </button>
   </div>
 </template>
 
 <style scoped>
+.neonText {
+  color: #fff;
+  text-shadow: 0 0 7px #fff, 0 0 10px #fff, 0 0 21px #fff, 0 0 42px #5271ff,
+    0 0 82px #5271ff, 0 0 92px #5271ff, 0 0 102px #5271ff, 0 0 151px #5271ff;
+}
+
 input {
   text-align: center;
   margin: auto;

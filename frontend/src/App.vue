@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import Navbar from "./components/Navbar.vue";
-import StatusSystem from "./components/StatusSystem.vue";
-import { storeToRefs } from "pinia";
-import { useUserStore } from "@/stores/user";
-import { useStatusStore } from "@/stores/status";
-import { onMounted, ref } from "vue";
-import { Get } from "./services/requests";
-import ChatSocket from "./components/chat/ChatSocket.vue";
+import Navbar from './components/Navbar.vue';
+import StatusSystem from './components/StatusSystem.vue';
+import { storeToRefs } from 'pinia';
+import { useUserStore } from '@/stores/user';
+import { useStatusStore } from '@/stores/status';
+import { onMounted, ref } from 'vue';
+import { Get } from './services/requests';
+import ChatSocket from './components/chat/ChatSocket.vue';
 
 const userStore = useUserStore();
 const { loggedUser, isAuthenticated } = storeToRefs(userStore);
@@ -57,7 +57,13 @@ export const isMeteor = ref(false);
       <div class="meteor-14"></div>
       <div class="meteor-15"></div>
     </div>
-    <div class="full-height full-width" style="z-index: 1; background: radial-gradient(ellipse at top, #1b2735 0%, #080e21 70%);">
+    <div
+      class="full-height full-width"
+      style="
+        z-index: 1;
+        background: radial-gradient(ellipse at top, #1b2735 0%, #080e21 70%);
+      "
+    >
       <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
       <div v-if="isAuthenticated">
         <StatusSystem />
@@ -93,6 +99,9 @@ export const isMeteor = ref(false);
 }
 
 .full-height {
+  /* display: flex; */
+  /* align-items: center; */
+  /* justify-content: center; */
   min-height: 100vh;
 }
 </style>
