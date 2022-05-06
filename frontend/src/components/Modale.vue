@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import Profil from './Profil.vue';
 import Setting from './Setting.vue';
 import Login from './Login.vue';
 import Register from './Register.vue';
@@ -44,9 +45,9 @@ export const register_open = ref(false);
     <div class="overlay" @click="setting_open = !setting_open"></div>
     <div
       class="modale card"
-      style="min-width: 40vw; max-height: 60%; max-width: 75%"
+      style="min-width: 40vw; max-width: 75%; overflow: auto"
     >
-      <Setting @updateUserProfil="getUserData" />
+      <Profil @updateUserProfil="getUserData" />
     </div>
   </div>
   <div class="bloc_modale" v-if="register_open && !isAuthenticated">
@@ -66,7 +67,7 @@ export const register_open = ref(false);
 <style>
 @import url('../assets/modal.css');
 .modale.card {
-  overflow: hidden;
+  overflow: auto;
   max-height: fit-content;
 }
 </style>

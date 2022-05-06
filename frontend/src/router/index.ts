@@ -8,6 +8,7 @@ import Login from '@/components/Login.vue';
 import Chat from '@/components/chat/Chat.vue';
 import Setting from '@/components/Setting.vue';
 import Register from '@/components/Register.vue';
+import Toto from '@/components/Toto.vue';
 import { useUserStore } from '@/stores/user';
 import { Get } from '@/services/requests';
 import { storeToRefs } from 'pinia';
@@ -32,6 +33,11 @@ const routes = [
     name: 'Matchmaking',
     beforeEnter: routeGuard,
     component: Matchmaking
+  },
+  {
+    path: '/toto',
+    name: 'Toto',
+    component: Toto
   },
   {
     path: '/debug',
