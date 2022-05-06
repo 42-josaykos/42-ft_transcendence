@@ -47,6 +47,7 @@ const routes = [
   {
     path: '/login',
     name: 'Login',
+    beforeEnter: loginGuard,
     component: Login
   },
   {
@@ -86,6 +87,15 @@ const router = createRouter({
   history: createWebHistory(),
   routes
 });
+
+function loginGuard(to: any, from: any, next: any) {
+  Get('/auth/jwt-status').then(res => {
+    if (res.status === 401) {
+      next(); // allow to enter route
+    }
+    next('/');
+  });
+}
 
 function routeGuard(to: any, from: any, next: any) {
   const userStore = useUserStore();
