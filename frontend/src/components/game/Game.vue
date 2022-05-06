@@ -1,6 +1,9 @@
-<script>
+<!-- <script>
 import ModaleSettings from "./ModaleSettings.vue";
 import Pong from "./Pong.vue";
+import { storeToRefs, mapState } from 'pinia';
+import { useUserStore } from "@/stores/user";
+
 export default {
   name: "Game",
   components: {
@@ -15,9 +18,14 @@ export default {
     };
   },
   created() {},
+  computed: {
+    ...mapState(useUserStore, ["loggedUser", "userClick"]),
+  },
   methods: {
     toggleModaleSettings: function () {
-      if (this.revelePlay == true) this.revelePlay = !this.revelePlay;
+      if (this.revelePlay == true) {
+        this.revelePlay = !this.revelePlay
+      };
       return;
     },
     updatePaddleSize: function (variable) {
@@ -30,27 +38,44 @@ export default {
     },
   },
 };
+</script> -->
+
+<script setup lang="ts">
+import ModaleSettings from "./ModaleSettings.vue";
+import Pong from "./Pong.vue";
+import { storeToRefs, mapState } from 'pinia';
+import { ref } from "vue";
+import { useUserStore } from "@/stores/user";
+
+const userStore = useUserStore();
+const { userClick } = storeToRefs(userStore);
+
+  let revelePlay = ref<boolean>(true);
+  let paddleSize =  ref<any>();
+  let ballSpeed = ref<any>();
+
+  const toggleModaleSettings = () => {
+            console.log("1 toggle")
+      if (revelePlay.value == true) {
+        console.log("2 toggle")
+        revelePlay.value = !revelePlay.value
+      };
+      return;
+  }
+
+  const updatePaddleSize = (variable) => {
+      paddleSize.value = variable;
+      $emit("paddleSizeChange", paddleSize.value);
+  }
+
+  const updateBallSpeed = (variable) => {
+      ballSpeed.value = variable;
+      $emit("ballSpeedChange", ballSpeed.value);
+  }
+
 </script>
 
-<template>
-  <!-- <section class="game">
-    <h2>Game</h2>
-    <section class="pong-game">
-      <modalesettings
-        class="modale-settings"
-        v-bind:revelePlay="revelePlay"
-        v-bind:toggleModaleSettings="toggleModaleSettings"
-        @paddleSizeChange="updatePaddleSize"
-        @ballSpeedChange="updateBallSpeed"
-      />
-      <pong
-        v-bind:revelePlay="revelePlay"
-        v-bind:paddleSize="2"
-        v-bind:ballSpeed="3"
-      />
-    </section>
-  </section> -->
-
+<template>{{userClick}}
   <div class="container-fluid">
     <div class="game">
       <pong
@@ -60,9 +85,9 @@ export default {
       />
     </div>
   </div>
-  <modalesettings v-if="revelePlay"
-    v-bind:revelePlay="revelePlay"
-    v-bind:toggleModaleSettings="toggleModaleSettings"
+  <ModaleSettings v-if="revelePlay"
+    @close="toggleModaleSettings"
+    :revelePlay="revelePlay"
     @paddleSizeChange="updatePaddleSize"
     @ballSpeedChange="updateBallSpeed"
   />

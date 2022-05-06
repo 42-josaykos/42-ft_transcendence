@@ -1,4 +1,4 @@
-<script>
+<!-- <script>
 export default {
   name: "Feature",
   data() {
@@ -58,6 +58,55 @@ export default {
     },
   },
 };
+</script> -->
+
+<script>
+
+      const level = {}
+      const min = {}
+      const max = {}
+
+  defineProps < {
+		name: string;
+  	levelMin: Number;
+    levelMax: Number;
+    startLevel: any;
+	} > ();
+
+
+  const getLevel = computed(() => {
+    level = startLevel;
+      return level;
+  })
+
+
+  created() {
+    this.$emit("levelChange", this.startLevel); 
+    return;
+  },
+
+  mounted() {
+    let l = this.getLevel;
+  },
+
+
+    const isMin = () =>  {
+      return this.level == this.levelMin ? true : false;
+    }
+    const isMax = () => {
+      return this.level == this.levelMax ? true : false;
+    }
+    const levelUp =() =>  {
+      if (this.level < this.levelMax) this.level++;
+      this.$emit("levelChange", this.level);
+      return;
+    }
+    const levelDown = () =>  {
+      if (this.level > this.levelMin) this.level--;
+      this.$emit("levelChange", this.level);
+      return;
+    }
+
 </script>
 
 <template>
@@ -91,19 +140,12 @@ export default {
 
 <style>
 .feature {
-  /* margin-left: 0; */
   margin-top: 5%;
   margin-bottom: 5%;
 }
 .feature-name {
   color: #db810c;
   margin-bottom: 0;
-  /* font-family: helvetica;
-  font-size: 35px;
-  font-style: normal;
-  letter-spacing: 1px;
-  position: relative; */
-  /* width: 50%; */
   margin-left: auto;
   margin-right: auto;
   text-align: center;
@@ -112,34 +154,24 @@ export default {
 }
 .feature-buttons {
   position: relative;
-  /* width: 50%; */
-  /* margin-left: auto;
-  margin-right: auto; */
   text-align: center;
   margin-top: 1.5%;
   align-items: center;
 }
 .up-and-down {
-  /* display: inline-flexbox; */
   -webkit-appearance: none;
   width: 10%;
   background: #fffdc7;
   outline: none;
   border: 5px solid #fff961;
-  /* border-radius: 10px;
-		margin: 1.5%; */
   text-align: center;
   border-radius: 20px;
   align-items: center;
 
   display: inline-block;
   color: #1a3558;
-  /* letter-spacing: 2px; */
-  /* text-transform: uppercase; */
   text-decoration: none;
-  /* font-size: 3em; */
   overflow: hidden;
-  /* vertical-align: center; */
 }
 .up-and-down:hover {
   background: #fff961;

@@ -10,6 +10,9 @@ import { useChannelStore } from "@/stores/channel";
 import { useMessageStore } from "@/stores/message";
 import type { User } from "@/models/user.model";
 import { computed } from "@vue/reactivity";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const userStore = useUserStore();
 const { loggedUser, socketChat, usersOnline, userClick } = storeToRefs(userStore);
@@ -213,7 +216,7 @@ const addAdmin = () => {
             SEND MESSAGE
           </button>
             <button
-              @click="userClickBool = false"
+              @click="userClickBool = false; router.push('/game')"
               type="button"
               class="btn-user-click my-2"
             >

@@ -1,4 +1,4 @@
-<script>
+<!-- <script>
 import PowerUps from "./PowerUps.vue";
 export default {
   name: "ModaleSettings",
@@ -6,6 +6,7 @@ export default {
     powerups: PowerUps,
   },
   props: ["revelePlay", "toggleModaleSettings", "launch"],
+  emit: ["close"],
   created() {
     this.$emit("paddleSizeChange", this.paddleSize);
     this.$emit("ballSpeedChange", this.ballSpeed);
@@ -24,14 +25,68 @@ export default {
     },
   },
 };
+</script> -->
+
+<script setup lang="ts">
+import PowerUps from "./PowerUps.vue";
+import { onBeforeMount} from "vue";
+import { storeToRefs, mapState } from 'pinia';
+import { useUserStore } from "@/stores/user";
+
+const userStore = useUserStore();
+const { userClick } = storeToRefs(userStore);
+
+	defineProps < {
+		revelePlay: any;
+  	launch: any;
+	} > ();
+
+const emit = defineEmits(['close', 'test1', 'test2']);
+
+const close = () => {
+    emit('close');
+}
+
+// // const test1 = () => {
+// //     emit("paddleSizeChange", paddleSize);
+// // }
+
+// // const test2 = () => {
+// //     emit("ballSpeedChange", ballSpeed);
+// }
+  // props: ["revelePlay", "toggleModaleSettings", "launch"],
+  // emit: ["close"],
+  // onBeforeMount(() => {
+  //   test1();
+  //   test2();
+  // }) 
+    // $emit("paddleSizeChange", paddleSize);
+    // $emit("ballSpeedChange", ballSpeed);
+    // return;
+
+  
+
+  const updatePaddleSize = (variable) => {
+      paddleSize = variable;
+      test1()
+      return;
+    }
+
+  const updateBallSpeed = (variable) => {
+      ballSpeed = variable;
+      test2()
+      return;
+    }
+
+
 </script>
 
 <template>
   <div class="bloc_modale">
     <div class="overlay"></div>
     <div class="modale card">
-      <div
-        v-on:click="toggleModaleSettings"
+       <div
+        @click="close(); userClick = undefined; "
         type="button"
         class="btn-close-modale btn"
       >
@@ -51,7 +106,7 @@ export default {
       >
         START
       </button>
-    </div>
+    </div> 
   </div>
 </template>
 
