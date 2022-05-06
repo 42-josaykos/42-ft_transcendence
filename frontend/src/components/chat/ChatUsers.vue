@@ -12,7 +12,7 @@ import type { User } from "@/models/user.model";
 import { computed } from "@vue/reactivity";
 
 const userStore = useUserStore();
-const { loggedUser, socketChat, usersOnline } = storeToRefs(userStore);
+const { loggedUser, socketChat, usersOnline, userClick } = storeToRefs(userStore);
 
 const channelStore = useChannelStore();
 
@@ -21,7 +21,7 @@ const { channel, usersMembers, arrayTime } = storeToRefs(channelStore);
 const messageStore = useMessageStore();
 const { stringSendMessage, modalSendMessage } = storeToRefs(messageStore);
 
-const userClick = ref<User>();
+// const userClick = ref<User>();
 const userClickBool = ref<boolean>(false);
 const modalShowProfil = ref<boolean>(false);
 const modalAdmin = ref<boolean>(false);
@@ -49,6 +49,7 @@ const addBanMute = (boolBan: Boolean) => {
     }
   }
   inputTime.value = ''
+  userClick.value = undefined
 }
 
 const removeBanMute = (boolBan: Boolean) => {
@@ -58,6 +59,7 @@ const removeBanMute = (boolBan: Boolean) => {
   else {
       socketChat.value?.emit('updateMember', channel.value?.id, {removeMutes: [{user: {id: userClick.value?.id}}]}, null, loggedUser)
   }
+  userClick.value = undefined
 }
 
 const isOnline = (user: User) => {
@@ -130,6 +132,7 @@ const addAdmin = () => {
       loggedUser.value
     )
   }
+  userClick.value = undefined
 }
 
 </script>
@@ -188,7 +191,7 @@ const addAdmin = () => {
     </div>
   </div>
 
-  <ModalChat v-if="userClickBool" @close="userClickBool = false">
+  <ModalChat v-if="userClickBool" @close="userClickBool = false; userClick = undefined">
     <template v-slot:header>
       <h2 style="padding-top: 10px">{{ userClick?.username }}</h2>
     </template>
@@ -262,7 +265,7 @@ const addAdmin = () => {
     </template>
     <template v-slot:footer>
       <button
-        @click="userClickBool = false"
+        @click="userClickBool = false; userClick = undefined"
         type="button"
         class="mod-btn mod-btn-yellow my-2"
       >
@@ -271,14 +274,14 @@ const addAdmin = () => {
     </template>
   </ModalChat>
 
-  <ModalChat v-if="modalShowProfil" @close="modalShowProfil = false">
+  <ModalChat v-if="modalShowProfil" @close="modalShowProfil = false; userClick = undefined">
     <template v-slot:header>
       <h2 style="padding-top: 10px">{{ userClick?.username }}</h2>
     </template>
     <template v-slot:body> PAGE PROFIL </template>
     <template v-slot:footer>
       <button
-        @click="modalShowProfil = false"
+        @click="modalShowProfil = false; userClick = undefined"
         type="button"
         class="mod-btn mod-btn-yellow"
       >
@@ -291,7 +294,7 @@ const addAdmin = () => {
 
   <ModalChat
     v-if="modalBlock == true"
-    @close="modalBlock = false"
+    @close="modalBlock = false; userClick = undefined"
   >
     <template v-slot:header>
       <h2 style="padding-top: 10px">
@@ -310,7 +313,7 @@ const addAdmin = () => {
         } else {
           socketChat?.emit('addUserBlocked', userClick, {addBlockedUsers: [{id: userClick?.id}]}, loggedUser?.id)
         }
-        modalBlock = false;
+        modalBlock = false; userClick = undefined
         "
         type="button"
         class="mod-btn mod-btn-blue"
@@ -318,7 +321,7 @@ const addAdmin = () => {
         Yes
       </button>
       <button
-        @click="modalBlock = false"
+        @click="modalBlock = false; userClick = undefined"
         type="button"
         class="mod-btn mod-btn-yellow"
       >
@@ -329,7 +332,7 @@ const addAdmin = () => {
 
   <ModalChat
     v-if="modalFriend == true"
-    @close="modalFriend = false"
+    @close="modalFriend = false; userClick = undefined"
   >
     <template v-slot:header>
       <h2 style="padding-top: 10px">
@@ -348,7 +351,7 @@ const addAdmin = () => {
         } else {
           socketChat?.emit('addUserFriend', userClick, {addFriends: [{id: userClick?.id}]}, loggedUser?.id)
         }
-        modalFriend = false;
+        modalFriend = false; userClick = undefined
         "
         type="button"
         class="mod-btn mod-btn-blue"
@@ -356,7 +359,7 @@ const addAdmin = () => {
         Yes
       </button>
       <button
-        @click="modalFriend = false"
+        @click="modalFriend = false; userClick = undefined"
         type="button"
         class="mod-btn mod-btn-yellow"
       >
@@ -367,7 +370,7 @@ const addAdmin = () => {
 
   <ModalChat
     v-if="modalAdmin == true"
-    @close="modalAdmin = false"
+    @close="modalAdmin = false; userClick = undefined"
   >
     <template v-slot:header>
       <h2 style="padding-top: 10px">
@@ -394,7 +397,7 @@ const addAdmin = () => {
         Yes
       </button>
       <button
-        @click="modalAdmin = false"
+        @click="modalAdmin = false; userClick = undefined"
         type="button"
         class="mod-btn mod-btn-yellow"
       >
@@ -406,7 +409,7 @@ const addAdmin = () => {
   <ModalChat
     v-if="modalBan == true"
     @close="
-      modalBan = false;
+      modalBan = false; userClick = undefined
     "
   >
     <template v-slot:header>
@@ -451,7 +454,7 @@ const addAdmin = () => {
     <template v-slot:footer>
       <button
         @click="
-          modalBan = false;
+          modalBan = false; userClick = undefined;
         "
         type="button"
         class="mod-btn mod-btn-yellow"
@@ -464,7 +467,7 @@ const addAdmin = () => {
   <ModalChat
     v-if="modalMute == true"
     @close="
-      modalMute = false;
+      modalMute = false; userClick = undefined
     "
   >
     <template v-slot:header>
@@ -509,7 +512,7 @@ const addAdmin = () => {
     <template v-slot:footer>
       <button
         @click="
-          modalMute = false;
+          modalMute = false; userClick = undefined
         "
         type="button"
         class="mod-btn mod-btn-yellow"

@@ -9,7 +9,7 @@ export default {
   },
   data() {
     return {
-      revelePlay: false,
+      revelePlay: true,
       paddleSize: {},
       ballSpeed: {},
     };
@@ -17,7 +17,7 @@ export default {
   created() {},
   methods: {
     toggleModaleSettings: function () {
-      if (this.revelePlay == false) this.revelePlay = !this.revelePlay;
+      if (this.revelePlay == true) this.revelePlay = !this.revelePlay;
       return;
     },
     updatePaddleSize: function (variable) {
@@ -33,7 +33,7 @@ export default {
 </script>
 
 <template>
-  <section class="game">
+  <!-- <section class="game">
     <h2>Game</h2>
     <section class="pong-game">
       <modalesettings
@@ -49,7 +49,32 @@ export default {
         v-bind:ballSpeed="3"
       />
     </section>
-  </section>
+  </section> -->
+
+  <div class="container-fluid">
+    <div class="game">
+      <pong
+        v-bind:revelePlay="revelePlay"
+        v-bind:paddleSize="2"
+        v-bind:ballSpeed="3"
+      />
+    </div>
+  </div>
+  <modalesettings v-if="revelePlay"
+    v-bind:revelePlay="revelePlay"
+    v-bind:toggleModaleSettings="toggleModaleSettings"
+    @paddleSizeChange="updatePaddleSize"
+    @ballSpeedChange="updateBallSpeed"
+  />
 </template>
 
-<style></style>
+<style>
+.game {
+  padding: 1% !important;
+  padding-top: 5% !important;
+  padding-bottom: 5% !important;
+  --bs-gutter-x: 1.5rem;
+  --bs-gutter-y: 0;
+  flex-wrap: wrap;
+}
+</style>

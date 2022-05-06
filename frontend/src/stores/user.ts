@@ -18,6 +18,7 @@ export const useUserStore = defineStore("user", () => {
   const usersBlocked = ref<User[]>([]);
   const usersFriends = ref<User[]>([]);
   const isTwoFactorAuth = ref<boolean>(false);
+  const userClick = ref<User>();
 
   const createUser = (newUser: User) => {
     users.value.push(newUser);
@@ -74,6 +75,7 @@ export const useUserStore = defineStore("user", () => {
     usersFriends,
     gameSocket,
     isTwoFactorAuth,
+    userClick,
     createUser,
     deleteUser,
     updateUser,
