@@ -47,7 +47,6 @@ const routes = [
   {
     path: '/login',
     name: 'Login',
-    beforeEnter: loginGuard,
     component: Login
   },
   {
@@ -64,7 +63,8 @@ const routes = [
   {
     path: '/setting',
     name: 'Setting',
-    component: Setting
+    component: Setting,
+    beforeEnter: routeGuard
   },
   {
     path: '/twofactorauth',
@@ -74,7 +74,8 @@ const routes = [
   {
     path: '/history',
     name: 'History',
-    component: MatchHistory
+    component: MatchHistory,
+    beforeEnter: routeGuard
   },
   {
     path: '/:pathMatch(.*)*',
@@ -88,35 +89,25 @@ const router = createRouter({
   routes
 });
 
-function loginGuard(to: any, from: any, next: any) {
-  Get('/auth/jwt-status').then(res => {
-    if (res.status === 401) {
+async function routeGuard(to: any, from: any, next: any) {
+  const userStore = useUserStore();
+  const { isAuthenticated, loggedUser } = storeToRefs(userStore);
+
+  let response;
+  try {
+    response = await Get('/auth/jwt-status');
+    if (response.status != 401) {
+      if (to.name === 'Login') {
+        next('/');
+      }
+      isAuthenticated.value = true;
+      loggedUser.value = response.data;
       next(); // allow to enter route
     }
-    next('/');
-  });
-}
-
-function routeGuard(to: any, from: any, next: any) {
-  const userStore = useUserStore();
-  const { isAuthenticated } = userStore;
-  if (isAuthenticated) {
-    next(); // allow to enter route
-  } else {
-    Get('/auth/jwt-status')
-      .then(res => {
-        if (res.status != 401) {
-          const userStore = useUserStore();
-          const { isAuthenticated } = storeToRefs(userStore);
-          isAuthenticated.value = true;
-          next(); // allow to enter route
-        }
-        next('/login'); // go to '/login';
-      })
-      .catch(err => {
-        next('/login'); // go to '/login';
-      });
+  } catch (error: any) {
+    next('/login'); // go to '/login';
   }
+  next('/login'); // go to '/login';
 }
 
 export default router;
