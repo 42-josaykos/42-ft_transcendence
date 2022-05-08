@@ -1,11 +1,11 @@
-<!-- <script>
+<script>
 import PowerUps from "./PowerUps.vue";
 export default {
   name: "ModaleSettings",
   components: {
     powerups: PowerUps,
   },
-  props: ["revelePlay", "toggleModaleSettings", "launch"],
+  props: ["toggleModaleSettings", "launch"],
   emit: ["close"],
   created() {
     this.$emit("paddleSizeChange", this.paddleSize);
@@ -23,62 +23,11 @@ export default {
       this.$emit("ballSpeedChange", this.ballSpeed);
       return;
     },
+    close: function () {
+      this.$emit("close");
+    }
   },
 };
-</script> -->
-
-<script setup lang="ts">
-import PowerUps from "./PowerUps.vue";
-import { onBeforeMount} from "vue";
-import { storeToRefs, mapState } from 'pinia';
-import { useUserStore } from "@/stores/user";
-
-const userStore = useUserStore();
-const { userClick } = storeToRefs(userStore);
-
-	defineProps < {
-		revelePlay: any;
-  	launch: any;
-	} > ();
-
-const emit = defineEmits(['close', 'test1', 'test2']);
-
-const close = () => {
-    emit('close');
-}
-
-// // const test1 = () => {
-// //     emit("paddleSizeChange", paddleSize);
-// // }
-
-// // const test2 = () => {
-// //     emit("ballSpeedChange", ballSpeed);
-// }
-  // props: ["revelePlay", "toggleModaleSettings", "launch"],
-  // emit: ["close"],
-  // onBeforeMount(() => {
-  //   test1();
-  //   test2();
-  // }) 
-    // $emit("paddleSizeChange", paddleSize);
-    // $emit("ballSpeedChange", ballSpeed);
-    // return;
-
-  
-
-  const updatePaddleSize = (variable) => {
-      paddleSize = variable;
-      test1()
-      return;
-    }
-
-  const updateBallSpeed = (variable) => {
-      ballSpeed = variable;
-      test2()
-      return;
-    }
-
-
 </script>
 
 <template>
@@ -86,7 +35,7 @@ const close = () => {
     <div class="overlay"></div>
     <div class="modale card">
        <div
-        @click="close(); userClick = undefined; "
+        @click="close()"
         type="button"
         class="btn-close-modale btn"
       >
@@ -103,6 +52,7 @@ const close = () => {
         @click=""
         type="button"
         class="mod-btn mod-btn-blue"
+        style="width: 75%; margin: auto;"
       >
         START
       </button>

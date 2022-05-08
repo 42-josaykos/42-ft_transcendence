@@ -149,7 +149,7 @@ const addAdmin = () => {
         <span class="horizontal-line-center"></span>
       </span>
       <span v-for="user in usersMembers" :key="user.id">
-        <div v-if="isOnline(user) && !channelStore.isBan(channel, user.id)" class="list-group">
+        <div v-if="isOnline(user) && !channelStore.isBan(channel, user.id)" class="list-group d-grid">
           <UserCard
             :user="user"
             @open="
@@ -165,7 +165,7 @@ const addAdmin = () => {
         <span class="horizontal-line-center"></span>
       </span>
       <span v-for="user in usersMembers" :key="user.id">
-        <div v-if="!isOnline(user) && !channelStore.isBan(channel, user.id)" class="list-group">
+        <div v-if="!isOnline(user) && !channelStore.isBan(channel, user.id)" class="list-group d-grid">
           <UserCard
             :user="user"
             @open="
@@ -181,7 +181,7 @@ const addAdmin = () => {
         <span class="horizontal-line-center"></span>
       </span>
       <span v-for="user in usersMembers" :key="user.id">
-        <div v-if="channelStore.isBan(channel, user.id)" class="list-group">
+        <div v-if="channelStore.isBan(channel, user.id)" class="list-group d-grid">
           <UserCard
             :user="user"
             @open="

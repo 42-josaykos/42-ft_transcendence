@@ -65,6 +65,10 @@ export const useUserStore = defineStore("user", () => {
     usersFriends.value.splice(index, 1);
   };
 
+  const initUserClick = () => {
+    userClick.value = undefined
+  }
+
   return {
     users,
     loggedUser,
@@ -84,6 +88,7 @@ export const useUserStore = defineStore("user", () => {
     removeUserBlocked,
     isFriend,
     addUserFriend,
-    removeUserFriend
+    removeUserFriend,
+    initUserClick
   };
 });

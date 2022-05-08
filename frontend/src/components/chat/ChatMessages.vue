@@ -104,8 +104,8 @@ const timerMute = computed(() => {
                     v-bind:src="item.author.avatar"
                     alt="Avatar"
                     class="rounded-circle mr-1"
-                    width="40"
-                    height="40"
+                    width="50"
+                    height="50"
                   />
                 </div>
                 <div class="flex-shrink-1 rounded ml-3 text-msg-left">
@@ -129,8 +129,8 @@ const timerMute = computed(() => {
                     v-bind:src="item.author.avatar"
                     alt="Avatar"
                     class="rounded-circle mr-1"
-                    width="40"
-                    height="40"
+                    width="50"
+                    height="50"
                   />
                 </div>
                 <div class="flex-shrink-1 rounded mr-3 text-msg-right">

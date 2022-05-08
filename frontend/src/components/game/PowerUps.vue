@@ -1,54 +1,3 @@
-<!-- <script>
-let id = 0;
-import Feature from "./Feature.vue";
-import { storeToRefs, mapState } from 'pinia';
-import { useUserStore } from "@/stores/user";
-export default {
-
-  name: "PowerUps",
-  components: {
-    feature: Feature,
-  },
-  data() {
-    return {
-      paddleSize: {},
-      ballSpeed: {},
-      features: [
-        {
-          id: id++,
-          featureName: "Paddle size",
-          min: 1,
-          max: 3,
-          updateFunc: this.updatePaddleSize,
-        },
-        {
-          id: id++,
-          featureName: "Ball speed",
-          min: 1,
-          max: 5,
-          updateFunc: this.updateBallSpeed,
-        },
-      ],
-    };
-  },
-  computed: {
-    ...mapState(useUserStore, ["loggedUser", "userClick"]),
-  },
-  methods: {
-    updatePaddleSize: function (variable) {
-      this.paddleSize = variable;
-      this.$emit("paddleSizeChange", this.paddleSize);
-      return;
-    },
-    updateBallSpeed: function (variable) {
-      this.ballSpeed = variable;
-      this.$emit("ballSpeedChange", this.ballSpeed);
-      return;
-    },
-  },
-};
-</script> -->
-
 <script>
 let id = 0;
 import Feature from "./Feature.vue";
@@ -62,7 +11,6 @@ export default {
   },
   data() {
     return {
-      //	paddleSize and ballSpeed are only declared as they depend on the value emitted by the component 'Feature'.
       paddleSize: {},
       ballSpeed: {},
       features: [

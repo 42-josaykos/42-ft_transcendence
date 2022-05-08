@@ -1,4 +1,4 @@
-<!-- <script>
+<script>
 export default {
   name: "Feature",
   data() {
@@ -58,55 +58,6 @@ export default {
     },
   },
 };
-</script> -->
-
-<script>
-
-      const level = {}
-      const min = {}
-      const max = {}
-
-  defineProps < {
-		name: string;
-  	levelMin: Number;
-    levelMax: Number;
-    startLevel: any;
-	} > ();
-
-
-  const getLevel = computed(() => {
-    level = startLevel;
-      return level;
-  })
-
-
-  created() {
-    this.$emit("levelChange", this.startLevel); 
-    return;
-  },
-
-  mounted() {
-    let l = this.getLevel;
-  },
-
-
-    const isMin = () =>  {
-      return this.level == this.levelMin ? true : false;
-    }
-    const isMax = () => {
-      return this.level == this.levelMax ? true : false;
-    }
-    const levelUp =() =>  {
-      if (this.level < this.levelMax) this.level++;
-      this.$emit("levelChange", this.level);
-      return;
-    }
-    const levelDown = () =>  {
-      if (this.level > this.levelMin) this.level--;
-      this.$emit("levelChange", this.level);
-      return;
-    }
-
 </script>
 
 <template>
