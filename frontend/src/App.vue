@@ -100,7 +100,7 @@ export const isMeteor = ref(false);
 
 .full-height {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
   min-height: 100vh;
 }
