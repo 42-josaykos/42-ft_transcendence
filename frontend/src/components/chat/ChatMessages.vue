@@ -106,6 +106,7 @@ const timerMute = computed(() => {
                     class="rounded-circle mr-1"
                     width="50"
                     height="50"
+                    style="object-fit: cover;"
                   />
                 </div>
                 <div class="flex-shrink-1 rounded ml-3 text-msg-left">
@@ -131,6 +132,7 @@ const timerMute = computed(() => {
                     class="rounded-circle mr-1"
                     width="50"
                     height="50"
+                    style="object-fit: cover;"
                   />
                 </div>
                 <div class="flex-shrink-1 rounded mr-3 text-msg-right">
