@@ -27,7 +27,6 @@ function register() {
           password: password1.value
         }).then(res => {
           if (res.status == 201) {
-            console.log(res.data);
             isAuthenticated.value = true;
             loggedUser.value = res.data;
             router.push('/');
@@ -36,7 +35,7 @@ function register() {
       }
     });
   } else {
-    console.log("Password doesn't matched");
+    alert("Password doesn't matched");
   }
 }
 </script>

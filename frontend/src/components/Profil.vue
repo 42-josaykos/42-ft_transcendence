@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { setting_open } from './Modale.vue';
+// import { setting_open } from './Modale.vue';
 import { useUserStore } from '@/stores/user';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
@@ -8,7 +8,7 @@ import Stats from './profile/Stats.vue';
 import Match_History from './profile/MatchHistory.vue';
 
 const userStore = useUserStore();
-const { loggedUser } = storeToRefs(userStore);
+const { loggedUser, setting_open } = storeToRefs(userStore);
 
 const stat_open = ref(true);
 const mh_open = ref(false);
@@ -23,10 +23,10 @@ const set_open = ref(false);
 	</div>
 	<div class="container-fluid">
 		<div class="row">
-			<div class="col-md-4">
+			<div class="col-md-4 me-2">
 				<div class="sticky-md-top" style="top: 17%">
 					<!-- Avatar -->
-					<img class="circular--square icon_navbar" style="width: auto; max-width: 150px;" v-bind:src=loggedUser?.avatar alt="Avatar" />
+					<img class="circular--square icon_navbar" style="width: 120px; height: 120px; object-fit: cover;" v-bind:src=loggedUser?.avatar alt="Avatar" />
 					<!-- UserName -->
 					<div class="userName neon-typo"><b>{{ loggedUser?.username }}</b></div>
 					<!-- Logout Button -->
@@ -36,7 +36,7 @@ const set_open = ref(false);
 				</div>
 			</div>
 			<hr class="d-md-none">
-			<div class="col-md-8 p-0">
+			<div class="col-md-7 p-0">
 				<div class="container p-0">
 					<div class="row">
 						<div class="col-sm-4 d-flex justify-content-center my-2">

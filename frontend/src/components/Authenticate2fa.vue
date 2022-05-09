@@ -15,9 +15,7 @@ function submitTwoFactorAuthCode(e: any) {
   }
   Post('/auth/authenticate-2fa', { twoFactorAuthenticationCode: code.value })
     .then(res => {
-      console.log(res);
       if (res.status === 201) {
-        console.log(res.data);
         isAuthenticated.value = true;
         loggedUser.value = res.data;
         router.push('/');

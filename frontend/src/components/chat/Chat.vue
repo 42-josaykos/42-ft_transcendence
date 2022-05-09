@@ -78,7 +78,7 @@ if (socketChat.value != undefined){
 
 <template>
   <div class="container-fluid">
-    <div class="row-chat padding-chat">
+    <div class="row-chat">
       <div class="col-md-3 col-chat">
         <div class="scrollspy-example my-5 px-2 py-2" style="min-height: 80vh">
           <ChatMenu />

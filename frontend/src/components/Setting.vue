@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { isMeteor } from '../App.vue';
-import { setting_open } from './Modale.vue';
+// import { setting_open } from './Modale.vue';
 import Toggle from '@vueform/toggle';
 import { useUserStore } from '@/stores/user';
 import { storeToRefs } from 'pinia';
@@ -55,7 +55,6 @@ function validateCode() {
   Post('/auth/turn-2fa-on', {
     twoFactorAuthenticationCode: twoFactorInput.value
   }).then(res => {
-    console.log(res);
     if (res.status === 201) {
       if (
         !isTwoFactorAuth.value &&
@@ -88,7 +87,6 @@ function toggleTwoFactorAuthentication() {
     generate2FA();
   } else {
     isTwoFactorAuth.value = true;
-    console.log('2FA is false');
     turnOffForm.value = true;
   }
 }

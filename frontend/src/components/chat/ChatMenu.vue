@@ -106,7 +106,6 @@ const joinChannel = () => {
 const acceptInviteChannel = () => {
   if (loggedUser.value != undefined) {
     if (socketChat.value != undefined) {
-      console.log(`Accept invitation => ${channelJoin.value?.name}`);
       const updateChannel = {
         removeInvites: [{ id: loggedUser.value?.id }],
         addMembers: [{ id: loggedUser.value?.id }],
@@ -132,7 +131,6 @@ const acceptInviteChannel = () => {
 // Refuser une invitation à rejoindre un channel
 const refuseInviteChannel = () => {
   if (socketChat.value != undefined) {
-    console.log(`Refuse invitation => ${channelJoin.value?.name}`);
     if (channelJoin.value != undefined) {
       socketChat.value.emit(
         "updateMember",

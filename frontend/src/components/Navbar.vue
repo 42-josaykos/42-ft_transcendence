@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import Modale, { setting_open, login_open } from './Modale.vue';
+import Modale from './Modale.vue';
+import { storeToRefs } from 'pinia';
+import { useUserStore } from '@/stores/user';
+
+const { setting_open } = storeToRefs(useUserStore());
 
 defineProps<{
   isAuthenticated: boolean;
@@ -7,14 +11,9 @@ defineProps<{
 }>();
 </script>
 
-<script lang="ts"></script>
-
-<style>
-/* @import url('../assets/sidebarStyles.css'); */
-</style>
 
 <template>
-  <div v-if="isAuthenticated" class="dropdown navbar_concat">
+  <!-- <div v-if="isAuthenticated" class="dropdown navbar_concat">
     <button
       class="btn_navbar"
       type="button"
@@ -105,14 +104,6 @@ defineProps<{
         </router-link>
       </li>
       <li>
-        <!-- <div v-if="!isAuthenticated" @click="login_open = !login_open">
-					<div class="container-fluid">
-						<div class="row">
-							<div class="col-5"><i class="fa-solid fa-door-open fa-2x p-2 icon_navbar"></i></div>
-							<div class="col-5 pt-3 text-center"><span class="text_navbar"><b><b>Login</b></b></span></div>
-						</div>
-					</div>
-				</div> -->
         <div v-if="isAuthenticated" @click="setting_open = !setting_open">
           <div class="container-fluid">
             <div class="row">
@@ -135,7 +126,58 @@ defineProps<{
       </li>
     </ul>
   </div>
+  <Modale :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" /> -->
+
+
+  <div class="container pt-2">
+
+		<!-- <div class="row pb-4" style="justify-content: center;">
+      <router-link to="/" class="col-sm-4 d-flex justify-content-center my-2" style="text-decoration: none; color: inherit">
+				<button @click="" class="btn-block set-btn set-btn-nav selector"> Home </button>
+      </router-link>
+
+      <router-link to="/chat" class="col-sm-4 d-flex justify-content-center my-2" style="text-decoration: none; color: inherit">
+				<button @click="" class="btn-block set-btn set-btn-nav selector"> Chat </button>
+      </router-link>
+
+      <router-link to="/game" class="col-sm-4 d-flex justify-content-center my-2" style="text-decoration: none; color: inherit">
+				<button @click="" class="btn-block set-btn set-btn-nav selector"> Game </button>
+      </router-link>
+		</div> -->
+
+		<div v-if="loggedUser" class="row d-flex pb-4" style="align-items: center;">
+
+    <div class="col-sm-3 d-flex container" style="width: auto;">
+      <div class="cercle-user-card">
+        <img v-bind:src=loggedUser.avatar alt="Avatar" class="card-img" style="width: 150px; height: 150px;">
+      </div>
+      <div class="infos"  style="margin-left: 15px;">
+        <div class="info" >
+          <h3>{{loggedUser.username}}</h3>
+          <button @click="setting_open = !setting_open" class="btn-block set-btn set-btn-nav selector" style="font-size: x-large;"> Profile </button>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-9 d-flex container" style="width: auto; justify-content: center;">
+
+      <router-link to="/" class="col-sm-3 d-flex justify-content-center my-2 mx-2" style="text-decoration: none; color: inherit">
+				<button @click="" class="btn-block set-btn set-btn-nav selector" style="margin-top: 45px; width: 200px; margin-right: auto; margin-left: auto;font-size: x-large;"> Home </button>
+      </router-link>
+
+      <router-link to="/game" class="col-sm-3 d-flex justify-content-center my-2 mx-2" style="text-decoration: none; color: inherit">
+				<button @click="" class="btn-block set-btn set-btn-nav selector" style="margin-top: 45px; width: 200px; margin-right: auto; margin-left: auto;font-size: x-large;"> Play </button>
+      </router-link>
+
+      <router-link to="/chat" class="col-sm-3 d-flex justify-content-center my-2 mx-2" style="text-decoration: none; color: inherit">
+				<button @click="" class="btn-block set-btn set-btn-nav selector" style="margin-top: 45px; width: 200px; margin-right: auto; margin-left: auto;font-size: x-large;"> Chat </button>
+      </router-link>
+
+</div>
+    </div>
+
+  </div>
   <Modale :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
+
 </template>
 
 <style scoped>
@@ -187,7 +229,7 @@ li .row:hover .icon_navbar {
 
 .dropdown-menu {
   background: radial-gradient(ellipse at top, #1b2735 0%, #080e21 95%);
-  box-shadow: 0px 0px 10px 2px #fff961, inset 0px 0px 4px 2px #fff961;
+  box-shadow: 0px 0px 10px 2px white, inset 0px 0px 4px 2px white;
   border: none;
   border-radius: 20px;
   overflow-y: auto;
@@ -201,5 +243,16 @@ li .row:hover .icon_navbar {
 
 .navbar_concat ul li {
   cursor: pointer;
+}
+
+.set-btn-nav {
+  background-color: white;
+  color: #66645f;
+  box-shadow: 0px 0px 10px 2px white;
+  font-weight: bold;
+  text-decoration: none;
+}
+.set-btn-nav:hover {
+  box-shadow: 0px 0px 10px white, 0px 0px 15px 5px white;
 }
 </style>
