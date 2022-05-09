@@ -185,11 +185,11 @@ if (socketChat.value != undefined){
   width: -webkit-fill-available;
   justify-content: center;
   text-decoration: none;
-  border: #fff961 3px solid;
+  border: white 3px solid;
   background-color: transparent;
   border-radius: 0.25em;
   text-shadow: 0 0 0.125em hsl(0 0% 100% / 0.3), 0 0 0.45em currentColor;
-  box-shadow: inset 0 0 0.5em 0 #fff961, 0 0 0.5em 0 #fff961;
+  box-shadow: inset 0 0 0.5em 0 white, 0 0 0.5em 0 white;
   transition: all 0.5s;
   border-radius: 50px !important;
 }
@@ -231,14 +231,14 @@ if (socketChat.value != undefined){
 }
 
 .horizontal-line-bottom {
-  border-bottom: #fff961 1.5px solid;
+  border-bottom: white 1.5px solid;
   display: block;
   height: 60px;
   text-shadow: 0 0 0.125em hsl(0 0% 100% / 0.3), 0 0 0.45em currentColor;
 }
 
 .horizontal-line-top {
-  border-top: #fff961 1.5px solid;
+  border-top: white 1.5px solid;
   display: block;
   max-height: 100px;
   text-shadow: 0 0 0.125em hsl(0 0% 100% / 0.3), 0 0 0.45em currentColor;
@@ -254,7 +254,7 @@ if (socketChat.value != undefined){
 
 .horizontal-line-center {
   margin: auto;
-  border-top: #fff961 1.5px solid;
+  border-top: white 1.5px solid;
   display: block;
   text-shadow: 0 0 0.125em hsl(0 0% 100% / 0.3), 0 0 0.45em currentColor;
   background: rgba(0, 0, 0, 0.15);
