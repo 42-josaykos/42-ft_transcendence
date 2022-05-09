@@ -18,8 +18,6 @@ async function getMatchHistory() {
     response = await Get(`/users/${loggedUser.value?.id}/matches/played`);
     if (response.status === 200) {
       matches.value = response.data.reverse();
-      console.log(matches.value);
-
       getStats();
     }
   } catch (error: any) {}

@@ -1,23 +1,25 @@
-import { createWebHistory, createRouter } from "vue-router";
-import Home from "@/components/Home.vue";
-import Game from "@/components/game/Game.vue";
-import Matchmaking from "@/components/game/Matchmaking.vue";
-import Debug from "@/components/debug/Debug.vue";
-import PageNotFound from "@/components/PageNotFound.vue";
-import Login from "@/components/Login.vue";
-import Chat from "@/components/chat/Chat.vue";
-import Setting from "@/components/Setting.vue";
-import Register from "@/components/Register.vue";
-import { useUserStore } from "@/stores/user";
-import { Get } from "@/services/requests";
-import { storeToRefs } from "pinia";
-import Authenticate2fa from "@/components/Authenticate2fa.vue";
+import { createWebHistory, createRouter } from 'vue-router';
+import Home from '@/components/Home.vue';
+import Game from '@/components/game/Game.vue';
+import Matchmaking from '@/components/game/Matchmaking.vue';
+import Debug from '@/components/debug/Debug.vue';
+import PageNotFound from '@/components/PageNotFound.vue';
+import Login from '@/components/Login.vue';
+import Chat from '@/components/chat/Chat.vue';
+import Setting from '@/components/Setting.vue';
+import Register from '@/components/Register.vue';
+import Toto from '@/components/Toto.vue';
+import { useUserStore } from '@/stores/user';
+import { Get } from '@/services/requests';
+import { storeToRefs } from 'pinia';
+import Authenticate2fa from '@/components/Authenticate2fa.vue';
 import MatchHistory from '@/components/profile/MatchHistory.vue';
 
 const routes = [
   {
     path: '/',
     name: 'Home',
+    beforeEnter: routeGuard,
     component: Home
   },
   {
@@ -31,6 +33,11 @@ const routes = [
     name: 'Matchmaking',
     beforeEnter: routeGuard,
     component: Matchmaking
+  },
+  {
+    path: '/toto',
+    name: 'Toto',
+    component: Toto
   },
   {
     path: '/debug',
@@ -56,7 +63,8 @@ const routes = [
   {
     path: '/setting',
     name: 'Setting',
-    component: Setting
+    component: Setting,
+    beforeEnter: routeGuard
   },
   {
     path: '/twofactorauth',
@@ -65,8 +73,9 @@ const routes = [
   },
   {
     path: '/history',
-    name: 'Historu',
-    component: MatchHistory
+    name: 'History',
+    component: MatchHistory,
+    beforeEnter: routeGuard
   },
   {
     path: '/:pathMatch(.*)*',
@@ -80,26 +89,25 @@ const router = createRouter({
   routes
 });
 
-function routeGuard(to: any, from: any, next: any) {
+async function routeGuard(to: any, from: any, next: any) {
   const userStore = useUserStore();
-  const { isAuthenticated } = userStore;
-  if (isAuthenticated) {
-    next(); // allow to enter route
-  } else {
-    Get('/auth/jwt-status')
-      .then(res => {
-        if (res.status != 401) {
-          const userStore = useUserStore();
-          const { isAuthenticated } = storeToRefs(userStore);
-          isAuthenticated.value = true;
-          next(); // allow to enter route
-        }
-        next('/login'); // go to '/login';
-      })
-      .catch(err => {
-        next('/login'); // go to '/login';
-      });
+  const { isAuthenticated, loggedUser } = storeToRefs(userStore);
+
+  let response;
+  try {
+    response = await Get('/auth/jwt-status');
+    if (response.status != 401) {
+      if (to.name === 'Login') {
+        next('/');
+      }
+      isAuthenticated.value = true;
+      loggedUser.value = response.data;
+      next(); // allow to enter route
+    }
+  } catch (error: any) {
+    next('/login'); // go to '/login';
   }
+  next('/login'); // go to '/login';
 }
 
 export default router;

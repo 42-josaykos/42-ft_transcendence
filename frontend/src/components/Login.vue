@@ -12,85 +12,110 @@ const router = useRouter();
 
 const username = ref('');
 const password = ref('');
+const loader = ref(false);
 
 function loginLocal() {
+  loader.value = true;
   Post('/auth/login/local', {
     username: username.value,
     password: password.value
-  }).then(res => {
-    if (res.status == 201) {
-      console.log(res.data);
-      isAuthenticated.value = true;
-      loggedUser.value = res.data;
-      router.push('/');
-    } else if (res.status == 303) {
-      isTwoFactorAuth.value = true;
-      login_open.value = false;
-      router.push('/twofactorauth');
-    }
-  });
+  })
+    .then(res => {
+      if (res.status == 201) {
+        console.log(res.data);
+        isAuthenticated.value = true;
+        loggedUser.value = res.data;
+        router.push('/');
+      } else if (res.status == 303) {
+        isTwoFactorAuth.value = true;
+        login_open.value = false;
+        router.push('/twofactorauth');
+      }
+      loader.value = false;
+    })
+    .catch((error: any) => {});
 }
 </script>
 
 <template>
-  <h2><u>Login to Space Pong</u></h2>
-  <form @submit.prevent.trim.lazy="loginLocal" class="form-signin">
-    <label for="inputUsername" class="sr-only">Username</label>
-    <input
-      type="text"
-      id="inputUsername"
-      class="form-control"
-      placeholder="Username"
-      v-model="username"
-      required
-      autofocus
-    />
-    <label for="inputPassword" class="sr-only">Password</label>
-    <input
-      type="password"
-      id="inputPassword"
-      class="form-control"
-      placeholder="Password"
-      v-model="password"
-      required
-    />
-    <button class="mod-btn mod-btn-yellow" type="submit" style="margin: 20px">
-      Log in
-    </button>
-    <div>Don't have an account ?</div>
-    <div>
-      <a
-        href="#"
-        @click="
-          login_open = false;
-          register_open = true;
-        "
-      >
-        Register
-      </a>
+  <div class="container">
+    <h1 class="neonText display-1">Space Pong</h1>
+    <div v-if="!loader">
+      <form @submit.prevent.trim.lazy="loginLocal" class="form-signin">
+        <label for="inputUsername" class="sr-only">Username</label>
+        <input
+          type="text"
+          id="inputUsername"
+          class="form-control"
+          placeholder="Username"
+          v-model="username"
+          required
+          autofocus
+        />
+        <label for="inputPassword" class="sr-only">Password</label>
+        <input
+          type="password"
+          id="inputPassword"
+          class="form-control"
+          placeholder="Password"
+          v-model="password"
+          required
+        />
+        <button
+          class="mod-btn mod-btn-yellow"
+          type="submit"
+          style="margin: 20px"
+        >
+          Login
+        </button>
+      </form>
+      <div>
+        <button
+          class="mod-btn mod-btn-blue"
+          style="margin: 10px"
+          onclick="window.location.href='/auth/login'"
+        >
+          <img src="../assets/42_Logo.svg" style="color: black; width: 30px" />
+          Student Login</button
+        ><br />
+        <button
+          class="mod-btn mod-btn-cyan"
+          style="margin: 10px"
+          onclick="window.location.href='/auth/login/github'"
+        >
+          <i class="fa-brands fa-github" style="color: black"></i> Github Login
+        </button>
+      </div>
+      <div>Don't have an account ?</div>
+      <div>
+        <a
+          href="#"
+          @click="
+            login_open = false;
+            register_open = true;
+          "
+        >
+          Register
+        </a>
+      </div>
     </div>
-  </form>
-  <div>
-    <button
-      class="mod-btn mod-btn-blue"
-      style="margin: 10px"
-      onclick="window.location.href='/auth/login'"
-    >
-      <img src="../assets/42_Logo.svg" style="color: black; width: 30px" /> Log
-      in with 42</button
-    ><br />
-    <button
-      class="mod-btn mod-btn-cyan"
-      style="margin: 10px"
-      onclick="window.location.href='/auth/login/github'"
-    >
-      <i class="fa-brands fa-github" style="color: black"></i> Log in with
-      Github
-    </button>
+    <div v-else class="loader"></div>
   </div>
 </template>
 
 <style scoped>
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.neonText {
+  color: #fff;
+  text-shadow: 0 0 7px #fff, 0 0 10px #fff, 0 0 21px #fff, 0 0 42px #5271ff,
+    0 0 82px #5271ff, 0 0 92px #5271ff, 0 0 102px #5271ff, 0 0 151px #5271ff;
+}
+
 input {
   text-align: center;
   margin: auto;
@@ -105,5 +130,23 @@ input.form-control:focus {
   outline: none;
   box-shadow: none;
   border: 1px solid #ced4da;
+}
+
+.loader {
+  border: 16px solid #f3f3f3; /* Light grey */
+  border-top: 16px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>
