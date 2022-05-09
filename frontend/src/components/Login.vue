@@ -22,7 +22,6 @@ function loginLocal() {
   })
     .then(res => {
       if (res.status == 201) {
-        console.log(res.data);
         isAuthenticated.value = true;
         loggedUser.value = res.data;
         router.push('/');
@@ -110,11 +109,7 @@ function loginLocal() {
   align-items: center;
   justify-content: center;
 }
-.neonText {
-  color: #fff;
-  text-shadow: 0 0 7px #fff, 0 0 10px #fff, 0 0 21px #fff, 0 0 42px #5271ff,
-    0 0 82px #5271ff, 0 0 92px #5271ff, 0 0 102px #5271ff, 0 0 151px #5271ff;
-}
+
 
 input {
   text-align: center;
