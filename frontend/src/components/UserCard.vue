@@ -29,11 +29,11 @@ const isOnline = computed(() => {
 
 <template>
   <button  @click="open()" type="button" class="btn-user-card">
-    <div class="row no-gutters">
+    <div class="row no-gutters d-flex">
       <div class="col-md-4 cercle-user-card">
         <img v-bind:src=props.user?.avatar alt="Avatar" class="card-img">
       </div>
-      <div class="col-md-8 infos">
+      <div class="col-md-7 infos"  style="margin-left: 15px;">
         <div class="text-truncate">
           <div class="info" >
             {{props.user?.username}}
@@ -69,7 +69,7 @@ const isOnline = computed(() => {
   }
 
   .cercle-user-card{
-    border-radius: 50%;
+    border-radius: 50% !important;
     padding: 5px;
   }
 
@@ -78,6 +78,9 @@ const isOnline = computed(() => {
     border: var(--clr-neon) 3px solid;
     background-color: transparent;
     box-shadow: inset 0 0 0.5em 0 var(--clr-neon), 0 0 0.5em 0 var(--clr-neon);
+    object-fit: cover;
+    width: 60px;
+    height: 60px;
   }
 
   .online,
