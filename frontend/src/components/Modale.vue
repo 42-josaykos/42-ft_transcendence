@@ -45,7 +45,7 @@ export const register_open = ref(false);
     <div class="overlay" @click="setting_open = !setting_open"></div>
     <div
       class="modale card scrollspy-profil"
-      style="min-width: 40vw; max-width: 75%;"
+      style="min-width: 40vw; max-width: 75%; overflow: scroll"
     >
       <Profil @updateUserProfil="getUserData" />
     </div>
@@ -66,7 +66,7 @@ export const register_open = ref(false);
 
 <style>
 @import url('../assets/modal.css');
-.modale.card {
+.modale .card {
   overflow: scroll;
   /* max-height: fit-content; */
 }

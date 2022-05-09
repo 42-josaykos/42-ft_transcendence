@@ -4,6 +4,7 @@ import TeamProfil from './TeamProfil.vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/user';
 import Ladder from './profile/Ladder.vue';
+import Navbar from './Navbar.vue';
 
 const profil_vmoreau = ref(false);
 const profil_mabriand = ref(false);
@@ -12,10 +13,11 @@ const profil_lchapren = ref(false);
 const profil_adupuy = ref(false);
 
 const userStore = useUserStore();
-const { isAuthenticated } = storeToRefs(userStore);
+const { isAuthenticated, loggedUser } = storeToRefs(userStore);
 </script>
 
 <template>
+  <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
   <div class="container-flex" style="position: relative">
     <div id="HomePage" class="full-height">
       <div class="container">

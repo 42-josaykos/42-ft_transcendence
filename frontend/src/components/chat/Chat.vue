@@ -13,9 +13,10 @@ import ChatUsers from "./ChatUsers.vue";
 import ChatMessages from "./ChatMessages.vue";
 import ModalChat from "./ModalChat.vue";
 import UsersFriends from "../UsersFriends.vue";
+import Navbar from "../Navbar.vue";
 
 const userStore = useUserStore();
-const { loggedUser, socketChat, usersBlocked, usersFriends } = storeToRefs(userStore);
+const { isAuthenticated, loggedUser, socketChat, usersBlocked, usersFriends } = storeToRefs(userStore);
 
 const channelStore = useChannelStore();
 const {
@@ -77,6 +78,7 @@ if (socketChat.value != undefined){
 </script>
 
 <template>
+  <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
   <div class="container-fluid">
     <div class="row-chat">
       <div class="col-md-3 col-chat">
