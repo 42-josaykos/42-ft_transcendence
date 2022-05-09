@@ -14,6 +14,8 @@ const stat_open = ref(true);
 const mh_open = ref(false);
 const set_open = ref(false);
 
+const emits = defineEmits(["updateUserProfil"])
+
 </script>
 
 <template>
@@ -58,7 +60,7 @@ const set_open = ref(false);
 					<Match_History />
 				</div>
 				<div v-if="set_open">
-					<Setting />
+					<Setting @updateUserProfil="emits('updateUserProfil')" />
 				</div>
 			</div>
 		</div>

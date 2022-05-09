@@ -94,15 +94,13 @@ async function routeGuard(to: any, from: any, next: any) {
   try {
     response = await Get('/auth/jwt-status');
     if (response.status != 401) {
-      if (to.name === 'Login') {
-        next('/');
-      }
       next(); // allow to enter route
+    } else {
+      next('/login'); // go to '/login';
     }
   } catch (error: any) {
     next('/login'); // go to '/login';
   }
-  next('/login'); // go to '/login';
 }
 
 export default router;
