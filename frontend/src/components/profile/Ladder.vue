@@ -1,4 +1,26 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { Get } from '@/services/requests';
+import { ref } from 'vue';
+
+const players = ref();
+
+async function getPlayersStats() {
+  let response;
+  try {
+    response = await Get('/stats');
+    if (response.status === 200) {
+      players.value = response.data;
+      console.log(players.value);
+    }
+  } catch (error: any) {}
+}
+
+function getLadder() {
+  players.value = players.value.sort();
+}
+
+getPlayersStats();
+</script>
 
 <template>
   <h4>Ladder</h4>
@@ -11,20 +33,10 @@
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <th scope="row">1</th>
-        <td>Mark</td>
-        <td>0</td>
-      </tr>
-      <tr>
-        <th scope="row">2</th>
-        <td>Jacob</td>
-        <td>0</td>
-      </tr>
-      <tr>
-        <th scope="row">3</th>
-        <td>Larry</td>
-        <td>0</td>
+      <tr v-for="(player, index) in players">
+        <th scope="row">{{ index + 1 }}</th>
+        <td>{{ player.user.username }}</td>
+        <td>{{ player.ratio }} %</td>
       </tr>
     </tbody>
   </table>
