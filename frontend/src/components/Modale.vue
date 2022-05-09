@@ -43,7 +43,10 @@ export const register_open = ref(false);
 <template>
   <div class="bloc_modale" v-if="setting_open">
     <div class="overlay" @click="setting_open = !setting_open"></div>
-    <div class="modale card" style="min-width: 40vw; max-height: 60%; max-width: 75%; overflow: scroll;">
+    <div
+      class="modale card"
+      style="min-width: 40vw; max-width: 75%; overflow: auto"
+    >
       <Profil @updateUserProfil="getUserData" />
     </div>
   </div>
@@ -64,7 +67,7 @@ export const register_open = ref(false);
 <style>
 @import url('../assets/modal.css');
 .modale.card {
-  overflow: hidden;
+  overflow: auto;
   max-height: fit-content;
 }
 </style>

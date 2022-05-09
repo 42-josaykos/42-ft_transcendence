@@ -5,7 +5,7 @@ import Toggle from '@vueform/toggle';
 import { useUserStore } from '@/stores/user';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
-import { Patch, Post } from '@/services/requests';
+import { Get, Patch, Post } from '@/services/requests';
 import ax from '@/services/interceptors';
 import type { User } from '@/models/user.model';
 
@@ -147,108 +147,138 @@ async function updateAvatar(event: any) {
     }
   }
 }
+
+async function logoutUser() {
+  Get('/auth/logout').then(res => {
+    loggedUser.value = null;
+    isAuthenticated.value = false;
+  });
+}
 </script>
 
 <template>
-    <div style="text-align: left;"><b><u>Cosmetic Setting:</u></b></div>
-      <!-- Meteor animation option -->
-    <span class="element-set">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-9 p-0 text-md-start" style="font-size:medium">
-            Activate Meteor:
-          </div>
-          <div class="col-md-3">
-            <Toggle
+  <div style="text-align: left">
+    <b><u>Cosmetic Setting:</u></b>
+  </div>
+  <!-- Meteor animation option -->
+  <span class="element-set">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-9 p-0 text-md-start" style="font-size: medium">
+          Activate Meteor:
+        </div>
+        <div class="col-md-3">
+          <Toggle
             v-model="isMeteor"
             on-label="On"
             off-label="Off"
             class="toggle-style"
-            />
-          </div>
-        </div>
-      </div>
-    </span>
-
-    <hr>
-    <div style="text-align: left;"><b><u>Profil Settings:</u></b></div>
-    <form @submit.prevent="updateAvatar">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-9 p-0 text-md-start" style="font-size:medium">
-            Change Avatar:
-          </div>
-          <div class="col-md-3 p-0">
-            <div class="container p-0">
-              <div class="row">
-                <div class="col-6">
-                  <input type="file" accept="image/*" id="file" ref="fileInput" class="input-file" />
-
-                  <label for="file" class="label-file"><i class="fa-solid fa-upload fa-lg"></i></label>
-                </div>
-                <div class="col-6">
-                  <button type="submit" class="submit-btn"><i class="fa-solid fa-circle-check fa-lg"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </form>
-
-    <br>
-
-    <!-- Update username -->
-    <div class="container">
-      <div class="row">
-        <div class="col-md-9 p-0 text-md-start" style="font-size:medium">
-          Change Username:
-        </div>
-        <div class="col-md-3 p-0">
-          <form @submit.prevent.trim.lazy="updateUsername">
-            <div class="container p-0">
-              <div class="row">
-                <div class="col-10 p-0">
-                  <input v-model="usernameInput" name="username" type="text" style="width: 100%;" placeholder="UserName" />
-                </div>
-                <div class="col-2 p-0">
-                  <button type="submit" class="submit-btn"><i class="fa-solid fa-circle-check fa-lg"></i></button>
-                </div>
-              </div>
-            </div>
-            <!-- <label for="username">Username: </label> -->
-          </form>
+          />
         </div>
       </div>
     </div>
+  </span>
 
-    <hr>
-    <div>
-      <div style="text-align: left;"><b><u>Security Settings:</u></b></div>
-      <!-- 2FA option -->
-      <div class="container">
-              <div class="row">
-                <div class="col-md-9 p-0 text-md-start" style="font-size:medium">
-                  Two-Factor Authentication (2FA):
-                </div>
-                <div class="col-md-3 p-0">
-                  <Toggle
-                    @change="toggleTwoFactorAuthentication"
-                    v-model="isTwoFactorAuth"
-                    on-label="On"
-                    off-label="Off"
-                    class="toggle-style"
-                  />
-                </div>
+  <hr />
+  <div style="text-align: left">
+    <b><u>Profil Settings:</u></b>
+  </div>
+  <form @submit.prevent="updateAvatar">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-9 p-0 text-md-start" style="font-size: medium">
+          Change Avatar:
+        </div>
+        <div class="col-md-3 p-0">
+          <div class="container p-0">
+            <div class="row">
+              <div class="col-6">
+                <input
+                  type="file"
+                  accept="image/*"
+                  id="file"
+                  ref="fileInput"
+                  class="input-file"
+                />
+
+                <label for="file" class="label-file"
+                  ><i class="fa-solid fa-upload fa-lg"></i
+                ></label>
+              </div>
+              <div class="col-6">
+                <button type="submit" class="submit-btn">
+                  <i class="fa-solid fa-circle-check fa-lg"></i>
+                </button>
               </div>
             </div>
-      <span class="element-set">
-      </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
 
-      <!-- QR code if toggle 2FA on -->
-      <div v-if="qrcode">
+  <br />
+
+  <!-- Update username -->
+  <div class="container">
+    <div class="row">
+      <div class="col-md-9 p-0 text-md-start" style="font-size: medium">
+        Change Username:
+      </div>
+      <div class="col-md-3 p-0">
+        <form @submit.prevent.trim.lazy="updateUsername">
+          <div class="container p-0">
+            <div class="row">
+              <div class="col-10 p-0">
+                <input
+                  v-model="usernameInput"
+                  name="username"
+                  type="text"
+                  style="width: 100%"
+                  placeholder="UserName"
+                />
+              </div>
+              <div class="col-2 p-0">
+                <button type="submit" class="submit-btn">
+                  <i class="fa-solid fa-circle-check fa-lg"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- <label for="username">Username: </label> -->
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <hr />
+  <div>
+    <div style="text-align: left">
+      <b><u>Security Settings:</u></b>
+    </div>
+    <!-- 2FA option -->
+    <div class="container">
+      <div class="row">
+        <div class="col-md-9 p-0 text-md-start" style="font-size: medium">
+          Two-Factor Authentication (2FA):
+        </div>
+        <div class="col-md-3 p-0">
+          <Toggle
+            @change="toggleTwoFactorAuthentication"
+            v-model="isTwoFactorAuth"
+            on-label="On"
+            off-label="Off"
+            class="toggle-style"
+          />
+        </div>
+      </div>
+    </div>
+    <span class="element-set"> </span>
+
+    <!-- QR code if toggle 2FA on -->
+    <div v-if="qrcode">
       <hr />
-      <div class="text-md-start p-1" style="font-size:medium">
+      <div class="text-md-start p-1" style="font-size: medium">
         Scan QRCode, and validate code to enable 2FA:
       </div>
       <div class="container">
@@ -257,55 +287,74 @@ async function updateAvatar(event: any) {
             <img :src="qrcode" alt="" width="150" />
           </div>
           <div class="col-md-6">
-            <div class="d-none d-md-block"><br></div>
-            <br>
+            <div class="d-none d-md-block"><br /></div>
+            <br />
             Refresh QRCode:
-            <button class="submit-btn" style="font-size: medium" @click="generate2FA"><i class="fa-solid fa-arrows-rotate fa-2xl"></i></button>
+            <button
+              class="submit-btn"
+              style="font-size: medium"
+              @click="generate2FA"
+            >
+              <i class="fa-solid fa-arrows-rotate fa-2xl"></i>
+            </button>
           </div>
         </div>
       </div>
-      <br>
+      <br />
 
       <form @submit.prevent.trim.lazy="validateCode">
         <div class="container p-0">
           <div class="row">
             <div class="col-10 p-0">
-              <input v-model="twoFactorInput" style="width: 100%;" type="text" placeholder="2FA Code"/>
+              <input
+                v-model="twoFactorInput"
+                style="width: 100%"
+                type="text"
+                placeholder="2FA Code"
+              />
             </div>
             <div class="col-2 p-0">
-              <button type="submit" class="submit-btn"><i class="fa-solid fa-circle-check fa-lg"></i></button>
+              <button type="submit" class="submit-btn">
+                <i class="fa-solid fa-circle-check fa-lg"></i>
+              </button>
             </div>
           </div>
         </div>
       </form>
-      </div>
+    </div>
 
-      <!-- 2FA validation if toggle off -->
-      <div v-if="turnOffForm">
+    <!-- 2FA validation if toggle off -->
+    <div v-if="turnOffForm">
       <hr />
       <form @submit.prevent.trim.lazy="validateCode">
         Validate code to disable 2FA:
         <input v-model="twoFactorInput" type="text" />
-        <button type="submit" class="submit-btn"><i class="fa-solid fa-circle-check fa-lg"></i></button>
+        <button type="submit" class="submit-btn">
+          <i class="fa-solid fa-circle-check fa-lg"></i>
+        </button>
       </form>
-      </div>
     </div>
-    <hr class="d-md-none">
-    <button class="mod-btn mod-btn-red d-md-none d-inline-block" onclick="window.location.href='/auth/logout'"> Logout </button>
+  </div>
+  <hr class="d-md-none" />
+  <button
+    class="mod-btn mod-btn-red d-md-none d-inline-block"
+    @click="logoutUser"
+  >
+    Logout
+  </button>
 </template>
 
 <style>
 @import '@vueform/toggle/themes/default.css';
 
-.submit-btn{
+.submit-btn {
   border: none;
   background: rgba(0, 0, 0, 0);
   color: var(--sidebar-icon-color);
   transition: 0.4s;
-
 }
 
-.submit-btn:hover{
+.submit-btn:hover {
   color: #1c4e8b;
   transform: scale(1.2);
 }
@@ -324,8 +373,8 @@ async function updateAvatar(event: any) {
   display: none;
 }
 
-input{
-    text-align: center;
+input {
+  text-align: center;
 }
 
 .neon-typo {
@@ -333,7 +382,7 @@ input{
   text-shadow: 0px 4px 15px #fff961, 0px 0px 10px #fff961;
 }
 
-.userName{
+.userName {
   font-size: x-large;
 }
 
