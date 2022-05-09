@@ -5,9 +5,11 @@ import ModalMessage from "./chat/ModalMessage.vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
 import { useMessageStore } from "@/stores/message";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const userStore = useUserStore();
-const { loggedUser, socketChat, usersFriends } = storeToRefs(userStore);
+const { loggedUser, socketChat, usersFriends, userClick } = storeToRefs(userStore);
 
 const messageStore = useMessageStore();
 const { modalSendMessage } = storeToRefs(messageStore);
@@ -46,7 +48,7 @@ const { modalSendMessage } = storeToRefs(messageStore);
             </button>
             <ModalMessage  v-if="modalSendMessage == true" :userClick="user"/>
             <button
-              @click=""
+              @click="userClick = user; router.push('/game')"
               type="button"
               class="mod-btn-friends mod-btn-yellow btn-sm"
             >

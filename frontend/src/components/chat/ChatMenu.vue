@@ -795,6 +795,7 @@ const isNum = (char: any) => {
         "
         type="submit"
         class="mod-btn mod-btn-blue"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Create
       </button>
@@ -809,6 +810,7 @@ const isNum = (char: any) => {
         "
         type="button"
         class="mod-btn mod-btn-yellow"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Cancel
       </button>
@@ -940,6 +942,7 @@ const isNum = (char: any) => {
         "
         type="submit"
         class="mod-btn mod-btn-blue"
+        style="width: 75%; margin-right: auto; margin-left: auto;"
       >
         Update
       </button>
@@ -954,6 +957,7 @@ const isNum = (char: any) => {
         "
         type="button"
         class="mod-btn mod-btn-yellow"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Cancel
       </button>
@@ -984,6 +988,7 @@ const isNum = (char: any) => {
           "
           type="button"
           class="mod-btn mod-btn-red"
+          style="width: 75%;  margin-right: auto; margin-left: auto;"
         >
           Delete
         </button>
@@ -1036,6 +1041,7 @@ const isNum = (char: any) => {
         "
         type="button"
         class="mod-btn mod-btn-yellow"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Cancel
       </button>
@@ -1060,6 +1066,7 @@ const isNum = (char: any) => {
         "
         type="button"
         class="mod-btn mod-btn-blue"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Yes
       </button>
@@ -1073,6 +1080,7 @@ const isNum = (char: any) => {
         "
         type="button"
         class="mod-btn mod-btn-yellow"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         No
       </button>
@@ -1110,6 +1118,7 @@ const isNum = (char: any) => {
         "
         type="submit"
         class="mod-btn mod-btn-blue"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Join
       </button>
@@ -1117,6 +1126,7 @@ const isNum = (char: any) => {
         @click="modalJoinChannel = false"
         type="button"
         class="mod-btn mod-btn-yellow"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Cancel
       </button>
@@ -1140,6 +1150,7 @@ const isNum = (char: any) => {
         "
         type="button"
         class="mod-btn mod-btn-blue"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Yes
       </button>
@@ -1147,6 +1158,7 @@ const isNum = (char: any) => {
         @click="modalAcceptJoinChannel = false"
         type="button"
         class="mod-btn mod-btn-yellow"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         No
       </button>
@@ -1170,6 +1182,7 @@ const isNum = (char: any) => {
         "
         type="button"
         class="mod-btn mod-btn-blue"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Yes
       </button>
@@ -1177,6 +1190,7 @@ const isNum = (char: any) => {
         @click="modalRefuseJoinChannel = false"
         type="button"
         class="mod-btn mod-btn-yellow"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         No
       </button>
