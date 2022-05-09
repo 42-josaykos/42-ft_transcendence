@@ -78,7 +78,9 @@ onMounted(() => {
 
 <style scoped>
 .container {
-  width: 75%;
-  justify-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 75%;
 }
 </style>
