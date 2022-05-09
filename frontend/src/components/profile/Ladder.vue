@@ -10,7 +10,6 @@ async function getPlayersStats() {
     response = await Get('/stats');
     if (response.status === 200) {
       players.value = response.data;
-      console.log(players.value);
     }
   } catch (error: any) {}
 }

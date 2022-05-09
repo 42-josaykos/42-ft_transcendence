@@ -20,7 +20,6 @@ export const useMatchStore = defineStore('match', () => {
     const index = matches.value.findIndex(
       (el: Match) => el.id === +input.update_match_id
     );
-    console.log('not updated match:', matches.value[index]);
     if (index == -1) {
       return null;
     }
@@ -37,8 +36,6 @@ export const useMatchStore = defineStore('match', () => {
     if (input.update_s2) {
       updates.score[1] = +input.update_s2;
     }
-    console.log('updated match:', updates);
-
     return updates;
   };
 
