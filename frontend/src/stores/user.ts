@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { ref, computed } from '@vue/reactivity';
 import type { User } from "@/models/user.model";
 import { io, type Socket } from "socket.io-client";
 
@@ -70,6 +70,15 @@ export const useUserStore = defineStore("user", () => {
     userClick.value = undefined
   }
 
+  const isMyProfile = computed(() => {
+    if (loggedUser.value && userClick.value) {
+      if (loggedUser.value.id !== userClick.value.id) {
+        return false
+      }
+    }
+    return true
+  })
+
   return {
     users,
     loggedUser,
@@ -91,6 +100,7 @@ export const useUserStore = defineStore("user", () => {
     isFriend,
     addUserFriend,
     removeUserFriend,
-    initUserClick
+    initUserClick,
+    isMyProfile
   };
 });

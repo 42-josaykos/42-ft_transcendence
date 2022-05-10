@@ -27,7 +27,7 @@ const channelStore = useChannelStore();
     "
   >
     <template v-slot:header>
-      <h2 style="padding-top: 10px">{{ userClick?.username }}</h2>
+      <h2 class="pt-4">{{ userClick?.username }}</h2>
     </template>
 
     <template v-slot:body>

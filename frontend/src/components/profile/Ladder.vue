@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { Get } from '@/services/requests';
+import { useUserStore } from '@/stores/user';
+import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
+
+const userStore = useUserStore();
+const { userClick } = storeToRefs(userStore);
 
 const players = ref();
 
@@ -34,7 +39,7 @@ getPlayersStats();
     <tbody>
       <tr v-for="(player, index) in players">
         <th scope="row">{{ index + 1 }}</th>
-        <td>{{ player.user.username }}</td>
+        <td><button @click="userClick = player.user">{{ player.user.username }}</button></td>
         <td>{{ player.ratio }} %</td>
       </tr>
     </tbody>

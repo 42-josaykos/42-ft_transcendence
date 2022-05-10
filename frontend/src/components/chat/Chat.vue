@@ -77,7 +77,7 @@ if (socketChat.value != undefined){
 </script>
 
 <template>
-  <div class="container-fluid">
+  <div class="container">
     <div class="row-chat">
       <div class="col-md-3 col-chat">
         <div class="scrollspy-example my-5 px-2 py-2" style="min-height: 80vh">
@@ -113,7 +113,7 @@ if (socketChat.value != undefined){
 
    <ModalChat v-if="modalError == true" @close="modalError = false;">
     <template v-slot:header>
-      <h2 style="padding-top: 10px">
+      <h2 class="pt-4">
         <u>ERROR</u>
       </h2>
     </template>
@@ -126,7 +126,7 @@ if (socketChat.value != undefined){
 
   <ModalChat v-if="modalFriends == true" @close="modalFriends = false;">
     <template v-slot:header>
-      <h2 style="padding-top: 10px">
+      <h2 class="pt-4">
         <u>Friends list</u>
       </h2>
     </template>

@@ -684,7 +684,7 @@ const isNum = (char: any) => {
     "
   >
     <template v-slot:header>
-      <h2 style="padding-top: 10px"><u>New channel</u></h2>
+      <h2 class="pt-4"><u>New channel</u></h2>
     </template>
     <template v-slot:body>
       <div class="form-signin pb-3">
@@ -827,7 +827,7 @@ const isNum = (char: any) => {
     "
   >
     <template v-slot:header>
-      <h2 style="padding-top: 10px">
+      <h2 class="pt-4">
         <u>Update channel :</u> {{ channelUpdate?.name }}
       </h2>
     </template>
@@ -970,7 +970,7 @@ const isNum = (char: any) => {
     "
   >
     <template v-slot:header>
-      <h2 style="padding-top: 10px">
+      <h2 class="pt-4">
         <u>Leave channel :</u> {{ channelLeave?.name }}
       </h2>
     </template>
@@ -1054,7 +1054,7 @@ const isNum = (char: any) => {
     "
   >
     <template v-slot:header>
-      <h2 style="padding-top: 10px"><u>Are you sure ?</u></h2>
+      <h2 class="pt-4"><u>Are you sure ?</u></h2>
     </template>
     <template v-slot:footer>
       <button
@@ -1136,7 +1136,7 @@ const isNum = (char: any) => {
     @close="modalAcceptJoinChannel = false"
   >
     <template v-slot:header>
-      <h2 style="padding-top: 10px">
+      <h2 class="pt-4">
         <u>Are you sure you want to accept the invitation to this channel</u>
       </h2>
     </template>
@@ -1168,7 +1168,7 @@ const isNum = (char: any) => {
     @close="modalRefuseJoinChannel = false"
   >
     <template v-slot:header>
-      <h2 style="padding-top: 10px">
+      <h2 class="pt-4">
         <u>Are you sure you want to decline the invitation to this channel</u>
       </h2>
     </template>

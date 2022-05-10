@@ -8,17 +8,19 @@ import Stats from './profile/Stats.vue';
 import Match_History from './profile/MatchHistory.vue';
 
 const userStore = useUserStore();
-const { loggedUser, setting_open } = storeToRefs(userStore);
+const { loggedUser, setting_open, userClick, isMyProfile } = storeToRefs(userStore);
 
 const stat_open = ref(true);
 const mh_open = ref(false);
 const set_open = ref(false);
 
+
+
 </script>
 
 <template>
 	<h2><b><u>Profil</u></b></h2>
-	<div class="btn-close-modale btn" @click="setting_open = false">
+	<div class="btn-close-modale btn me-3 mt-2" @click="setting_open = false; userClick = undefined">
 		<i class="fa-solid fa-xmark fa-2x"></i>
 	</div>
 	<div class="container-fluid">
@@ -26,11 +28,11 @@ const set_open = ref(false);
 			<div class="col-md-4 me-2">
 				<div class="sticky-md-top" style="top: 17%">
 					<!-- Avatar -->
-					<img class="circular--square icon_navbar" style="width: 120px; height: 120px; object-fit: cover;" v-bind:src=loggedUser?.avatar alt="Avatar" />
+					<img class="circular--square icon_navbar" style="width: 120px; height: 120px; object-fit: cover;" v-bind:src=userClick?.avatar alt="Avatar" />
 					<!-- UserName -->
-					<div class="userName neon-typo"><b>{{ loggedUser?.username }}</b></div>
+					<div class="userName neon-typo"><b>{{ userClick?.username }}</b></div>
 					<!-- Logout Button -->
-					<div class="d-flex justify-content-center">
+					<div v-if="isMyProfile" class="d-flex justify-content-center">
 						<button class="mod-btn mod-btn-red d-md-inline-block d-none" onclick="window.location.href='/auth/logout'"> Logout </button>
 					</div>
 				</div>
@@ -45,7 +47,7 @@ const set_open = ref(false);
 						<div class="col-sm-4 d-flex justify-content-center my-2">
 							<button @click="stat_open = false , mh_open = true , set_open = false" class="btn-block set-btn set-btn-yellow selector"> Historical </button>
 						</div>
-						<div class="col-sm-4 d-flex justify-content-center my-2">
+						<div v-if="isMyProfile" class="col-sm-4 d-flex justify-content-center my-2">
 							<button @click="stat_open = false , mh_open = false , set_open = true" class="btn-block set-btn set-btn-yellow selector"> Settings </button>
 						</div>
 					</div>
