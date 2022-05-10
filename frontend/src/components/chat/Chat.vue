@@ -12,7 +12,7 @@ import ChatMenu from "./ChatMenu.vue";
 import ChatUsers from "./ChatUsers.vue";
 import ChatMessages from "./ChatMessages.vue";
 import ModalChat from "./ModalChat.vue";
-import UsersFriends from "../UsersFriends.vue";
+// import UsersFriends from "../UsersFriends.vue";
 
 const userStore = useUserStore();
 const { loggedUser, socketChat, usersBlocked, usersFriends } = storeToRefs(userStore);
@@ -25,11 +25,11 @@ const {
 } = storeToRefs(channelStore);
 
 const modalError = ref<boolean>(false)
-const modalFriends = ref<boolean>(false);
+// const modalFriends = ref<boolean>(false);
 const msgError = ref<string>('')
 
 onBeforeMount(async () => {
-  Get(`/channels/search?&members&invites&bans&mutes`).then((res) => {
+  await Get(`/channels/search?&members&invites&bans&mutes`).then((res) => {
     if (res.status == 200) {
       allChannels.value = res.data;
       if (loggedUser.value != undefined) {
@@ -91,7 +91,7 @@ if (socketChat.value != undefined){
       </div>
 
       <div class="col-md-3 col-chat ms-auto">
-        <div class="horizontal-line-bottom">
+        <!-- <div class="horizontal-line-bottom">
           <div class="wrapper-btn-friends">
             <button
               @click="modalFriends = true
@@ -103,8 +103,8 @@ if (socketChat.value != undefined){
               <i class="fa-solid fa-users fa-2x"></i>
             </button>
           </div>
-        </div>
-        <div class="scrollspy-example mb-5 px-2 py-2" style="min-height: 80vh">
+        </div> -->
+        <div class="scrollspy-example my-5 px-2 py-2" style="min-height: 80vh">
           <ChatUsers />
         </div>
       </div>
@@ -123,7 +123,7 @@ if (socketChat.value != undefined){
       </div>
     </template>
   </ModalChat>
-
+<!-- 
   <ModalChat v-if="modalFriends == true" @close="modalFriends = false;">
     <template v-slot:header>
       <h2 class="pt-4">
@@ -133,7 +133,7 @@ if (socketChat.value != undefined){
     <template v-slot:body>
       <UsersFriends/>
     </template>
-  </ModalChat>
+  </ModalChat> -->
 
 </template>
 

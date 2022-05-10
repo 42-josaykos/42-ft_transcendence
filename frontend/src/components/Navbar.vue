@@ -2,13 +2,35 @@
 import Modale from './Modale.vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/user';
+import ModalChat from "./chat/ModalChat.vue";
+import UsersFriends from "./UsersFriends.vue";
+// import { onBeforeMount, onMounted } from "vue";
+// import { Get } from "@/services/requests";
+// import type { User } from '@/models/user.model';
 
-const { setting_open, userClick } = storeToRefs(useUserStore());
+const { setting_open, userClick, modalFriends, usersFriends/*, loggedUser*/ } = storeToRefs(useUserStore());
 
 defineProps<{
   isAuthenticated: boolean;
   loggedUser: any;
 }>();
+
+  // const props = defineProps({
+  //     loggedUser: Object,
+  //     isAuthenticated: Boolean
+  // })
+
+//  onMounted(async () => {console.log(">>> AAA")
+//   if (props.loggedUser != undefined) {
+//     console.log("logged => ", props.loggedUser)
+//     await Get(`/users/search?id=${props.loggedUser.value?.id}&friends`).then((res) => {
+//       if (res.status == 200) {
+//         usersFriends.value = res.data[0].friends;
+//         console.log("friends => ", usersFriends.value)
+//       }
+//     })
+//   }
+// });
 </script>
 
 
@@ -16,7 +38,7 @@ defineProps<{
   <div class="container pt-2">
 		<div v-if="loggedUser" class="row d-flex pb-4" style="align-items: center; justify-content: space-between;">
 
-      <div class="col-sm-3 d-flex" style="width: auto;">
+      <div class="col-sm-4 d-flex" style="width: auto;">
         <div class="cercle-user-card">
           <img v-bind:src=loggedUser.avatar alt="Avatar" class="card-img" style="width: 150px; height: 150px;">
         </div>
@@ -27,24 +49,38 @@ defineProps<{
           </div>
         </div>
       </div>
-      <div class="col-sm-9 d-flex btn-navbar" style="width: auto; justify-content: space-around;">
+      <div class="col-sm-8 d-flex btn-navbar" style="width: auto; justify-content: space-around;">
 
-        <router-link to="/" class="col-sm-3 d-flex justify-content-center my-2 mx-2" style="text-decoration: none; color: inherit">
-          <button @click="" class="btn-block set-btn set-btn-nav selector" style="margin-top: 45px; width: 240px !important; margin-right: auto; margin-left: auto;font-size: x-large;"> Home </button>
+        <router-link to="/" class="col-sm-2 d-flex justify-content-center my-2 mx-2" style="text-decoration: none; color: inherit">
+          <button @click="" class="btn-block set-btn set-btn-nav selector" style="margin-top: 45px; width: 200px !important; margin-right: auto; margin-left: auto;font-size: x-large;"> Home </button>
         </router-link>
 
-        <router-link to="/game" class="col-sm-3 d-flex justify-content-center my-2 mx-2" style="text-decoration: none; color: inherit">
-          <button @click="" class="btn-block set-btn set-btn-nav selector" style="margin-top: 45px; width: 240px !important; margin-right: auto; margin-left: auto;font-size: x-large;"> Play </button>
+        <router-link to="/game" class="col-sm-2 d-flex justify-content-center my-2 mx-2" style="text-decoration: none; color: inherit">
+          <button @click="" class="btn-block set-btn set-btn-nav selector" style="margin-top: 45px; width: 200px !important; margin-right: auto; margin-left: auto;font-size: x-large;"> Play </button>
         </router-link>
 
-        <router-link to="/chat" class="col-sm-3 d-flex justify-content-center my-2 mx-2" style="text-decoration: none; color: inherit">
-          <button @click="" class="btn-block set-btn set-btn-nav selector" style="margin-top: 45px; width: 240px !important; margin-right: auto; margin-left: auto;font-size: x-large;"> Chat </button>
+        <router-link to="/chat" class="col-sm-2 d-flex justify-content-center my-2 mx-2" style="text-decoration: none; color: inherit">
+          <button @click="" class="btn-block set-btn set-btn-nav selector" style="margin-top: 45px; width: 200px !important; margin-right: auto; margin-left: auto;font-size: x-large;"> Chat </button>
         </router-link>
+
+        <span class="col-sm-2 d-flex justify-content-center my-2 mx-2">
+          <button @click="modalFriends = true" class="btn-block set-btn set-btn-nav set-btn-nav-friends selector " style="margin-top: 45px; width: 200px !important; margin-right: auto; margin-left: auto;font-size: x-large;"> Friends </button>
+        </span>
 
       </div>
     </div>
   </div>
   <Modale :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
+  <ModalChat v-if="modalFriends == true" @close="modalFriends = false;">
+    <template v-slot:header>
+      <h2 class="pt-4">
+        <u>Friends list</u>
+      </h2>
+    </template>
+    <template v-slot:body>
+      <UsersFriends/>
+    </template>
+  </ModalChat>
 
 </template>
 
@@ -71,28 +107,23 @@ li .row:hover {
 
 @media (max-width: 576px) {
   .set-btn-nav {
-    max-width: 130px !important;
+    max-width: 86px !important;
   };
-  /* .btn-navbar {
-    width: 100vw !important;
-  } */
 }
-
+@media (max-width: 576px) {
+  .set-btn-nav-friends {
+    max-width: 95px !important;
+  };
+}
 @media (max-width: 576px) {
   .btn-navbar {
     width: 100vw !important;
   }
 }
-@media (max-width: 1200px) {
+@media (max-width: 1400px) {
   .btn-navbar {
     width: 100vw !important;
   }
 }
-/* 
-@media (min-width: 768px) {
-  .set-btn-nav {
-    width: 200px !important;
-  }
-} */
 
 </style>
