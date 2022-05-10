@@ -74,7 +74,7 @@ function getStats() {
       <div class="col-md-7 p-0">
         <div class="container p-0">
           <div class="row">
-            <div class="col-sm-4 d-flex justify-content-center my-2">
+            <div v-bind:class="{'col-sm-4' : isMyProfile, 'col-sm-6' : !isMyProfile}" class="d-flex justify-content-center my-2">
               <button
                 @click="
                   (stat_open = true), (mh_open = false), (set_open = false)
@@ -84,7 +84,7 @@ function getStats() {
                 Stats
               </button>
             </div>
-            <div class="col-sm-4 d-flex justify-content-center my-2">
+            <div v-bind:class="{'col-sm-4' : isMyProfile, 'col-sm-6' : !isMyProfile}" class="d-flex justify-content-center my-2">
               <button
                 @click="
                   (stat_open = false), (mh_open = true), (set_open = false)
