@@ -79,6 +79,7 @@ function getStats() {
                 @click="
                   (stat_open = true), (mh_open = false), (set_open = false)
                 "
+                v-bind:class="{'selected' : stat_open}"
                 class="btn-block set-btn set-btn-yellow selector"
               >
                 Stats
@@ -89,6 +90,7 @@ function getStats() {
                 @click="
                   (stat_open = false), (mh_open = true), (set_open = false)
                 "
+                v-bind:class="{'selected' : mh_open}"
                 class="btn-block set-btn set-btn-yellow selector"
               >
                 Historical
@@ -102,6 +104,7 @@ function getStats() {
                 @click="
                   (stat_open = false), (mh_open = false), (set_open = true)
                 "
+                v-bind:class="{'selected' : set_open}"
                 class="btn-block set-btn set-btn-yellow selector"
               >
                 Settings
@@ -127,6 +130,11 @@ function getStats() {
 <style>
 @import '@vueform/toggle/themes/default.css';
 
+.selected {
+  background-color: #b7fbfd !important;
+  color: #009ea3 !important;
+  box-shadow: 0px 0px 10px #5dfaff, 0px 0px 15px 5px #5dfaff !important;
+}
 .set-btn {
   position: relative;
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
