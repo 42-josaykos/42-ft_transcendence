@@ -4,7 +4,7 @@ import { useUserStore } from '@/stores/user';
 import { ref } from 'vue';
 import { Post } from '@/services/requests';
 import { useRouter } from 'vue-router';
-import { login_open, register_open} from "./Modale.vue"
+import { login_open, register_open } from './Modale.vue';
 
 const userStore = useUserStore();
 const { isAuthenticated, loggedUser } = storeToRefs(userStore);
@@ -27,7 +27,6 @@ function register() {
           password: password1.value
         }).then(res => {
           if (res.status == 201) {
-            console.log(res.data);
             isAuthenticated.value = true;
             loggedUser.value = res.data;
             router.push('/');
@@ -36,7 +35,7 @@ function register() {
       }
     });
   } else {
-    console.log("Password doesn't matched");
+    alert("Password doesn't matched");
   }
 }
 </script>
@@ -75,27 +74,31 @@ function register() {
           v-model="password2"
           required
         />
-        <button class="mod-btn mod-btn-yellow" type="submit" style="margin: 20px;"> Register and Log in</button> <br>
-        <div>Already registered ?</div>
-        <a href="#" @click="login_open = true; register_open = false">Login</a>
+        <button
+          class="mod-btn mod-btn-yellow"
+          type="submit"
+          style="margin: 20px"
+        >
+          Register and Login
+        </button>
+        <br />
       </form>
     </div>
   </div>
 </template>
 
 <style scoped>
-
-input{
+input {
   text-align: center;
   margin: auto;
   max-width: 300px;
 }
 
-input::placeholder{
+input::placeholder {
   text-align: center;
 }
 
-input.form-control:focus{
+input.form-control:focus {
   outline: none;
   box-shadow: none;
   border: 1px solid #ced4da;

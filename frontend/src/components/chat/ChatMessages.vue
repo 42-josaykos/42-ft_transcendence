@@ -104,8 +104,9 @@ const timerMute = computed(() => {
                     v-bind:src="item.author.avatar"
                     alt="Avatar"
                     class="rounded-circle mr-1"
-                    width="40"
-                    height="40"
+                    width="50"
+                    height="50"
+                    style="object-fit: cover;"
                   />
                 </div>
                 <div class="flex-shrink-1 rounded ml-3 text-msg-left">
@@ -129,8 +130,9 @@ const timerMute = computed(() => {
                     v-bind:src="item.author.avatar"
                     alt="Avatar"
                     class="rounded-circle mr-1"
-                    width="40"
-                    height="40"
+                    width="50"
+                    height="50"
+                    style="object-fit: cover;"
                   />
                 </div>
                 <div class="flex-shrink-1 rounded mr-3 text-msg-right">
@@ -170,7 +172,7 @@ const timerMute = computed(() => {
     >
       <textarea
         @keydown.enter.prevent.stop="sendNewMessage(channel?.id)"
-        class="form-control input" id="sendMessage"
+        class="form-control input scroller-msg" id="sendMessage"
         v-model="textMsg"
       >
       </textarea>
@@ -216,8 +218,24 @@ const timerMute = computed(() => {
   border-bottom-left-radius: 10px !important;
   border-top-left-radius: 10px  !important;;
   max-height: 80px !important;
-  margin-left: 2rem !important
+  margin-left: 2rem !important;
+  border: transparent
 }
 
+.scroller-msg {
+  overflow-y: scroll;
+  scrollbar-color: #e58703 transparent;
+  scrollbar-width: thin !important;
+  border-bottom-right-radius: 0px !important;
+  border-top-right-radius: 0px  !important;;
+}
+
+.scroller-msg:hover {
+  overflow-y: scroll;
+  scrollbar-color: #e58703 transparent;
+  scrollbar-width: thin !important;
+  border-bottom-right-radius: 0px !important;
+  border-top-right-radius: 0px  !important;;
+}
 
 </style>

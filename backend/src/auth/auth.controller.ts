@@ -190,8 +190,8 @@ export class AuthController {
    * Logging the user out
    */
   @Get('logout')
-  @Redirect('/')
-  @UseGuards(JwtTwoFactorGuard)
+  @Redirect('/login')
+  @UseGuards(JwtAccessGuard)
   async logout(@Req() req, @Res() res: Response) {
     await this.authService.removeRefreshToken(req.user.id);
     res.setHeader('Set-Cookie', this.authService.getCookieForLogout());

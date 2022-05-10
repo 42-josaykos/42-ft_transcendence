@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ModalChat from "@/components/ModalChat.vue";
+import ModalChat from "./ModalChat.vue";
 import { storeToRefs } from "pinia";
 import { useChannelStore } from "@/stores/channel";
 import { useMessageStore } from "@/stores/message";
@@ -43,23 +43,22 @@ const {
 } = storeToRefs(channelStore);
 
 const displayMessages = (channel_item: Channel) => {
-  Get(
-    "/channels/search?id=" +
-      channel_item.id.toString() +
-      "&messages&owner&admins&members&mutes&bans"
-  ).then((res) => {
-    channel.value = res.data[0];
-    if (channel.value != undefined && loggedUser.value != null) {
-      if (channelStore.isBan(channel.value, loggedUser.value?.id)) {
-        channelStore.handleBanMute({...channel.value}, true)
+  Get(`/channels/search?id=${channel_item.id.toString()}&messages&owner&admins&members&mutes&bans`)
+    .then((res) => {
+      if (res.status == 200) {
+        channel.value = res.data[0];
+        if (channel.value != undefined && loggedUser.value != null) {
+          if (channelStore.isBan(channel.value, loggedUser.value?.id)) {
+            channelStore.handleBanMute({...channel.value}, true)
+          }
+          else if (channelStore.isMute(channel.value, loggedUser.value?.id)) {
+            channelStore.handleBanMute({...channel.value}, false)
+          }
+        }
+        messageStore.sortMessages(res.data[0].messages);
+        usersMembers.value = res.data[0].members;
       }
-      else if (channelStore.isMute(channel.value, loggedUser.value?.id)) {
-        channelStore.handleBanMute({...channel.value}, false)
-      }
-    }
-    messageStore.sortMessages(res.data[0].messages);
-    usersMembers.value = res.data[0].members;
-  });
+    });
 };
 
 // Créer un nouveau channel
@@ -107,7 +106,6 @@ const joinChannel = () => {
 const acceptInviteChannel = () => {
   if (loggedUser.value != undefined) {
     if (socketChat.value != undefined) {
-      console.log(`Accept invitation => ${channelJoin.value?.name}`);
       const updateChannel = {
         removeInvites: [{ id: loggedUser.value?.id }],
         addMembers: [{ id: loggedUser.value?.id }],
@@ -133,7 +131,6 @@ const acceptInviteChannel = () => {
 // Refuser une invitation à rejoindre un channel
 const refuseInviteChannel = () => {
   if (socketChat.value != undefined) {
-    console.log(`Refuse invitation => ${channelJoin.value?.name}`);
     if (channelJoin.value != undefined) {
       socketChat.value.emit(
         "updateMember",
@@ -434,18 +431,17 @@ const isNum = (char: any) => {
                 <button
                   v-if="item.isOwner"
                   @click="
-                    Get('/users/search').then((res) => (users = res.data));
-                    Get(
-                      'channels/search?id=' +
-                        item.id.toString() +
-                        '&admins&mutes&members&invites&bans'
-                    ).then((res) => {
-                      [channelUpdate] = res.data;
-                      channelName = res.data[0].name;
-                      usersInvite = [];
-                      modalUpdateChannel = true;
-                      channelType = 0;
-                    });
+                    Get('/users/search').then((res) => {if (res.status == 200) {users = res.data}});
+                    Get(`channels/search?id=${item.id.toString()}&admins&mutes&members&invites&bans`)
+                      .then((res) => {
+                        if (res.status == 200) {
+                          [channelUpdate] = res.data;
+                          channelName = res.data[0].name;
+                          usersInvite = [];
+                          modalUpdateChannel = true;
+                          channelType = 0;
+                        }
+                      });
                   "
                   type="button"
                   class="rounded btn-channel wrapper-icon-leave ms-auto"
@@ -454,16 +450,15 @@ const isNum = (char: any) => {
                 </button>
                 <button
                   @click="
-                    Get(
-                      'channels/search?id=' +
-                        item.id.toString() +
-                        '&admins&mutes&members&bans&owner'
-                    ).then((res) => {
-                      [channelLeave] = res.data;
-                      item.isOwner
-                        ? (modalDelChannel = true)
-                        : (modalValidate = true);
-                    })
+                    Get(`channels/search?id=${item.id.toString()}&admins&mutes&members&bans&owner`)
+                      .then((res) => {
+                        if (res.status == 200) {
+                          [channelLeave] = res.data;
+                          item.isOwner
+                            ? (modalDelChannel = true)
+                            : (modalValidate = true);
+                        }
+                      })
                   "
                   type="button"
                   class="rounded btn-channel wrapper-icon-leave ms-auto"
@@ -520,9 +515,8 @@ const isNum = (char: any) => {
                 <button
                   @click="
                     modalJoinChannel = true;
-                    Get(
-                      'channels/search?id=' + item.id.toString() + '&messages'
-                    ).then((res) => ([channelJoin] = res.data));
+                    Get(`channels/search?id=${item.id.toString()}&messages`)
+                      .then((res) => {if (res.status == 200) {[channelJoin] = res.data}});
                   "
                   type="button"
                   class="rounded btn-channel wrapper-icon-leave ms-auto"
@@ -582,13 +576,6 @@ const isNum = (char: any) => {
                   {{ channelStore.searchName(item) }}
                 </button>
               </div>
-              <!-- <div class="ms-auto">
-                <button
-                  @click="modalJoinChannel = true; Get('channels/search?id=' + item.id.toString() + '&messages').then(res => [channelJoin] = res.data)"
-                  type="button" class="rounded btn-channel wrapper-icon-leave ms-auto">
-                  <i class="fa-solid fa-plus"></i>
-                </button>
-              </div> -->
             </div>
           </li>
         </div>
@@ -650,9 +637,8 @@ const isNum = (char: any) => {
                 <button
                   @click="
                     modalRefuseJoinChannel = true;
-                    Get(
-                      'channels/search?id=' + item.id.toString() + '&messages'
-                    ).then((res) => ([channelJoin] = res.data));
+                    Get(`channels/search?id=${item.id.toString()}&messages`)
+                      .then((res) => {if (res.status == 200) {[channelJoin] = res.data}});
                   "
                   type="button"
                   class="rounded btn-channel wrapper-icon-leave ms-auto"
@@ -671,10 +657,12 @@ const isNum = (char: any) => {
     <button
       @click="
         Get('/users/search').then((res) => {
-          users = res.data;
-          usersInvite = [];
-          modalNewChannel = true;
-          channelType = 1;
+          if (res.status == 200) {
+            users = res.data;
+            usersInvite = [];
+            modalNewChannel = true;
+            channelType = 1;
+          }
         })
       "
       type="button"
@@ -696,7 +684,7 @@ const isNum = (char: any) => {
     "
   >
     <template v-slot:header>
-      <h2 style="padding-top: 10px"><u>New channel</u></h2>
+      <h2 class="pt-4"><u>New channel</u></h2>
     </template>
     <template v-slot:body>
       <div class="form-signin pb-3">
@@ -805,6 +793,7 @@ const isNum = (char: any) => {
         "
         type="submit"
         class="mod-btn mod-btn-blue"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Create
       </button>
@@ -819,6 +808,7 @@ const isNum = (char: any) => {
         "
         type="button"
         class="mod-btn mod-btn-yellow"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Cancel
       </button>
@@ -837,7 +827,7 @@ const isNum = (char: any) => {
     "
   >
     <template v-slot:header>
-      <h2 style="padding-top: 10px">
+      <h2 class="pt-4">
         <u>Update channel :</u> {{ channelUpdate?.name }}
       </h2>
     </template>
@@ -950,6 +940,7 @@ const isNum = (char: any) => {
         "
         type="submit"
         class="mod-btn mod-btn-blue"
+        style="width: 75%; margin-right: auto; margin-left: auto;"
       >
         Update
       </button>
@@ -964,6 +955,7 @@ const isNum = (char: any) => {
         "
         type="button"
         class="mod-btn mod-btn-yellow"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Cancel
       </button>
@@ -978,7 +970,7 @@ const isNum = (char: any) => {
     "
   >
     <template v-slot:header>
-      <h2 style="padding-top: 10px">
+      <h2 class="pt-4">
         <u>Leave channel :</u> {{ channelLeave?.name }}
       </h2>
     </template>
@@ -994,6 +986,7 @@ const isNum = (char: any) => {
           "
           type="button"
           class="mod-btn mod-btn-red"
+          style="width: 75%;  margin-right: auto; margin-left: auto;"
         >
           Delete
         </button>
@@ -1046,6 +1039,7 @@ const isNum = (char: any) => {
         "
         type="button"
         class="mod-btn mod-btn-yellow"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Cancel
       </button>
@@ -1060,7 +1054,7 @@ const isNum = (char: any) => {
     "
   >
     <template v-slot:header>
-      <h2 style="padding-top: 10px"><u>Are you sure ?</u></h2>
+      <h2 class="pt-4"><u>Are you sure ?</u></h2>
     </template>
     <template v-slot:footer>
       <button
@@ -1070,6 +1064,7 @@ const isNum = (char: any) => {
         "
         type="button"
         class="mod-btn mod-btn-blue"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Yes
       </button>
@@ -1083,6 +1078,7 @@ const isNum = (char: any) => {
         "
         type="button"
         class="mod-btn mod-btn-yellow"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         No
       </button>
@@ -1120,6 +1116,7 @@ const isNum = (char: any) => {
         "
         type="submit"
         class="mod-btn mod-btn-blue"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Join
       </button>
@@ -1127,6 +1124,7 @@ const isNum = (char: any) => {
         @click="modalJoinChannel = false"
         type="button"
         class="mod-btn mod-btn-yellow"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Cancel
       </button>
@@ -1138,7 +1136,7 @@ const isNum = (char: any) => {
     @close="modalAcceptJoinChannel = false"
   >
     <template v-slot:header>
-      <h2 style="padding-top: 10px">
+      <h2 class="pt-4">
         <u>Are you sure you want to accept the invitation to this channel</u>
       </h2>
     </template>
@@ -1150,6 +1148,7 @@ const isNum = (char: any) => {
         "
         type="button"
         class="mod-btn mod-btn-blue"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Yes
       </button>
@@ -1157,6 +1156,7 @@ const isNum = (char: any) => {
         @click="modalAcceptJoinChannel = false"
         type="button"
         class="mod-btn mod-btn-yellow"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         No
       </button>
@@ -1168,7 +1168,7 @@ const isNum = (char: any) => {
     @close="modalRefuseJoinChannel = false"
   >
     <template v-slot:header>
-      <h2 style="padding-top: 10px">
+      <h2 class="pt-4">
         <u>Are you sure you want to decline the invitation to this channel</u>
       </h2>
     </template>
@@ -1180,6 +1180,7 @@ const isNum = (char: any) => {
         "
         type="button"
         class="mod-btn mod-btn-blue"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Yes
       </button>
@@ -1187,6 +1188,7 @@ const isNum = (char: any) => {
         @click="modalRefuseJoinChannel = false"
         type="button"
         class="mod-btn mod-btn-yellow"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         No
       </button>

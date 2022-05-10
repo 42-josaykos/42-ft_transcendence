@@ -15,9 +15,7 @@ function submitTwoFactorAuthCode(e: any) {
   }
   Post('/auth/authenticate-2fa', { twoFactorAuthenticationCode: code.value })
     .then(res => {
-      console.log(res);
       if (res.status === 201) {
-        console.log(res.data);
         isAuthenticated.value = true;
         loggedUser.value = res.data;
         router.push('/');
@@ -30,12 +28,25 @@ function submitTwoFactorAuthCode(e: any) {
 </script>
 
 <template>
-  <h1>Two-Factor Authentication</h1>
-  <form @submit.prevent.trim.lazy="submitTwoFactorAuthCode">
-    <div>
-      <label for="code">Please enter two-factor authentication code:</label>
-      <input type="text" v-model="code" name="code" id="code" />
+  <div class="bloc_modale">
+    <div class="overlay" @click="router.push('/')"></div>
+    <div class="modale card">
+      <h1><u>Two-Factor<br>Authentication</u></h1>
+      <form @submit.prevent.trim.lazy="submitTwoFactorAuthCode">
+        <div>
+          <input type="text" v-model="code" name="code" id="code" placeholder="Please enter 2FA code:" style="margin-top: 10px; width: 100%; text-align: center;"/>
+        </div>
+        <button class="mod-btn mod-btn-yellow" type="submit" style="margin: 20px; margin-bottom: 0;"> Submit </button>
+      </form>
     </div>
-    <button type="submit">Submit</button>
-  </form>
+  </div>
 </template>
+
+<style scoped>
+
+.info
+{
+
+}
+
+</style>

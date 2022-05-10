@@ -44,14 +44,14 @@ if (isAuthenticated.value) {
     }
     else if (channel.value != undefined && channel.value.id != newMessage.channel.id && loggedUser.value?.id == newMessage.author.id) {
       await Get(
-        "/channels/search?id=" +
-          newMessage.channel.id.toString() +
-          "&members&bans&mutes&admins&owner&messages"
+        `/channels/search?id=${newMessage.channel.id.toString()}&members&bans&mutes&admins&owner&messages`
       ).then((res) => {
-        if (res.data[0].isDirectChannel) {
-          channel.value = res.data[0];
-          usersMembers.value = res.data[0].members;
-          messageStore.sortMessages(res.data[0].messages);
+        if (res.status == 200) {
+          if (res.data[0].isDirectChannel) {
+            channel.value = res.data[0];
+            usersMembers.value = res.data[0].members;
+            messageStore.sortMessages(res.data[0].messages);
+          }
         }
       });
     }
@@ -70,12 +70,12 @@ if (isAuthenticated.value) {
           );
         }
         await Get(
-          "/channels/search?id=" +
-            newChannel.id.toString() +
-            "&members&bans&mutes&admins&owner"
+          `/channels/search?id=${newChannel.id.toString()}&members&bans&mutes&admins&owner`
         ).then((res) => {
-          channel.value = res.data[0];
-          usersMembers.value = res.data[0].members;
+          if (res.status == 200) {
+            channel.value = res.data[0];
+            usersMembers.value = res.data[0].members;
+          }
         });
       }
       channelStore.createChannel(newChannel);
@@ -144,13 +144,12 @@ if (isAuthenticated.value) {
       channelStore.updateMember(loggedUser.value.id);
       channelStore.updateOwner(loggedUser.value.id);
       if (channel.value?.id === updateChannel.id) {
-        Get(
-          "/channels/search?id=" +
-            channel.value.id.toString() +
-            "&owner&admins&members&mutes&bans&messages"
+        Get(`/channels/search?id=${channel.value.id.toString()}&owner&admins&members&mutes&bans&messages`
         ).then((res) => {
-          usersMembers.value = res.data[0].members;
-          messageStore.sortMessages(res.data[0].messages)
+          if (res.status == 200) {
+            usersMembers.value = res.data[0].members;
+            messageStore.sortMessages(res.data[0].messages)
+          }
         });
         channel.value = updateChannel;
       }
@@ -219,3 +218,6 @@ if (isAuthenticated.value) {
   })
 } 
 </script>
+
+<template>
+</template>

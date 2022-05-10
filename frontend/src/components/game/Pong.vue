@@ -102,7 +102,6 @@ export default {
     // Socket Events
     // ##########################################################################
     this.gameSocket.on("gameUpdate", (data) => {
-      // console.log("gameUpdate: ", data);
       this.updateGame(data);
     });
     this.gameSocket.on("endGame", () => {

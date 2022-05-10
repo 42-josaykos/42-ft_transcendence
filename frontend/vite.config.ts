@@ -18,6 +18,9 @@ export default ({ mode }: any) => {
         '/matches': {
           target: `http://localhost:${process.env.API_PORT}`
         },
+        '/stats': {
+          target: `http://localhost:${process.env.API_PORT}`
+        },
         '/auth': {
           target: `http://localhost:${process.env.API_PORT}`
         },

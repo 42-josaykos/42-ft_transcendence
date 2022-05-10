@@ -7,7 +7,7 @@ import { useUserStore } from "@/stores/user";
 import { useStatusStore } from "@/stores/status";
 import { onMounted, ref } from "vue";
 import { Get } from "./services/requests";
-import ChatSocket from "./components/ChatSocket.vue";
+import ChatSocket from "./components/chat/ChatSocket.vue";
 
 const userStore = useUserStore();
 const { loggedUser, isAuthenticated } = storeToRefs(userStore);
@@ -65,7 +65,7 @@ export const isMeteor = ref(false);
         background: radial-gradient(ellipse at top, #1b2735 0%, #080e21 70%);
       "
     >
-      <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
+      <!-- <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" /> -->
       <div v-if="isAuthenticated">
         <StatusSystem />
         <GameSystem />
@@ -79,7 +79,7 @@ export const isMeteor = ref(false);
 <style>
 :root {
   --sidebar-bg-color: #0c2039;
-  --sidebar-icon-color: #1d508f;
+  --sidebar-icon-color: #174275;
 }
 
 #app {
@@ -91,12 +91,25 @@ export const isMeteor = ref(false);
   color: #c4c4c4;
 }
 
+.circular--square {
+  border-radius: 50%;
+}
+
 .header {
   display: flex;
   flex-direction: column;
 }
 
 .full-height {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   min-height: 100vh;
+}
+
+.neonText {
+  color: #fff;
+  text-shadow: 0 0 7px #fff, 0 0 10px #fff, 0 0 21px #fff, 0 0 42px #5271ff,
+    0 0 82px #5271ff, 0 0 92px #5271ff, 0 0 102px #5271ff, 0 0 151px #5271ff;
 }
 </style>

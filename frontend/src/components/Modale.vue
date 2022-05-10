@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import Setting from './Setting.vue';
+import Profil from './Profil.vue';
 import Login from './Login.vue';
 import Register from './Register.vue';
 import { useMessageStore } from '@/stores/message';
@@ -16,9 +16,14 @@ defineProps<{
 
 const { messages } = storeToRefs(useMessageStore());
 const { channel, usersMembers } = storeToRefs(useChannelStore());
-const { loggedUser } = storeToRefs(useUserStore());
+const { setting_open, userClick, loggedUser, isMyProfile } = storeToRefs(
+  useUserStore()
+);
 
-function getUserData() {
+async function getUserData() {
+  if (isMyProfile) {
+    userClick.value = loggedUser.value;
+  }
   if (channel.value) {
     Get(
       '/channels/search?id=' +
@@ -34,8 +39,6 @@ function getUserData() {
 </script>
 
 <script lang="ts">
-export const setting_open = ref(false);
-export const logout_open = ref(false);
 export const login_open = ref(false);
 export const register_open = ref(false);
 </script>
@@ -43,8 +46,11 @@ export const register_open = ref(false);
 <template>
   <div class="bloc_modale" v-if="setting_open">
     <div class="overlay" @click="setting_open = !setting_open"></div>
-    <div class="modale card">
-      <Setting @updateUserProfil="getUserData" />
+    <div
+      class="modale card scrollspy-profil"
+      style="min-width: 40vw; max-width: 75%; overflow: scroll"
+    >
+      <Profil @updateUserProfil="getUserData" />
     </div>
   </div>
   <div class="bloc_modale" v-if="register_open && !isAuthenticated">
@@ -59,38 +65,36 @@ export const register_open = ref(false);
       <Login />
     </div>
   </div>
-  <div class="bloc_modale" v-if="logout_open">
-    <div class="overlay" @click="logout_open = !logout_open"></div>
-    <div class="modale card">
-      <div class="btn-close-modale btn" @click="logout_open = false">
-        <i class="fa-solid fa-xmark fa-2x"></i>
-      </div>
-      <h2>
-        Hey
-        <b
-          ><i>{{ loggedUser.username }}</i></b
-        >,<br />Are you sure you want to logout?
-      </h2>
-
-      <span>
-        <button
-          class="mod-btn mod-btn-red"
-          onclick="window.location.href='/auth/logout'"
-        >
-          Logout
-        </button>
-        <button class="mod-btn mod-btn-yellow" @click="logout_open = false">
-          Cancel
-        </button>
-      </span>
-    </div>
-  </div>
 </template>
 
 <style>
 @import url('../assets/modal.css');
-.modale.card {
-  overflow: hidden;
-  max-height: fit-content;
+
+.scrollspy-profil {
+  position: relative;
+  margin-top: 0.5rem;
+  overflow: auto;
+
+  overflow-y: scroll;
+  scrollbar-color: rgb(32, 31, 31) transparent;
+  scrollbar-width: thin !important;
+}
+
+.scrollspy-profil::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollspy-profil::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollspy-profil::-webkit-scrollbar-thumb {
+  background-color: rgb(32, 31, 31);
+  border-radius: 20px;
+}
+
+.scrollspy-profil:hover {
+  scrollbar-color: rgb(32, 31, 31) transparent;
+  scrollbar-width: thin !important;
 }
 </style>

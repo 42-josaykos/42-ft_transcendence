@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import type { User } from "@/models/user.model";
 import type { Socket } from "socket.io-client";
+import { computed } from "vue";
 
 // Tracks users database
 export const useUserStore = defineStore("user", () => {
@@ -14,6 +15,8 @@ export const useUserStore = defineStore("user", () => {
   const usersBlocked = ref<User[]>([]);
   const usersFriends = ref<User[]>([]);
   const isTwoFactorAuth = ref<boolean>(false);
+  const userClick = ref<User>();
+  const setting_open = ref<boolean>(false);
 
   const createUser = (newUser: User) => {
     users.value.push(newUser);
@@ -66,6 +69,19 @@ export const useUserStore = defineStore("user", () => {
     usersFriends.value.splice(index, 1);
   };
 
+  const initUserClick = () => {
+    userClick.value = undefined;
+  };
+
+  const isMyProfile = computed(() => {
+    if (loggedUser.value && userClick.value) {
+      if (loggedUser.value.id !== userClick.value.id) {
+        return false;
+      }
+    }
+    return true;
+  });
+
   return {
     users,
     loggedUser,
@@ -76,6 +92,8 @@ export const useUserStore = defineStore("user", () => {
     usersFriends,
     gameSocket,
     isTwoFactorAuth,
+    userClick,
+    setting_open,
     createUser,
     deleteUser,
     updateUser,
@@ -85,5 +103,7 @@ export const useUserStore = defineStore("user", () => {
     isFriend,
     addUserFriend,
     removeUserFriend,
+    initUserClick,
+    isMyProfile,
   };
 });

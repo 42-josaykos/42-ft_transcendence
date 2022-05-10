@@ -96,7 +96,6 @@ export class AuthService implements AuthenticationProvider {
     const updatedDetails = { ...details };
     updatedDetails.username =
       details.username +
-      '#' +
       Math.floor(Math.random() * 1000)
         .toString()
         .padStart(4, '0');
