@@ -15,7 +15,7 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 const userStore = useUserStore();
-const { loggedUser, socketChat, usersOnline, userClick } = storeToRefs(userStore);
+const { loggedUser, socketChat, usersOnline, userClick, setting_open } = storeToRefs(userStore);
 
 const channelStore = useChannelStore();
 
@@ -196,12 +196,12 @@ const addAdmin = () => {
 
   <ModalChat v-if="userClickBool" @close="userClickBool = false; userClick = undefined">
     <template v-slot:header>
-      <h2 style="padding-top: 10px">{{ userClick?.username }}</h2>
+      <h2 class="pt-4">{{ userClick?.username }}</h2>
     </template>
     <template v-slot:body>
       <div style="display: grid">
         <button
-          @click="modalShowProfil = true; userClickBool = false"
+          @click="setting_open = true; userClickBool = false;"
           type="button"
           class="btn-user-click my-2"
         >
@@ -279,7 +279,7 @@ const addAdmin = () => {
 
   <ModalChat v-if="modalShowProfil" @close="modalShowProfil = false; userClick = undefined">
     <template v-slot:header>
-      <h2 style="padding-top: 10px">{{ userClick?.username }}</h2>
+      <h2 class="pt-4">{{ userClick?.username }}</h2>
     </template>
     <template v-slot:body> PAGE PROFIL </template>
     <template v-slot:footer>
@@ -300,7 +300,7 @@ const addAdmin = () => {
     @close="modalBlock = false; userClick = undefined"
   >
     <template v-slot:header>
-      <h2 style="padding-top: 10px">
+      <h2 class="pt-4">
       <span v-if="userStore.isBlocked(userClick)">
         <u>Are you sure you want to unblock {{userClick?.username}} ?</u>
       </span>
@@ -338,7 +338,7 @@ const addAdmin = () => {
     @close="modalFriend = false; userClick = undefined"
   >
     <template v-slot:header>
-      <h2 style="padding-top: 10px">
+      <h2 class="pt-4">
       <span v-if="userStore.isFriend(userClick)">
         <u>Are you sure you want to remove {{userClick?.username}} from your friends ?</u>
       </span>
@@ -376,7 +376,7 @@ const addAdmin = () => {
     @close="modalAdmin = false; userClick = undefined"
   >
     <template v-slot:header>
-      <h2 style="padding-top: 10px">
+      <h2 class="pt-4">
       <span v-if="channelStore.isAdmin(channel, userClick?.id)">
         <u>Are you sure you want to remove {{userClick?.username}} as the administrator of this channel ?</u>
       </span>
@@ -416,7 +416,7 @@ const addAdmin = () => {
     "
   >
     <template v-slot:header>
-      <h2 style="padding-top: 10px">
+      <h2 class="pt-4">
         <u>Ban :</u> {{ userClick?.username }}
       </h2>
     </template>
@@ -474,7 +474,7 @@ const addAdmin = () => {
     "
   >
     <template v-slot:header>
-      <h2 style="padding-top: 10px">
+      <h2 class="pt-4">
         <u>Mute :</u> {{ userClick?.username }}
       </h2>
     </template>

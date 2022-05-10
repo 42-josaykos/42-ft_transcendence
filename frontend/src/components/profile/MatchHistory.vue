@@ -7,7 +7,7 @@ import Stats from './Stats.vue';
 import Ladder from './Ladder.vue';
 import { onMounted, ref } from 'vue';
 
-const { loggedUser } = storeToRefs(useUserStore());
+const { userClick } = storeToRefs(useUserStore());
 const { matches } = storeToRefs(useMatchStore());
 const stats = ref([0, 0, 0, 0]);
 let wonMatches;
@@ -15,7 +15,7 @@ let wonMatches;
 async function getMatchHistory() {
   let response;
   try {
-    response = await Get(`/users/${loggedUser.value?.id}/matches/played`);
+    response = await Get(`/users/${userClick.value?.id}/matches/played`);
     if (response.status === 200) {
       matches.value = response.data.reverse();
       getStats();
@@ -26,7 +26,7 @@ async function getMatchHistory() {
 function getStats() {
   stats.value[0] = matches.value.length;
   wonMatches = matches.value.filter(
-    match => match.winner.id === loggedUser.value?.id
+    match => match.winner.id === userClick.value?.id
   );
   stats.value[1] = wonMatches.length;
   stats.value[2] = stats.value[0] - stats.value[1];
@@ -34,18 +34,19 @@ function getStats() {
 }
 
 onMounted(() => {
-  Get('/auth/jwt-status').then(res => {
-    loggedUser.value = res.data;
-    getMatchHistory();
-  });
+  // Get('/auth/jwt-status').then(res => {
+  //   loggedUser.value = res.data;
+    
+  // });
+  getMatchHistory();
 });
 </script>
 
 <template>
   <h2>Match history</h2>
 
-  <h3>{{ loggedUser?.username }}</h3>
-  <h3>{{ loggedUser?.id }}</h3>
+  <h3>{{ userClick?.username }}</h3>
+  <h3>{{ userClick?.id }}</h3>
 
   <div class="container">
     <div class="stats">
@@ -78,7 +79,9 @@ onMounted(() => {
 
 <style scoped>
 .container {
-  width: 75%;
-  justify-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 75%;
 }
 </style>
