@@ -218,3 +218,6 @@ if (isAuthenticated.value) {
   })
 } 
 </script>
+
+<template>
+</template>

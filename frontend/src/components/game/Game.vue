@@ -3,10 +3,12 @@ import ModaleSettings from "./ModaleSettings.vue";
 import Pong from "./Pong.vue";
 import { storeToRefs, mapState, mapActions  } from 'pinia';
 import { useUserStore } from "@/stores/user";
+import Navbar from '@/components/Navbar.vue'
 
 export default {
   name: "Game",
   components: {
+    Navbar,
     modalesettings: ModaleSettings,
     pong: Pong,
   },
@@ -19,7 +21,7 @@ export default {
   },
   created() {},
   computed: {
-    ...mapState(useUserStore, ["loggedUser", "userClick"]),
+    ...mapState(useUserStore, ["loggedUser", "isAuthenticated", "userClick"]),
   },
   methods: {
     ...mapActions(useUserStore, ['initUserClick']),
@@ -43,6 +45,7 @@ export default {
 </script>
 
 <template>
+  <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
   <div class="container-fluid">
     <div class="game">
       <pong

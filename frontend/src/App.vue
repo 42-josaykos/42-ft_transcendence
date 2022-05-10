@@ -64,7 +64,7 @@ export const isMeteor = ref(false);
         background: radial-gradient(ellipse at top, #1b2735 0%, #080e21 70%);
       "
     >
-      <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
+      <!-- <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" /> -->
       <div v-if="isAuthenticated">
         <StatusSystem />
         <ChatSocket />

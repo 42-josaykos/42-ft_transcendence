@@ -90,24 +90,17 @@ const router = createRouter({
 });
 
 async function routeGuard(to: any, from: any, next: any) {
-  const userStore = useUserStore();
-  const { isAuthenticated, loggedUser } = storeToRefs(userStore);
-
   let response;
   try {
     response = await Get('/auth/jwt-status');
     if (response.status != 401) {
-      if (to.name === 'Login') {
-        next('/');
-      }
-      isAuthenticated.value = true;
-      loggedUser.value = response.data;
       next(); // allow to enter route
+    } else {
+      next('/login'); // go to '/login';
     }
   } catch (error: any) {
     next('/login'); // go to '/login';
   }
-  next('/login'); // go to '/login';
 }
 
 export default router;

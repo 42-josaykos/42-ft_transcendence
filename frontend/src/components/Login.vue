@@ -85,8 +85,8 @@ function loginLocal() {
           <i class="fa-brands fa-github" style="color: black"></i> Github Login
         </button>
       </div>
-      <div>Don't have an account ?</div>
-      <div>
+      <div v-if="!isAuthenticated">
+      Don't have an account ?
         <a
           href="#"
           @click="
