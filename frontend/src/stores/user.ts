@@ -20,6 +20,7 @@ export const useUserStore = defineStore('user', () => {
   const isTwoFactorAuth = ref<boolean>(false);
   const userClick = ref<User>();
   const setting_open = ref<boolean>(false);
+  const modalFriends = ref<boolean>(false);
 
   const createUser = (newUser: User) => {
     users.value.push(newUser);
@@ -97,6 +98,7 @@ export const useUserStore = defineStore('user', () => {
     isTwoFactorAuth,
     userClick,
     setting_open,
+    modalFriends,
     createUser,
     deleteUser,
     updateUser,

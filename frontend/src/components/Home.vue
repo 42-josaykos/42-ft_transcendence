@@ -17,7 +17,7 @@ const { isAuthenticated, loggedUser } = storeToRefs(userStore);
 </script>
 
 <template>
-  <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
+  <Navbar :isAuthenticated="isAuthenticated" />
   <div class="container-flex" style="position: relative">
     <div id="HomePage" class="full-height">
       <div class="container">

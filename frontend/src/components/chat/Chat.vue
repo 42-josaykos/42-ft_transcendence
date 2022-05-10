@@ -8,11 +8,10 @@ import { useChannelStore } from '@/stores/channel';
 
 import { Get } from '@/services/requests';
 
-import ChatMenu from './ChatMenu.vue';
-import ChatUsers from './ChatUsers.vue';
-import ChatMessages from './ChatMessages.vue';
-import ModalChat from './ModalChat.vue';
-import UsersFriends from '../UsersFriends.vue';
+import ChatMenu from "./ChatMenu.vue";
+import ChatUsers from "./ChatUsers.vue";
+import ChatMessages from "./ChatMessages.vue";
+import ModalChat from "./ModalChat.vue";
 import Navbar from '../Navbar.vue';
 
 const userStore = useUserStore();
@@ -22,23 +21,21 @@ const { isAuthenticated, loggedUser, socketChat, usersBlocked, usersFriends } =
 const channelStore = useChannelStore();
 const { allChannels, newOwner, channelType } = storeToRefs(channelStore);
 
-const modalError = ref<boolean>(false);
-const modalFriends = ref<boolean>(false);
-const msgError = ref<string>('');
+const modalError = ref<boolean>(false)
+const msgError = ref<string>('')
 
 onBeforeMount(async () => {
-  Get(`/channels/search?&members&invites&bans&mutes`).then(res => {
+  await Get(`/channels/search?&members&invites&bans&mutes`).then((res) => {
     if (res.status == 200) {
       allChannels.value = res.data;
       if (loggedUser.value != undefined) {
         channelStore.updateInvite(loggedUser.value?.id);
         Get(
-          `/users/search?id=${loggedUser.value?.id}&banChannels&muteChannels&blockedUsers&friends`
+          `/users/search?id=${loggedUser.value?.id}&banChannels&muteChannels&blockedUsers`
         ).then(res => {
           if (res.status == 200) {
             channelStore.updateBanMute(res.data);
             usersBlocked.value = res.data[0].blockedUsers;
-            usersFriends.value = res.data[0].friends;
           }
         });
       }
@@ -76,7 +73,7 @@ if (socketChat.value != undefined) {
 </script>
 
 <template>
-  <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
+  <Navbar :isAuthenticated="isAuthenticated" />
   <div class="container">
     <div class="row-chat">
       <div class="col-md-3 col-chat">
@@ -89,21 +86,8 @@ if (socketChat.value != undefined) {
           <ChatMessages />
         </div>
       </div>
-
       <div class="col-md-3 col-chat ms-auto">
-        <div class="horizontal-line-bottom">
-          <div class="wrapper-btn-friends">
-            <button
-              @click="modalFriends = true"
-              type="button"
-              class="rounded btn-channel"
-              style="color: var(--clr-neon) !important"
-            >
-              <i class="fa-solid fa-users fa-2x"></i>
-            </button>
-          </div>
-        </div>
-        <div class="scrollspy-example mb-5 px-2 py-2" style="min-height: 80vh">
+        <div class="scrollspy-example my-5 px-2 py-2" style="min-height: 80vh">
           <ChatUsers />
         </div>
       </div>
@@ -123,16 +107,6 @@ if (socketChat.value != undefined) {
     </template>
   </ModalChat>
 
-  <ModalChat v-if="modalFriends == true" @close="modalFriends = false">
-    <template v-slot:header>
-      <h2 class="pt-4">
-        <u>Friends list</u>
-      </h2>
-    </template>
-    <template v-slot:body>
-      <UsersFriends />
-    </template>
-  </ModalChat>
 </template>
 
 <style>
