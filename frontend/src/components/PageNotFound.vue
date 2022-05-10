@@ -10,7 +10,6 @@ onMounted(() => {
     .get(url)
     .then((res) => (data.value = res?.data))
     .catch((error) => {
-      console.log(error);
     });
 });
 </script>

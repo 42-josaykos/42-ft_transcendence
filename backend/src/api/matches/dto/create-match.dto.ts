@@ -20,5 +20,10 @@ export class CreateMatchDTO {
   readonly score: number[];
 
   @IsOptional()
+  @IsNotEmpty()
   readonly winner: User;
+
+  @IsOptional()
+  @IsNotEmpty()
+  readonly isRankedMatch: boolean;
 }

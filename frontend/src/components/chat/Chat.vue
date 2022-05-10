@@ -1,46 +1,46 @@
 <script setup lang="ts">
-import { onBeforeMount, onUnmounted, ref } from "vue";
+import { onBeforeMount, onUnmounted, ref } from 'vue';
 
-import { storeToRefs } from "pinia";
+import { storeToRefs } from 'pinia';
 
-import { useUserStore } from "@/stores/user";
-import { useChannelStore } from "@/stores/channel";
+import { useUserStore } from '@/stores/user';
+import { useChannelStore } from '@/stores/channel';
 
-import { Get } from "@/services/requests";
+import { Get } from '@/services/requests';
 
-import ChatMenu from "./ChatMenu.vue";
-import ChatUsers from "./ChatUsers.vue";
-import ChatMessages from "./ChatMessages.vue";
-import ModalChat from "./ModalChat.vue";
-import UsersFriends from "../UsersFriends.vue";
+import ChatMenu from './ChatMenu.vue';
+import ChatUsers from './ChatUsers.vue';
+import ChatMessages from './ChatMessages.vue';
+import ModalChat from './ModalChat.vue';
+import UsersFriends from '../UsersFriends.vue';
+import Navbar from '../Navbar.vue';
 
 const userStore = useUserStore();
-const { loggedUser, socketChat, usersBlocked, usersFriends } = storeToRefs(userStore);
+const { isAuthenticated, loggedUser, socketChat, usersBlocked, usersFriends } =
+  storeToRefs(userStore);
 
 const channelStore = useChannelStore();
-const {
-  allChannels,
-  newOwner,
-  channelType
-} = storeToRefs(channelStore);
+const { allChannels, newOwner, channelType } = storeToRefs(channelStore);
 
-const modalError = ref<boolean>(false)
+const modalError = ref<boolean>(false);
 const modalFriends = ref<boolean>(false);
-const msgError = ref<string>('')
+const msgError = ref<string>('');
 
 onBeforeMount(async () => {
-  Get(`/channels/search?&members&invites&bans&mutes`).then((res) => {
+  Get(`/channels/search?&members&invites&bans&mutes`).then(res => {
     if (res.status == 200) {
       allChannels.value = res.data;
       if (loggedUser.value != undefined) {
-        channelStore.updateInvite(loggedUser.value?.id)
-          Get(`/users/search?id=${loggedUser.value?.id}&banChannels&muteChannels&blockedUsers&friends`).then((res) => {
-            if (res.status == 200) {
-              channelStore.updateBanMute(res.data);
-              usersBlocked.value = res.data[0].blockedUsers;
-              usersFriends.value = res.data[0].friends;
-            }
-          })
+        channelStore.updateInvite(loggedUser.value?.id);
+        Get(
+          `/users/search?id=${loggedUser.value?.id}&banChannels&muteChannels&blockedUsers&friends`
+        ).then(res => {
+          if (res.status == 200) {
+            channelStore.updateBanMute(res.data);
+            usersBlocked.value = res.data[0].blockedUsers;
+            usersFriends.value = res.data[0].friends;
+          }
+        });
       }
     }
   });
@@ -49,36 +49,36 @@ onBeforeMount(async () => {
 });
 
 onUnmounted(() => {
-  socketChat.value?.off("newMessage");
-  socketChat.value?.off("newChannel");
-  socketChat.value?.off("deleteChannel");
-  socketChat.value?.off("joinChannel");
-  socketChat.value?.off("updateChannel");
-  socketChat.value?.off("inviteChannel");
+  socketChat.value?.off('newMessage');
+  socketChat.value?.off('newChannel');
+  socketChat.value?.off('deleteChannel');
+  socketChat.value?.off('joinChannel');
+  socketChat.value?.off('updateChannel');
+  socketChat.value?.off('inviteChannel');
 });
 
 const removeAlert = () => {
-  modalError.value = false
-  msgError.value = ''
-}
+  modalError.value = false;
+  msgError.value = '';
+};
 
 const addAlert = (message: string) => {
-  msgError.value = message
-  modalError.value = true
+  msgError.value = message;
+  modalError.value = true;
   setTimeout(removeAlert, 5000);
-}
+};
 
-if (socketChat.value != undefined){
-  socketChat.value.on('error', (data) => {
-    addAlert(data.message)
-  })
+if (socketChat.value != undefined) {
+  socketChat.value.on('error', data => {
+    addAlert(data.message);
+  });
 }
-
 </script>
 
 <template>
-  <div class="container-fluid">
-    <div class="row-chat padding-chat">
+  <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
+  <div class="container">
+    <div class="row-chat">
       <div class="col-md-3 col-chat">
         <div class="scrollspy-example my-5 px-2 py-2" style="min-height: 80vh">
           <ChatMenu />
@@ -94,11 +94,10 @@ if (socketChat.value != undefined){
         <div class="horizontal-line-bottom">
           <div class="wrapper-btn-friends">
             <button
-              @click="modalFriends = true
-              "
+              @click="modalFriends = true"
               type="button"
               class="rounded btn-channel"
-              style="color: var(--clr-neon) !important;"
+              style="color: var(--clr-neon) !important"
             >
               <i class="fa-solid fa-users fa-2x"></i>
             </button>
@@ -111,34 +110,32 @@ if (socketChat.value != undefined){
     </div>
   </div>
 
-   <ModalChat v-if="modalError == true" @close="modalError = false;">
+  <ModalChat v-if="modalError == true" @close="modalError = false">
     <template v-slot:header>
-      <h2 style="padding-top: 10px">
+      <h2 class="pt-4">
         <u>ERROR</u>
       </h2>
     </template>
     <template v-slot:body>
       <div>
-        {{msgError}}
+        {{ msgError }}
       </div>
     </template>
   </ModalChat>
 
-  <ModalChat v-if="modalFriends == true" @close="modalFriends = false;">
+  <ModalChat v-if="modalFriends == true" @close="modalFriends = false">
     <template v-slot:header>
-      <h2 style="padding-top: 10px">
+      <h2 class="pt-4">
         <u>Friends list</u>
       </h2>
     </template>
     <template v-slot:body>
-      <UsersFriends/>
+      <UsersFriends />
     </template>
   </ModalChat>
-
 </template>
 
 <style>
-
 .chatMenu {
   flex: 2;
   text-align: center;
@@ -185,11 +182,11 @@ if (socketChat.value != undefined){
   width: -webkit-fill-available;
   justify-content: center;
   text-decoration: none;
-  border: #fff961 3px solid;
+  border: white 3px solid;
   background-color: transparent;
   border-radius: 0.25em;
   text-shadow: 0 0 0.125em hsl(0 0% 100% / 0.3), 0 0 0.45em currentColor;
-  box-shadow: inset 0 0 0.5em 0 #fff961, 0 0 0.5em 0 #fff961;
+  box-shadow: inset 0 0 0.5em 0 white, 0 0 0.5em 0 white;
   transition: all 0.5s;
   border-radius: 50px !important;
 }
@@ -231,14 +228,14 @@ if (socketChat.value != undefined){
 }
 
 .horizontal-line-bottom {
-  border-bottom: #fff961 1.5px solid;
+  border-bottom: white 1.5px solid;
   display: block;
   height: 60px;
   text-shadow: 0 0 0.125em hsl(0 0% 100% / 0.3), 0 0 0.45em currentColor;
 }
 
 .horizontal-line-top {
-  border-top: #fff961 1.5px solid;
+  border-top: white 1.5px solid;
   display: block;
   max-height: 100px;
   text-shadow: 0 0 0.125em hsl(0 0% 100% / 0.3), 0 0 0.45em currentColor;
@@ -254,7 +251,7 @@ if (socketChat.value != undefined){
 
 .horizontal-line-center {
   margin: auto;
-  border-top: #fff961 1.5px solid;
+  border-top: white 1.5px solid;
   display: block;
   text-shadow: 0 0 0.125em hsl(0 0% 100% / 0.3), 0 0 0.45em currentColor;
   background: rgba(0, 0, 0, 0.15);

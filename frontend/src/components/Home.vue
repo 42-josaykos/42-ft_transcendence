@@ -4,6 +4,7 @@ import TeamProfil from './TeamProfil.vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/user';
 import Ladder from './profile/Ladder.vue';
+import Navbar from './Navbar.vue';
 
 const profil_vmoreau = ref(false);
 const profil_mabriand = ref(false);
@@ -12,18 +13,19 @@ const profil_lchapren = ref(false);
 const profil_adupuy = ref(false);
 
 const userStore = useUserStore();
-const { isAuthenticated } = storeToRefs(userStore);
+const { isAuthenticated, loggedUser } = storeToRefs(userStore);
 </script>
 
 <template>
-  <div class="container-flex pt-4" style="position: relative">
-    <div id="HomePage" class="full-height pt-4">
+  <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
+  <div class="container-flex" style="position: relative">
+    <div id="HomePage" class="full-height">
       <div class="container">
         <div class="row pb-5">
           <div class="col-lg-6">
             <div class="text-center mb-3 d-block d-lg-none">
-              <h1 class="GameName neon-typo" style="font-size: 10vw">
-                <b>SPACE PONG</b>
+              <h1 class="neonText display-1" style="font-size: 10vw">
+                <b>Space Pong</b>
               </h1>
             </div>
             <br />
@@ -331,7 +333,7 @@ const { isAuthenticated } = storeToRefs(userStore);
   max-height: 400px;
   overflow-y: scroll;
   border-radius: 30px;
-  box-shadow: 0px 0px 10px 2px #fff961, inset 0px 0px 4px 2px #fff961;
+  box-shadow: 0px 0px 10px 2px white, inset 0px 0px 4px 2px white;
 }
 
 .req,
@@ -385,7 +387,7 @@ p {
 
 .neon-typo {
   color: #ffffff;
-  text-shadow: 0px 4px 15px #fff961, 0px 0px 10px #fff961;
+  text-shadow: 0px 4px 15px white, 0px 0px 10px white;
 }
 .GameName {
   font-family: 'Vibure', cursive;
@@ -400,7 +402,7 @@ p {
   display: block;
   position: relative;
   height: 2px;
-  box-shadow: 0px 0px 10px #fff961, 0px 0px 15px 5px #fff961;
+  box-shadow: 0px 0px 10px white, 0px 0px 15px 5px white;
   opacity: 1;
   width: 90%;
   color: #fffed9;

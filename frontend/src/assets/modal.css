@@ -21,7 +21,7 @@
 
 .bloc_modale .modale {
   background: radial-gradient(ellipse at top, #1b2735 0%, #080e21 95%);
-  box-shadow: 0px 0px 10px 2px #fff961, inset 0px 0px 4px 2px #fff961;
+  box-shadow: 0px 0px 10px 2px white, inset 0px 0px 4px 2px white;
   border: none;
   padding: 30px;
   position: fixed;

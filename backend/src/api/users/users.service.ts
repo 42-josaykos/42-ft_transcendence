@@ -185,8 +185,7 @@ export class UsersService {
     }
 
     // Avatar
-    userData.avatar = `https://avatars.dicebear.com/api/gridy/
-      ${userData.username.replace('#', '')}.svg`;
+    userData.avatar = `https://avatars.dicebear.com/api/gridy/${userData.username}.svg`;
 
     // Creating a new user and it's stats
     const newUser = this.usersRepository.create(userData);

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import Profil from './Profil.vue';
-import Setting from './Setting.vue';
 import Login from './Login.vue';
 import Register from './Register.vue';
 import { useMessageStore } from '@/stores/message';
@@ -17,9 +16,14 @@ defineProps<{
 
 const { messages } = storeToRefs(useMessageStore());
 const { channel, usersMembers } = storeToRefs(useChannelStore());
-const { loggedUser } = storeToRefs(useUserStore());
+const { setting_open, userClick, loggedUser, isMyProfile } = storeToRefs(
+  useUserStore()
+);
 
-function getUserData() {
+async function getUserData() {
+  if (isMyProfile) {
+    userClick.value = loggedUser.value;
+  }
   if (channel.value) {
     Get(
       '/channels/search?id=' +
@@ -35,7 +39,6 @@ function getUserData() {
 </script>
 
 <script lang="ts">
-export const setting_open = ref(false);
 export const login_open = ref(false);
 export const register_open = ref(false);
 </script>
@@ -44,8 +47,8 @@ export const register_open = ref(false);
   <div class="bloc_modale" v-if="setting_open">
     <div class="overlay" @click="setting_open = !setting_open"></div>
     <div
-      class="modale card"
-      style="min-width: 40vw; max-width: 75%; overflow: auto"
+      class="modale card scrollspy-profil"
+      style="min-width: 40vw; max-width: 75%; overflow: scroll"
     >
       <Profil @updateUserProfil="getUserData" />
     </div>
@@ -66,8 +69,32 @@ export const register_open = ref(false);
 
 <style>
 @import url('../assets/modal.css');
-.modale.card {
+
+.scrollspy-profil {
+  position: relative;
+  margin-top: 0.5rem;
   overflow: auto;
-  max-height: fit-content;
+
+  overflow-y: scroll;
+  scrollbar-color: rgb(32, 31, 31) transparent;
+  scrollbar-width: thin !important;
+}
+
+.scrollspy-profil::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollspy-profil::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollspy-profil::-webkit-scrollbar-thumb {
+  background-color: rgb(32, 31, 31);
+  border-radius: 20px;
+}
+
+.scrollspy-profil:hover {
+  scrollbar-color: rgb(32, 31, 31) transparent;
+  scrollbar-width: thin !important;
 }
 </style>
