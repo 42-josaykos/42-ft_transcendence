@@ -1,13 +1,15 @@
 import { Connection } from 'src/status/status.class';
 
 export class Game {
+  id: number;
   players: Player[];
   spectators?: Spectator[];
-  ball?: Ball;
+  ball: Ball;
   events: Events;
-  finished?: boolean;
+  finished: boolean;
   winner?: Player;
   intervalID?: NodeJS.Timer;
+  socketRoom: string;
 }
 
 export class Player {

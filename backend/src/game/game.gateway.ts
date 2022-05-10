@@ -37,7 +37,6 @@ export class GameGateway
   private logger: Logger = new Logger('GameGateway');
   private connectedClients: Connection[] = [];
   private queue: Connection[] = [];
-  private games: Game[] = [];
 
   afterInit(server: any) {
     this.logger.log('Game gateway is initialized');
@@ -75,7 +74,7 @@ export class GameGateway
 
     // Should never append, but prevention is better than cure
     if (userIndex === -1) {
-      console.log('Client: ', client);
+      // console.log('Client: ', client);
       console.log('Connected Clients: ', this.connectedClients);
       throw new WsException('Disconnecting user was not found');
     }
@@ -93,6 +92,22 @@ export class GameGateway
     // console.log('Clients connected: ', this.connectedClients);
   }
 
+  @SubscribeMessage('getOngoingGames')
+  getOngoingGames(@ConnectedSocket() client: Socket) {
+    const games = this.gameService.getGames().map((value) => {
+      return {
+        id: value.id,
+        playerOne: value.players[0].player.user,
+        playerTwo: value.players[1].player.user,
+      };
+    });
+    console.log('games: ', games);
+
+    this.server.to(client.id).emit('receiveOngoingGames', games);
+    // return { event: 'receiveOngoingGames', data: games };
+  }
+
+  // Queue handling
   @SubscribeMessage('queue')
   async handleQueue(
     @ConnectedSocket() client: Socket,
@@ -116,14 +131,25 @@ export class GameGateway
         playerTwo,
         this.server,
       );
+<<<<<<< HEAD
       // Create a socket room
       const roomName = `${playerOne.player.user.id}-${playerTwo.player.user.id}`;
       this.joinRoom(roomName, playerOne.player.socketID);
       this.joinRoom(roomName, playerTwo.player.socketID);
+=======
+
+      // Create a socket room
+      const roomName = `${playerOne.player.user.id}-${playerTwo.player.user.id}`;
+      this.joinRoom(roomName, [
+        ...playerOne.player.socketID,
+        ...playerTwo.player.socketID,
+      ]);
+>>>>>>> db393fb5536ecfad95c40c185b0cf4ef2183dbf2
       this.server.to(roomName).emit('startGame', players);
     }
   }
 
+<<<<<<< HEAD
   // SocketIO room managment
   joinRoom(roomName: string, socketIDs: string[]) {
     for (const socketID in socketIDs)
@@ -143,17 +169,42 @@ export class GameGateway
     } catch (error) {
       throw error;
     }
+=======
+  @SubscribeMessage('leaveQueue')
+  leaveQueue(@ConnectedSocket() client: Socket, @MessageBody() data: User) {
+    // Removes the user from the queue if they are in it
+    const userIndex = this.queue.findIndex(
+      (connection) => connection.user === data,
+    );
+
+    if (userIndex !== -1) this.queue.splice(userIndex, 0);
+>>>>>>> db393fb5536ecfad95c40c185b0cf4ef2183dbf2
   }
 
-  @SubscribeMessage('moveRight')
-  handleMoveRight(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: User,
-  ) {
-    try {
-      const players = this.gameService.moveRight(client.id, data);
-    } catch (error) {
-      throw error;
+  // Spectators handling
+  @SubscribeMessage('addSpectator')
+  addSpectator(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
+    // Add a spectator to a game
+    const games = this.gameService.getGames();
+    const spectatedGame = games[data.gameID];
+
+    // Add the spectator socket to the game room
+    this.server.to(client.id).socketsJoin(spectatedGame.socketRoom);
+  }
+
+  // SocketIO room managment
+  joinRoom(roomName: string, socketIDs: string[]) {
+    for (const socketID of socketIDs)
+      this.server.to(socketID).socketsJoin(roomName);
+  }
+
+  leaveRoom(roomName: string, socketIDs: string[]) {
+    for (const socketID of socketIDs)
+      this.server.to(socketID).socketsLeave(roomName);
+  }
+  emitToSockets(event: string, data: any, socketID: string[]) {
+    for (const socket of socketID) {
+      this.server.to(socket).emit(event, data);
     }
   }
 
@@ -174,7 +225,7 @@ export class GameGateway
     };
 
     // console.log('gameUpdate: ', gameUpdate);
-    this.server.emit('gameUpdate', gameUpdate);
+    this.server.to(game.socketRoom).emit('gameUpdate', gameUpdate);
   }
 
   async broadcastEndGame(game: Game) {
@@ -194,7 +245,32 @@ export class GameGateway
       });
       // console.log('Match Result: ', match.data);
 
-      this.server.emit('endGame');
+      this.server.to(game.socketRoom).emit('endGame');
+
+      // Make the players / spectators leave the room
+      this.server.to(game.socketRoom).socketsLeave(game.socketRoom);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Player Handling
+  @SubscribeMessage('moveLeft')
+  handleMoveLeft(@ConnectedSocket() client: Socket, @MessageBody() data: User) {
+    try {
+      const players = this.gameService.moveLeft(client.id, data);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @SubscribeMessage('moveRight')
+  handleMoveRight(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: User,
+  ) {
+    try {
+      const players = this.gameService.moveRight(client.id, data);
     } catch (error) {
       throw error;
     }
