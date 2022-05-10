@@ -131,12 +131,6 @@ export class GameGateway
         playerTwo,
         this.server,
       );
-<<<<<<< HEAD
-      // Create a socket room
-      const roomName = `${playerOne.player.user.id}-${playerTwo.player.user.id}`;
-      this.joinRoom(roomName, playerOne.player.socketID);
-      this.joinRoom(roomName, playerTwo.player.socketID);
-=======
 
       // Create a socket room
       const roomName = `${playerOne.player.user.id}-${playerTwo.player.user.id}`;
@@ -144,32 +138,10 @@ export class GameGateway
         ...playerOne.player.socketID,
         ...playerTwo.player.socketID,
       ]);
->>>>>>> db393fb5536ecfad95c40c185b0cf4ef2183dbf2
       this.server.to(roomName).emit('startGame', players);
     }
   }
 
-<<<<<<< HEAD
-  // SocketIO room managment
-  joinRoom(roomName: string, socketIDs: string[]) {
-    for (const socketID in socketIDs)
-      this.server.to(socketID).socketsJoin(roomName);
-  }
-
-  leaveRoom(roomName: string, socketIDs: string[]) {
-    for (const socketID in socketIDs)
-      this.server.to(socketID).socketsLeave(roomName);
-  }
-
-  // Player Handling
-  @SubscribeMessage('moveLeft')
-  handleMoveLeft(@ConnectedSocket() client: Socket, @MessageBody() data: User) {
-    try {
-      const players = this.gameService.moveLeft(client.id, data);
-    } catch (error) {
-      throw error;
-    }
-=======
   @SubscribeMessage('leaveQueue')
   leaveQueue(@ConnectedSocket() client: Socket, @MessageBody() data: User) {
     // Removes the user from the queue if they are in it
@@ -178,7 +150,6 @@ export class GameGateway
     );
 
     if (userIndex !== -1) this.queue.splice(userIndex, 0);
->>>>>>> db393fb5536ecfad95c40c185b0cf4ef2183dbf2
   }
 
   // Spectators handling
