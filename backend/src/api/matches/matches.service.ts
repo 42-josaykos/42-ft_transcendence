@@ -150,6 +150,30 @@ export class MatchesService {
         else newMatch.winner = newMatch.players[1];
       }
 
+      // Updating player stats
+      const playerOne = await this.usersRepository.findOne(
+        newMatch.players[0],
+        { relations: ['stats'] },
+      );
+      const playerTwo = await this.usersRepository.findOne(
+        newMatch.players[1],
+        { relations: ['stats'] },
+      );
+      const winner =
+        playerOne.id === newMatch.winner.id ? playerOne : playerTwo;
+      const looser =
+        playerOne.id === newMatch.winner.id ? playerTwo : playerOne;
+
+      ++winner.stats.played;
+      ++looser.stats.played;
+      ++winner.stats.win;
+      ++looser.stats.lose;
+      winner.stats.ratio = winner.stats.win / winner.stats.lose;
+      looser.stats.ratio = looser.stats.win / looser.stats.lose;
+
+      await this.usersRepository.save(winner);
+      await this.usersRepository.save(looser);
+
       await this.matchesRepository.save(newMatch);
       return this.getMatchByID(newMatch.id);
     } catch (error) {
