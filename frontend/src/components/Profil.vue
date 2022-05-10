@@ -6,7 +6,9 @@ import { ref } from 'vue';
 import Setting from './Setting.vue';
 import Stats from './profile/Stats.vue';
 import Match_History from './profile/MatchHistory.vue';
+import { useMatchStore } from '@/stores/match';
 
+const { matches, stats } = storeToRefs(useMatchStore());
 const userStore = useUserStore();
 const { loggedUser, setting_open, userClick, isMyProfile } =
   storeToRefs(userStore);
@@ -14,8 +16,19 @@ const { loggedUser, setting_open, userClick, isMyProfile } =
 const stat_open = ref(true);
 const mh_open = ref(false);
 const set_open = ref(false);
+let wonMatches;
 
 const emits = defineEmits(['updateUserProfil']);
+
+function getStats() {
+  stats.value[0] = matches.value.length;
+  wonMatches = matches.value.filter(
+    match => match.winner.id === userClick.value?.id
+  );
+  stats.value[1] = wonMatches.length;
+  stats.value[2] = stats.value[0] - stats.value[1];
+  stats.value[3] = (stats.value[1] / stats.value[0]) * 100;
+}
 </script>
 
 <template>
@@ -49,7 +62,7 @@ const emits = defineEmits(['updateUserProfil']);
           <!-- Logout Button -->
           <div v-if="isMyProfile" class="d-flex justify-content-center">
             <button
-              class="mod-btn mod-btn-red d-md-inline-block d-none"
+              class="mod-btn mod-btn-red d-inline-block"
               onclick="window.location.href='/auth/logout'"
             >
               Logout
@@ -98,7 +111,7 @@ const emits = defineEmits(['updateUserProfil']);
         </div>
         <hr />
         <div v-if="stat_open">
-          <!-- <Stats /> -->
+          <Stats :stats="stats" />
         </div>
         <div v-if="mh_open">
           <Match_History />
