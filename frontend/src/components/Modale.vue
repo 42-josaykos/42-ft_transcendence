@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import Profil from './Profil.vue';
-// import Setting from './Setting.vue';
 import Login from './Login.vue';
 import Register from './Register.vue';
 import { useMessageStore } from '@/stores/message';
@@ -17,9 +16,14 @@ defineProps<{
 
 const { messages } = storeToRefs(useMessageStore());
 const { channel, usersMembers } = storeToRefs(useChannelStore());
-const { loggedUser, setting_open } = storeToRefs(useUserStore());
+const { setting_open, userClick, loggedUser, isMyProfile } = storeToRefs(
+  useUserStore()
+);
 
-function getUserData() {
+async function getUserData() {
+  if (isMyProfile) {
+    userClick.value = loggedUser.value;
+  }
   if (channel.value) {
     Get(
       '/channels/search?id=' +
@@ -35,7 +39,6 @@ function getUserData() {
 </script>
 
 <script lang="ts">
-// export const setting_open = ref(false);
 export const login_open = ref(false);
 export const register_open = ref(false);
 </script>
@@ -66,10 +69,6 @@ export const register_open = ref(false);
 
 <style>
 @import url('../assets/modal.css');
-.modale .card {
-  overflow: scroll;
-  /* max-height: fit-content; */
-}
 
 .scrollspy-profil {
   position: relative;

@@ -1,16 +1,16 @@
-import { defineStore } from "pinia";
-import { ref } from "vue";
-import type { User } from "@/models/user.model";
-import { io, type Socket } from "socket.io-client";
+import { defineStore } from 'pinia';
+import { ref, computed } from '@vue/reactivity';
+import type { User } from '@/models/user.model';
+import { io, type Socket } from 'socket.io-client';
 
 // Tracks users database
-export const useUserStore = defineStore("user", () => {
+export const useUserStore = defineStore('user', () => {
   const users = ref<User[]>([]);
   const usersOnline = ref<Number[]>([]);
-  const loggedUser = ref<User | null>(null);
+  const loggedUser = ref<User | undefined>();
   const gameSocket = ref<Socket>(
-    io("ws://localhost:6060/game", {
-      withCredentials: true,
+    io('ws://localhost:6060/game', {
+      withCredentials: true
     })
   );
   const isAuthenticated = ref(false);
@@ -34,14 +34,17 @@ export const useUserStore = defineStore("user", () => {
     users.value.splice(index, 1, { ...users.value[index], ...updatedData });
   };
 
-   const isBlocked = (user: User | undefined) => {
-    if (user != undefined && usersBlocked.value.findIndex(el => el.id === user.id) != -1) {
-      return true
+  const isBlocked = (user: User | undefined) => {
+    if (
+      user != undefined &&
+      usersBlocked.value.findIndex(el => el.id === user.id) != -1
+    ) {
+      return true;
     }
-    return false
-   }
+    return false;
+  };
 
-   const addUserBlocked = (newUser: User) => {
+  const addUserBlocked = (newUser: User) => {
     usersBlocked.value.push(newUser);
   };
 
@@ -51,13 +54,16 @@ export const useUserStore = defineStore("user", () => {
   };
 
   const isFriend = (user: User | undefined) => {
-    if (user != undefined && usersFriends.value.findIndex(el => el.id === user.id) != -1) {
-      return true
+    if (
+      user != undefined &&
+      usersFriends.value.findIndex(el => el.id === user.id) != -1
+    ) {
+      return true;
     }
-    return false
-   }
+    return false;
+  };
 
-   const addUserFriend = (newUser: User) => {
+  const addUserFriend = (newUser: User) => {
     usersFriends.value.push(newUser);
   };
 
@@ -67,8 +73,17 @@ export const useUserStore = defineStore("user", () => {
   };
 
   const initUserClick = () => {
-    userClick.value = undefined
-  }
+    userClick.value = undefined;
+  };
+
+  const isMyProfile = computed(() => {
+    if (loggedUser.value && userClick.value) {
+      if (loggedUser.value.id !== userClick.value.id) {
+        return false;
+      }
+    }
+    return true;
+  });
 
   return {
     users,
@@ -91,6 +106,7 @@ export const useUserStore = defineStore("user", () => {
     isFriend,
     addUserFriend,
     removeUserFriend,
-    initUserClick
+    initUserClick,
+    isMyProfile
   };
 });
