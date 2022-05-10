@@ -36,6 +36,11 @@ export class GameService implements OnModuleInit {
     this.gateway = this.moduleRef.get(GameGateway);
   }
 
+  getUser(users: Connection[], user: User) {
+    const connection = users.find((value) => value.user.id === user.id);
+    return connection;
+  }
+
   // Main game code
   createGame(playerOne: Player, playerTwo: Player, socket: Server) {
     // Create and start game
