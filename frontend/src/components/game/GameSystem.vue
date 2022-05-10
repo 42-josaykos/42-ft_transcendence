@@ -15,7 +15,7 @@ if (isAuthenticated.value) {
 
   // After socker connection, the server needs the logged user id
   gameSocket.on("requestGameUserInfo", function (data: any) {
-    gameSocket.emit("connection", loggedUser.value);
+    gameSocket.emit("gameConnection", loggedUser.value);
   });
 
   // Listening for updates on the user list
