@@ -253,8 +253,13 @@ export class ChannelsService {
       if ('isProtected' in updatedChannel)
         channel.isProtected = updatedChannel.isProtected;
       if ('password' in updatedChannel) {
+        if (updatedChannel.password != null) {
         const hash = await bcrypt.hash(updatedChannel.password, 10);
         channel.password = hash;
+        }
+        else {
+          channel.password = null;
+        }
       }
       if ('owner' in updatedChannel) channel.owner = updatedChannel.owner;
       if ('admins' in updatedChannel) channel.admins = updatedChannel.admins;
@@ -338,7 +343,6 @@ export class ChannelsService {
           updatedChannel.removeInvites,
           channel.invites,
         );
-
       await this.channelsRepository.save(channel);
       return await this.getChannelByID(channelID);
     } catch (error) {

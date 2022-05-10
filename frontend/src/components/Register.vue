@@ -38,6 +38,16 @@ function register() {
     alert("Password doesn't matched");
   }
 }
+
+const seePassword = (stringId: string) => {
+  let pass = document.getElementById(stringId);
+  if (pass?.getAttribute('type') === 'password') {
+      pass?.setAttribute('type', 'text')
+  }
+  else {
+    pass?.setAttribute('type', 'password')
+  }
+}
 </script>
 
 <template>
@@ -46,34 +56,46 @@ function register() {
 
     <div>
       <form @submit.prevent.trim.lazy="register" class="form-signup">
-        <label for="inputUsername" class="sr-only">Username</label>
-        <input
-          type="text"
-          id="inputUsername"
-          class="form-control"
-          placeholder="Username"
-          v-model="username"
-          required
-          autofocus
-        />
-        <label for="inputPassword1" class="sr-only">Password</label>
-        <input
-          type="password"
-          id="inputPassword1"
-          class="form-control"
-          placeholder="Password"
-          v-model="password1"
-          required
-        />
-        <label for="inputPassword2" class="sr-only">Confirm Password</label>
-        <input
-          type="password"
-          id="inputPassword2"
-          class="form-control"
-          placeholder="Confirm password"
-          v-model="password2"
-          required
-        />
+
+        <div class="form-signin pt-3">
+          <div class="input-group mb-3 mx-auto">
+            <label for="inputUsername" class="sr-only">Username</label>
+            <input
+              type="text"
+              id="inputUsername"
+              class="form-control"
+              placeholder="Username"
+              v-model="username"
+              required
+              autofocus
+            />
+          </div>
+          <div class="input-group mb-3 mx-auto">
+            <label for="inputPassword1" class="sr-only">Password</label>
+            <span @click="seePassword('inputPassword1')" class="input-group-text" id="basic-addon1"><i class="fa-regular fa-eye"></i></span>
+            <input
+              type="password"
+              id="inputPassword1"
+              class="form-control"
+              placeholder="Password"
+              v-model="password1"
+              required
+            />
+          </div>
+          <div class="input-group mb-3 mx-auto">
+            <label for="inputPassword2" class="sr-only">Confirm Password</label>
+            <span @click="seePassword('inputPassword2')" class="input-group-text" id="basic-addon1"><i class="fa-regular fa-eye"></i></span>
+            <input
+              type="password"
+              id="inputPassword2"
+              class="form-control"
+              placeholder="Confirm password"
+              v-model="password2"
+              required
+            />
+          </div>
+        </div>
+
         <button
           class="mod-btn mod-btn-yellow"
           type="submit"
@@ -91,7 +113,6 @@ function register() {
 input {
   text-align: center;
   margin: auto;
-  max-width: 300px;
 }
 
 input::placeholder {
@@ -103,4 +124,13 @@ input.form-control:focus {
   box-shadow: none;
   border: 1px solid #ced4da;
 }
+
+span.input-group-text, input#inputUsername {
+  border-top-left-radius: 0.25rem !important;
+  border-bottom-left-radius: 0.25rem !important;
+}
+span.input-group-text:hover {
+  cursor: pointer;
+}
+
 </style>
