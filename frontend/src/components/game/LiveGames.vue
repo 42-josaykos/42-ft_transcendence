@@ -8,10 +8,22 @@ import { ref } from "vue";
 const userStore = useUserStore();
 const { gameSocket } = storeToRefs(userStore);
 
+const router = useRouter();
+
+// Live games
 const liveGames = ref<any>(null);
 gameSocket.value?.on("liveGames", (games: any) => {
-  console.log("[LiveGames] Live games: ", games);
+  //   console.log("[LiveGames] Live games: ", games);
   liveGames.value = games;
+});
+
+// Spectate
+const spectate = (gameID: number) => {
+  gameSocket.value?.emit("addSpectator", gameID);
+};
+
+gameSocket.value?.on("spectateGame", () => {
+  router.push("/spectate");
 });
 </script>
 
@@ -34,7 +46,11 @@ gameSocket.value?.on("liveGames", (games: any) => {
           <th class="watch_player">{{ game.playerOne.username }}</th>
           <td class="neon-typo versus">VS</td>
           <th class="watch_player">{{ game.playerTwo.username }}</th>
-          <td><i class="fa-solid fa-eye fa-xl action_icon"></i></td>
+          <td>
+            <a href="#" @click="spectate(game.id)"
+              ><i class="fa-solid fa-eye fa-xl action_icon"></i
+            ></a>
+          </td>
         </tr>
       </table>
     </div>

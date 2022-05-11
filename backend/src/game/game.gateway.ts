@@ -16,8 +16,7 @@ import axios from 'axios';
 import User from 'src/api/users/entities/user.entity';
 import { Connection } from 'src/status/status.class';
 import { GameService } from './game.service';
-import { StatusGateway } from 'src/status/status.gateway';
-import { Game, Player, Spectator } from 'src/game/game.class';
+import { Game, Player } from 'src/game/game.class';
 
 @WebSocketGateway({
   namespace: 'game',
@@ -155,13 +154,22 @@ export class GameGateway
 
   // Spectators handling
   @SubscribeMessage('addSpectator')
-  addSpectator(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
+  addSpectator(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() gameID: number,
+  ) {
     // Add a spectator to a game
-    const games = this.gameService.getGames();
-    const spectatedGame = games[data.gameID];
+    const spectatedGame = this.gameService
+      .getGames()
+      .find((value) => value.id === gameID);
+
+    // console.log('Spectated game: ', spectatedGame);
 
     // Add the spectator socket to the game room
-    this.server.to(client.id).socketsJoin(spectatedGame.socketRoom);
+    if (spectatedGame) {
+      this.server.to(client.id).socketsJoin(spectatedGame.socketRoom);
+      this.server.to(client.id).emit('spectateGame');
+    }
   }
 
   // SocketIO room managment

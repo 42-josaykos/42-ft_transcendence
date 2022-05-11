@@ -12,7 +12,6 @@ import {
   BallBoundaries,
   Canvas,
   GameOptions,
-  Spectator,
   Events,
 } from 'src/game/game.class';
 
@@ -58,7 +57,6 @@ export class GameService implements OnModuleInit {
     let game: Game = {
       id: this.gameID++,
       players: [playerOne, playerTwo],
-      spectators: [],
       ball: newBall,
       events: events,
       finished: false,

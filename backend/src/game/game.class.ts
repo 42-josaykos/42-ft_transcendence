@@ -3,7 +3,7 @@ import { Connection } from 'src/status/status.class';
 export class Game {
   id: number;
   players: Player[];
-  spectators?: Spectator[];
+  // spectators?: Spectator[];
   ball: Ball;
   events: Events;
   finished: boolean;
@@ -21,9 +21,9 @@ export class Player {
   score?: number;
 }
 
-export class Spectator {
-  user: Connection;
-}
+// export class Spectator {
+//   user: Connection;
+// }
 
 export class Ball {
   x: number;
