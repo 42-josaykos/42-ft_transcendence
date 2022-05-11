@@ -4,9 +4,13 @@ import { storeToRefs, mapState } from "pinia";
 import { useUserStore } from "@/stores/user";
 import { useRouter } from "vue-router";
 import { Player } from "src/../../backend/src/game/game.class.ts";
+import MatchInfo from "./MatchInfo.vue";
 
 export default {
   name: "Pong",
+  components: {
+    matchinfo: MatchInfo,
+  },
   props: ["revelePlay", "msg", "paddleSize", "ballSpeed"],
   data: function () {
     return {
@@ -282,15 +286,18 @@ export default {
 </script>
 
 <template>
-  <div class="pong-game">
-    <canvas
-      ref="pong"
-      class="pong"
-      id="pong"
-      :width="canvas.w"
-      :height="canvas.h"
-    >
-    </canvas>
+  <div>
+    <matchinfo></matchinfo>
+    <div class="pong-game">
+      <canvas
+        ref="pong"
+        class="pong"
+        id="pong"
+        :width="canvas.w"
+        :height="canvas.h"
+      >
+      </canvas>
+    </div>
   </div>
 </template>
 

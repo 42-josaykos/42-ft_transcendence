@@ -31,11 +31,16 @@ const user = ref<User | null>(null);
 // Stores
 
 const userStore = useUserStore();
-const { users, loggedUser, gameSocket } = storeToRefs(userStore);
+const { users, loggedUser, gameSocket, playersDuo } = storeToRefs(userStore);
 
 const router = useRouter();
 
-gameSocket.value.on("startGame", (data: any) => {
+gameSocket.value.on("startGame", (players: User[]) => {
+  // console.log("data: ", players);
+  playersDuo.value = players;
+  console.log("DUO userdebug: ", playersDuo.value);
+  // console.log("playersDuo: " + playersDuo.value[0]);
+  // =data; Mettre data dans store
   router.push("/matchmaking");
 });
 

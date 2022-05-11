@@ -20,6 +20,7 @@ export const useUserStore = defineStore('user', () => {
   const isTwoFactorAuth = ref<boolean>(false);
   const userClick = ref<User>();
   const setting_open = ref<boolean>(false);
+  const playersDuo = ref<User[]>([]);
 
   const createUser = (newUser: User) => {
     users.value.push(newUser);
@@ -107,6 +108,7 @@ export const useUserStore = defineStore('user', () => {
     addUserFriend,
     removeUserFriend,
     initUserClick,
-    isMyProfile
+    isMyProfile,
+    playersDuo
   };
 });

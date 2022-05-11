@@ -71,7 +71,7 @@ export class GameGateway
       // console.log('playerTwo: ', playerTwo);
 
       // Create and start game
-      const players = this.gameService.createGame(
+      this.gameService.createGame(
         playerOne,
         playerTwo,
         this.server,
@@ -79,7 +79,7 @@ export class GameGateway
       this.server
         .to(playerOne.player.socketID[0])
         .to(playerTwo.player.socketID[0])
-        .emit('startGame', players);
+        .emit('startGame', [playerOne.player.user, playerTwo.player.user]);
     }
   }
 
