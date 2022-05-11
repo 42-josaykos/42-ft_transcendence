@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import TeamProfil from './TeamProfil.vue';
-import { storeToRefs } from 'pinia';
-import { useUserStore } from '@/stores/user';
-import Ladder from './profile/Ladder.vue';
-import Navbar from './Navbar.vue';
+import { ref } from "vue";
+import TeamProfil from "./TeamProfil.vue";
+import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/user";
+import Ladder from "./profile/Ladder.vue";
+import Navbar from "./Navbar.vue";
+import Queue from "./game/Queue.vue";
+import LiveGames from "./game/LiveGames.vue";
 
 const profil_vmoreau = ref(false);
 const profil_mabriand = ref(false);
@@ -96,53 +98,9 @@ const { isAuthenticated, loggedUser } = storeToRefs(userStore);
               </div>
             </div>
 
-            <div class="infoGame mb-5">
-              <div class="req neon-typo" v-if="!isAuthenticated">
-                Log in to access
-              </div>
-              <div class="cont">
-                <div
-                  class="neon-typo pt-4"
-                  style="font-size: xx-large; font-weight: bold"
-                >
-                  Live Game
-                </div>
-                <hr />
-                <br />
-                <table style="width: 90%; table-layout: fixed; margin-left: 5%">
-                  <tr>
-                    <th class="watch_player">Josaykos</th>
-                    <td class="neon-typo versus">VS</td>
-                    <th class="watch_player">Lchapren</th>
-                    <td><i class="fa-solid fa-eye fa-xl action_icon"></i></td>
-                  </tr>
-                  <tr>
-                    <th class="watch_player">Vmoreau</th>
-                    <td class="neon-typo versus">VS</td>
-                    <th class="watch_player">Adupuy</th>
-                    <td><i class="fa-solid fa-eye fa-xl action_icon"></i></td>
-                  </tr>
-                  <tr>
-                    <th class="watch_player">Mabriand</th>
-                    <td class="neon-typo versus">VS</td>
-                    <th class="watch_player">Josaykos</th>
-                    <td><i class="fa-solid fa-eye fa-xl action_icon"></i></td>
-                  </tr>
-                  <tr>
-                    <th class="watch_player">Adupuy</th>
-                    <td class="neon-typo versus">VS</td>
-                    <th class="watch_player">Lchapren</th>
-                    <td><i class="fa-solid fa-eye fa-xl action_icon"></i></td>
-                  </tr>
-                  <tr>
-                    <th class="watch_player">Dicayne Dicayne Dicayne</th>
-                    <td class="neon-typo versus">VS</td>
-                    <th class="watch_player">Mabriand Mabriand Mabriand</th>
-                    <td><i class="fa-solid fa-eye fa-xl action_icon"></i></td>
-                  </tr>
-                </table>
-              </div>
-            </div>
+            <Queue />
+            <LiveGames />
+
             <div class="infoGame">
               <div class="req neon-typo" v-if="!isAuthenticated">
                 Log in to access
@@ -364,7 +322,7 @@ const { isAuthenticated, loggedUser } = storeToRefs(userStore);
 }
 .team_btn {
   position: relative;
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
   font-size: x-large;
   border-radius: 10px;
   border: none;
@@ -390,7 +348,7 @@ p {
   text-shadow: 0px 4px 15px white, 0px 0px 10px white;
 }
 .GameName {
-  font-family: 'Vibure', cursive;
+  font-family: "Vibure", cursive;
   font-style: normal;
 }
 
