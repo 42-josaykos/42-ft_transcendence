@@ -148,7 +148,7 @@ export class GameGateway
         playerTwo: value.players[1].player.user,
       };
     });
-    console.log('Live Games: ', liveGames);
+    // console.log('Live Games: ', liveGames);
 
     return liveGames;
   }
