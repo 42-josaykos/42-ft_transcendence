@@ -15,6 +15,7 @@ export const useUserStore = defineStore('user', () => {
   );
   const isAuthenticated = ref(false);
   const socketChat = ref<Socket>();
+  const statusSocket = ref<Socket>();
   const usersBlocked = ref<User[]>([]);
   const usersFriends = ref<User[]>([]);
   const isTwoFactorAuth = ref<boolean>(false);
@@ -92,6 +93,7 @@ export const useUserStore = defineStore('user', () => {
     usersOnline,
     isAuthenticated,
     socketChat,
+    statusSocket,
     usersBlocked,
     usersFriends,
     gameSocket,

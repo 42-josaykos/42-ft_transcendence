@@ -34,22 +34,23 @@ export const useChannelStore = defineStore('channel', () => {
       allChannels.value.push(newChannel);
     }
 
-    const updateMember = (userID: number) => {
-      
-      for (const chan of allChannels.value) {
-        const members = chan.members;
-        const index =  members.findIndex((el: User) => el.id === userID);
-        if (index != -1) {
-          chan.isMember = true;
-        }
-        else {
-          chan.isMember = false;
+    const updateMember = (userID: number | undefined) => {
+      if (userID != undefined) {
+        for (const chan of allChannels.value) {
+          const members = chan.members;
+          const index =  members.findIndex((el: User) => el.id === userID);
+          if (index != -1) {
+            chan.isMember = true;
+          }
+          else {
+            chan.isMember = false;
+          }
         }
       }
     }
 
-    const updateOwner = (userID: number) => {
-      if (userID != -1) {
+    const updateOwner = (userID: number | undefined) => {
+      if (userID != undefined) {
         Get(`/users/search?id=${userID.toString()}&ownerChannels`).then(res => {
           if (res.status == 200) {
             const ownerChannels = res.data[0].ownerChannels;
