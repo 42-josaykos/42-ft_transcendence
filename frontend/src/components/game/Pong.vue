@@ -105,13 +105,17 @@ export default {
       this.updateGame(data);
     });
     this.gameSocket.on("endGame", () => {
-      clearInterval(this.intervalID);
+      // clearInterval(this.intervalID);
       this.router.push("/debug");
     });
     // ##########################################################################
 
     this.launch();
     return;
+  },
+  unmounted() {
+    clearInterval(this.intervalID);
+    return ;
   },
   destroyed() {
     window.removeEventListener("keydown", this.getKeyDown);
