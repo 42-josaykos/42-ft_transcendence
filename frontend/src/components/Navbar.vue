@@ -4,33 +4,24 @@ import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/user';
 import ModalChat from "./chat/ModalChat.vue";
 import UsersFriends from "./UsersFriends.vue";
-// import { onBeforeMount, onMounted } from "vue";
-// import { Get } from "@/services/requests";
-// import type { User } from '@/models/user.model';
+import { onMounted } from "vue";
+import { Get } from "@/services/requests";
 
-const { setting_open, userClick, modalFriends, usersFriends/*, loggedUser*/ } = storeToRefs(useUserStore());
+const { setting_open, userClick, modalFriends, usersFriends, loggedUser } = storeToRefs(useUserStore());
 
 defineProps<{
   isAuthenticated: boolean;
-  loggedUser: any;
 }>();
 
-  // const props = defineProps({
-  //     loggedUser: Object,
-  //     isAuthenticated: Boolean
-  // })
-
-//  onMounted(async () => {console.log(">>> AAA")
-//   if (props.loggedUser != undefined) {
-//     console.log("logged => ", props.loggedUser)
-//     await Get(`/users/search?id=${props.loggedUser.value?.id}&friends`).then((res) => {
-//       if (res.status == 200) {
-//         usersFriends.value = res.data[0].friends;
-//         console.log("friends => ", usersFriends.value)
-//       }
-//     })
-//   }
-// });
+ onMounted(async () => {console.log(">>> AAA")
+  if (loggedUser.value != undefined) {
+    await Get(`/users/search?id=${loggedUser.value?.id}&friends`).then((res: any) => {
+      if (res.status == 200) {
+        usersFriends.value = res.data[0].friends;
+      }
+    })
+  }
+});
 </script>
 
 
