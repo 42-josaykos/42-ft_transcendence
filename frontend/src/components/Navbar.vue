@@ -13,7 +13,7 @@ defineProps<{
   isAuthenticated: boolean;
 }>();
 
- onMounted(async () => {console.log(">>> AAA")
+ onMounted(async () => {
   if (loggedUser.value != undefined) {
     await Get(`/users/search?id=${loggedUser.value?.id}&friends`).then((res: any) => {
       if (res.status == 200) {
