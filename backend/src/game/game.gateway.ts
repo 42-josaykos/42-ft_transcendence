@@ -92,21 +92,6 @@ export class GameGateway
     // console.log('Clients connected: ', this.connectedClients);
   }
 
-  @SubscribeMessage('getOngoingGames')
-  getOngoingGames(@ConnectedSocket() client: Socket) {
-    const games = this.gameService.getGames().map((value) => {
-      return {
-        id: value.id,
-        playerOne: value.players[0].player.user,
-        playerTwo: value.players[1].player.user,
-      };
-    });
-    console.log('games: ', games);
-
-    this.server.to(client.id).emit('receiveOngoingGames', games);
-    // return { event: 'receiveOngoingGames', data: games };
-  }
-
   // Queue handling
   @SubscribeMessage('queue')
   async handleQueue(
@@ -132,6 +117,9 @@ export class GameGateway
         this.server,
       );
 
+      // Emit live games to clients
+      this.server.emit('liveGames', this.getOngoingGames());
+
       // Create a socket room
       const roomName = `${playerOne.player.user.id}-${playerTwo.player.user.id}`;
       this.joinRoom(roomName, [
@@ -149,7 +137,20 @@ export class GameGateway
       (connection) => connection.user === data,
     );
 
-    if (userIndex !== -1) this.queue.splice(userIndex, 0);
+    if (userIndex !== -1) this.queue.splice(userIndex, 1);
+  }
+
+  getOngoingGames() {
+    const liveGames = this.gameService.getGames().map((value) => {
+      return {
+        id: value.id,
+        playerOne: value.players[0].player.user,
+        playerTwo: value.players[1].player.user,
+      };
+    });
+    console.log('Live Games: ', liveGames);
+
+    return liveGames;
   }
 
   // Spectators handling
@@ -173,6 +174,7 @@ export class GameGateway
     for (const socketID of socketIDs)
       this.server.to(socketID).socketsLeave(roomName);
   }
+
   emitToSockets(event: string, data: any, socketID: string[]) {
     for (const socket of socketID) {
       this.server.to(socket).emit(event, data);
@@ -217,6 +219,7 @@ export class GameGateway
       // console.log('Match Result: ', match.data);
 
       this.server.to(game.socketRoom).emit('endGame');
+      this.server.emit('liveGames', this.getOngoingGames());
 
       // Make the players / spectators leave the room
       this.server.to(game.socketRoom).socketsLeave(game.socketRoom);
