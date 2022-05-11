@@ -30,10 +30,6 @@ onMounted(() => {
 });
 </script>
 
-<script lang="ts">
-export const isMeteor = ref(false);
-</script>
-
 <style>
 @import url("./assets/meteor.css");
 </style>
@@ -41,23 +37,6 @@ export const isMeteor = ref(false);
 <template>
   <div style="z-index: 0">
     <div class="star"></div>
-    <div v-if="isMeteor">
-      <div class="meteor-1"></div>
-      <div class="meteor-2"></div>
-      <div class="meteor-3"></div>
-      <div class="meteor-4"></div>
-      <div class="meteor-5"></div>
-      <div class="meteor-6"></div>
-      <div class="meteor-7"></div>
-      <div class="meteor-8"></div>
-      <div class="meteor-9"></div>
-      <div class="meteor-10"></div>
-      <div class="meteor-11"></div>
-      <div class="meteor-12"></div>
-      <div class="meteor-13"></div>
-      <div class="meteor-14"></div>
-      <div class="meteor-15"></div>
-    </div>
     <div
       class="full-height full-width"
       style="
