@@ -3,12 +3,10 @@ import { Get } from '@/services/requests';
 import { useUserStore } from '@/stores/user';
 import { useMatchStore } from '@/stores/match';
 import { storeToRefs } from 'pinia';
-import { onMounted, ref } from 'vue';
+import { onMounted } from 'vue';
 
 const { userClick } = storeToRefs(useUserStore());
 const { matches } = storeToRefs(useMatchStore());
-
-
 
 async function getMatchHistory() {
   let response;
@@ -20,26 +18,17 @@ async function getMatchHistory() {
   } catch (error: any) {}
 }
 
-
-
 onMounted(() => {
-  // Get('/auth/jwt-status').then(res => {
-  //   loggedUser.value = res.data;
-
-  // });
   getMatchHistory();
 });
 </script>
 
 <template>
-  <h2>Match history</h2>
-
   <h3>{{ userClick?.username }}</h3>
   <h3>{{ userClick?.id }}</h3>
 
   <div class="container">
     <div class="history">
-      <h4>History</h4>
       <table class="table table-dark table-bordered">
         <thead>
           <tr>
@@ -47,14 +36,17 @@ onMounted(() => {
             <th scope="col">Player 1</th>
             <th scope="col">Player 2</th>
             <th scope="col">Score</th>
+            <th scope="col">Win / Lose</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(match, index) in matches" :key="match.id">
             <th scope="row">{{ index + 1 }}</th>
-            <td>{{ match.players[0].username }}</td>
-            <td>{{ match.players[1].username }}</td>
+            <td><a href="#" @click="userClick = match.players[0]; getMatchHistory()">{{ match.players[0].username }}</a></td>
+            <td><a href="#" @click="userClick = match.players[1]; getMatchHistory()">{{ match.players[1].username }}</a></td>
             <td>{{ match.score[0] }} - {{ match.score[1] }}</td>
+            <td v-if="match.winner.id === userClick?.id">Win</td>
+            <td v-else>Lose</td>
           </tr>
         </tbody>
       </table>

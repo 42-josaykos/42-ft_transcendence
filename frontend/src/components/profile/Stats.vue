@@ -1,7 +1,8 @@
 <script setup lang="ts">
-const props = defineProps<{
-  stats: number[];
-}>();
+import { ref } from 'vue';
+
+let stats = ref([7,7,7,7])
+
 </script>
 
 <template>

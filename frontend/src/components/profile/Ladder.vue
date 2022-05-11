@@ -5,7 +5,7 @@ import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 
 const userStore = useUserStore();
-const { userClick } = storeToRefs(userStore);
+const { userClick, setting_open } = storeToRefs(userStore);
 
 const players = ref();
 
@@ -54,7 +54,7 @@ getPlayersStats();
         >
           {{ index + 1 }}
         </th>
-        <td><button @click="userClick = player.user">{{ player.user.username }}</button></td>
+        <td><a href="#" @click="userClick = player.user; setting_open = true">{{ player.user.username }}</a></td>
         <td>{{ player.ratio }} %</td>
       </tr>
     </tbody>
