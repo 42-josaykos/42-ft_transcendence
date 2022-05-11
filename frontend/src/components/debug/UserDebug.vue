@@ -27,13 +27,24 @@ const { users, loggedUser, gameSocket } = storeToRefs(userStore);
 
 const router = useRouter();
 
-gameSocket.value.on("startGame", (data: any) => {
+gameSocket.value?.on("startGame", (data: any) => {
+  console.log("matchmaking here");
   router.push("/matchmaking");
 });
 
 const match = () => {
-  gameSocket.value.emit("queue", loggedUser.value);
+  gameSocket.value?.emit("queue", loggedUser.value);
 };
+
+const getGames = () => {
+  gameSocket.value?.emit("getOngoingGames");
+};
+
+const games = ref<any>(null);
+gameSocket.value?.on("receiveOngoingGames", (data: any) => {
+  console.log("games: ", data);
+  games.value = data;
+});
 
 // CRUD functions
 const getUser = () => {
@@ -119,5 +130,14 @@ onBeforeMount(() => {
 
   <div>
     <button @click="match">Start a new match!</button>
+  </div>
+
+  <div>
+    Ongoing games
+    <div>
+      <button @click="getGames()">Get games!</button>
+    </div>
+    <div>{{ games }}</div>
+    <br />
   </div>
 </template>
