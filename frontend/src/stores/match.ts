@@ -7,6 +7,8 @@ import type { Input } from './input';
 export const useMatchStore = defineStore('match', () => {
   const matches = ref<Match[]>([]);
 
+  const stats = ref([0, 0, 0, 0]);
+
   const createMatch = (newMatch: Match) => {
     matches.value.push(newMatch);
   };
@@ -49,6 +51,7 @@ export const useMatchStore = defineStore('match', () => {
     createMatch,
     deleteMatch,
     getMatchUpdates,
-    updateMatch
+    updateMatch,
+    stats
   };
 });
