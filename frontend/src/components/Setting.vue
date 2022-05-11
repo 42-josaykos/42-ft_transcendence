@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { isMeteor } from '../App.vue';
 // import { setting_open } from './Modale.vue';
 import Toggle from '@vueform/toggle';
 import { useUserStore } from '@/stores/user';
@@ -156,29 +155,6 @@ async function logoutUser() {
 
 <template>
   <div style="text-align: left">
-    <b><u>Cosmetic Setting:</u></b>
-  </div>
-  <!-- Meteor animation option -->
-  <span class="element-set">
-    <div class="container">
-      <div class="row">
-        <div class="col-md-9 p-0 text-md-start" style="font-size: medium">
-          Activate Meteor:
-        </div>
-        <div class="col-md-3">
-          <Toggle
-            v-model="isMeteor"
-            on-label="On"
-            off-label="Off"
-            class="toggle-style"
-          />
-        </div>
-      </div>
-    </div>
-  </span>
-
-  <hr />
-  <div style="text-align: left">
     <b><u>Profil Settings:</u></b>
   </div>
   <form @submit.prevent="updateAvatar">
@@ -243,7 +219,6 @@ async function logoutUser() {
               </div>
             </div>
           </div>
-          <!-- <label for="username">Username: </label> -->
         </form>
       </div>
     </div>
@@ -334,12 +309,6 @@ async function logoutUser() {
     </div>
   </div>
   <hr class="d-md-none" />
-  <button
-    class="mod-btn mod-btn-red d-md-none d-inline-block"
-    @click="logoutUser"
-  >
-    Logout
-  </button>
 </template>
 
 <style>
