@@ -1,4 +1,5 @@
 import { createWebHistory, createRouter } from "vue-router";
+import { Get } from "@/services/requests";
 import Home from "@/components/Home.vue";
 import Game from "@/components/game/Game.vue";
 import Matchmaking from "@/components/game/Matchmaking.vue";
@@ -10,9 +11,6 @@ import Chat from "@/components/chat/Chat.vue";
 import Setting from "@/components/Setting.vue";
 import Register from "@/components/Register.vue";
 import Toto from "@/components/Toto.vue";
-import { useUserStore } from "@/stores/user";
-import { Get } from "@/services/requests";
-import { storeToRefs } from "pinia";
 import Authenticate2fa from "@/components/Authenticate2fa.vue";
 import MatchHistory from "@/components/profile/MatchHistory.vue";
 
