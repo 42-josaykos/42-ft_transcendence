@@ -1,7 +1,4 @@
 <script setup lang="ts">
-
-import ModalMessage from "./chat/ModalMessage.vue";
-
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
 import { useMessageStore } from "@/stores/message";
@@ -40,15 +37,14 @@ const { modalSendMessage } = storeToRefs(messageStore);
               Profil
             </button>
             <button
-              @click="modalSendMessage = true;"
+              @click="modalFriends = false; modalSendMessage = true; userClick = user"
               type="button"
               class="mod-btn-friends mod-btn-cyan btn-sm"
             >
               Send message
             </button>
-            <ModalMessage  v-if="modalSendMessage == true" :userClick="user"/>
             <button
-              @click="userClick = user; /*router.push('/game')*/"
+              @click="modalFriends = false; userClick = user; /*router.push('/game')*/"
               type="button"
               class="mod-btn-friends mod-btn-yellow btn-sm"
             >

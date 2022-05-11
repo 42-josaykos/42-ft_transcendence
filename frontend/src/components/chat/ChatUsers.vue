@@ -275,7 +275,7 @@ const addAdmin = () => {
     </template>
   </ModalChat>
 
-  <ModalMessage  v-if="modalSendMessage == true" :userClick="userClick"/>
+  <ModalMessage  v-if="modalSendMessage == true" />
 
   <ModalChat
     v-if="modalBlock == true"

@@ -6,8 +6,11 @@ import ModalChat from "./chat/ModalChat.vue";
 import UsersFriends from "./UsersFriends.vue";
 import { onMounted } from "vue";
 import { Get } from "@/services/requests";
+import ModalMessage from "./chat/ModalMessage.vue";
+import { useMessageStore } from "@/stores/message";
 
 const { setting_open, userClick, modalFriends, usersFriends, loggedUser } = storeToRefs(useUserStore());
+const { modalSendMessage } = storeToRefs(useMessageStore());
 
 defineProps<{
   isAuthenticated: boolean;
@@ -72,6 +75,7 @@ defineProps<{
       <UsersFriends/>
     </template>
   </ModalChat>
+  <ModalMessage  v-if="modalSendMessage == true"/>
 
 </template>
 

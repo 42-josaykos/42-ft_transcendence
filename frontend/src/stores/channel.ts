@@ -9,7 +9,7 @@ import { useMessageStore } from "@/stores/message";
 export const useChannelStore = defineStore('channel', () => {
 
   const userStore = useUserStore();
-  const { loggedUser, socketChat, users } = storeToRefs(userStore);
+  const { loggedUser, socketChat, users, userClick } = storeToRefs(userStore);
 
   const messageStore = useMessageStore();
   const { stringSendMessage } = storeToRefs(messageStore);
@@ -371,6 +371,12 @@ export const useChannelStore = defineStore('channel', () => {
     };
 
     const sendDirectChannel = async (user: User | undefined) => {
+      if(allChannels.value.length == 0) {
+        const response = await Get('/channels/search?&members&invites&bans&mutes')
+        if (response.status == 200) {
+          allChannels.value = response.data
+        }
+      }
       if (user != undefined) {
         const name1 = `${user.id} ${loggedUser.value?.id}`;
         const name2 = `${loggedUser.value?.id} ${user.id}`;
@@ -410,7 +416,8 @@ export const useChannelStore = defineStore('channel', () => {
           );
         }
       }
-      stringSendMessage.value = ""; 
+      stringSendMessage.value = "";
+      userClick.value = undefined;
     };
 
     return {
