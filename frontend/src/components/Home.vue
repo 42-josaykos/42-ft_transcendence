@@ -148,6 +148,7 @@ const { isAuthenticated, loggedUser } = storeToRefs(userStore);
                 </table>
               </div>
             </div>
+
             <div class="infoGame">
               <div class="req neon-typo" v-if="!isAuthenticated">
                 Log in to access
