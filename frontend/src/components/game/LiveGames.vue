@@ -16,8 +16,6 @@ gameSocket.value?.on("liveGames", (games: any) => {
 </script>
 
 <template>
-  <div>{{ liveGames }}</div>
-
   <div class="infoGame mb-5">
     <!-- <div class="req neon-typo" v-if="!isAuthenticated">
                 Log in to access
@@ -32,10 +30,10 @@ gameSocket.value?.on("liveGames", (games: any) => {
       <hr />
       <br />
       <table style="width: 90%; table-layout: fixed; margin-left: 5%">
-        <tr>
-          <th class="watch_player">Josaykos</th>
+        <tr v-for="game in liveGames" :key="game.id">
+          <th class="watch_player">{{ game.playerOne.username }}</th>
           <td class="neon-typo versus">VS</td>
-          <th class="watch_player">Lchapren</th>
+          <th class="watch_player">{{ game.playerTwo.username }}</th>
           <td><i class="fa-solid fa-eye fa-xl action_icon"></i></td>
         </tr>
       </table>

@@ -101,54 +101,6 @@ const { isAuthenticated, loggedUser } = storeToRefs(userStore);
             <Queue />
             <LiveGames />
 
-            <div class="infoGame mb-5">
-              <div class="req neon-typo" v-if="!isAuthenticated">
-                Log in to access
-              </div>
-              <div class="cont">
-                <div
-                  class="neon-typo pt-4"
-                  style="font-size: xx-large; font-weight: bold"
-                >
-                  Live Game
-                </div>
-                <hr />
-                <br />
-                <table style="width: 90%; table-layout: fixed; margin-left: 5%">
-                  <tr>
-                    <th class="watch_player">Josaykos</th>
-                    <td class="neon-typo versus">VS</td>
-                    <th class="watch_player">Lchapren</th>
-                    <td><i class="fa-solid fa-eye fa-xl action_icon"></i></td>
-                  </tr>
-                  <tr>
-                    <th class="watch_player">Vmoreau</th>
-                    <td class="neon-typo versus">VS</td>
-                    <th class="watch_player">Adupuy</th>
-                    <td><i class="fa-solid fa-eye fa-xl action_icon"></i></td>
-                  </tr>
-                  <tr>
-                    <th class="watch_player">Mabriand</th>
-                    <td class="neon-typo versus">VS</td>
-                    <th class="watch_player">Josaykos</th>
-                    <td><i class="fa-solid fa-eye fa-xl action_icon"></i></td>
-                  </tr>
-                  <tr>
-                    <th class="watch_player">Adupuy</th>
-                    <td class="neon-typo versus">VS</td>
-                    <th class="watch_player">Lchapren</th>
-                    <td><i class="fa-solid fa-eye fa-xl action_icon"></i></td>
-                  </tr>
-                  <tr>
-                    <th class="watch_player">Dicayne Dicayne Dicayne</th>
-                    <td class="neon-typo versus">VS</td>
-                    <th class="watch_player">Mabriand Mabriand Mabriand</th>
-                    <td><i class="fa-solid fa-eye fa-xl action_icon"></i></td>
-                  </tr>
-                </table>
-              </div>
-            </div>
-
             <div class="infoGame">
               <div class="req neon-typo" v-if="!isAuthenticated">
                 Log in to access
