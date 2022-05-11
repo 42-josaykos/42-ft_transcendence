@@ -1,76 +1,61 @@
 <script>
 import { mapState } from "pinia";
 import { useUserStore } from "@/stores/user";
-// import MatchInfo from "./MatchInfo.vue";
-
-// import { storeToRefs, mapState } from "pinia";
-// import { useUserStore } from "@/stores/user";
 export default {
 	name: "MatchInfo",
 	data: function () {
 		return {
-		// enemy: {},
 			duo: {},
 			L_player: {},
 			R_player: {},
-			you_left: {},
+			you_lead: {},
+      opponent: {},
 		};
-	// },
 	},
 	computed: {
 		...mapState(useUserStore, ["loggedUser", "playersDuo"]),
-		isYouLeft: function () {
-			// console.log("logged user:", this.loggedUser.username);
-			// console.log("player user:", this.givenPlayer.username);
+		isYouLead: function () {
 			if (this.L_player.username == this.loggedUser.username)
-				this.you_left = true;	
-			this.you_left = false;
-			return (this.you_left);
+			  this.you_lead = true;
+			else
+        this.you_lead = false;
+			return (this.you_lead);
+		},
+    isOpponent: function () {
+			if (this.L_player.username == this.loggedUser.username)
+        this.opponent = this.R_player;
+			else
+        this.opponent = this.L_player;
+			return (this.opponent);
 		},
 	},
 	created() {
 		this.duo = this.playersDuo;
 		this.L_player = this.duo[0];
 		this.R_player = this.duo[1];
-
-		this.isYouLeft;
-		// console.log("test :", this.L_player.username)
+		this.isYouLead;
+    this.isOpponent;
 		return ;
 	},
-	methods:
-		// isYouRight: function () {
-		// 	console.log("logged user:", this.loggedUser.username);
-		// 	console.log("player user:", this.givenPlsayer.username);
-		// 	if (this.isSameUser(this.R_player) == true)
-		// 		return (true);
-		// 	return (false);
-		// },
-	},
-	// assignPlaces: function() {
-	// 	// this.L_player = playersDuo.value[0];
-	// 	// this.R_player = playersDuo.value[1];
-	// 	// console.log("++++++++++++++++++++++++++++++++");
-	// 	// console.log(this.L_player);
-	// 	// console.log(this.R_player);
-	// 	// console.log("++++++++++++++++++++++++++++++++");
-	// }
 };
 </script>
 
 <template>
 	<div>
-		<h1 v-if="you_left">YOU</h1>
-		<h1 v-else> OPPONENT</h1>
+    <div class="left-player">
+		  <h1 v-if="you_lead"> YOU </h1>
+      <h1 v-else> {{ this.opponent.username }} </h1>
+    </div>
+    <div class="right-player">
+		  <h1 v-if="!you_lead"> YOU </h1>
+		  <h1 v-else> {{ this.opponent.username }} </h1>
+    </div>
 
-		<h1 v-if="!you_left">YOU</h1>
-		<h1 v-else> OPPONENT</h1>
-		<!-- {{ loggedUser }}
-  	{{ playersDuo }}
-		----------------------
-		{{ loggedUser }}
-  	{{ playersDuo[0] }} -->
 	</div>
 </template>
 
 <style>
+/* .left-player {
+  
+} */
 </style>
