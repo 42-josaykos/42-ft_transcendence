@@ -30,11 +30,21 @@ export default {
 </script>
 
 <template>
+  <div class="bloc_modale">
+    <div class="overlay"></div>
+    <div class="modale card">
+      <h1 v-if="this.result">WIN</h1>
+			<h1 v-else>LOOSE</h1>
+    </div> 
+  </div>
+</template>
+
+<!-- <template>
 	<div>
 		<h1 v-if="this.result">WIN</h1>
 		<h1 v-else>LOOSE</h1>
 	</div>
-</template>
+</template> -->
 
 <style>
 </style>
