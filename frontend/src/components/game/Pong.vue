@@ -34,8 +34,6 @@ export default {
 
       router: {},
       endgame: false,
-      // left_id: {},
-      // right_id: {},
     };
   },
   computed: {
@@ -138,15 +136,6 @@ export default {
     return;
   },
   methods: {
-    // toggleEndgame: function () {
-    //   console.log("before : ", this.endgame);
-    //   if (this.endgame == false) {
-    //     this.endgame = !this.endgame
-    //   }
-    //   console.log("after : ", this.endgame);
-
-    //   return ;
-    // },
     //  Game Loop
     //  ##########################################################################
     launch: function () {
@@ -300,16 +289,6 @@ export default {
         this.gameSocket.emit("moveRight", this.loggedUser);
       return;
     },
-    //  Update for modale
-    //  ##########################################################################
-    // updateLeftID: function (variable) {
-    //   this.left_id = variable;
-    //   return ;
-    // },
-    // updateRightID: function (variable) {
-    //   this.right_id = variable;
-    //   return ;
-    // },
   },
 };
 </script>
@@ -327,11 +306,11 @@ export default {
       >
       </canvas>
     </div>
-    {{ endgame }}
-    <!-- <modaleresult>
-      v-bind:endgame="endgame"
+    <modaleresult
+      v-if="endgame"
       v-bind:player_L="player_L"
-    ></modaleresult> -->
+    >
+    </modaleresult>
 
   </div>
 </template>

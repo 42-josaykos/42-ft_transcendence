@@ -9,7 +9,7 @@ export default {
 			duo: {}, //duo[0] is LEFT, duo[1] is RIGHT
 		};
 	},
-	props: ["player_L", "endgame"],
+	props: ["player_L"],
 	computed: {
 		...mapState(useUserStore, ["loggedUser", "playersDuo"]),
 		getResult: function() {
@@ -30,12 +30,10 @@ export default {
 </script>
 
 <template>
-	
-	<div v-if="this.engame">
+	<div>
 		<h1 v-if="this.result">WIN</h1>
 		<h1 v-else>LOOSE</h1>
 	</div>
-
 </template>
 
 <style>
