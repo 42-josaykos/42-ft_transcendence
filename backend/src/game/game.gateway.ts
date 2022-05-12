@@ -109,40 +109,29 @@ export class GameGateway
       // console.log('playerOne: ', playerOne);
       // console.log('playerTwo: ', playerTwo);
 
-      // const roomName = `${playerOne.player.user.id}-${playerTwo.player.user.id}`;
-      // // Create a socket room
-      // this.joinRoom(roomName, [
-      //   ...playerOne.player.socketID,
-      //   ...playerTwo.player.socketID,
-      // ]);
-
-      // this.server
-      //   .to(roomName)
-      //   .emit('startGame', [playerOne.player.user, playerTwo.player.user]);
-
-      // setTimeout((playerOne, playerTwo) => {
-      //   // Create and start game
-      //   this.gameService.createGame(playerOne, playerTwo, this.server);
-
-      //   // Emit live games to clients
-      //   this.server.emit('liveGames', this.getOngoingGames());
-      // }, 10000);
-
-      // Create and start game
-      this.gameService.createGame(playerOne, playerTwo, this.server);
-
-      // Emit live games to clients
-      this.server.emit('liveGames', this.getOngoingGames());
-
       // Create a socket room
       const roomName = `${playerOne.player.user.id}-${playerTwo.player.user.id}`;
       this.joinRoom(roomName, [
         ...playerOne.player.socketID,
         ...playerTwo.player.socketID,
       ]);
+
       this.server
         .to(roomName)
         .emit('startGame', [playerOne.player.user, playerTwo.player.user]);
+
+      setTimeout(
+        (playerOne, playerTwo) => {
+          // Create and start game
+          this.gameService.createGame(playerOne, playerTwo, this.server);
+
+          // Emit live games to clients
+          this.server.emit('liveGames', this.getOngoingGames());
+        },
+        5000,
+        { ...playerOne },
+        { ...playerTwo },
+      );
     }
   }
 
@@ -154,6 +143,11 @@ export class GameGateway
     );
 
     if (userIndex !== -1) this.queue.splice(userIndex, 1);
+  }
+
+  @SubscribeMessage('getOngoingGames')
+  handleGetOngoingGames(@ConnectedSocket() client: Socket): WsResponse<any> {
+    return { event: 'liveGames', data: this.getOngoingGames() };
   }
 
   getOngoingGames() {

@@ -12,6 +12,11 @@ const router = useRouter();
 
 // Live games
 const liveGames = ref<any>(null);
+
+// Ask live games list when page is mounted
+gameSocket.value?.emit("getOngoingGames");
+
+// Update live games list event
 gameSocket.value?.on("liveGames", (games: any) => {
   //   console.log("[LiveGames] Live games: ", games);
   liveGames.value = games;
