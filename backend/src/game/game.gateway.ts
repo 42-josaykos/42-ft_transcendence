@@ -108,9 +108,9 @@ export class GameGateway
       const playerTwo: Player = { player: this.queue.shift() };
       // console.log('playerOne: ', playerOne);
       // console.log('playerTwo: ', playerTwo);
-
+      // setTimeout(() => {}, 15000)
       // Create and start game
-      const players = this.gameService.createGame(
+       this.gameService.createGame(
         playerOne,
         playerTwo,
         this.server,
@@ -125,7 +125,7 @@ export class GameGateway
         ...playerOne.player.socketID,
         ...playerTwo.player.socketID,
       ]);
-      this.server.to(roomName).emit('startGame', players);
+      this.server.to(roomName).emit('startGame', [playerOne.player.user, playerTwo.player.user]);
     }
   }
 
