@@ -3,16 +3,12 @@ import ModalChat from "./ModalChat.vue"
 import { storeToRefs } from "pinia";
 import { useMessageStore } from "@/stores/message";
 import { useChannelStore } from "@/stores/channel";
-import type { User } from "@/models/user.model";
+import { useUserStore } from '@/stores/user';
 
 const messageStore = useMessageStore();
 const { stringSendMessage, modalSendMessage } = storeToRefs(messageStore);
-
+const { userClick } = storeToRefs(useUserStore());
 const channelStore = useChannelStore();
-
-	defineProps < {
-		userClick: User | undefined;
-	} > ();
 
 </script>
 
@@ -24,6 +20,7 @@ const channelStore = useChannelStore();
     @close="
       modalSendMessage = false;
       stringSendMessage = '';
+      userClick = undefined;
     "
   >
     <template v-slot:header>
@@ -49,6 +46,7 @@ const channelStore = useChannelStore();
         "
         type="button"
         class="mod-btn mod-btn-blue"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Send Message
       </button>
@@ -56,9 +54,11 @@ const channelStore = useChannelStore();
         @click="
           modalSendMessage = false;
           stringSendMessage = '';
+          userClick = undefined;
         "
         type="button"
         class="mod-btn mod-btn-yellow"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Cancel
       </button>

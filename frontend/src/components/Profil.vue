@@ -6,7 +6,9 @@ import { ref } from 'vue';
 import Setting from './Setting.vue';
 import Stats from './profile/Stats.vue';
 import Match_History from './profile/MatchHistory.vue';
+import { useMatchStore } from '@/stores/match';
 
+const { matches, stats } = storeToRefs(useMatchStore());
 const userStore = useUserStore();
 const { loggedUser, setting_open, userClick, isMyProfile } =
   storeToRefs(userStore);
@@ -14,8 +16,19 @@ const { loggedUser, setting_open, userClick, isMyProfile } =
 const stat_open = ref(true);
 const mh_open = ref(false);
 const set_open = ref(false);
+let wonMatches;
 
 const emits = defineEmits(['updateUserProfil']);
+
+function getStats() {
+  stats.value[0] = matches.value.length;
+  wonMatches = matches.value.filter(
+    match => match.winner.id === userClick.value?.id
+  );
+  stats.value[1] = wonMatches.length;
+  stats.value[2] = stats.value[0] - stats.value[1];
+  stats.value[3] = (stats.value[1] / stats.value[0]) * 100;
+}
 </script>
 
 <template>
@@ -49,7 +62,7 @@ const emits = defineEmits(['updateUserProfil']);
           <!-- Logout Button -->
           <div v-if="isMyProfile" class="d-flex justify-content-center">
             <button
-              class="mod-btn mod-btn-red d-md-inline-block d-none"
+              class="mod-btn mod-btn-red d-inline-block"
               onclick="window.location.href='/auth/logout'"
             >
               Logout
@@ -61,21 +74,23 @@ const emits = defineEmits(['updateUserProfil']);
       <div class="col-md-7 p-0">
         <div class="container p-0">
           <div class="row">
-            <div class="col-sm-4 d-flex justify-content-center my-2">
+            <div v-bind:class="{'col-sm-4' : isMyProfile, 'col-sm-6' : !isMyProfile}" class="d-flex justify-content-center my-2">
               <button
                 @click="
                   (stat_open = true), (mh_open = false), (set_open = false)
                 "
+                v-bind:class="{'selected' : stat_open}"
                 class="btn-block set-btn set-btn-yellow selector"
               >
                 Stats
               </button>
             </div>
-            <div class="col-sm-4 d-flex justify-content-center my-2">
+            <div v-bind:class="{'col-sm-4' : isMyProfile, 'col-sm-6' : !isMyProfile}" class="d-flex justify-content-center my-2">
               <button
                 @click="
                   (stat_open = false), (mh_open = true), (set_open = false)
                 "
+                v-bind:class="{'selected' : mh_open}"
                 class="btn-block set-btn set-btn-yellow selector"
               >
                 Historical
@@ -89,6 +104,7 @@ const emits = defineEmits(['updateUserProfil']);
                 @click="
                   (stat_open = false), (mh_open = false), (set_open = true)
                 "
+                v-bind:class="{'selected' : set_open}"
                 class="btn-block set-btn set-btn-yellow selector"
               >
                 Settings
@@ -98,7 +114,7 @@ const emits = defineEmits(['updateUserProfil']);
         </div>
         <hr />
         <div v-if="stat_open">
-          <!-- <Stats /> -->
+          <Stats :stats="stats" />
         </div>
         <div v-if="mh_open">
           <Match_History />
@@ -114,6 +130,11 @@ const emits = defineEmits(['updateUserProfil']);
 <style>
 @import '@vueform/toggle/themes/default.css';
 
+.selected {
+  background-color: #b7fbfd !important;
+  color: #009ea3 !important;
+  box-shadow: 0px 0px 10px #5dfaff, 0px 0px 15px 5px #5dfaff !important;
+}
 .set-btn {
   position: relative;
   font-family: 'Avenir', Helvetica, Arial, sans-serif;

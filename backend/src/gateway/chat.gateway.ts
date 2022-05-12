@@ -45,7 +45,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   */
   async handleConnection(@ConnectedSocket() client: Socket) {
     this.logger.log(`Client connected: ${client.id}`);
-    this.server.to(client.id).emit('askInfo')
+    this.server.to(client.id).emit('askInfo');
   }
 
   /*
@@ -78,27 +78,27 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('sendInfo')
-  async sendInfo(@ConnectedSocket() client: Socket,
-            @MessageBody() data: User) {
-
+  async sendInfo(@ConnectedSocket() client: Socket, @MessageBody() data: User) {
     const userIndex = this.connectedClients.findIndex(
       (connection) => connection.userID === data.id,
     );
     if (userIndex === -1) {
-    this.connectedClients.push({ userID: data.id, socketID: [client.id] });
-    }
-    else {
+      this.connectedClients.push({ userID: data.id, socketID: [client.id] });
+    } else {
       this.connectedClients[userIndex].socketID.push(client.id);
     }
 
-    console.log('Clients connected after connect: ', this.connectedClients);
+    // console.log('Clients connected after connect: ', this.connectedClients);
   }
 
   /*
     New message
   */
   @SubscribeMessage('newMessage')
-  async newMessage(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
+  async newMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ) {
     const message = data[0];
     const user = data[1];
     try {
@@ -107,7 +107,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         id: channel.id,
         members: true,
         mutes: false,
-        bans: false
+        bans: false,
       });
 
       const members = channel.members;
@@ -125,7 +125,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       newMessage.author = user;
 
       for (const member of members) {
-        const index = this.connectedClients.findIndex((el) => el.userID === member.id)
+        const index = this.connectedClients.findIndex(
+          (el) => el.userID === member.id,
+        );
         if (index != -1) {
           const socketIds = this.connectedClients[index].socketID;
           for (const socketId of socketIds) {
@@ -133,9 +135,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           }
         }
       }
-    }
-    catch(error) {
-      this.server.to(client.id).emit('error', {message: error.message})
+    } catch (error) {
+      this.server.to(client.id).emit('error', { message: error.message });
     }
   }
 
@@ -143,7 +144,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     New Channel
   */
   @SubscribeMessage('newChannel')
-  async newChannel(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
+  async newChannel(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ) {
     const channel = data[0];
     const message = data[1];
     const userID = data[2];
@@ -160,15 +164,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         mutes: false,
         bans: false,
         invites: false,
-        owner: false
+        owner: false,
       });
 
       const [user] = await this.usersService.getUsersByFilter({
         id: userID.id,
       });
       this.server.emit('newChannel', { newChannel, message, user });
-    } catch(error) {
-      this.server.to(client.id).emit('error', {message: error.message})
+    } catch (error) {
+      this.server.to(client.id).emit('error', { message: error.message });
     }
   }
 
@@ -177,44 +181,54 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     Join Channel
   */
   @SubscribeMessage('joinChannel')
-  async joinChannel(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
+  async joinChannel(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ) {
     const userID = data[0];
     const channel = data[1];
     const password = data[2];
     try {
       if (channel.isProtected) {
+        if (password) {
+          const [channelItem] = await this.channelsService.getChannelsByFilter({
+            id: channel.id,
+            password: true,
+          });
 
-          if (password) {
-
-              const [channelItem] = await this.channelsService.getChannelsByFilter({
-                id: channel.id,
-                password: true
+          const isPasswordMatching = await bcrypt.compare(
+            password,
+            channelItem.password,
+          );
+          if (!isPasswordMatching) {
+            this.server
+              .to(client.id)
+              .emit('error', {
+                message: 'Channel protected by a password => wrong password',
               });
-            
-            const isPasswordMatching = await bcrypt.compare(
-              password,
-              channelItem.password,
-            );
-            if (!isPasswordMatching) {
-              this.server.to(client.id).emit('error', {message: "Channel protected by a password => wrong password"})
-              return;
-            }
-          } else {
-            this.server.to(client.id).emit('error', {message: "Channel protected by a password => wrong password"})
             return;
           }
+        } else {
+          this.server
+            .to(client.id)
+            .emit('error', {
+              message: 'Channel protected by a password => wrong password',
+            });
+          return;
+        }
       }
-  
-      const index = this.connectedClients.findIndex((el) => el.userID === userID)
+
+      const index = this.connectedClients.findIndex(
+        (el) => el.userID === userID,
+      );
       if (index != -1) {
         const socketIds = this.connectedClients[index].socketID;
         for (const socketId of socketIds) {
           this.server.to(socketId).emit('joinChannel');
         }
       }
-
-    } catch(error) {
-      this.server.to(client.id).emit('error', {message: error.message})
+    } catch (error) {
+      this.server.to(client.id).emit('error', { message: error.message });
     }
   }
 
@@ -222,7 +236,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     Delete Channel
   */
   @SubscribeMessage('deleteChannel')
-  async deleteChannel(@ConnectedSocket() client: Socket, @MessageBody() channelID: number) {
+  async deleteChannel(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() channelID: number,
+  ) {
     try {
       let [channel] = await this.channelsService.getChannelsByFilter({
         id: channelID,
@@ -231,7 +248,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       if (channel.invites != []) {
         for (const invite of channel.invites) {
-          const index = this.connectedClients.findIndex((el) => el.userID === invite.id)
+          const index = this.connectedClients.findIndex(
+            (el) => el.userID === invite.id,
+          );
           if (index != -1) {
             const socketIds = this.connectedClients[index].socketID;
             for (const socketId of socketIds) {
@@ -243,8 +262,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       await this.channelsService.deleteChannel(channelID);
       this.server.emit('deleteChannel', channelID);
-    } catch(error) {
-      this.server.to(client.id).emit('error', {message: error.message})
+    } catch (error) {
+      this.server.to(client.id).emit('error', { message: error.message });
     }
   }
 
@@ -252,75 +271,90 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     Invite Channel
   */
   @SubscribeMessage('inviteChannel')
-  async inviteChannel(@ConnectedSocket() client: Socket, @MessageBody() data: any[]) {
+  async inviteChannel(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any[],
+  ) {
     if (data[1] != null) {
       const channel = data[0];
       const invites = data[1];
 
       for (const invite of invites) {
-        const index = this.connectedClients.findIndex((el) => el.userID === invite.id)
+        const index = this.connectedClients.findIndex(
+          (el) => el.userID === invite.id,
+        );
         if (index != -1) {
           const socketIds = this.connectedClients[index].socketID;
           for (const socketId of socketIds) {
             this.server.to(socketId).emit('inviteChannel', channel);
-           }
+          }
         }
       }
     }
   }
 
-/*
+  /*
   Update Invite
 */
-@SubscribeMessage('updateInvite')
-async updateInvite(@ConnectedSocket() client: Socket, @MessageBody() data: any[]) {
-  if (data[1] != null) {
-    const inviteChannel = data[0];
-    const inviteBool = data[1];
-    const userID = data[2]
-  
-    const index = this.connectedClients.findIndex((el) => el.userID === userID)
-    if (index != -1) {
-      const socketIds = this.connectedClients[index].socketID;
-      for (const socketId of socketIds) {
-        this.server.to(socketId).emit('updateInvite', {inviteChannel, inviteBool});
+  @SubscribeMessage('updateInvite')
+  async updateInvite(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any[],
+  ) {
+    if (data[1] != null) {
+      const inviteChannel = data[0];
+      const inviteBool = data[1];
+      const userID = data[2];
+
+      const index = this.connectedClients.findIndex(
+        (el) => el.userID === userID,
+      );
+      if (index != -1) {
+        const socketIds = this.connectedClients[index].socketID;
+        for (const socketId of socketIds) {
+          this.server
+            .to(socketId)
+            .emit('updateInvite', { inviteChannel, inviteBool });
+        }
       }
     }
   }
-}
 
   /*
     Update Member Channel
   */
   @SubscribeMessage('updateMember')
-  async updateMember(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
+  async updateMember(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ) {
     const channelID = data[0];
     const updateChannel = data[1];
     const message = data[2];
     const user = data[3];
 
     try {
-      let userMember :User = undefined;
+      let userMember: User = undefined;
       if (updateChannel.removeMembers != undefined) {
-        userMember = updateChannel.removeMembers[0]
+        userMember = updateChannel.removeMembers[0];
       }
-      let userAddBan :User = undefined;
+      let userAddBan: User = undefined;
       if (updateChannel.addBans != undefined) {
-        userAddBan = updateChannel.addBans[0].user
+        userAddBan = updateChannel.addBans[0].user;
       }
-      let userRemoveBan :User = undefined;
+      let userRemoveBan: User = undefined;
       if (updateChannel.removeBans != undefined) {
-        userRemoveBan = updateChannel.removeBans[0].user
+        userRemoveBan = updateChannel.removeBans[0].user;
       }
-      let userAddMute :User = undefined;
+      let userAddMute: User = undefined;
       if (updateChannel.addMutes != undefined) {
-        userAddMute = updateChannel.addMutes[0].user
+        userAddMute = updateChannel.addMutes[0].user;
       }
-      let userRemoveMute :User = undefined;
+      let userRemoveMute: User = undefined;
       if (updateChannel.removeMutes != undefined) {
-        userRemoveMute = updateChannel.removeMutes[0].user
+        userRemoveMute = updateChannel.removeMutes[0].user;
       }
-      
+
       const newChannel = await this.channelsService.updateChannel(
         channelID,
         updateChannel,
@@ -333,44 +367,63 @@ async updateInvite(@ConnectedSocket() client: Socket, @MessageBody() data: any[]
 
       const members = channel.members;
       for (const member of members) {
-        const index = this.connectedClients.findIndex((el) => el.userID === member.id)
+        const index = this.connectedClients.findIndex(
+          (el) => el.userID === member.id,
+        );
         if (index != -1) {
           const socketIds = this.connectedClients[index].socketID;
           for (const socketId of socketIds) {
             this.server.to(socketId).emit('updateMember', newChannel);
-            if (userAddBan != undefined && this.connectedClients[index].userID == userAddBan.id) {
-              this.server.to(socketId).emit('userAddBan', newChannel)
+            if (
+              userAddBan != undefined &&
+              this.connectedClients[index].userID == userAddBan.id
+            ) {
+              this.server.to(socketId).emit('userAddBan', newChannel);
             }
-            if (userRemoveBan != undefined && this.connectedClients[index].userID == userRemoveBan.id) {
-              this.server.to(socketId).emit('userRemoveBan', newChannel)
+            if (
+              userRemoveBan != undefined &&
+              this.connectedClients[index].userID == userRemoveBan.id
+            ) {
+              this.server.to(socketId).emit('userRemoveBan', newChannel);
             }
-            if (userAddMute != undefined && this.connectedClients[index].userID == userAddMute.id) {
-              this.server.to(socketId).emit('userAddMute', newChannel)
+            if (
+              userAddMute != undefined &&
+              this.connectedClients[index].userID == userAddMute.id
+            ) {
+              this.server.to(socketId).emit('userAddMute', newChannel);
             }
-            if (userRemoveMute != undefined && this.connectedClients[index].userID == userRemoveMute.id) {
-              this.server.to(socketId).emit('userRemoveMute', newChannel)
+            if (
+              userRemoveMute != undefined &&
+              this.connectedClients[index].userID == userRemoveMute.id
+            ) {
+              this.server.to(socketId).emit('userRemoveMute', newChannel);
             }
           }
         }
       }
 
-    if (userMember != undefined) {
-      const index = this.connectedClients.findIndex((el) => el.userID === userMember.id)
-      if (index !=-1) {
-        if (userMember != undefined && this.connectedClients[index].userID == userMember.id) {
-          const socketIds = this.connectedClients[index].socketID;
-          for (const socketId of socketIds) {
-            this.server.to(socketId).emit('userRemoveMember', newChannel)
+      if (userMember != undefined) {
+        const index = this.connectedClients.findIndex(
+          (el) => el.userID === userMember.id,
+        );
+        if (index != -1) {
+          if (
+            userMember != undefined &&
+            this.connectedClients[index].userID == userMember.id
+          ) {
+            const socketIds = this.connectedClients[index].socketID;
+            for (const socketId of socketIds) {
+              this.server.to(socketId).emit('userRemoveMember', newChannel);
+            }
           }
         }
       }
-    }
 
       if (message != null) {
         this.newMessage(client, [message, user]);
       }
-    } catch(error) {
-      this.server.to(client.id).emit('error', {message: error.message})
+    } catch (error) {
+      this.server.to(client.id).emit('error', { message: error.message });
     }
   }
 
@@ -378,7 +431,10 @@ async updateInvite(@ConnectedSocket() client: Socket, @MessageBody() data: any[]
     Update Channel
   */
   @SubscribeMessage('updateChannel')
-  async updateChannel(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
+  async updateChannel(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ) {
     const channelID = data[0];
     const updateChannel = data[1];
     try {
@@ -389,7 +445,9 @@ async updateInvite(@ConnectedSocket() client: Socket, @MessageBody() data: any[]
 
       if (updateChannel.removeInvites != []) {
         for (const invite of updateChannel.removeInvites) {
-          const index = this.connectedClients.findIndex((el) => el.userID === invite.id)
+          const index = this.connectedClients.findIndex(
+            (el) => el.userID === invite.id,
+          );
           if (index != -1) {
             const socketIds = this.connectedClients[index].socketID;
             for (const socketId of socketIds) {
@@ -400,101 +458,108 @@ async updateInvite(@ConnectedSocket() client: Socket, @MessageBody() data: any[]
       }
 
       this.server.emit('updateMember', newChannel);
-    } catch(error) {
-      this.server.to(client.id).emit('error', {message: error.message})
+    } catch (error) {
+      this.server.to(client.id).emit('error', { message: error.message });
     }
   }
 
   @SubscribeMessage('addUserBlocked')
-  async addUserBlocked(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
+  async addUserBlocked(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ) {
     const userBlocked = data[0];
     const updateUser = data[1];
     const userID = data[2];
 
     try {
-      const newUser = await this.usersService.updateUser(
-        userID,
-        updateUser,
+      const newUser = await this.usersService.updateUser(userID, updateUser);
+      const index = this.connectedClients.findIndex(
+        (el) => el.userID === userID,
       );
-      const index = this.connectedClients.findIndex((el) => el.userID === userID)
       if (index != -1) {
         const socketIds = this.connectedClients[index].socketID;
         for (const socketId of socketIds) {
           this.server.to(socketId).emit('addUserBlocked', userBlocked);
         }
       }
-    } catch(error) {
-      this.server.to(client.id).emit('error', {message: error.message})
+    } catch (error) {
+      this.server.to(client.id).emit('error', { message: error.message });
     }
   }
 
   @SubscribeMessage('removeUserBlocked')
-  async removeUserBlocked(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
+  async removeUserBlocked(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ) {
     const userBlocked = data[0];
     const updateUser = data[1];
     const userID = data[2];
 
     try {
-      const newUser = await this.usersService.updateUser(
-        userID,
-        updateUser,
+      const newUser = await this.usersService.updateUser(userID, updateUser);
+      const index = this.connectedClients.findIndex(
+        (el) => el.userID === userID,
       );
-      const index = this.connectedClients.findIndex((el) => el.userID === userID)
       if (index != -1) {
         const socketIds = this.connectedClients[index].socketID;
         for (const socketId of socketIds) {
           this.server.to(socketId).emit('removeUserBlocked', userBlocked);
         }
       }
-    } catch(error) {
-      this.server.to(client.id).emit('error', {message: error.message})
+    } catch (error) {
+      this.server.to(client.id).emit('error', { message: error.message });
     }
   }
 
   @SubscribeMessage('addUserFriend')
-  async addUserFriend(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
+  async addUserFriend(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ) {
     const userFriend = data[0];
     const updateUser = data[1];
     const userID = data[2];
 
     try {
-      const newUser = await this.usersService.updateUser(
-        userID,
-        updateUser,
+      const newUser = await this.usersService.updateUser(userID, updateUser);
+      const index = this.connectedClients.findIndex(
+        (el) => el.userID === userID,
       );
-      const index = this.connectedClients.findIndex((el) => el.userID === userID)
       if (index != -1) {
         const socketIds = this.connectedClients[index].socketID;
         for (const socketId of socketIds) {
           this.server.to(socketId).emit('addUserFriend', userFriend);
         }
       }
-    } catch(error) {
-      this.server.to(client.id).emit('error', {message: error.message})
+    } catch (error) {
+      this.server.to(client.id).emit('error', { message: error.message });
     }
   }
 
   @SubscribeMessage('removeUserFriend')
-  async removeUserFriend(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
+  async removeUserFriend(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ) {
     const userFriend = data[0];
     const updateUser = data[1];
     const userID = data[2];
 
     try {
-      const newUser = await this.usersService.updateUser(
-        userID,
-        updateUser,
+      const newUser = await this.usersService.updateUser(userID, updateUser);
+      const index = this.connectedClients.findIndex(
+        (el) => el.userID === userID,
       );
-      const index = this.connectedClients.findIndex((el) => el.userID === userID)
       if (index != -1) {
         const socketIds = this.connectedClients[index].socketID;
         for (const socketId of socketIds) {
           this.server.to(socketId).emit('removeUserFriend', userFriend);
         }
       }
-    } catch(error) {
-      this.server.to(client.id).emit('error', {message: error.message})
+    } catch (error) {
+      this.server.to(client.id).emit('error', { message: error.message });
     }
   }
-
 }

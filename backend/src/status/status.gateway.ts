@@ -104,6 +104,19 @@ export class StatusGateway
 
     // console.log('Clients connected: ', this.connectedClients);
   }
+
+  @SubscribeMessage('updateUser')
+  updateUser(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: User,
+  ) {
+    for (const client of this.connectedClients) {
+      const socketIds = client.socketID;
+      for (const socketId of socketIds) {
+        this.server.to(socketId).emit('updateUser', data);
+      }
+    }
+  }
 }
 
 // Differences between this.server.emit() / return { event: , data: }
