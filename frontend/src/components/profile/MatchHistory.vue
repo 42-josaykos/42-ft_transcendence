@@ -42,8 +42,26 @@ onMounted(() => {
         <tbody>
           <tr v-for="(match, index) in matches" :key="match.id">
             <th scope="row">{{ index + 1 }}</th>
-            <td><a href="#" @click="userClick = match.players[0]; getMatchHistory()">{{ match.players[0].username }}</a></td>
-            <td><a href="#" @click="userClick = match.players[1]; getMatchHistory()">{{ match.players[1].username }}</a></td>
+            <td>
+              <a
+                href="#"
+                @click="
+                  userClick = match.players[0];
+                  getMatchHistory();
+                "
+                >{{ match.players[0].username }}</a
+              >
+            </td>
+            <td>
+              <a
+                href="#"
+                @click="
+                  userClick = match.players[1];
+                  getMatchHistory();
+                "
+                >{{ match.players[1].username }}</a
+              >
+            </td>
             <td>{{ match.score[0] }} - {{ match.score[1] }}</td>
             <td v-if="match.winner.id === userClick?.id">Win</td>
             <td v-else>Lose</td>

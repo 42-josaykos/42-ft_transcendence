@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import TeamProfil from "./TeamProfil.vue";
-import { storeToRefs } from "pinia";
-import { useUserStore } from "@/stores/user";
-import Ladder from "./profile/Ladder.vue";
-import Navbar from "./Navbar.vue";
-import Queue from "./game/Queue.vue";
-import LiveGames from "./game/LiveGames.vue";
-import UserActions from "./UserActions.vue";
+import { ref } from 'vue';
+import TeamProfil from './TeamProfil.vue';
+import { storeToRefs } from 'pinia';
+import { useUserStore } from '@/stores/user';
+import Ladder from './profile/Ladder.vue';
+import Navbar from './Navbar.vue';
+import Queue from './game/Queue.vue';
+import LiveGames from './game/LiveGames.vue';
+import UserActions from './UserActions.vue';
 
 const profil_vmoreau = ref(false);
 const profil_mabriand = ref(false);
@@ -281,7 +281,7 @@ const showActions = ref<boolean>(false);
 }
 .team_btn {
   position: relative;
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
   font-size: x-large;
   border-radius: 10px;
   border: none;
@@ -307,7 +307,7 @@ p {
   text-shadow: 0px 4px 15px white, 0px 0px 10px white;
 }
 .GameName {
-  font-family: "Vibure", cursive;
+  font-family: 'Vibure', cursive;
   font-style: normal;
 }
 
