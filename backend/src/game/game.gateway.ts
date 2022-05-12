@@ -133,7 +133,7 @@ export class GameGateway
   leaveQueue(@ConnectedSocket() client: Socket, @MessageBody() data: User) {
     // Removes the user from the queue if they are in it
     const userIndex = this.queue.findIndex(
-      (connection) => connection.user === data,
+      (connection) => connection.user.id === data.id,
     );
 
     if (userIndex !== -1) this.queue.splice(userIndex, 1);
