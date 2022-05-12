@@ -7,6 +7,7 @@ import Ladder from "./profile/Ladder.vue";
 import Navbar from "./Navbar.vue";
 import Queue from "./game/Queue.vue";
 import LiveGames from "./game/LiveGames.vue";
+import UserActions from "./UserActions.vue";
 
 const profil_vmoreau = ref(false);
 const profil_mabriand = ref(false);
@@ -15,7 +16,10 @@ const profil_lchapren = ref(false);
 const profil_adupuy = ref(false);
 
 const userStore = useUserStore();
-const { isAuthenticated, loggedUser } = storeToRefs(userStore);
+const { isAuthenticated, loggedUser, setting_open, userClick } =
+  storeToRefs(userStore);
+
+const showActions = ref<boolean>(false);
 </script>
 
 <template>
@@ -98,7 +102,6 @@ const { isAuthenticated, loggedUser } = storeToRefs(userStore);
               </div>
             </div>
 
-            <Queue />
             <LiveGames />
 
             <div class="infoGame">
@@ -127,85 +130,32 @@ const { isAuthenticated, loggedUser } = storeToRefs(userStore);
                       <i class="fa-solid fa-comment-dots fa-xl action_icon"></i>
                     </td>
                     <td>
-                      <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
+                      <a
+                        href="#"
+                        @click="
+                          setting_open = true;
+                          userClick = loggedUser;
+                        "
+                        ><i class="fa-solid fa-gamepad fa-xl action_icon"></i
+                      ></a>
                     </td>
-                    <td>
+                    <!-- <td>
+                      <a href="#" @click="spectate(game.id)"
+                        ><i class="fa-solid fa-eye fa-xl action_icon"></i
+                      ></a>
                       <i
                         class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
                       ></i>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th class="watch_player">Adupuy</th>
+                    </td> -->
                     <td>
-                      <i class="fa-solid fa-circle" style="color: red"></i>
-                    </td>
-                    <td>
-                      <i class="fa-solid fa-comment-dots fa-xl action_icon"></i>
-                    </td>
-                    <td>
-                      <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
-                    </td>
-                    <td>
-                      <i
+                      <a href="#" @click="showActions = !showActions"
+                        ><i
+                          class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
+                        ></i
+                      ></a>
+                      <!-- <i
                         class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
-                      ></i>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th class="watch_player">Lchapren</th>
-                    <td>
-                      <i class="fa-solid fa-circle" style="color: red"></i>
-                    </td>
-                    <td>
-                      <i class="fa-solid fa-comment-dots fa-xl action_icon"></i>
-                    </td>
-                    <td>
-                      <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
-                    </td>
-                    <td>
-                      <i
-                        class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
-                      ></i>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th class="watch_player">Josaykos</th>
-                    <td>
-                      <i
-                        class="fa-solid fa-circle"
-                        style="color: greenyellow"
-                      ></i>
-                    </td>
-                    <td>
-                      <i class="fa-solid fa-comment-dots fa-xl action_icon"></i>
-                    </td>
-                    <td>
-                      <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
-                    </td>
-                    <td>
-                      <i
-                        class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
-                      ></i>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th class="watch_player">
-                      Vmoreau Vmoreau Vmoreau Vmoreau Vmoreau
-                    </th>
-                    <td>
-                      <i class="fa-solid fa-circle" style="color: red"></i>
-                    </td>
-                    <td>
-                      <i class="fa-solid fa-comment-dots fa-xl action_icon"></i>
-                    </td>
-                    <td>
-                      <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
-                    </td>
-                    <td>
-                      <i
-                        class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
-                      ></i>
+                      ></i> -->
                     </td>
                   </tr>
                 </table>
@@ -215,6 +165,15 @@ const { isAuthenticated, loggedUser } = storeToRefs(userStore);
         </div>
       </div>
     </div>
+
+    <!-- TO DELETE!! -->
+    <div class="bloc_modale" v-if="showActions">
+      <div class="overlay" @click="showActions = !showActions"></div>
+      <div class="modale card">
+        <UserActions v-if="showActions" :user="loggedUser" />
+      </div>
+    </div>
+    <!-- TO DELETE!! -->
 
     <div id="Contact" class="p-4 ps-4">
       <h2 class="neon-typo pb-4"><u>Team Contact</u></h2>
