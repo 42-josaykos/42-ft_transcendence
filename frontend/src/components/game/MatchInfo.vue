@@ -5,9 +5,7 @@ export default {
 	name: "MatchInfo",
 	data: function () {
 		return {
-			duo: {},
-			L_player: {},
-			R_player: {},
+			duo: {}, //duo[0] is LEFT, duo[1] is RIGHT
 			you_lead: {},
       opponent: {},
 		};
@@ -15,26 +13,24 @@ export default {
 	computed: {
 		...mapState(useUserStore, ["loggedUser", "playersDuo"]),
 		isYouLead: function () {
-			if (this.L_player.username == this.loggedUser.username)
+			if (this.duo[0].username == this.loggedUser.username)
 			  this.you_lead = true;
 			else
         this.you_lead = false;
 			return (this.you_lead);
 		},
-    isOpponent: function () {
-			if (this.L_player.username == this.loggedUser.username)
-        this.opponent = this.R_player;
+    getOpponent: function () {
+			if (this.duo[0].username == this.loggedUser.username)
+        this.opponent = this.duo[1];
 			else
-        this.opponent = this.L_player;
+        this.opponent = this.duo[0];
 			return (this.opponent);
 		},
 	},
 	created() {
 		this.duo = this.playersDuo;
-		this.L_player = this.duo[0];
-		this.R_player = this.duo[1];
 		this.isYouLead;
-    this.isOpponent;
+    this.getOpponent;
 		return ;
 	},
 };

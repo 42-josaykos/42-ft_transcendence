@@ -5,11 +5,13 @@ import { useUserStore } from "@/stores/user";
 import { useRouter } from "vue-router";
 import { Player } from "src/../../backend/src/game/game.class.ts";
 import MatchInfo from "./MatchInfo.vue";
+import ModaleResult from "./ModaleResult.vue"
 
 export default {
   name: "Pong",
   components: {
     matchinfo: MatchInfo,
+    modaleresult: ModaleResult,
   },
   props: ["revelePlay", "msg", "paddleSize", "ballSpeed"],
   data: function () {
@@ -31,6 +33,9 @@ export default {
       keyState: {},
 
       router: {},
+      result: false,
+      // left_id: {},
+      // right_id: {},
     };
   },
   computed: {
@@ -109,6 +114,7 @@ export default {
       this.updateGame(data);
     });
     this.gameSocket.on("endGame", () => {
+      this.toggleResult;
       // clearInterval(this.intervalID);
       this.router.push("/debug");
     });
@@ -127,13 +133,18 @@ export default {
     return;
   },
   methods: {
+    // toggleResult: function () {
+    //   if (this.result == false) {
+    //     this.result = !this.result
+    //   }
+    //   return ;
+    // },
     //  Game Loop
     //  ##########################################################################
     launch: function () {
       // if (this.revelePlay == true) this.updateSettings();
       const framePerSec = 1000 / 60;
       this.intervalID = setInterval(this.game, framePerSec);
-
       return;
     },
     game: function () {
@@ -281,6 +292,16 @@ export default {
         this.gameSocket.emit("moveRight", this.loggedUser);
       return;
     },
+    //  Update for modale
+    //  ##########################################################################
+    // updateLeftID: function (variable) {
+    //   this.left_id = variable;
+    //   return ;
+    // },
+    // updateRightID: function (variable) {
+    //   this.right_id = variable;
+    //   return ;
+    // },
   },
 };
 </script>
@@ -298,6 +319,10 @@ export default {
       >
       </canvas>
     </div>
+    <modaleresult>
+      v-bind:player_L="player_L"
+    ></modaleresult>
+
   </div>
 </template>
 
