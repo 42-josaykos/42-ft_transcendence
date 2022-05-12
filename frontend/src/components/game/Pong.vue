@@ -77,14 +77,6 @@ export default {
       this.sounds.loose.volume = 0.1;
       return this.sounds;
     },
-    getPaddleSize: function () {
-      this.rcv_paddleSize = this.paddleSize;
-      return this.rcv_paddleSize;
-    },
-    getBallSpeed: function () {
-      this.rcv_ballSpeed = this.ballSpeed;
-      return this.rcv_ballSpeed;
-    },
   },
   created() {
     window.addEventListener("keydown", this.getKeyDown, true); //	Keypress does not work for arrows
