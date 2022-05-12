@@ -4,12 +4,12 @@ import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/user';
 import ModalChat from "./chat/ModalChat.vue";
 import UsersFriends from "./UsersFriends.vue";
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { Get } from "@/services/requests";
 import ModalMessage from "./chat/ModalMessage.vue";
 import { useMessageStore } from "@/stores/message";
 
-const { setting_open, userClick, modalFriends, usersFriends, loggedUser } = storeToRefs(useUserStore());
+const { setting_open, userClick, modalFriends, usersFriends, loggedUser, gameSocket } = storeToRefs(useUserStore());
 const { modalSendMessage } = storeToRefs(useMessageStore());
 
 defineProps<{
@@ -25,6 +25,19 @@ defineProps<{
     })
   }
 });
+
+const inQueue = ref<boolean>(false)
+
+const match = () => {
+  if (inQueue.value) {
+    inQueue.value = false;
+    // QUITER LA QUEUE
+  }
+  else {
+  //gameSocket.value.emit("queue", loggedUser.value);
+  inQueue.value = true;
+  }
+};
 </script>
 
 
@@ -49,10 +62,6 @@ defineProps<{
           <button @click="" class="btn-block set-btn set-btn-nav btn-nav selector"> Home </button>
         </router-link>
 
-        <router-link to="/game" class="col-sm-2 d-flex justify-content-center my-2 mx-2 router-nav">
-          <button @click="" class="btn-block set-btn set-btn-nav btn-nav selector"> Find a game </button>
-        </router-link>
-
         <router-link to="/chat" class="col-sm-2 d-flex justify-content-center my-2 mx-2 router-nav">
           <button @click="" class="btn-block set-btn set-btn-nav btn-nav selector"> Chat </button>
         </router-link>
@@ -61,7 +70,13 @@ defineProps<{
           <button @click="modalFriends = true" class="btn-block set-btn set-btn-nav btn-nav set-btn-nav-friends selector "> Friends </button>
         </span>
 
+        <span class="col-sm-2 d-flex justify-content-center my-2 mx-2">
+          <button @click="match" class="btn-block set-btn set-btn-nav btn-nav selector"> {{inQueue ? 'Leave queue' : 'Find a game'}} </button>
+        </span>
+
       </div>
+      <div style="text-align: end; color: hsl(317 100% 54%);" v-if="inQueue"><span>Waiting for a game ...</span></div>
+      
     </div>
   </div>
   <Modale :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
