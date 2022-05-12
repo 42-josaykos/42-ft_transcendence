@@ -13,6 +13,7 @@ export default {
 	computed: {
 		...mapState(useUserStore, ["loggedUser", "playersDuo"]),
 		isYouLead: function () {
+			console.log("this.duo in isYouLead: ",this.duo);
 			if (this.duo[0].username == this.loggedUser.username)
 			  this.you_lead = true;
 			else
@@ -29,6 +30,7 @@ export default {
 	},
 	created() {
 		this.duo = this.playersDuo;
+		console.log("this.duo in created: ",this.duo);
 		this.isYouLead;
     this.getOpponent;
 		return ;
@@ -38,6 +40,7 @@ export default {
 
 <template>
 	<div>
+		<!-- {{ this.loggedUser.username }} -->
     <div class="left-player">
 		  <h1 v-if="you_lead"> YOU </h1>
       <h1 v-else> {{ this.opponent.username }} </h1>

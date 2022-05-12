@@ -2,17 +2,19 @@
 import { io } from "socket.io-client";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
+import type { User } from "@/models/user.model";
 
 const userStore = useUserStore();
-const { loggedUser, gameSocket, isAuthenticated } = storeToRefs(userStore);
+const { loggedUser, gameSocket, isAuthenticated, playersDuo } = storeToRefs(userStore);
 
 if (isAuthenticated.value) {
   gameSocket.value = io("ws://localhost:6060/game", {
     withCredentials: true,
   });
 
-  // After socker connection, the server needs the logged user id
-  gameSocket.value.on("requestGameUserInfo", function (data: any) {
+  // After socket connection, the server needs the logged user id
+  gameSocket.value.on("requestGameUserInfo", function (players: User[]) {
+    playersDuo.value = players;
     gameSocket.value?.emit("gameConnection", loggedUser.value);
   });
 }
