@@ -3,14 +3,12 @@ import { Get } from '@/services/requests';
 import { useUserStore } from '@/stores/user';
 import { useMatchStore } from '@/stores/match';
 import { storeToRefs } from 'pinia';
-import Stats from './Stats.vue';
-import Ladder from './Ladder.vue';
 import { onMounted, ref } from 'vue';
 
 const { userClick } = storeToRefs(useUserStore());
 const { matches } = storeToRefs(useMatchStore());
-const stats = ref([0, 0, 0, 0]);
-let wonMatches;
+
+
 
 async function getMatchHistory() {
   let response;
@@ -18,25 +16,16 @@ async function getMatchHistory() {
     response = await Get(`/users/${userClick.value?.id}/matches/played`);
     if (response.status === 200) {
       matches.value = response.data.reverse();
-      getStats();
     }
   } catch (error: any) {}
 }
 
-function getStats() {
-  stats.value[0] = matches.value.length;
-  wonMatches = matches.value.filter(
-    match => match.winner.id === userClick.value?.id
-  );
-  stats.value[1] = wonMatches.length;
-  stats.value[2] = stats.value[0] - stats.value[1];
-  stats.value[3] = (stats.value[1] / stats.value[0]) * 100;
-}
+
 
 onMounted(() => {
   // Get('/auth/jwt-status').then(res => {
   //   loggedUser.value = res.data;
-    
+
   // });
   getMatchHistory();
 });
@@ -49,10 +38,6 @@ onMounted(() => {
   <h3>{{ userClick?.id }}</h3>
 
   <div class="container">
-    <div class="stats">
-      <Stats :stats="stats" />
-      <Ladder />
-    </div>
     <div class="history">
       <h4>History</h4>
       <table class="table table-dark table-bordered">

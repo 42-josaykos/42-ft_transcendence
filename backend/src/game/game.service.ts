@@ -12,7 +12,6 @@ import {
   BallBoundaries,
   Canvas,
   GameOptions,
-  Spectator,
   Events,
 } from 'src/game/game.class';
 
@@ -23,6 +22,7 @@ export class GameService implements OnModuleInit {
   constructor(private moduleRef: ModuleRef) {}
   private gateway: GameGateway;
 
+  private gameID = 0;
   private games: Game[] = [];
   private options: GameOptions = { paddleSize: 2, ballSpeed: 3 };
   private readonly canvas: Canvas = {
@@ -36,6 +36,15 @@ export class GameService implements OnModuleInit {
     this.gateway = this.moduleRef.get(GameGateway);
   }
 
+  getUser(users: Connection[], user: User) {
+    const connection = users.find((value) => value.user.id === user.id);
+    return connection;
+  }
+
+  getGames() {
+    return this.games;
+  }
+
   // Main game code
   createGame(playerOne: Player, playerTwo: Player, socket: Server) {
     // Create and start game
@@ -44,13 +53,15 @@ export class GameService implements OnModuleInit {
     const newBall = this.initNewBall();
     const events = this.initEvents();
 
+    const roomName = `${playerOne.player.user.id}-${playerTwo.player.user.id}`;
     let game: Game = {
+      id: this.gameID++,
       players: [playerOne, playerTwo],
-      spectators: [],
       ball: newBall,
       events: events,
       finished: false,
       winner: null,
+      socketRoom: roomName,
     };
 
     this.games.push(game);

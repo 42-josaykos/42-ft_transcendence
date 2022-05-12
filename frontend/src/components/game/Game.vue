@@ -46,23 +46,21 @@ export default {
 </script>
 
 <template>
-  <div>
-    <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
-    <div class="container-fluid">
-      <div class="game">
-        <pong
-          v-bind:revelePlay="revelePlay"
-          v-bind:paddleSize="2"
-          v-bind:ballSpeed="3"
-        />
-      </div>
+  <Navbar :isAuthenticated="isAuthenticated" />
+  <div class="container-fluid">
+    <div class="game">
+      <pong
+        v-bind:revelePlay="revelePlay"
+        v-bind:paddleSize="2"
+        v-bind:ballSpeed="3"
+      />
+    </div>
     </div>
     <modalesettings  v-if="revelePlay"
       @close="toggleModaleSettings"
       @paddleSizeChange="updatePaddleSize"
       @ballSpeedChange="updateBallSpeed"
     />
-  </div>
 </template>
 
 <style>

@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import TeamProfil from './TeamProfil.vue';
-import { storeToRefs } from 'pinia';
-import { useUserStore } from '@/stores/user';
-import Ladder from './profile/Ladder.vue';
-import Navbar from './Navbar.vue';
+import { ref } from "vue";
+import TeamProfil from "./TeamProfil.vue";
+import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/user";
+import Ladder from "./profile/Ladder.vue";
+import Navbar from "./Navbar.vue";
+import Queue from "./game/Queue.vue";
+import LiveGames from "./game/LiveGames.vue";
+import UserActions from "./UserActions.vue";
 
 const profil_vmoreau = ref(false);
 const profil_mabriand = ref(false);
@@ -13,11 +16,14 @@ const profil_lchapren = ref(false);
 const profil_adupuy = ref(false);
 
 const userStore = useUserStore();
-const { isAuthenticated, loggedUser } = storeToRefs(userStore);
+const { isAuthenticated, loggedUser, setting_open, userClick } =
+  storeToRefs(userStore);
+
+const showActions = ref<boolean>(false);
 </script>
 
 <template>
-  <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
+  <Navbar :isAuthenticated="isAuthenticated" />
   <div class="container-flex" style="position: relative">
     <div id="HomePage" class="full-height">
       <div class="container">
@@ -96,53 +102,8 @@ const { isAuthenticated, loggedUser } = storeToRefs(userStore);
               </div>
             </div>
 
-            <div class="infoGame mb-5">
-              <div class="req neon-typo" v-if="!isAuthenticated">
-                Log in to access
-              </div>
-              <div class="cont">
-                <div
-                  class="neon-typo pt-4"
-                  style="font-size: xx-large; font-weight: bold"
-                >
-                  Live Game
-                </div>
-                <hr />
-                <br />
-                <table style="width: 90%; table-layout: fixed; margin-left: 5%">
-                  <tr>
-                    <th class="watch_player">Josaykos</th>
-                    <td class="neon-typo versus">VS</td>
-                    <th class="watch_player">Lchapren</th>
-                    <td><i class="fa-solid fa-eye fa-xl action_icon"></i></td>
-                  </tr>
-                  <tr>
-                    <th class="watch_player">Vmoreau</th>
-                    <td class="neon-typo versus">VS</td>
-                    <th class="watch_player">Adupuy</th>
-                    <td><i class="fa-solid fa-eye fa-xl action_icon"></i></td>
-                  </tr>
-                  <tr>
-                    <th class="watch_player">Mabriand</th>
-                    <td class="neon-typo versus">VS</td>
-                    <th class="watch_player">Josaykos</th>
-                    <td><i class="fa-solid fa-eye fa-xl action_icon"></i></td>
-                  </tr>
-                  <tr>
-                    <th class="watch_player">Adupuy</th>
-                    <td class="neon-typo versus">VS</td>
-                    <th class="watch_player">Lchapren</th>
-                    <td><i class="fa-solid fa-eye fa-xl action_icon"></i></td>
-                  </tr>
-                  <tr>
-                    <th class="watch_player">Dicayne Dicayne Dicayne</th>
-                    <td class="neon-typo versus">VS</td>
-                    <th class="watch_player">Mabriand Mabriand Mabriand</th>
-                    <td><i class="fa-solid fa-eye fa-xl action_icon"></i></td>
-                  </tr>
-                </table>
-              </div>
-            </div>
+            <LiveGames />
+
             <div class="infoGame">
               <div class="req neon-typo" v-if="!isAuthenticated">
                 Log in to access
@@ -169,85 +130,32 @@ const { isAuthenticated, loggedUser } = storeToRefs(userStore);
                       <i class="fa-solid fa-comment-dots fa-xl action_icon"></i>
                     </td>
                     <td>
-                      <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
+                      <a
+                        href="#"
+                        @click="
+                          setting_open = true;
+                          userClick = loggedUser;
+                        "
+                        ><i class="fa-solid fa-gamepad fa-xl action_icon"></i
+                      ></a>
                     </td>
-                    <td>
+                    <!-- <td>
+                      <a href="#" @click="spectate(game.id)"
+                        ><i class="fa-solid fa-eye fa-xl action_icon"></i
+                      ></a>
                       <i
                         class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
                       ></i>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th class="watch_player">Adupuy</th>
+                    </td> -->
                     <td>
-                      <i class="fa-solid fa-circle" style="color: red"></i>
-                    </td>
-                    <td>
-                      <i class="fa-solid fa-comment-dots fa-xl action_icon"></i>
-                    </td>
-                    <td>
-                      <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
-                    </td>
-                    <td>
-                      <i
+                      <a href="#" @click="showActions = !showActions"
+                        ><i
+                          class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
+                        ></i
+                      ></a>
+                      <!-- <i
                         class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
-                      ></i>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th class="watch_player">Lchapren</th>
-                    <td>
-                      <i class="fa-solid fa-circle" style="color: red"></i>
-                    </td>
-                    <td>
-                      <i class="fa-solid fa-comment-dots fa-xl action_icon"></i>
-                    </td>
-                    <td>
-                      <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
-                    </td>
-                    <td>
-                      <i
-                        class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
-                      ></i>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th class="watch_player">Josaykos</th>
-                    <td>
-                      <i
-                        class="fa-solid fa-circle"
-                        style="color: greenyellow"
-                      ></i>
-                    </td>
-                    <td>
-                      <i class="fa-solid fa-comment-dots fa-xl action_icon"></i>
-                    </td>
-                    <td>
-                      <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
-                    </td>
-                    <td>
-                      <i
-                        class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
-                      ></i>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th class="watch_player">
-                      Vmoreau Vmoreau Vmoreau Vmoreau Vmoreau
-                    </th>
-                    <td>
-                      <i class="fa-solid fa-circle" style="color: red"></i>
-                    </td>
-                    <td>
-                      <i class="fa-solid fa-comment-dots fa-xl action_icon"></i>
-                    </td>
-                    <td>
-                      <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
-                    </td>
-                    <td>
-                      <i
-                        class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
-                      ></i>
+                      ></i> -->
                     </td>
                   </tr>
                 </table>
@@ -257,6 +165,15 @@ const { isAuthenticated, loggedUser } = storeToRefs(userStore);
         </div>
       </div>
     </div>
+
+    <!-- TO DELETE!! -->
+    <div class="bloc_modale" v-if="showActions">
+      <div class="overlay" @click="showActions = !showActions"></div>
+      <div class="modale card">
+        <UserActions v-if="showActions" :user="loggedUser" />
+      </div>
+    </div>
+    <!-- TO DELETE!! -->
 
     <div id="Contact" class="p-4 ps-4">
       <h2 class="neon-typo pb-4"><u>Team Contact</u></h2>
@@ -364,7 +281,7 @@ const { isAuthenticated, loggedUser } = storeToRefs(userStore);
 }
 .team_btn {
   position: relative;
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
   font-size: x-large;
   border-radius: 10px;
   border: none;
@@ -390,7 +307,7 @@ p {
   text-shadow: 0px 4px 15px white, 0px 0px 10px white;
 }
 .GameName {
-  font-family: 'Vibure', cursive;
+  font-family: "Vibure", cursive;
   font-style: normal;
 }
 

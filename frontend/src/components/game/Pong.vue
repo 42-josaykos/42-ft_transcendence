@@ -120,6 +120,7 @@ export default {
       return ;
       // clearInterval(this.intervalID);
       // this.router.push("/debug");
+      // this.router.push("/");
     });
     // ##########################################################################
 
