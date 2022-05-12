@@ -1,18 +1,15 @@
-import { defineStore } from 'pinia';
-import { ref, computed } from '@vue/reactivity';
-import type { User } from '@/models/user.model';
-import { io, type Socket } from 'socket.io-client';
+import { defineStore } from "pinia";
+import { ref } from "vue";
+import type { User } from "@/models/user.model";
+import type { Socket } from "socket.io-client";
+import { computed } from "vue";
 
 // Tracks users database
-export const useUserStore = defineStore('user', () => {
+export const useUserStore = defineStore("user", () => {
   const users = ref<User[]>([]);
   const usersOnline = ref<Number[]>([]);
-  const loggedUser = ref<User | undefined>();
-  const gameSocket = ref<Socket>(
-    io('ws://localhost:6060/game', {
-      withCredentials: true
-    })
-  );
+  const loggedUser = ref<User | null>(null);
+  const gameSocket = ref<Socket>();
   const isAuthenticated = ref(false);
   const socketChat = ref<Socket>();
   const statusSocket = ref<Socket>();
@@ -39,7 +36,7 @@ export const useUserStore = defineStore('user', () => {
   const isBlocked = (user: User | undefined) => {
     if (
       user != undefined &&
-      usersBlocked.value.findIndex(el => el.id === user.id) != -1
+      usersBlocked.value.findIndex((el) => el.id === user.id) != -1
     ) {
       return true;
     }
@@ -58,7 +55,7 @@ export const useUserStore = defineStore('user', () => {
   const isFriend = (user: User | undefined) => {
     if (
       user != undefined &&
-      usersFriends.value.findIndex(el => el.id === user.id) != -1
+      usersFriends.value.findIndex((el) => el.id === user.id) != -1
     ) {
       return true;
     }
@@ -111,6 +108,6 @@ export const useUserStore = defineStore('user', () => {
     addUserFriend,
     removeUserFriend,
     initUserClick,
-    isMyProfile
+    isMyProfile,
   };
 });

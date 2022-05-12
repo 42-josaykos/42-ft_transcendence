@@ -1,36 +1,37 @@
 <script setup lang="ts">
-import Navbar from './components/Navbar.vue';
-import StatusSystem from './components/StatusSystem.vue';
-import { storeToRefs } from 'pinia';
-import { useUserStore } from '@/stores/user';
-import { useStatusStore } from '@/stores/status';
-import { onMounted, ref } from 'vue';
-import { Get } from './services/requests';
-import ChatSocket from './components/chat/ChatSocket.vue';
+import Navbar from "./components/Navbar.vue";
+import StatusSystem from "./components/StatusSystem.vue";
+import GameSystem from "./components/game/GameSystem.vue";
+import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/user";
+import { useStatusStore } from "@/stores/status";
+import { onMounted, ref } from "vue";
+import { Get } from "./services/requests";
+import ChatSocket from "./components/chat/ChatSocket.vue";
 
 const userStore = useUserStore();
 const { loggedUser, isAuthenticated } = storeToRefs(userStore);
 
 // Verify if user is already logged
 onMounted(() => {
-  Get('/auth/jwt-status')
-    .then(res => {
+  Get("/auth/jwt-status")
+    .then((res) => {
       if (res.status == 403) {
-        console.log('[App] isAuthenticated: ', false);
+        console.log("[App] isAuthenticated: ", false);
         isAuthenticated.value = false;
       } else {
-        console.log('[App] isAuthenticated: ', true);
+        console.log("[App] isAuthenticated: ", true);
         isAuthenticated.value = true;
         loggedUser.value = res.data;
-        console.log('[App] loggedUser: ', res.data);
+        console.log("[App] loggedUser: ", res.data);
       }
     })
-    .catch(error => {});
+    .catch((error) => {});
 });
 </script>
 
 <style>
-@import url('./assets/meteor.css');
+@import url("./assets/meteor.css");
 </style>
 
 <template>
@@ -46,6 +47,7 @@ onMounted(() => {
       <!-- <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" /> -->
       <div v-if="isAuthenticated">
         <StatusSystem />
+        <GameSystem />
         <ChatSocket />
       </div>
       <div class="routerView"><router-view /></div>
@@ -60,7 +62,7 @@ onMounted(() => {
 }
 
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
   /* font-family: 'Vibure', cursive; */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

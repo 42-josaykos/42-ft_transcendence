@@ -40,7 +40,6 @@ const match = () => {
 };
 </script>
 
-
 <template>
   <div class="container pt-2">
 		<div v-if="loggedUser" class="row d-flex pb-4 my-navbar">
@@ -95,7 +94,7 @@ const match = () => {
 </template>
 
 <style scoped>
-li .row  {
+li .row {
   transition: 0.4s;
 }
 li .row:hover {
