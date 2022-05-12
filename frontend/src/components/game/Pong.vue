@@ -33,7 +33,7 @@ export default {
       keyState: {},
 
       router: {},
-      result: false,
+      endgame: false,
       // left_id: {},
       // right_id: {},
     };
@@ -114,9 +114,14 @@ export default {
       this.updateGame(data);
     });
     this.gameSocket.on("endGame", () => {
-      this.toggleResult;
+      console.log("before : ", this.endgame);
+      if (this.endgame == false) {
+        this.endgame = !this.endgame
+      }
+      console.log("after : ", this.endgame);
+      return ;
       // clearInterval(this.intervalID);
-      this.router.push("/debug");
+      // this.router.push("/debug");
     });
     // ##########################################################################
 
@@ -133,10 +138,13 @@ export default {
     return;
   },
   methods: {
-    // toggleResult: function () {
-    //   if (this.result == false) {
-    //     this.result = !this.result
+    // toggleEndgame: function () {
+    //   console.log("before : ", this.endgame);
+    //   if (this.endgame == false) {
+    //     this.endgame = !this.endgame
     //   }
+    //   console.log("after : ", this.endgame);
+
     //   return ;
     // },
     //  Game Loop
@@ -319,9 +327,11 @@ export default {
       >
       </canvas>
     </div>
-    <modaleresult>
+    {{ endgame }}
+    <!-- <modaleresult>
+      v-bind:endgame="endgame"
       v-bind:player_L="player_L"
-    ></modaleresult>
+    ></modaleresult> -->
 
   </div>
 </template>
