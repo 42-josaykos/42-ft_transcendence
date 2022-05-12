@@ -65,40 +65,51 @@ export class GameService implements OnModuleInit {
     };
 
     this.games.push(game);
+    let pause = true;
+    setTimeout(() => {
+      pause = false;
+    }, 1500);
 
     // Main game loop
     game.intervalID = setInterval(async () => {
-      // Updating ball position
-      game.ball.x += game.ball.velocityX;
-      game.ball.y += game.ball.velocityY;
-      const ballBoundaries = this.getBallBoundaries(game.ball);
+      if (!pause) {
+        // Updating ball position
+        game.ball.x += game.ball.velocityX;
+        game.ball.y += game.ball.velocityY;
+        const ballBoundaries = this.getBallBoundaries(game.ball);
 
-      // Checking if a player score
-      // Checks whether the ball passed throught the canvas boundaries by the left or by the right
-      // (the extra 50 pixels make the rendering smoother).
-      if (
-        ballBoundaries.Xmin - 50 > this.canvas.w ||
-        ballBoundaries.Xmax + 50 < 0
-      ) {
-        game = this.updateScore(game);
-        if (game.winner) this.endGame(game);
-      }
+        // Checking if a player score
+        // Checks whether the ball passed throught the canvas boundaries by the left or by the right
+        // (the extra 50 pixels make the rendering smoother).
+        if (
+          ballBoundaries.Xmin - 50 > this.canvas.w ||
+          ballBoundaries.Xmax + 50 < 0
+        ) {
+          game = this.updateScore(game);
+          // Little pause after someone scored
+          pause = true;
+          setTimeout(() => {
+            pause = false;
+          }, 1000);
+          if (game.winner) this.endGame(game);
+        }
 
-      // Checks if the ball passed has hit one of the canvas boundaries by the top or by the bottom. If so, it bounces.
-      if (ballBoundaries.Ymax >= this.canvas.h || ballBoundaries.Ymin <= 0) {
-        game.ball.velocityY *= -1;
-        game.events.sounds.wall = true;
-      }
+        // Checks if the ball passed has hit one of the canvas boundaries by the top or by the bottom. If so, it bounces.
+        if (ballBoundaries.Ymax >= this.canvas.h || ballBoundaries.Ymin <= 0) {
+          game.ball.velocityY *= -1;
+          game.events.sounds.wall = true;
+        }
 
-      // //	Checks in which part of the canvas the ball is in order to send the appropriate player to collision() that'll
-      // //	return true if such event occurs.
-      const player =
-        game.ball.x + game.ball.size < this.canvas.w / 2
-          ? game.players[0]
-          : game.players[1];
-      if (this.computeCollision(game.ball, player)) {
-        game.ball = this.computeNewVelocity(game.ball, player);
-        game.events.sounds.hit = true;
+        // //	Checks in which part of the canvas the ball is in order to send the appropriate player to collision() that'll
+        // //	return true if such event occurs.
+        const player =
+          game.ball.x + game.ball.size < this.canvas.w / 2
+            ? game.players[0]
+            : game.players[1];
+        if (this.computeCollision(game.ball, player)) {
+          game.ball = this.computeNewVelocity(game.ball, player);
+          game.events.sounds.hit = true;
+        }
       }
 
       // Sending game changes and re initializing sound events
