@@ -17,6 +17,7 @@ const userStore = useUserStore();
 const { loggedUser, users, socketChat } = storeToRefs(userStore);
 
 let inputPassword = ref<string>("");
+let inputPassword2 = ref<string>("");
 let channelName = ref<string>("");
 const modalNewChannel = ref<boolean>(false);
 const modalJoinChannel = ref<boolean>(false);
@@ -65,6 +66,16 @@ const displayMessages = (channel_item: Channel) => {
 const createChannel = () => {
   if (socketChat.value != undefined) {
     if (channelName.value !== "") {
+      if (channelType.value == 3) {
+        if(inputPassword.value != inputPassword2.value) {
+          alert("Password doesn't matched");
+          return;
+        }
+        else if(inputPassword.value.trim() == ""){
+          alert("Password must contain at least one letter");
+          return;
+        }
+      }
       let obj: any = {};
       let usersArray: any = [];
       usersInvite.value.forEach((value) => {
@@ -74,7 +85,7 @@ const createChannel = () => {
       const newChannel = {
         name: channelName.value,
         isPrivate: channelType.value == 2 ? true : false,
-        password: channelType.value == 3 ? inputPassword : null,
+        password: channelType.value == 3 ? inputPassword.value : null,
         isProtected: channelType.value == 3 ? true : false,
         owner: { id: loggedUser.value?.id },
         admins: [{ id: loggedUser.value?.id }],
@@ -84,7 +95,9 @@ const createChannel = () => {
       socketChat.value.emit("newChannel", newChannel, null, loggedUser.value);
     }
   }
+  modalNewChannel.value = false;
   inputPassword.value = "";
+  inputPassword2.value = "";
   channelName.value = "";
   channelType.value = 0;
 };
@@ -334,6 +347,16 @@ const leaveChannel = () => {
 const updateChannel = () => {
   if (socketChat.value != undefined) {
     if (channelUpdate.value !== undefined) {
+      if (channelType.value == 3) {
+        if(inputPassword.value != inputPassword2.value) {
+          alert("Password doesn't matched");
+          return;
+        }
+        else if(inputPassword.value.trim() == ""){
+          alert("Password must contain at least one letter");
+          return;
+        }
+      }
       let obj: any = {};
       let usersArray: any = [];
       usersInvite.value.forEach((value) => {
@@ -352,6 +375,7 @@ const updateChannel = () => {
       socketChat.value.emit("updateChannel", channelUpdate.value.id, updateChannel);
     }
   }
+  modalUpdateChannel.value = false;
   channelName.value = "";
   inputPassword.value = "";
   channelType.value = 1;
@@ -377,6 +401,16 @@ const isNum = (char: any) => {
     }
   }
   return false;
+}
+
+const seePassword = (stringId: string) => {
+  let pass = document.getElementById(stringId);
+  if (pass?.getAttribute('type') === 'password') {
+      pass?.setAttribute('type', 'text')
+  }
+  else {
+    pass?.setAttribute('type', 'password')
+  }
 }
 
 </script>
@@ -679,6 +713,7 @@ const isNum = (char: any) => {
       modalNewChannel = false;
       channelName = '';
       inputPassword = '';
+      inputPassword2 = '';
       channelType = 0;
       errorBool = false;
     "
@@ -736,16 +771,30 @@ const isNum = (char: any) => {
       </div>
       <div v-if="channelType == 3">
         <div class="form-signin pt-3">
-          <label for="password" class="sr-only">Password</label>
-          <input
-            type="text"
-            id="password"
-            class="form-control"
-            placeholder="Password"
-            v-model="inputPassword"
-            required
-            autofocus
-          />
+          <div class="input-group mb-3">
+            <label for="inputPasswordChannel1" class="sr-only">Password</label>
+            <span @click="seePassword('inputPasswordChannel1')" class="input-group-text" id="basic-addon1"><i class="fa-regular fa-eye"></i></span>
+            <input
+              type="password"
+              id="inputPasswordChannel1"
+              class="form-control"
+              placeholder="Password"
+              v-model="inputPassword"
+              required
+            />
+          </div>
+          <div class="input-group mb-3">
+            <label for="inputPasswordChannel2" class="sr-only">Confirm Password</label>
+            <span @click="seePassword('inputPasswordChannel2')" class="input-group-text" id="basic-addon1"><i class="fa-regular fa-eye"></i></span>
+            <input
+              type="password"
+              id="inputPasswordChannel2"
+              class="form-control"
+              placeholder="Confirm password"
+              v-model="inputPassword2"
+              required
+            />
+          </div>
         </div>
       </div>
       <div v-else-if="channelType == 2">
@@ -783,7 +832,6 @@ const isNum = (char: any) => {
     <template v-slot:footer>
       <button
         @click="if (channelName.trim() != '' && !isNum(channelName.trim()[0])) {
-          modalNewChannel = false;
           createChannel();
           errorBool = false;
         } else {
@@ -803,6 +851,7 @@ const isNum = (char: any) => {
           modalNewChannel = false;
           channelName = '';
           inputPassword = '';
+          inputPassword2 = '';
           channelType = 0;
           errorBool = false;
         "
@@ -822,6 +871,7 @@ const isNum = (char: any) => {
       modalUpdateChannel = false;
       channelName = '';
       inputPassword = '';
+      inputPassword2 = '';
       channelType = 0;
       errorBool = false;
     "
@@ -880,16 +930,30 @@ const isNum = (char: any) => {
       </div>
       <div v-if="channelType == 3">
         <div class="form-signin pt-3">
-          <label for="password" class="sr-only">Password</label>
-          <input
-            type="text"
-            id="password"
-            class="form-control"
-            placeholder="Password"
-            v-model="inputPassword"
-            required
-            autofocus
-          />
+          <div class="input-group mb-3">
+            <label for="inputPasswordChannelUp1" class="sr-only">Password</label>
+            <span @click="seePassword('inputPasswordChannelUp1')" class="input-group-text" id="basic-addon1"><i class="fa-regular fa-eye"></i></span>
+            <input
+              type="password"
+              id="inputPasswordChannelUp1"
+              class="form-control"
+              placeholder="Password"
+              v-model="inputPassword"
+              required
+            />
+          </div>
+          <div class="input-group mb-3">
+            <label for="inputPasswordChannelUp2" class="sr-only">Confirm Password</label>
+            <span @click="seePassword('inputPasswordChannelUp2')" class="input-group-text" id="basic-addon1"><i class="fa-regular fa-eye"></i></span>
+            <input
+              type="password"
+              id="inputPasswordChannelUp2"
+              class="form-control"
+              placeholder="Confirm password"
+              v-model="inputPassword2"
+              required
+            />
+          </div>
         </div>
       </div>
       <div v-else-if="channelType == 2">
@@ -931,7 +995,6 @@ const isNum = (char: any) => {
     <template v-slot:footer>
       <button
         @click="if (channelName.trim() != '' && !isNum(channelName.trim()[0])) {
-          modalUpdateChannel = false;
           updateChannel();
           errorBool = false;
         } else {
@@ -950,6 +1013,7 @@ const isNum = (char: any) => {
           modalUpdateChannel = false;
           channelName = '';
           inputPassword = '';
+          inputPassword2 = '';
           channelType = 0;
           errorBool = false;
         "
@@ -1085,7 +1149,7 @@ const isNum = (char: any) => {
     </template>
   </ModalChat>
 
-  <ModalChat v-if="modalJoinChannel" @close="modalJoinChannel = false">
+  <ModalChat v-if="modalJoinChannel" @close="modalJoinChannel = false; inputPassword = ''">
     <template v-slot:header>
       <h2 style="padding-top: 10px"><u>Join :</u> {{ channelJoin?.name }}</h2>
     </template>
@@ -1095,16 +1159,18 @@ const isNum = (char: any) => {
           <u>This channel is protected with a password :</u>
         </h5>
         <div class="form-signin pt-3">
-          <label for="password" class="sr-only">Password</label>
-          <input
-            type="text"
-            id="password"
-            class="form-control"
-            placeholder="Password"
-            v-model="inputPassword"
-            required
-            autofocus
-          />
+          <div class="input-group mb-3">
+            <label for="inputPasswordChannelJoin1" class="sr-only">Password</label>
+            <span @click="seePassword('inputPasswordChannelJoin1')" class="input-group-text" id="basic-addon1"><i class="fa-regular fa-eye"></i></span>
+            <input
+              type="password"
+              id="inputPasswordChannelJoin1"
+              class="form-control"
+              placeholder="Password"
+              v-model="inputPassword"
+              required
+            />
+          </div>
         </div>
       </div>
     </template>
@@ -1121,7 +1187,7 @@ const isNum = (char: any) => {
         Join
       </button>
       <button
-        @click="modalJoinChannel = false"
+        @click="modalJoinChannel = false; inputPassword = ''"
         type="button"
         class="mod-btn mod-btn-yellow"
         style="width: 75%;  margin-right: auto; margin-left: auto;"
@@ -1328,5 +1394,12 @@ const isNum = (char: any) => {
 
 .separator-list {
   border-bottom: 1px solid #0202aa;
+}
+span.input-group-text, input#inputUsername {
+  border-top-left-radius: 0.25rem !important;
+  border-bottom-left-radius: 0.25rem !important;
+}
+span.input-group-text:hover {
+  cursor: pointer;
 }
 </style>

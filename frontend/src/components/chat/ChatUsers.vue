@@ -24,9 +24,7 @@ const { channel, usersMembers, arrayTime } = storeToRefs(channelStore);
 const messageStore = useMessageStore();
 const { stringSendMessage, modalSendMessage } = storeToRefs(messageStore);
 
-// const userClick = ref<User>();
 const userClickBool = ref<boolean>(false);
-const modalShowProfil = ref<boolean>(false);
 const modalAdmin = ref<boolean>(false);
 const modalBan = ref<boolean>(false);
 const modalMute = ref<boolean>(false);
@@ -277,23 +275,7 @@ const addAdmin = () => {
     </template>
   </ModalChat>
 
-  <ModalChat v-if="modalShowProfil" @close="modalShowProfil = false; userClick = undefined">
-    <template v-slot:header>
-      <h2 class="pt-4">{{ userClick?.username }}</h2>
-    </template>
-    <template v-slot:body> PAGE PROFIL </template>
-    <template v-slot:footer>
-      <button
-        @click="modalShowProfil = false; userClick = undefined"
-        type="button"
-        class="mod-btn mod-btn-yellow"
-      >
-        Cancel
-      </button>
-    </template>
-  </ModalChat>
-
-  <ModalMessage  v-if="modalSendMessage == true" :userClick="userClick"/>
+  <ModalMessage  v-if="modalSendMessage == true" />
 
   <ModalChat
     v-if="modalBlock == true"
@@ -320,6 +302,7 @@ const addAdmin = () => {
         "
         type="button"
         class="mod-btn mod-btn-blue"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Yes
       </button>
@@ -327,6 +310,7 @@ const addAdmin = () => {
         @click="modalBlock = false; userClick = undefined"
         type="button"
         class="mod-btn mod-btn-yellow"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         No
       </button>
@@ -358,6 +342,7 @@ const addAdmin = () => {
         "
         type="button"
         class="mod-btn mod-btn-blue"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Yes
       </button>
@@ -365,6 +350,7 @@ const addAdmin = () => {
         @click="modalFriend = false; userClick = undefined"
         type="button"
         class="mod-btn mod-btn-yellow"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         No
       </button>
@@ -396,6 +382,7 @@ const addAdmin = () => {
         "
         type="button"
         class="mod-btn mod-btn-blue"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Yes
       </button>
@@ -403,6 +390,7 @@ const addAdmin = () => {
         @click="modalAdmin = false; userClick = undefined"
         type="button"
         class="mod-btn mod-btn-yellow"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         No
       </button>
@@ -461,6 +449,7 @@ const addAdmin = () => {
         "
         type="button"
         class="mod-btn mod-btn-yellow"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Cancel
       </button>
@@ -519,6 +508,7 @@ const addAdmin = () => {
         "
         type="button"
         class="mod-btn mod-btn-yellow"
+        style="width: 75%;  margin-right: auto; margin-left: auto;"
       >
         Cancel
       </button>

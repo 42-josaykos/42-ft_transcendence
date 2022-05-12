@@ -12,11 +12,13 @@ export const useUserStore = defineStore("user", () => {
   const gameSocket = ref<Socket>();
   const isAuthenticated = ref(false);
   const socketChat = ref<Socket>();
+  const statusSocket = ref<Socket>();
   const usersBlocked = ref<User[]>([]);
   const usersFriends = ref<User[]>([]);
   const isTwoFactorAuth = ref<boolean>(false);
   const userClick = ref<User>();
   const setting_open = ref<boolean>(false);
+  const modalFriends = ref<boolean>(false);
 
   const createUser = (newUser: User) => {
     users.value.push(newUser);
@@ -88,12 +90,14 @@ export const useUserStore = defineStore("user", () => {
     usersOnline,
     isAuthenticated,
     socketChat,
+    statusSocket,
     usersBlocked,
     usersFriends,
     gameSocket,
     isTwoFactorAuth,
     userClick,
     setting_open,
+    modalFriends,
     createUser,
     deleteUser,
     updateUser,

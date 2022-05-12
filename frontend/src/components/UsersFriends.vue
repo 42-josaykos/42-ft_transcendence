@@ -1,15 +1,12 @@
 <script setup lang="ts">
-
-import ModalMessage from "./chat/ModalMessage.vue";
-
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
 import { useMessageStore } from "@/stores/message";
 import { useRouter } from "vue-router";
 
-const router = useRouter();
+// const router = useRouter();
 const userStore = useUserStore();
-const { loggedUser, socketChat, usersFriends, userClick } = storeToRefs(userStore);
+const { loggedUser, socketChat, usersFriends, userClick, setting_open, modalFriends } = storeToRefs(userStore);
 
 const messageStore = useMessageStore();
 const { modalSendMessage } = storeToRefs(messageStore);
@@ -33,22 +30,21 @@ const { modalSendMessage } = storeToRefs(messageStore);
           </div>
           <div class="ms-auto px-2" style="width: 500px;">
             <button
-              @click=""
+              @click="modalFriends = false; setting_open = true; userClick = user"
               type="button"
               class="mod-btn-friends mod-btn-green btn-sm"
             >
               Profil
             </button>
             <button
-              @click="modalSendMessage = true;"
+              @click="modalFriends = false; modalSendMessage = true; userClick = user"
               type="button"
               class="mod-btn-friends mod-btn-cyan btn-sm"
             >
               Send message
             </button>
-            <ModalMessage  v-if="modalSendMessage == true" :userClick="user"/>
             <button
-              @click="userClick = user; router.push('/game')"
+              @click="modalFriends = false; userClick = user; /*router.push('/game')*/"
               type="button"
               class="mod-btn-friends mod-btn-yellow btn-sm"
             >

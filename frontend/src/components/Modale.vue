@@ -3,38 +3,20 @@ import { ref } from 'vue';
 import Profil from './Profil.vue';
 import Login from './Login.vue';
 import Register from './Register.vue';
-import { useMessageStore } from '@/stores/message';
-import { useChannelStore } from '@/stores/channel';
 import { useUserStore } from '@/stores/user';
 import { storeToRefs } from 'pinia';
-import { Get } from '@/services/requests';
 
 defineProps<{
   isAuthenticated: boolean;
   loggedUser: any;
 }>();
 
-const { messages } = storeToRefs(useMessageStore());
-const { channel, usersMembers } = storeToRefs(useChannelStore());
-const { setting_open, userClick, loggedUser, isMyProfile } = storeToRefs(
+const { setting_open, loggedUser, statusSocket } = storeToRefs(
   useUserStore()
 );
 
 async function getUserData() {
-  if (isMyProfile) {
-    userClick.value = loggedUser.value;
-  }
-  if (channel.value) {
-    Get(
-      '/channels/search?id=' +
-        channel.value.id.toString() +
-        '&messages&owner&admins&members&mutes&bans'
-    ).then(res => {
-      channel.value = res.data[0];
-      messages.value = res.data[0].messages;
-      usersMembers.value = res.data[0].members;
-    });
-  }
+  statusSocket.value?.emit('updateUser', loggedUser.value)
 }
 </script>
 
