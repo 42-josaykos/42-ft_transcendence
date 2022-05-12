@@ -79,10 +79,56 @@ getPlayersStats();
         </tbody>
       </table>
     </div>
+    <hr />
+    <br />
+    <table style="width: 90%; table-layout: fixed; margin-left: 5%">
+      <thead style="border-bottom: 20px solid rgba(0, 0, 0, 0)">
+        <tr>
+          <th class="table_title" scope="col">Rank</th>
+          <th class="table_title" scope="col">UserName</th>
+          <th class="table_title" scope="col">Winrate</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(player, index) in players?.slice(0, 20)">
+          <!-- Print top 20 of the leaderboard -->
+          <th
+            v-bind:class="{
+              first: index + 1 === 1,
+              second: index + 1 === 2,
+              third: index + 1 === 3
+            }"
+          >
+            {{ index + 1 }}
+          </th>
+          <td>
+            <button class="user_btn" @click="userClick = player.user">
+              {{ player.user.username }}
+            </button>
+          </td>
+          <td>{{ player.ratio }} %</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
 <style scoped>
+.user_btn {
+  border: none;
+  background-color: rgba(0, 0, 0, 0);
+  color: inherit;
+  transition: 0.2s;
+}
+
+.user_btn:hover {
+  color: var(--sidebar-icon-color);
+  transform: scale(1.2);
+  font-weight: bold;
+}
+.table_title {
+  font-size: large;
+}
 .first {
   /* color: #D5AD6D; */
   background: -webkit-linear-gradient(transparent, transparent),
