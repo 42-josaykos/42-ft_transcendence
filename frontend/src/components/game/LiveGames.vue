@@ -13,10 +13,7 @@ const router = useRouter();
 // Live games
 const liveGames = ref<any>(null);
 
-// Ask live games list when page is mounted
 gameSocket.value?.emit("getOngoingGames");
-
-// Update live games list event
 gameSocket.value?.on("liveGames", (games: any) => {
   //   console.log("[LiveGames] Live games: ", games);
   liveGames.value = games;
@@ -34,9 +31,6 @@ gameSocket.value?.on("spectateGame", () => {
 
 <template>
   <div class="infoGame mb-5">
-    <!-- <div class="req neon-typo" v-if="!isAuthenticated">
-                Log in to access
-              </div> -->
     <div class="cont">
       <div
         class="neon-typo pt-4"
