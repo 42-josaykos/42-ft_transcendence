@@ -7,6 +7,7 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   WsException,
+  WsResponse,
 } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
@@ -201,19 +202,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             channelItem.password,
           );
           if (!isPasswordMatching) {
-            this.server
-              .to(client.id)
-              .emit('error', {
-                message: 'Channel protected by a password => wrong password',
-              });
+            this.server.to(client.id).emit('error', {
+              message: 'Channel protected by a password => wrong password',
+            });
             return;
           }
         } else {
-          this.server
-            .to(client.id)
-            .emit('error', {
-              message: 'Channel protected by a password => wrong password',
-            });
+          this.server.to(client.id).emit('error', {
+            message: 'Channel protected by a password => wrong password',
+          });
           return;
         }
       }
@@ -561,5 +558,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     } catch (error) {
       this.server.to(client.id).emit('error', { message: error.message });
     }
+  }
+
+  @SubscribeMessage('getAllUsers')
+  async getAllUsers(
+    @ConnectedSocket() client: Socket,
+  ): Promise<WsResponse<User[]>> {
+    return {
+      event: 'receiveAllUsers',
+      data: await this.usersService.getAllUsers(),
+    };
   }
 }
