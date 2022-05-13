@@ -50,14 +50,14 @@ export default {
     getPlayerL: function () {
       this.player_L.x = this.bound;
       this.player_L.y = this.canvas.h / 2 - this.paddle.h / 2;
-      this.player_L.color = "blue";
+      this.player_L.color = "#5ECEF8";
       this.player_L.score = 0;
       return this.player_L;
     },
     getPlayerR: function () {
       this.player_R.x = this.canvas.w - this.bound - this.paddle.w;
       this.player_R.y = this.canvas.h / 2 - this.paddle.h / 2;
-      this.player_R.color = "pink";
+      this.player_R.color = "#FF83BA";
       this.player_R.score = 0;
       return this.player_R;
     },
@@ -65,7 +65,7 @@ export default {
       this.ball.x = this.canvas.w / 2;
       this.ball.y = this.canvas.h / 2;
       this.ball.size = this.paddle.w / 2;
-      this.ball.color = "yellow";
+      this.ball.color = "#FFF961";
       this.ball.speed = 5 * (1 + (this.rcv_ballSpeed * 2) / 10);
       this.ball.velocityX = 1 * this.ball.speed;
       this.ball.velocityY = 1 * this.ball.speed; //	Velocity = Speed & Direction
@@ -238,7 +238,7 @@ export default {
       let canvas = document.getElementById("pong");
       if (canvas.getContext) {
         let context = canvas.getContext("2d");
-        context.fillStyle = "yellow";
+        context.fillStyle = "#FFF961";
         context.beginPath();
         context.arc(
           this.ball.x,
@@ -270,8 +270,9 @@ export default {
         let xLeft = this.canvas.w / 4;
         let xRight = (3 * this.canvas.w) / 4 - size / 2;
 
-        context.fillStyle = "yellow";
+        context.fillStyle = "#5ECEF8";//"#FFF961";
         context.fillText(leftPlayer.score, xLeft, this.canvas.h / 5);
+        context.fillStyle = "#FF83BA";//"#FFF961";
         context.fillText(rightPlayer.score, xRight, this.canvas.h / 5);
       }
       return;
@@ -310,6 +311,7 @@ export default {
     <modaleresult
       v-if="endgame"
       v-bind:player_L="player_L"
+      v-bind:player_R="player_R"
     >
     </modaleresult>
 
@@ -323,6 +325,6 @@ export default {
 }
 .pong {
   background: #0c2039;
-  border: 7.5px solid #fff961;
+  border: 7.5px solid #1A3558;
 }
 </style>
