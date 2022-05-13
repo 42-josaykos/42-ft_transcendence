@@ -10,10 +10,6 @@ const { usersOnline } = storeToRefs(userStore);
       user: Object
   })
 
-const emit = defineEmits(['open'])
-const open = () => {
-    emit('open');
-}
 const isOnlineBool = ref<boolean>(false)
 
 const isOnline = computed(() => {
@@ -28,31 +24,29 @@ const isOnline = computed(() => {
 </script>
 
 <template>
-  <button  @click="open()" type="button" class="btn-user-card">
-    <div class="row no-gutters d-flex">
-      <div class="col-md-4 cercle-user-card">
-        <img v-bind:src=props.user?.avatar alt="Avatar" class="card-img">
-      </div>
-      <div class="col-md-7 infos"  style="margin-left: 15px;">
-        <div class="text-truncate">
-          <div class="info" >
-            {{props.user?.username}}
-          </div>
-          <div class="info">
-            <div class="status d-flex">
-              <div  v-if="isOnlineBool == true" >
-                <i class="fa fa-circle online"></i>
-              </div>
-              <div v-else>
-                <i class="fa fa-circle offline"></i>
-              </div>
-              <small class="text-muted ps-1">{{ isOnline }}</small>
+  <div class="row no-gutters d-flex">
+    <div class="col-md-4 cercle-user-card">
+      <img v-bind:src=props.user?.avatar alt="Avatar" class="card-img">
+    </div>
+    <div class="col-md-7 infos"  style="margin-left: 15px;">
+      <div class="text-truncate">
+        <div class="info" >
+          {{props.user?.username}}
+        </div>
+        <div class="info">
+          <div class="status d-flex">
+            <div  v-if="isOnlineBool == true" >
+              <i class="fa fa-circle online"></i>
             </div>
+            <div v-else>
+              <i class="fa fa-circle offline"></i>
+            </div>
+            <small class="text-muted ps-1">{{ isOnline }}</small>
           </div>
-          </div>
+        </div>
       </div>
     </div>
-  </button>
+  </div>
 </template>
 
 <style>
