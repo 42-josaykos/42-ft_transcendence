@@ -65,7 +65,10 @@ export class GameService implements OnModuleInit {
     };
 
     this.games.push(game);
-    let pause = false;
+    let pause = true;
+    setTimeout(() => {
+      pause = false;
+    }, 1500);
 
     // Main game loop
     game.intervalID = setInterval(async () => {

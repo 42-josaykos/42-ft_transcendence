@@ -141,5 +141,6 @@ span.input-group-text {
 input.input-pass {
   border-top-left-radius: 0rem !important;
   border-bottom-left-radius: 0rem !important;
+  padding-right: 55px;
 }
 </style>

@@ -777,7 +777,7 @@ const seePassword = (stringId: string) => {
             <input
               type="password"
               id="inputPasswordChannel1"
-              class="form-control"
+              class="form-control input-pass-channel"
               placeholder="Password"
               v-model="inputPassword"
               required
@@ -789,7 +789,7 @@ const seePassword = (stringId: string) => {
             <input
               type="password"
               id="inputPasswordChannel2"
-              class="form-control"
+              class="form-control input-pass-channel"
               placeholder="Confirm password"
               v-model="inputPassword2"
               required
@@ -936,7 +936,7 @@ const seePassword = (stringId: string) => {
             <input
               type="password"
               id="inputPasswordChannelUp1"
-              class="form-control"
+              class="form-control input-pass-channel"
               placeholder="Password"
               v-model="inputPassword"
               required
@@ -948,7 +948,7 @@ const seePassword = (stringId: string) => {
             <input
               type="password"
               id="inputPasswordChannelUp2"
-              class="form-control"
+              class="form-control input-pass-channel"
               placeholder="Confirm password"
               v-model="inputPassword2"
               required
@@ -1165,7 +1165,7 @@ const seePassword = (stringId: string) => {
             <input
               type="password"
               id="inputPasswordChannelJoin1"
-              class="form-control"
+              class="form-control input-pass-channel"
               placeholder="Password"
               v-model="inputPassword"
               required
@@ -1402,4 +1402,14 @@ span.input-group-text, input#inputUsername {
 span.input-group-text:hover {
   cursor: pointer;
 }
+
+input.input-pass-channel {
+  padding-right: 55px;
+}
+input.input-pass-channel:focus {
+  outline-style: none;
+  box-shadow: none;
+  border-color: white;
+}
+
 </style>
