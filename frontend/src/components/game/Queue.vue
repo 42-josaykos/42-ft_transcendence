@@ -4,17 +4,23 @@ import { useUserStore } from "@/stores/user";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 import type { User } from "@/models/user.model";
+import TimerStartGame from "./TimerStartGame.vue";
 
 // Stores
 const userStore = useUserStore();
 const { loggedUser, gameSocket, playersDuo } = storeToRefs(userStore);
 
 const router = useRouter();
+const matchFound = ref<boolean>(false);
 
 gameSocket.value?.on("startGame", (players: User[]) => {
   console.log("[QueueSystem] A new match is starting");
-  playersDuo.value = players;
-  router.push("/matchmaking");
+  matchFound.value = true;
+  setTimeout(() => {
+    matchFound.value = false;
+    playersDuo.value = players;
+    router.push("/matchmaking");
+  }, 5000);
 });
 
 const emit = defineEmits(["queueWaiting"]);
@@ -38,6 +44,13 @@ const enterQueue = () => {
   >
     {{ !inQueue ? "Find a game" : "Leave queue" }}
   </button>
+
+  <div class="bloc_modale" v-if="matchFound">
+    <div class="overlay" @click=""></div>
+    <div class="modale card">
+      <TimerStartGame />
+    </div>
+  </div>
 </template>
 
 <style scoped>
