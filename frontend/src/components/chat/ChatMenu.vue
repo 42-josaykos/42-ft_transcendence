@@ -278,47 +278,47 @@ const leaveChannel = () => {
               loggedUser.value
             );
           } else {
-            if (
-              channelStore.isBan(channelLeave.value, loggedUser.value.id) && !channelStore.isMute(channelLeave.value, loggedUser.value.id)
-            ) {
-              socketChat.value.emit(
-                "updateMember",
-                channelLeave.value?.id,
-                {
-                  removeBans: [{user: {id: loggedUser.value?.id}}],
-                  removeMembers: [{ id: loggedUser.value.id }],
-                },
-                msg,
-                loggedUser.value
-              );
-            } else if (
-              channelStore.isMute(channelLeave.value, loggedUser.value.id) && !channelStore.isBan(channelLeave.value, loggedUser.value.id)
-            ) {
-              socketChat.value.emit(
-                "updateMember",
-                channelLeave.value?.id,
-                {
-                  removeMutes: [{user: {id: loggedUser.value?.id}}],
-                  removeMembers: [{ id: loggedUser.value.id }],
-                },
-                msg,
-                loggedUser.value
-              );
-            } else if (
-              channelStore.isMute(channelLeave.value, loggedUser.value.id) && channelStore.isBan(channelLeave.value, loggedUser.value.id)
-            ) {
-              socketChat.value.emit(
-                "updateMember",
-                channelLeave.value?.id,
-                {
-                  removeBans: [{user: {id: loggedUser.value?.id}}],
-                  removeMutes: [{user: {id: loggedUser.value?.id}}],
-                  removeMembers: [{ id: loggedUser.value.id }],
-                },
-                msg,
-                loggedUser.value
-              );
-            } else {
+            // if (
+            //   channelStore.isBan(channelLeave.value, loggedUser.value.id) && !channelStore.isMute(channelLeave.value, loggedUser.value.id)
+            // ) {
+            //   socketChat.value.emit(
+            //     "updateMember",
+            //     channelLeave.value?.id,
+            //     {
+            //       removeBans: [{user: {id: loggedUser.value?.id}}],
+            //       removeMembers: [{ id: loggedUser.value.id }],
+            //     },
+            //     msg,
+            //     loggedUser.value
+            //   );
+            // } else if (
+            //   channelStore.isMute(channelLeave.value, loggedUser.value.id) && !channelStore.isBan(channelLeave.value, loggedUser.value.id)
+            // ) {
+            //   socketChat.value.emit(
+            //     "updateMember",
+            //     channelLeave.value?.id,
+            //     {
+            //       removeMutes: [{user: {id: loggedUser.value?.id}}],
+            //       removeMembers: [{ id: loggedUser.value.id }],
+            //     },
+            //     msg,
+            //     loggedUser.value
+            //   );
+            // } else if (
+            //   channelStore.isMute(channelLeave.value, loggedUser.value.id) && channelStore.isBan(channelLeave.value, loggedUser.value.id)
+            // ) {
+            //   socketChat.value.emit(
+            //     "updateMember",
+            //     channelLeave.value?.id,
+            //     {
+            //       removeBans: [{user: {id: loggedUser.value?.id}}],
+            //       removeMutes: [{user: {id: loggedUser.value?.id}}],
+            //       removeMembers: [{ id: loggedUser.value.id }],
+            //     },
+            //     msg,
+            //     loggedUser.value
+            //   );
+            // } else {
               socketChat.value.emit(
                 "updateMember",
                 channelLeave.value?.id,
@@ -326,7 +326,7 @@ const leaveChannel = () => {
                 msg,
                 loggedUser.value
               );
-            }
+            // }
           }
         }
         // channelStore.leaveChannel(channelLeave.value);
