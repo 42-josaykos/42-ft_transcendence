@@ -6,7 +6,7 @@ import { ref } from "vue";
 import { Get } from "@/services/requests";
 import type { User } from "@/models/user.model";
 import { useMessageStore } from "@/stores/message";
-// import AddRemoveFriend from "./AddRemoveFriend.vue";
+import UserCard from "./UserCard.vue";
 
 // Stores
 const userStore = useUserStore();
@@ -60,11 +60,14 @@ const isFriend = (user: User): boolean => {
       <br />
       <table style="width: 90%; table-layout: fixed; margin-left: 5%">
         <tr v-for="player in users" :key="player.id">
-          <th class="watch_player">{{ player.username }}</th>
-          <!-- Online status -->
-          <td>
-            <i class="fa-solid fa-circle" style="color: greenyellow"></i>
+          <td style="width: 50%">
+            <UserCard :user="player" :dashboard="true" />
           </td>
+          <!-- <th class="watch_player">{{ player.username }}</th> -->
+          <!-- Online status -->
+          <!-- <td>
+            <i class="fa-solid fa-circle" style="color: greenyellow"></i>
+          </td> -->
           <!-- Profile -->
           <td>
             <a
