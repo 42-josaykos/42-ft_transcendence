@@ -24,8 +24,6 @@ const { modalSendMessage } = storeToRefs(messageStore);
 
 const router = useRouter();
 
-const showActions = ref<boolean>(false);
-
 // Get all users at page startup
 const users = ref<User[]>([]);
 socketChat.value?.emit("getUsersByFilter", {});
@@ -70,6 +68,8 @@ const isFriend = (user: User): boolean => {
           <!-- Profile -->
           <td>
             <a
+              class="hovertext"
+              data-hover="Profile"
               href="#"
               @click="
                 setting_open = true;
@@ -82,6 +82,8 @@ const isFriend = (user: User): boolean => {
           <!-- Send message -->
           <td>
             <a
+              class="hovertext"
+              data-hover="Send message"
               href="#"
               @click="
                 modalSendMessage = true;
@@ -98,6 +100,8 @@ const isFriend = (user: User): boolean => {
           <!-- Add friend -->
           <td v-if="!isFriend(player)">
             <a
+              class="hovertext"
+              data-hover="Add friend"
               href="#"
               @click="
                 socketChat?.emit('updateFriends', {
@@ -112,6 +116,8 @@ const isFriend = (user: User): boolean => {
           <!-- Remove friend -->
           <td v-else>
             <a
+              class="hovertext"
+              data-hover="Remove friend"
               href="#"
               @click="
                 socketChat?.emit('updateFriends', {
@@ -130,6 +136,34 @@ const isFriend = (user: User): boolean => {
 </template>
 
 <style scoped>
+.hovertext {
+  position: relative;
+  border-bottom: 1px dotted black;
+}
+
+.hovertext:before {
+  content: attr(data-hover);
+  visibility: hidden;
+  opacity: 0;
+  width: 140px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  padding: 5px 0;
+  transition: opacity 1s ease-in-out;
+
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: 110%;
+}
+
+.hovertext:hover:before {
+  opacity: 1;
+  visibility: visible;
+}
+
 .infoGame {
   display: grid;
 
