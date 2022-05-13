@@ -21,9 +21,12 @@ intervalId = setInterval(decrement, 1000);
 <template>
   <div>
     <h1>GAME FOUND</h1>
-    <h4>Game that starts in :</h4>
-    <span v-if="time > 0" class="timerStartGame">{{ time }}</span>
-    <span v-else class="timerStartGame">START</span>
+    
+    <span v-if="time > 0" class="timerStartGame">
+      <h4>Game that starts in :</h4>
+      {{ time }}
+    </span>
+    <span v-else class="timerStartGame">STARTING</span>
   </div>
 </template>
 
