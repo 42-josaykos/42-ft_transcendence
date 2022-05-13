@@ -21,7 +21,7 @@ const {
 const { modalSendMessage } = storeToRefs(useMessageStore());
 
 defineProps<{
-  isAuthenticated: boolean;
+  componentName: string;
 }>();
 
 onMounted(async () => {
@@ -99,7 +99,7 @@ const waiting = ref<boolean>(false);
           </button>
         </span>
 
-        <span class="col-sm-2 d-flex justify-content-center my-2 mx-2">
+        <span v-if="componentName === 'Home'" class="col-sm-2 d-flex justify-content-center my-2 mx-2">
           <Queue @queueWaiting="waiting = !waiting" />
         </span>
       </div>
@@ -108,7 +108,7 @@ const waiting = ref<boolean>(false);
       </div>
     </div>
   </div>
-  <Modale :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
+  <Modale />
   <ModalChat v-if="modalFriends == true" @close="modalFriends = false">
     <template v-slot:header>
       <h2 class="pt-4">

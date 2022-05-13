@@ -23,7 +23,7 @@ const showActions = ref<boolean>(false);
 </script>
 
 <template>
-  <Navbar :isAuthenticated="isAuthenticated" />
+  <Navbar componentName="Home"/>
   <div class="container-flex" style="position: relative">
     <div id="HomePage" class="full-height">
       <div class="container">

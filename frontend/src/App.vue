@@ -48,7 +48,6 @@ onMounted(() => {
       "
     >
       <div v-if="isAuthenticated">
-        <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" />
         <StatusSystem />
         <GameSystem />
         <ChatSocket />
