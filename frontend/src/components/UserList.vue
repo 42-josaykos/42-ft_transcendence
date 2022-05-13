@@ -5,19 +5,199 @@ import { useRouter } from "vue-router";
 import { ref } from "vue";
 import { Get } from "@/services/requests";
 import type { User } from "@/models/user.model";
+import { useMessageStore } from "@/stores/message";
+// import AddRemoveFriend from "./AddRemoveFriend.vue";
 
 // Stores
 const userStore = useUserStore();
-const { gameSocket, socketChat } = storeToRefs(userStore);
+const {
+  gameSocket,
+  socketChat,
+  setting_open,
+  userClick,
+  loggedUser,
+  usersFriends,
+} = storeToRefs(userStore);
+
+const messageStore = useMessageStore();
+const { modalSendMessage } = storeToRefs(messageStore);
 
 const router = useRouter();
 
+const showActions = ref<boolean>(false);
+
 // Get all users at page startup
 const users = ref<User[]>([]);
-socketChat.value?.emit("getAllUsers");
-socketChat.value?.on("receiveAllUsers", (userList) => (users.value = userList));
+socketChat.value?.emit("getUsersByFilter", {});
+socketChat.value?.on(
+  "receiveFilteredUsers",
+  (userList) => (users.value = userList)
+);
+
+// Get user friends
+socketChat.value?.on("receiveFriends", (friendsList: User[]) => {
+  usersFriends.value = friendsList;
+});
+socketChat.value?.emit("getUserFriends", loggedUser.value);
+
+const isFriend = (user: User): boolean => {
+  const friendIndex = usersFriends.value.findIndex(
+    (friend) => friend.id === user.id
+  );
+  if (friendIndex === -1) return false;
+  else return true;
+};
 </script>
 
-<template></template>
+<template>
+  <div class="infoGame">
+    <div class="cont">
+      <div
+        class="neon-typo pt-4"
+        style="font-size: xx-large; font-weight: bold"
+      >
+        Players List
+      </div>
+      <hr />
+      <br />
+      <table style="width: 90%; table-layout: fixed; margin-left: 5%">
+        <tr v-for="player in users" :key="player.id">
+          <th class="watch_player">{{ player.username }}</th>
+          <!-- Online status -->
+          <td>
+            <i class="fa-solid fa-circle" style="color: greenyellow"></i>
+          </td>
+          <!-- Profile -->
+          <td>
+            <a
+              href="#"
+              @click="
+                setting_open = true;
+                userClick = player;
+              "
+            >
+              <i class="fa-solid fa-user action_icon"></i
+            ></a>
+          </td>
+          <!-- Send message -->
+          <td>
+            <a
+              href="#"
+              @click="
+                modalSendMessage = true;
+                userClick = player;
+              "
+            >
+              <i class="fa-solid fa-comment-dots fa-xl action_icon"></i
+            ></a>
+          </td>
+          <!-- Invite to a game -->
+          <td>
+            <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
+          </td>
+          <!-- Add friend -->
+          <td v-if="!isFriend(player)">
+            <a
+              href="#"
+              @click="
+                socketChat?.emit('updateFriends', {
+                  id: loggedUser?.id,
+                  updateDTO: { addFriends: [{ id: player.id }] },
+                })
+              "
+            >
+              <i class="fa-solid fa-user-plus action_icon"></i
+            ></a>
+          </td>
+          <!-- Remove friend -->
+          <td v-else>
+            <a
+              href="#"
+              @click="
+                socketChat?.emit('updateFriends', {
+                  id: loggedUser?.id,
+                  updateDTO: { removeFriends: [{ id: player.id }] },
+                })
+              "
+            >
+              <i class="fa-solid fa-user-minus action_icon"></i
+            ></a>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</template>
 
-<style scoped></style>
+<style scoped>
+.infoGame {
+  display: grid;
+
+  background-color: rgba(0, 0, 0, 0.4);
+  padding-bottom: 4vh;
+  min-height: 400px;
+  max-height: 400px;
+  overflow-y: scroll;
+  border-radius: 30px;
+  box-shadow: 0px 0px 10px 2px white, inset 0px 0px 4px 2px white;
+}
+
+.cont {
+  grid-area: 1 / 1;
+}
+
+.cont {
+  z-index: 1;
+}
+
+p {
+  margin-left: auto;
+  margin-right: auto;
+  width: 6em;
+}
+
+.neon-typo {
+  color: #ffffff;
+  text-shadow: 0px 4px 15px white, 0px 0px 10px white;
+}
+
+.infoGame {
+  overflow: hidden;
+}
+
+.infoGame hr {
+  display: block;
+  position: relative;
+  height: 2px;
+  box-shadow: 0px 0px 10px white, 0px 0px 15px 5px white;
+  opacity: 1;
+  width: 90%;
+  color: #fffed9;
+  margin: auto;
+  margin-top: 2vh;
+}
+
+th {
+  white-space: nowrap;
+  width: 40%;
+}
+
+.watch_player {
+  font-size: large;
+  overflow-x: hidden;
+}
+
+.action_icon {
+  color: var(--sidebar-icon-color);
+}
+
+.action_icon:hover {
+  transform: scale(1.5);
+  transition: 0.4s;
+  cursor: pointer;
+}
+
+th {
+  padding: 5px;
+}
+</style>

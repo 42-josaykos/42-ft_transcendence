@@ -18,6 +18,8 @@ import { AuthService } from 'src/auth/auth.service';
 import { MessagesService } from 'src/api/messages/messages.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { FilterUserDTO } from 'src/api/users/dto/filter-user.dto';
+import { UpdateUserDTO } from 'src/api/users/dto/update-user.dto';
 
 class Connections {
   userID: number;
@@ -560,13 +562,39 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage('getAllUsers')
+  // Access to the API
+  @SubscribeMessage('getUsersByFilter')
   async getAllUsers(
     @ConnectedSocket() client: Socket,
+    @MessageBody() filter: FilterUserDTO,
   ): Promise<WsResponse<User[]>> {
     return {
-      event: 'receiveAllUsers',
-      data: await this.usersService.getAllUsers(),
+      event: 'receiveFilteredUsers',
+      data: await this.usersService.getUsersByFilter(filter),
+    };
+  }
+
+  @SubscribeMessage('getUserFriends')
+  async getUserFriends(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() loggedUser: User,
+  ): Promise<WsResponse<User[]>> {
+    return {
+      event: 'receiveFriends',
+      data: (await this.usersService.getUserByID(loggedUser.id, ['friends']))
+        .friends,
+    };
+  }
+
+  @SubscribeMessage('updateFriends')
+  async removeFriend(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): Promise<WsResponse<User[]>> {
+    return {
+      event: 'receiveFriends',
+      data: (await this.usersService.updateUser(data.id, data.updateDTO))
+        .friends,
     };
   }
 }
