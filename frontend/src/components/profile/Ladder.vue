@@ -43,42 +43,6 @@ getPlayersStats();
       >
         LeaderBoard
       </div>
-      <hr />
-      <br />
-      <table style="width: 90%; table-layout: fixed; margin-left: 5%">
-        <thead style="border-bottom: 20px solid rgba(0, 0, 0, 0)">
-          <tr>
-            <th scope="col">Rank</th>
-            <th scope="col">UserName</th>
-            <th scope="col">Winrate</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(player, index) in players">
-            <th
-              v-bind:class="{
-                first: index + 1 === 1,
-                second: index + 1 === 2,
-                third: index + 1 === 3
-              }"
-            >
-              {{ index + 1 }}
-            </th>
-            <td>
-              <a
-                href="#"
-                @click="
-                  userClick = player.user;
-                  setting_open = true;
-                "
-                >{{ player.user.username }}</a
-              >
-            </td>
-            <td>{{ player.ratio * 100 }} %</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
     <hr />
     <br />
     <table style="width: 90%; table-layout: fixed; margin-left: 5%">
@@ -102,14 +66,15 @@ getPlayersStats();
             {{ index + 1 }}
           </th>
           <td>
-            <button class="user_btn" @click="userClick = player.user">
+            <button class="user_btn" @click="userClick = player.user; setting_open = true">
               {{ player.user.username }}
             </button>
           </td>
-          <td>{{ player.ratio }} %</td>
+          <td>{{ player.ratio * 100 }} %</td>
         </tr>
       </tbody>
     </table>
+    </div>
   </div>
 </template>
 
