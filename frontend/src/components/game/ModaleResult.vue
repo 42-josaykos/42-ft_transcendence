@@ -13,6 +13,9 @@ export default {
 	computed: {
 		...mapState(useUserStore, ["loggedUser", "playersDuo"]),
 		getResult: function() {
+			console.log("logged: ", this.loggedUser.username);
+			console.log("left:", this.duo[0].username);
+			console.log("playerleft score: ", this.player_L.score)
 			if (this.loggedUser.username == this.duo[0].username && this.player_L.score == 10)
 				return (this.result = true);
 			return (this.result = false);

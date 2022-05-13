@@ -3,15 +3,17 @@ import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
+import type { User } from "@/models/user.model";
 
 // Stores
 const userStore = useUserStore();
-const { loggedUser, gameSocket } = storeToRefs(userStore);
+const { loggedUser, gameSocket, playersDuo } = storeToRefs(userStore);
 
 const router = useRouter();
 
-gameSocket.value?.on("startGame", (data: any) => {
+gameSocket.value?.on("startGame", (players: User[]) => {
   console.log("[QueueSystem] A new match is starting");
+  playersDuo.value = players;
   router.push("/matchmaking");
 });
 
