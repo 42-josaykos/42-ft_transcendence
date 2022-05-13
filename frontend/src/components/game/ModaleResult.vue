@@ -258,7 +258,7 @@ export default {
 }
  
 .bloc_modale_result .overlay_result {
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.65);
     position: fixed;
     top: 0;
     bottom: 0;
