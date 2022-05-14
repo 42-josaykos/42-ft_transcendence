@@ -1,18 +1,12 @@
 <script setup lang="ts">
-import { onBeforeMount, onUnmounted, ref } from 'vue';
+import { ref } from 'vue';
 
 import { storeToRefs } from 'pinia';
 
 import { useUserStore } from '@/stores/user';
 import { useChannelStore } from '@/stores/channel';
 
-import { Get } from '@/services/requests';
-
-import ChatMenu from "./ChatMenu.vue";
-import ChatUsers from "./ChatUsers.vue";
-import ChatMessages from "./ChatMessages.vue";
 import ModalChat from "./ModalChat.vue";
-import Navbar from '../Navbar.vue';
 import UserCard from '../UserCard.vue';
 
 const userStore = useUserStore();
@@ -22,7 +16,7 @@ const channelStore = useChannelStore();
 const { channel } = storeToRefs(channelStore);
 
 
-const test = ref<boolean>(false)
+const modalOpenBtn = ref<boolean>(false)
 
 const emit = defineEmits(['removeBan', 'removeMute'])
 const removeBan = () => {
@@ -36,19 +30,17 @@ const removeMute = () => {
 
 <template>
   <button
-    @click="test = true"
+    @click="modalOpenBtn = true"
     class="btn-block set-btn-ban-mute selector"
   >
     Bans - Mutes
   </button>
 
-  <ModalChat v-if="test" @close="test = false">
+  <ModalChat v-if="modalOpenBtn" @close="modalOpenBtn = false">
     <template v-slot:header>
       <h2 class="pt-4">
         <u>Bans users :</u>
       </h2>
-    <!-- </template>
-    <template v-slot:body> -->
       <div v-if="channel && channel.bans.length > 0">
         <div class="scrollspy-example2 card-choose-users">
           <div
@@ -81,8 +73,6 @@ const removeMute = () => {
       <h2 class="pt-4">
         <u>Mutes users :</u>
       </h2>
-    <!-- </template>
-    <template v-slot:body> -->
       <div v-if="channel && channel.mutes.length > 0">
         <div class="scrollspy-example2 card-choose-users">
           <div
