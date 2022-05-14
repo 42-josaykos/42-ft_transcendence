@@ -74,7 +74,7 @@ if (socketChat.value != undefined) {
 </script>
 
 <template>
-  <Navbar :isAuthenticated="isAuthenticated" />
+  <Navbar componentName="Chat"/>
   <div class="container">
     <div class="row-chat">
       <div class="col-md-3 col-chat">

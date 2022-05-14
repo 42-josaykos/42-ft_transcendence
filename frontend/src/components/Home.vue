@@ -5,9 +5,8 @@ import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
 import Ladder from "./profile/Ladder.vue";
 import Navbar from "./Navbar.vue";
-import Queue from "./game/Queue.vue";
 import LiveGames from "./game/LiveGames.vue";
-import UserActions from "./UserActions.vue";
+import UserList from "./UserList.vue";
 
 const profil_vmoreau = ref(false);
 const profil_mabriand = ref(false);
@@ -18,12 +17,10 @@ const profil_adupuy = ref(false);
 const userStore = useUserStore();
 const { isAuthenticated, loggedUser, setting_open, userClick } =
   storeToRefs(userStore);
-
-const showActions = ref<boolean>(false);
 </script>
 
 <template>
-  <Navbar :isAuthenticated="isAuthenticated" />
+  <Navbar componentName="Home" />
   <div class="container-flex" style="position: relative">
     <div id="HomePage" class="full-height">
       <div class="container">
@@ -101,79 +98,12 @@ const showActions = ref<boolean>(false);
                 <b>SPACE PONG</b>
               </div>
             </div>
-
             <LiveGames />
-
-            <div class="infoGame">
-              <div class="req neon-typo" v-if="!isAuthenticated">
-                Log in to access
-              </div>
-              <div class="cont">
-                <div
-                  class="neon-typo pt-4"
-                  style="font-size: xx-large; font-weight: bold"
-                >
-                  Online Player
-                </div>
-                <hr />
-                <br />
-                <table style="width: 90%; table-layout: fixed; margin-left: 5%">
-                  <tr>
-                    <th class="watch_player">Mabriand</th>
-                    <td>
-                      <i
-                        class="fa-solid fa-circle"
-                        style="color: greenyellow"
-                      ></i>
-                    </td>
-                    <td>
-                      <i class="fa-solid fa-comment-dots fa-xl action_icon"></i>
-                    </td>
-                    <td>
-                      <a
-                        href="#"
-                        @click="
-                          setting_open = true;
-                          userClick = loggedUser;
-                        "
-                        ><i class="fa-solid fa-gamepad fa-xl action_icon"></i
-                      ></a>
-                    </td>
-                    <!-- <td>
-                      <a href="#" @click="spectate(game.id)"
-                        ><i class="fa-solid fa-eye fa-xl action_icon"></i
-                      ></a>
-                      <i
-                        class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
-                      ></i>
-                    </td> -->
-                    <td>
-                      <a href="#" @click="showActions = !showActions"
-                        ><i
-                          class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
-                        ></i
-                      ></a>
-                      <!-- <i
-                        class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
-                      ></i> -->
-                    </td>
-                  </tr>
-                </table>
-              </div>
-            </div>
+            <UserList />
           </div>
         </div>
       </div>
     </div>
-
-    <!-- TO DELETE!! -->
-    <div class="bloc_modale" v-if="showActions">
-      <div class="overlay" @click="showActions = !showActions"></div>
-      <div class="modale card">
-        <UserActions v-if="showActions" :user="loggedUser" />
-      </div>
-    </div>
-    <!-- TO DELETE!! -->
 
     <div id="Contact" class="p-4 ps-4">
       <h2 class="neon-typo pb-4"><u>Team Contact</u></h2>
