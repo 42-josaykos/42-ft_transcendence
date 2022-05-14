@@ -63,29 +63,51 @@ const enterQueue = () => {
   box-shadow: 0px 0px 10px white, 0px 0px 15px 5px white;
 }
 .btn-nav {
-  margin-top: 45px;
+  margin-bottom: 45px;
   margin-right: auto;
   margin-left: auto;
+  /* min-width: 13vw; */
+  width: 115px;
+}
+@media screen and (max-width: 540px) {
+  .btn-nav {
+    margin-bottom: 45px;
+    margin-right: auto;
+    margin-left: auto;
+
+    width: 55px;
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+  }
 }
 
-@media screen and (min-width: 576px) and (max-width: 992px) {
+/* @media screen and (min-width: 576px) and (max-width: 992px) {
   .set-btn-nav {
     max-width: 150px;
     min-width: 120px;
     font-size: medium;
   }
-}
-@media screen and (max-width: 576px) {
+}*/
+/* @media screen and (max-width: 576px) {
   .set-btn-nav {
     max-width: 100px;
     min-width: 86px;
     font-size: medium;
   }
-}
-@media screen and (min-width: 992px) {
+} */
+/*@media screen and (min-width: 992px) {
   .set-btn-nav {
     min-width: 180px;
     font-size: large;
   }
-}
+} */
+
+/* @media screen and (max-width: 768px) {
+  .btn-nav {
+    margin-bottom: 45px;
+    margin-right: auto;
+    margin-left: auto;
+    min-width: 14vw;
+  }
+} */
 </style>

@@ -41,8 +41,8 @@ const waiting = ref<boolean>(false);
 
 <template>
   <div class="container pt-2">
-    <div v-if="loggedUser" class="row d-flex pb-4 my-navbar">
-      <div class="col-sm-4 d-flex" style="width: auto">
+    <div v-if="loggedUser" class="d-flex pb-4 my-navbar">
+      <div class="d-flex" style="width: 33vw">
         <div class="cercle-user-card">
           <img
             v-bind:src="loggedUser.avatar"
@@ -50,7 +50,7 @@ const waiting = ref<boolean>(false);
             class="card-img avatar-img"
           />
         </div>
-        <div class="infos" style="margin-left: 15px">
+        <div class="infos">
           <div class="info">
             <h3>{{ loggedUser.username }}</h3>
             <button
@@ -58,17 +58,26 @@ const waiting = ref<boolean>(false);
                 userClick = loggedUser;
                 setting_open = !setting_open;
               "
-              class="btn-block set-btn set-btn-nav selector"
+              class="btn-block set-btn set-btn-nav btn-profile selector"
             >
               Profile
             </button>
           </div>
         </div>
       </div>
-      <div class="col-sm-8 d-flex btn-navbar">
+
+      <div style="width: 67vw">
+        <span class="neonText display-1 size-title" >
+          <b>Space Pong</b>
+        </span>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="d-flex btn-navbar">
         <router-link
           to="/"
-          class="col-sm-2 d-flex justify-content-center my-2 mx-2 router-nav"
+          class="d-flex justify-content-center my-2 mx-2 router-nav"
         >
           <button
             @click=""
@@ -80,7 +89,7 @@ const waiting = ref<boolean>(false);
 
         <router-link
           to="/chat"
-          class="col-sm-2 d-flex justify-content-center my-2 mx-2 router-nav"
+          class="d-flex justify-content-center my-2 mx-2 router-nav"
         >
           <button
             @click=""
@@ -90,7 +99,7 @@ const waiting = ref<boolean>(false);
           </button>
         </router-link>
 
-        <span class="col-sm-2 d-flex justify-content-center my-2 mx-2">
+        <span class="d-flex justify-content-center my-2 mx-2">
           <button
             @click="modalFriends = true"
             class="btn-block set-btn set-btn-nav btn-nav set-btn-nav-friends selector"
@@ -101,7 +110,7 @@ const waiting = ref<boolean>(false);
 
         <span
           v-if="componentName === 'Home' || componentName === 'Chat'"
-          class="col-sm-2 d-flex justify-content-center my-2 mx-2"
+          class="d-flex justify-content-center my-2 mx-2"
         >
           <Queue @queueWaiting="waiting = !waiting" />
         </span>
@@ -111,7 +120,9 @@ const waiting = ref<boolean>(false);
       </div>
     </div>
   </div>
+
   <Modale />
+
   <ModalChat v-if="modalFriends == true" @close="modalFriends = false">
     <template v-slot:header>
       <h2 class="pt-4">
@@ -122,6 +133,7 @@ const waiting = ref<boolean>(false);
       <UsersFriends />
     </template>
   </ModalChat>
+
   <ModalMessage v-if="modalSendMessage == true" />
 </template>
 
@@ -134,7 +146,10 @@ li .row:hover {
   color: #fffed4;
   filter: drop-shadow(0px 0px 5px #fff961);
 }
-
+.btn-profile {
+  padding-left: 0px !important;
+  padding-right: 0px !important;
+}
 .set-btn-nav {
   background-color: white;
   color: #66645f;
@@ -146,12 +161,12 @@ li .row:hover {
   box-shadow: 0px 0px 10px white, 0px 0px 15px 5px white;
 }
 .btn-nav {
-  margin-top: 45px;
+  margin-bottom: 45px;
   margin-right: auto;
   margin-left: auto;
+  width: 115px;
 }
 .btn-navbar {
-  width: auto;
   justify-content: space-around;
 }
 .my-navbar {
@@ -163,40 +178,29 @@ li .row:hover {
   color: inherit;
 }
 .avatar-img {
-  width: 150px;
-  height: 150px;
+  width: 8vw;
+  height: 8vw;
 }
+.size-title {
+  font-size: 7vw;
+}
+@media screen and (max-width: 540px) {
+  .btn-nav {
+    margin-bottom: 45px;
+    margin-right: auto;
+    margin-left: auto;
 
-@media (max-width: 1400px) {
-  .btn-navbar {
-    width: 100vw !important;
+    width: 55px;
+    padding-left: 0px !important;
+    padding-right: 0px !important;
   }
-}
-
-@media screen and (min-width: 576px) and (max-width: 992px) {
-  .set-btn-nav {
-    max-width: 150px;
-    min-width: 120px;
-    font-size: medium;
+  .avatar-img {
+    width: 12vw;
+    height: 12vw;
   }
-}
-@media screen and (max-width: 576px) {
-  .set-btn-nav {
-    max-width: 100px;
-    min-width: 86px;
-    font-size: medium;
-  }
-  .set-btn-nav-friends {
-    max-width: 95px !important;
-  }
-  .btn-navbar {
-    width: 100vw !important;
-  }
-}
-@media screen and (min-width: 992px) {
-  .set-btn-nav {
-    min-width: 180px;
-    font-size: large;
+  .size-title {
+    margin-left: 30px;
+    font-size: x-large;
   }
 }
 </style>

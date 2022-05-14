@@ -26,11 +26,6 @@ const { isAuthenticated, loggedUser, setting_open, userClick } =
       <div class="container">
         <div class="row pb-5">
           <div class="col-lg-6">
-            <div class="text-center mb-3 d-block d-lg-none">
-              <h1 class="neonText display-1" style="font-size: 10vw">
-                <b>Space Pong</b>
-              </h1>
-            </div>
             <br />
             <h1 class="neon-typo" style="float: left"><u>What is Pong?</u></h1>
             <br /><br /><br />
@@ -63,41 +58,11 @@ const { isAuthenticated, loggedUser, setting_open, userClick } =
             <div class="container-fluid p-0">
               <div class="row">
                 <Ladder />
-                <!-- <div
-                  class="col-lg-7 pb-3 watch_player"
-                  style="color: white; text-align: start"
-                >
-                  Pong was the first commercially successful video game, and it
-                  helped to establish the video game industry along with the
-                  Magnavox Odyssey. Soon after its release, several companies
-                  began producing games that closely mimicked its gameplay.
-                  <br /><br />
-                  Pong is a two-dimensional sports game that simulates table
-                  tennis. The player controls an in-game paddle by moving it
-                  vertically across the left or right side of the screen. They
-                  can compete against another player controlling a second paddle
-                  on the opposing side. Players use the paddles to hit a ball
-                  back and forth. The goal is for each player to reach eleven
-                  points before the opponent; points are earned when one fails
-                  to return the ball to the other.
-                </div> -->
-                <!-- <div class="col-lg-5 d-flex align-items-center">
-                  <img
-                    src="../assets/home/Arcade-pong.jpeg"
-                    alt="BorneArcade"
-                    style="width: 100%"
-                  />
-                </div> -->
               </div>
             </div>
           </div>
           <div class="col-1" style="min-height: 50px" />
           <div class="col-lg-5">
-            <div class="text-center mb-3 d-none d-lg-block">
-              <div class="GameName neon-typo" style="font-size: 4vw">
-                <b>SPACE PONG</b>
-              </div>
-            </div>
             <LiveGames />
             <UserList />
           </div>
