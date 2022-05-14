@@ -18,47 +18,6 @@ const open = () => {
 </template>
 
 <style scoped>
-.infos {
-  display: flex;
-  align-items: center;
-  padding-left: 10px !important;
-  padding-top: 4px;
-}
-
-.info {
-  text-align: left;
-}
-
-.cercle-user-card {
-  border-radius: 50% !important;
-  padding: 5px;
-}
-
-.cercle-user-card img {
-  border-radius: 50%;
-  border: var(--clr-neon) 3px solid;
-  background-color: transparent;
-  box-shadow: inset 0 0 0.5em 0 var(--clr-neon), 0 0 0.5em 0 var(--clr-neon);
-  object-fit: cover;
-  width: 60px;
-  height: 60px;
-}
-
-.online,
-.offline {
-  margin-right: 2px;
-  font-size: 8px;
-  vertical-align: middle;
-}
-
-.online {
-  color: #86c541;
-}
-
-.offline {
-  color: #e47297;
-}
-
 .btn-user-card {
   background-color: transparent;
   color: #6c757d;

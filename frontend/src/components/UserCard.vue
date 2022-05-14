@@ -31,7 +31,7 @@ const isOnline = computed(() => {
     <div v-else class="col-md-4 cercle-user-card">
       <img v-bind:src="props.user?.avatar" alt="Avatar" class="card-img" />
     </div>
-    <div class="col-md-7 infos">
+    <div class="col-md-7 infos" v-bind:class="{ infosChat: !props.dashboard }">
       <div class="text-truncate">
         <div class="info">
           {{ props.user?.username }}
@@ -58,6 +58,9 @@ const isOnline = computed(() => {
   align-items: center;
   padding-left: 10px !important;
   padding-top: 4px;
+}
+.infosChat {
+  margin-left: 10px;
 }
 
 .info {

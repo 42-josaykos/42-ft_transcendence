@@ -57,7 +57,7 @@ const removeMute = () => {
             :key="ban.user.id"
           >
             <div class="d-flex ms-auto my-2 " style="align-items: center" >
-              <UserCard class="ms-2" :user="ban.user" />
+              <UserCard class="ms-2" :user="ban.user" :dashboard="true" />
               <div class="ms-auto">
                 <button
                   @click="
@@ -73,6 +73,9 @@ const removeMute = () => {
             </div>
           </div>
         </div>
+      </div>
+      <div v-else>
+        <p style="color: red;">No member of this channel is banned</p>
       </div>
 
       <h2 class="pt-4">
@@ -104,6 +107,9 @@ const removeMute = () => {
             </div>
           </div>
         </div>
+      </div>
+      <div v-else>
+        <p style="color: red;">No member of this channel is muted</p>
       </div>
     </template>
   </ModalChat>
