@@ -13,8 +13,20 @@ import Register from "@/components/Register.vue";
 import Toto from "@/components/Toto.vue";
 import Authenticate2fa from "@/components/Authenticate2fa.vue";
 import MatchHistory from "@/components/profile/MatchHistory.vue";
+import { useUserStore } from "@/stores/user";
+import { storeToRefs } from "pinia";
 
 const routes = [
+  {
+    path: "/toto",
+    name: "Toto",
+    component: Toto,
+  },
+  {
+    path: "/debug",
+    name: "Debug",
+    component: Debug,
+  },
   {
     path: "/",
     name: "Home",
@@ -40,26 +52,6 @@ const routes = [
     component: Pong,
   },
   {
-    path: "/toto",
-    name: "Toto",
-    component: Toto,
-  },
-  {
-    path: "/debug",
-    name: "Debug",
-    component: Debug,
-  },
-  {
-    path: "/login",
-    name: "Login",
-    component: Login,
-  },
-  {
-    path: "/register",
-    name: "Register",
-    component: Register,
-  },
-  {
     path: "/chat",
     name: "Chat",
     beforeEnter: routeGuard,
@@ -72,15 +64,28 @@ const routes = [
     beforeEnter: routeGuard,
   },
   {
-    path: "/twofactorauth",
-    name: "Authenticate2fa",
-    component: Authenticate2fa,
-  },
-  {
     path: "/history",
     name: "History",
     component: MatchHistory,
     beforeEnter: routeGuard,
+  },
+  {
+    path: "/login",
+    name: "Login",
+    beforeEnter: isNotAuthenticatedGuard,
+    component: Login,
+  },
+  {
+    path: "/register",
+    name: "Register",
+    beforeEnter: isNotAuthenticatedGuard,
+    component: Register,
+  },
+  {
+    path: "/twofactorauth",
+    name: "Authenticate2fa",
+    beforeEnter: isNotAuthenticatedGuard,
+    component: Authenticate2fa,
   },
   {
     path: "/:pathMatch(.*)*",
@@ -94,6 +99,19 @@ const router = createRouter({
   routes,
 });
 
+// Block login, register and 2fa page access when already logged in
+function isNotAuthenticatedGuard(to: any, from: any, next: any){
+  const userStore = useUserStore()
+  const { isAuthenticated} = storeToRefs(userStore)
+  console.log('AUTH GUARD');
+  
+  if (!isAuthenticated.value) {
+    next()
+  } else {
+    next(from.path)
+  }
+}
+
 async function routeGuard(to: any, from: any, next: any) {
   let response;
   try {
@@ -101,10 +119,10 @@ async function routeGuard(to: any, from: any, next: any) {
     if (response.status != 401) {
       next(); // allow to enter route
     } else {
-      next("/login"); // go to '/login';
+      next('/login');
     }
   } catch (error: any) {
-    next("/login"); // go to '/login';
+    next('/login');
   }
 }
 

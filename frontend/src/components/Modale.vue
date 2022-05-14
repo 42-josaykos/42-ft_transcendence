@@ -6,12 +6,12 @@ import Register from './Register.vue';
 import { useUserStore } from '@/stores/user';
 import { storeToRefs } from 'pinia';
 
-defineProps<{
-  isAuthenticated: boolean;
-  loggedUser: any;
-}>();
+// defineProps<{
+//   isAuthenticated: boolean;
+//   loggedUser: any;
+// }>();
 
-const { setting_open, loggedUser, statusSocket } = storeToRefs(
+const { setting_open, isAuthenticated, loggedUser, statusSocket } = storeToRefs(
   useUserStore()
 );
 

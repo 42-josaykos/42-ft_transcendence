@@ -4,7 +4,7 @@ import { useUserStore } from '@/stores/user';
 import { ref } from 'vue';
 import { Post } from '@/services/requests';
 import { useRouter } from 'vue-router';
-import { login_open, register_open } from './Modale.vue';
+import Register from './Register.vue';
 
 const userStore = useUserStore();
 const { isAuthenticated, loggedUser, isTwoFactorAuth } = storeToRefs(userStore);
@@ -13,6 +13,7 @@ const router = useRouter();
 const username = ref('');
 const password = ref('');
 const loader = ref(false);
+const registerForm = ref(false);
 
 function loginLocal() {
   loader.value = true;
@@ -27,7 +28,6 @@ function loginLocal() {
         router.push('/');
       } else if (res.status == 303) {
         isTwoFactorAuth.value = true;
-        login_open.value = false;
         router.push('/twofactorauth');
       }
       loader.value = false;
@@ -39,7 +39,7 @@ function loginLocal() {
 <template>
   <div class="container">
     <h1 class="neonText display-1">Space Pong</h1>
-    <div v-if="!loader">
+    <div v-if="!loader && !registerForm">
       <form @submit.prevent.trim.lazy="loginLocal" class="form-signin">
         <label for="inputUsername" class="sr-only">Username</label>
         <input
@@ -90,15 +90,22 @@ function loginLocal() {
         <a
           href="#"
           @click="
-            login_open = false;
-            register_open = true;
+            registerForm = true;
           "
         >
           Register
         </a>
       </div>
     </div>
-    <div v-else class="loader"></div>
+    <div v-else-if="loader" class="loader"></div>
+    <div v-else-if="registerForm">
+      <Register  />
+      <button
+          class="mod-btn mod-btn-red"
+          style="margin: 10px"
+          @click="registerForm=false"
+      >Back</button>
+    </div>
   </div>
 </template>
 

@@ -45,7 +45,7 @@ export default {
 </script>
 
 <template>
-  <Navbar :isAuthenticated="isAuthenticated" />
+  <Navbar componentName="Game" />
   <div class="container-fluid">
     <div class="game">
       <pong
