@@ -99,7 +99,10 @@ const waiting = ref<boolean>(false);
           </button>
         </span>
 
-        <span v-if="componentName === 'Home'" class="col-sm-2 d-flex justify-content-center my-2 mx-2">
+        <span
+          v-if="componentName === 'Home' || componentName === 'Chat'"
+          class="col-sm-2 d-flex justify-content-center my-2 mx-2"
+        >
           <Queue @queueWaiting="waiting = !waiting" />
         </span>
       </div>

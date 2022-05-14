@@ -109,11 +109,15 @@ export class GameGateway
       // console.log('playerOne: ', playerOne);
       // console.log('playerTwo: ', playerTwo);
 
-      // Create a socket room
+      // Create a socket room, and make ALL player's sockets join
       const roomName = `${playerOne.player.user.id}-${playerTwo.player.user.id}`;
       this.joinRoom(roomName, [
-        ...playerOne.player.socketID,
-        ...playerTwo.player.socketID,
+        ...this.connectedClients.find(
+          (client) => client.user.id === playerOne.player.user.id,
+        ).socketID,
+        ...this.connectedClients.find(
+          (client) => client.user.id === playerTwo.player.user.id,
+        ).socketID,
       ]);
 
       this.server
