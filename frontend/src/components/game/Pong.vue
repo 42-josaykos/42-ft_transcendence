@@ -4,12 +4,12 @@ import { storeToRefs, mapState } from "pinia";
 import { useUserStore } from "@/stores/user";
 import { useRouter } from "vue-router";
 import { Player } from "src/../../backend/src/game/game.class.ts";
-import Navbar from "../Navbar.vue"
+import Navbar from "../Navbar.vue";
 
 export default {
   name: "Pong",
   components: {
-    Navbar
+    Navbar,
   },
   props: ["revelePlay", "msg", "paddleSize", "ballSpeed"],
   data: function () {
@@ -101,12 +101,15 @@ export default {
       this.updateGame(data);
     });
     this.gameSocket.on("endGame", () => {
-      clearInterval(this.intervalID);
       this.router.push("/");
     });
     // ##########################################################################
 
     this.launch();
+    return;
+  },
+  unmounted() {
+    clearInterval(this.intervalID);
     return;
   },
   destroyed() {
