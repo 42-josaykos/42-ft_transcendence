@@ -288,7 +288,7 @@ export default {
 </script>
 
 <template>
-  <div>
+  <div style="position: absolute; top: 15%; left: 25%; max-width: 800px; max-height:500px;">
     <matchinfo></matchinfo>
     <div class="pong-game">
       <canvas
@@ -306,7 +306,6 @@ export default {
       v-bind:player_R="player_R"
     >
     </modaleresult>
-
   </div>
 </template>
 
