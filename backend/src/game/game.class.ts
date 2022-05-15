@@ -71,3 +71,8 @@ export class Sound {
   win: boolean;
   loose: boolean;
 }
+
+export class Invites {
+  user: Connection;
+  invitesReceived: Connection[];
+}

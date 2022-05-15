@@ -3,20 +3,35 @@ import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
+// import Modale from "../Modale.vue";
+import UserCard from '../UserCard.vue';
 
 // Stores
 const userStore = useUserStore();
-const { gameSocket } = storeToRefs(userStore);
+const { gameSocket, loggedUser } = storeToRefs(userStore);
 
 const router = useRouter();
 
 // Live games
 const liveGames = ref<any>(null);
+const gameInvites = ref<any>(null);
+const modaleAllInvitesGame= ref<boolean>(false);
 
 gameSocket.value?.emit("getOngoingGames");
 gameSocket.value?.on("liveGames", (games: any) => {
   //   console.log("[LiveGames] Live games: ", games);
   liveGames.value = games;
+});
+
+gameSocket.value?.emit("getInvitesGame", loggedUser.value);
+gameSocket.value?.on("invitesGame", (invitesGame: any) => {
+    // console.log("[InviteGames] Invites games: ", invitesGame);
+  gameInvites.value = invitesGame ? invitesGame : null;
+});
+
+gameSocket.value?.on("updateInviteGame", (invitesGame: any) => {
+    // console.log("[updateInviteGame] Invites games: ", invitesGame);
+  gameInvites.value = invitesGame ? invitesGame : null;
 });
 
 // Spectate
@@ -27,16 +42,32 @@ const spectate = (gameID: number) => {
 gameSocket.value?.on("spectateGame", () => {
   router.push("/spectate");
 });
+
+const acceptInviteToGame = (inviteUser: any) => {
+  gameSocket.value?.emit("acceptInviteToGame", inviteUser, loggedUser.value)
+}
 </script>
 
 <template>
   <div class="infoGame mb-5">
     <div class="cont">
-      <div
-        class="neon-typo pt-4"
-        style="font-size: xx-large; font-weight: bold"
-      >
-        Live Game
+      <div class="d-flex" style="justify-content: center;">
+        <div
+          class="neon-typo pt-4"
+          style="font-size: xx-large; font-weight: bold"
+        >
+          Live Game
+        </div>
+        <button
+          @click="modaleAllInvitesGame = true"
+          type="button"
+          class="rounded btn-channel wrapper-icon-leave hovertext hovertextC pt-4 btn-badge"
+          data-hover="See all invitations to play"
+        >
+          <span class="position-badge-game translate-middle rounded-pill">
+            {{gameInvites ? gameInvites.length : '0'}}
+          </span>
+        </button>
       </div>
       <hr />
       <br />
@@ -54,6 +85,42 @@ gameSocket.value?.on("spectateGame", () => {
       </table>
     </div>
   </div>
+
+  <div class="bloc_modale" v-if="modaleAllInvitesGame">
+    <div class="overlay" @click="modaleAllInvitesGame = !modaleAllInvitesGame"></div>
+    <div class="modale card">
+      <h2 class="pt-4 pb-4">
+        <u>Invitations received :</u>
+      </h2>
+      <div v-if="gameInvites && gameInvites.length > 0">
+        <div class="scrollspy-example2 card-choose-users">
+          <div
+            class="separator-list"
+            v-for="invite in gameInvites"
+            :key="invite.user.id"
+          >
+            <div class="d-flex ms-auto my-2 " style="align-items: center" >
+              <UserCard class="ms-2" :user="invite.user" :dashboard="true" />
+              <div class="ms-auto">
+                <button
+                  @click="modaleAllInvitesGame = false; acceptInviteToGame(invite.user)
+                  "
+                  type="button"
+                  class="mod-btn mod-btn-cyan btn-sm"
+                >
+                  Play
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-else>
+        <p style="color: red;">No invitation to play</p>
+      </div>
+    </div>
+  </div>
+
 </template>
 
 <style scoped>
@@ -130,5 +197,31 @@ th {
 
 th {
   padding: 5px;
+}
+.position-badge-game {
+  left: 90% !important;
+  top: 50% !important;
+  display: initial;
+  padding: 0.30em 0.50em;
+  font-size: 0.75em;
+  font-weight: 700;
+  line-height: 1;
+  background-color: #dfaf2c;
+  text-align: center;
+  white-space: nowrap;
+  border: #dfaf2c 3px solid;
+  box-shadow: 0px 0px 10px #dfaf2c, 0px 0px 15px 5px #dfaf2c;
+  color: #ffffff;
+  font-size: initial;
+  font-weight: bold;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-left: 5px;
+}
+.position-badge-game:hover {
+  box-shadow: 0px 0px 10px #dfaf2c, 0px 0px 15px 5px #dfaf2c;
+}
+.btn-badge:hover {
+  transform: scale(1.2);
 }
 </style>

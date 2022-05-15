@@ -4,6 +4,7 @@ import { useUserStore } from "@/stores/user";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 import TimerStartGame from "./TimerStartGame.vue";
+import TimerStartGameInvite from "./TimerStartGameInvite.vue";
 
 // Stores
 const userStore = useUserStore();
@@ -11,6 +12,8 @@ const { loggedUser, gameSocket } = storeToRefs(userStore);
 
 const router = useRouter();
 const matchFound = ref<boolean>(false);
+const matchInvite = ref<boolean>(false);
+const players = ref<any>(null);
 
 gameSocket.value?.on("startGame", (data: any) => {
   console.log("[QueueSystem] A new match is starting");
@@ -19,6 +22,17 @@ gameSocket.value?.on("startGame", (data: any) => {
     matchFound.value = false;
     router.push("/matchmaking");
   }, 5000);
+});
+
+gameSocket.value?.on("startGameInvite", (data: any) => {
+  console.log("[InviteSystem] A new match is starting");
+  players.value = data;
+  matchInvite.value = true;
+  setTimeout(() => {
+    matchInvite.value = false;
+    players.value = null;
+    router.push("/matchmaking");
+  }, 10000);
 });
 
 const emit = defineEmits(["queueWaiting"]);
@@ -49,6 +63,13 @@ const enterQueue = () => {
       <TimerStartGame />
     </div>
   </div>
+
+  <div class="bloc_modale" v-if="matchInvite">
+    <div class="overlay" @click=""></div>
+    <div class="modale card">
+      <TimerStartGameInvite :playerOne="players[0]" :playerTwo="players[1]"/>
+    </div>
+  </div>
 </template>
 
 <style scoped>
@@ -66,7 +87,6 @@ const enterQueue = () => {
   margin-bottom: 45px;
   margin-right: auto;
   margin-left: auto;
-  /* min-width: 13vw; */
   width: 115px;
 }
 @media screen and (max-width: 540px) {
@@ -80,34 +100,4 @@ const enterQueue = () => {
     padding-right: 0px !important;
   }
 }
-
-/* @media screen and (min-width: 576px) and (max-width: 992px) {
-  .set-btn-nav {
-    max-width: 150px;
-    min-width: 120px;
-    font-size: medium;
-  }
-}*/
-/* @media screen and (max-width: 576px) {
-  .set-btn-nav {
-    max-width: 100px;
-    min-width: 86px;
-    font-size: medium;
-  }
-} */
-/*@media screen and (min-width: 992px) {
-  .set-btn-nav {
-    min-width: 180px;
-    font-size: large;
-  }
-} */
-
-/* @media screen and (max-width: 768px) {
-  .btn-nav {
-    margin-bottom: 45px;
-    margin-right: auto;
-    margin-left: auto;
-    min-width: 14vw;
-  }
-} */
 </style>

@@ -16,7 +16,8 @@ import axios from 'axios';
 import User from 'src/api/users/entities/user.entity';
 import { Connection } from 'src/status/status.class';
 import { GameService } from './game.service';
-import { Game, Player } from 'src/game/game.class';
+import { Game, Player, Invites } from 'src/game/game.class';
+import { use } from 'passport';
 
 @WebSocketGateway({
   namespace: 'game',
@@ -36,6 +37,7 @@ export class GameGateway
   private logger: Logger = new Logger('GameGateway');
   private connectedClients: Connection[] = [];
   private queue: Connection[] = [];
+  private invites: Invites[] = [];
 
   afterInit(server: any) {
     this.logger.log('Game gateway is initialized');
@@ -270,6 +272,161 @@ export class GameGateway
       const players = this.gameService.moveRight(client.id, data);
     } catch (error) {
       throw error;
+    }
+  }
+
+  @SubscribeMessage('getInvitesGame')
+  getInvites(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: User,
+  ) {
+    // console.log("this.invites => ", this.invites)
+    // console.log("Data => ", data)
+    const indexInvites = this.invites.findIndex((el) => el.user.user.id === data.id)
+    let invitesUser: any;
+    if (indexInvites === -1) {
+      invitesUser = null
+    }
+    else {
+      invitesUser = this.invites[indexInvites].invitesReceived
+    }
+    // console.log("invites => ", invitesUser)
+    this.server.to(client.id).emit('invitesGame', invitesUser);
+  }
+
+  @SubscribeMessage('addInvite')
+  addInvite(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ) {
+    const userWhoInvites = this.connectedClients.find(
+      (connection) => connection.user.id === data[0].id,
+    );
+    const guestUser = this.connectedClients.find(
+      (connection) => connection.user.id === data[1].id,
+    );
+
+    if (guestUser) {
+      let userIndex = this.invites.findIndex(
+        (connection) => connection.user.user.id === guestUser.user.id,
+      );
+      if (userIndex === -1) {
+        this.invites.push({ user: guestUser, invitesReceived: [userWhoInvites] });
+      } else {
+        this.invites[userIndex].invitesReceived.push(userWhoInvites);
+      }
+      if (userIndex === -1) {
+        userIndex = 0;
+      }
+
+      // console.log("INVITES => ", this.invites[userIndex])
+      const socketIds = guestUser.socketID
+      for (const socketId of socketIds) {
+        this.server.to(socketId).emit('updateInviteGame', this.invites[userIndex].invitesReceived);
+      }
+
+      setTimeout(() => {
+        // console.log("A - 1 MINUTES")
+        // console.log("1A - INVITES SETTIMEOUT => ", this.invites)
+    
+        const index = this.invites.findIndex((invite) => invite.user.user.id === guestUser.user.id)
+        if (index != -1) {
+          const indexInvite = this.invites[index].invitesReceived.findIndex((invite) => invite.user.id === userWhoInvites.user.id)
+          if (indexInvite != -1) {
+            this.invites[index].invitesReceived.splice(indexInvite, 1)
+            if (!this.invites[index].invitesReceived.length)
+              this.invites.splice(index, 1);
+          }
+        }
+        // console.log("2A - INVITES SETTIMEOUT => ", this.invites)
+        const user = this.connectedClients.find(
+          (connection) => connection.user.id === guestUser.user.id,
+        );
+        if (user) {
+          const indexInvites = this.invites.findIndex((el) => el.user.user.id === user.user.id)
+          let invitesUser: any;
+          if (indexInvites === -1) {
+            invitesUser = null
+          }
+          else {
+            invitesUser = this.invites[indexInvites].invitesReceived
+          }
+          const socketIds = user.socketID
+          for (const socketId of socketIds) {
+            this.server.to(socketId).emit('updateInviteGame', invitesUser);
+          }
+        }
+      }, 60000)
+    }
+  }
+
+  // Invite handling
+  @SubscribeMessage('acceptInviteToGame')
+  async handleInvite(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ) {
+    const userInvite = this.gameService.getUser(this.connectedClients, data[0])
+    const userGuest = this.gameService.getUser(this.connectedClients, data[1])
+
+    if (userInvite && userGuest) {
+      const playerOne: Player = { player: userInvite };
+      const playerTwo: Player = { player: userGuest };
+
+      const roomName = `${playerOne.player.user.id}-${playerTwo.player.user.id}`;
+      this.joinRoom(roomName, [
+        ...this.connectedClients.find(
+          (client) => client.user.id === playerOne.player.user.id,
+        ).socketID,
+        ...this.connectedClients.find(
+          (client) => client.user.id === playerTwo.player.user.id,
+        ).socketID,
+      ]);
+
+      this.server
+        .to(roomName)
+        .emit('startGameInvite', [playerOne.player.user, playerTwo.player.user]);
+
+      setTimeout(
+        (playerOne, playerTwo) => {
+          // Create and start game
+          this.gameService.createGame(playerOne, playerTwo, this.server);
+
+          // console.log("B - 1 MINUTES")
+          // console.log("1B - INVITES SETTIMEOUT => ", this.invites)
+          // Delete invite
+          const index = this.invites.findIndex((invite) => invite.user.user.id === userGuest.user.id)
+          if (index != -1) {
+            const indexInvite = this.invites[index].invitesReceived.findIndex((invite) => invite.user.id === userInvite.user.id)
+            if (indexInvite != -1) {
+              this.invites[index].invitesReceived.splice(indexInvite, 1)
+              if (!this.invites[index].invitesReceived.length)
+                this.invites.splice(index, 1);
+            }
+          }
+          // console.log("2B - INVITES SETTIMEOUT => ", this.invites)
+          const user = this.connectedClients.find(
+            (connection) => connection.user.id === userGuest.user.id,
+          );
+          if (user) {
+            const indexInvites = this.invites.findIndex((el) => el.user.user.id === user.user.id)
+            let invitesUser: any;
+            if (indexInvites === -1) {
+              invitesUser = null
+            }
+            else {
+              invitesUser = this.invites[indexInvites].invitesReceived
+            }
+            const socketIds = user.socketID
+            for (const socketId of socketIds) {
+              this.server.to(socketId).emit('updateInviteGame', invitesUser);
+            }
+          }          
+        },
+        10000,
+        { ...playerOne },
+        { ...playerTwo },
+      );
     }
   }
 }

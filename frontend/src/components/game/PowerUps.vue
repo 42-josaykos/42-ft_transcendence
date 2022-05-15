@@ -70,12 +70,8 @@ export default {
     <h3 class="feature-name">Playing opponent :</h3>
 		<div style="padding-top: 20px">
       <div v-if="userClick != undefined">
-				<img class="circular--square icon_navbar" style="width: auto; max-width: 150px;" v-bind:src=userClick?.avatar alt="Avatar" />
-				<div class="userName neon-typo"><b>{{ userClick?.username }}</b></div>
-      </div>
-      <div v-else class="wrapper-icon-random">
-        <i class="fa-solid fa-question fa-10x"></i>
-				<div class="userName neon-typo"><b>Random player</b></div>
+				<img class="circular--square icon_navbar img-player" v-bind:src=userClick?.avatar alt="Avatar" />
+				<div class="userName neon-typo pt-2"><b>{{ userClick?.username }}</b></div>
       </div>
 		</div>
   </section>
@@ -90,5 +86,10 @@ export default {
 }
 .wrapper-icon-random {
   color: #b90000;
+}
+.img-player {
+  object-fit: cover;
+  width: 150px;
+  height: 150px;
 }
 </style>

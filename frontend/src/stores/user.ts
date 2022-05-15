@@ -20,6 +20,8 @@ export const useUserStore = defineStore('user', () => {
   const setting_open = ref<boolean>(false);
   const modalFriends = ref<boolean>(false);
 
+  const modaleOpenInviteGame = ref<boolean>(false);
+
   const createUser = (newUser: User) => {
     users.value.push(newUser);
   };
@@ -98,6 +100,7 @@ export const useUserStore = defineStore('user', () => {
     userClick,
     setting_open,
     modalFriends,
+    modaleOpenInviteGame,
     createUser,
     deleteUser,
     updateUser,

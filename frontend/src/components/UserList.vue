@@ -17,6 +17,7 @@ const {
   userClick,
   loggedUser,
   usersFriends,
+  modaleOpenInviteGame,
 } = storeToRefs(userStore);
 
 const messageStore = useMessageStore();
@@ -98,7 +99,18 @@ const isFriend = (user: User): boolean => {
           </td>
           <!-- Invite to a game -->
           <td>
+            <a
+              class="hovertext"
+              data-hover="Invite to game"
+              href="#"
+              @click="if (player.id !== loggedUser?.id) {
+                modaleOpenInviteGame = true;
+                userClick = player;
+              }
+              "
+            >
             <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
+            </a>
           </td>
           <!-- Add friend -->
           <td v-if="!isFriend(player)">

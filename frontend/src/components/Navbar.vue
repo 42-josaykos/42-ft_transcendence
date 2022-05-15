@@ -9,6 +9,7 @@ import { Get } from "@/services/requests";
 import ModalMessage from "./chat/ModalMessage.vue";
 import { useMessageStore } from "@/stores/message";
 import Queue from "./game/Queue.vue";
+import ModaleInviteGame from './game/ModaleInviteGame.vue';
 
 const {
   setting_open,
@@ -17,6 +18,7 @@ const {
   usersFriends,
   loggedUser,
   gameSocket,
+  modaleOpenInviteGame,
 } = storeToRefs(useUserStore());
 const { modalSendMessage } = storeToRefs(useMessageStore());
 
@@ -135,6 +137,8 @@ const waiting = ref<boolean>(false);
   </ModalChat>
 
   <ModalMessage v-if="modalSendMessage == true" />
+
+  <ModaleInviteGame v-if="modaleOpenInviteGame" @close="modaleOpenInviteGame = false"/>
 </template>
 
 <style scoped>
