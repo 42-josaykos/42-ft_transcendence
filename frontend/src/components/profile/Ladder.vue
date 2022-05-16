@@ -86,7 +86,7 @@ getPlayersStats();
                 {{ player.user.username }}
               </button>
             </td>
-            <td>{{ player.ratio * 100 }} %</td>
+            <td>{{ (player.ratio * 100).toFixed(2) }} %</td>
           </tr>
         </tbody>
       </table>

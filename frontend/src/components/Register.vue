@@ -4,7 +4,6 @@ import { useUserStore } from "@/stores/user";
 import { ref } from "vue";
 import { Post } from "@/services/requests";
 import { useRouter } from "vue-router";
-import { login_open, register_open } from "./Modale.vue";
 
 const userStore = useUserStore();
 const { isAuthenticated, loggedUser } = storeToRefs(userStore);
@@ -15,7 +14,10 @@ const password1 = ref("");
 const password2 = ref("");
 
 function register() {
-  if (password1.value == password2.value) {
+  if (username.value.length > 15) {
+    alert("Username must be less than 15 characters")
+  }
+  else if (password1.value == password2.value) {
     Post("/users", {
       username: username.value,
       password: password1.value,

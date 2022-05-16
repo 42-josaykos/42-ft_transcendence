@@ -7,6 +7,7 @@ import {
   Req,
   Res,
   UnauthorizedException,
+  UseFilters,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -24,6 +25,7 @@ import {
 import { AuthenticationProvider } from './auth.interface';
 import { Inject } from '@nestjs/common';
 import { twoFactorAuthenticationCodeDTO } from './dto/twoFactorAuthenticationCode.dto';
+import { ViewAuthFilter } from './auth.filter';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -73,6 +75,7 @@ export class AuthController {
   @Get('redirect')
   @Redirect()
   @UseGuards(FortyTwoAuthGuard)
+  @UseFilters(ViewAuthFilter)
   async redirect(@Req() req: RequestWithUser, @Res() res: Response) {
     const { user } = req;
     if (user.isTwoFactorAuthenticationEnabled) {
@@ -91,6 +94,7 @@ export class AuthController {
   @Get('redirect/github')
   @Redirect('/')
   @UseGuards(GithubGuard)
+  @UseFilters(ViewAuthFilter)
   async redirectGithub(@Req() req: RequestWithUser, @Res() res: Response) {
     const { user } = req;
     if (user.isTwoFactorAuthenticationEnabled) {

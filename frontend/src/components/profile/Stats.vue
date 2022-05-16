@@ -45,7 +45,7 @@ onMounted(() => {
     </tr>
     <tr>
       <th>Winrate</th>
-      <td>{{ stats[3] }}%</td>
+      <td>{{ stats[3].toFixed(2) }}%</td>
     </tr>
   </table>
 </template>
