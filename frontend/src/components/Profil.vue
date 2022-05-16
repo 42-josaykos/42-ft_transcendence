@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// import { setting_open } from './Modale.vue';
 import { useUserStore } from '@/stores/user';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
