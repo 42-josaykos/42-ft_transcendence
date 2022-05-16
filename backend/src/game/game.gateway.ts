@@ -101,6 +101,7 @@ export class GameGateway
   ) {
     // Adding player to queue
     this.queue.push(this.gameService.getUser(this.connectedClients, data));
+    this.server.emit('inQueueUsers', this.sendInQueueUsers());
     // console.log('queue: ', this.queue);
 
     // Start a game if there is at least 2 players in the queue waiting
@@ -111,6 +112,7 @@ export class GameGateway
       // console.log('playerOne: ', playerOne);
       // console.log('playerTwo: ', playerTwo);
 
+      this.server.emit('inQueueUsers', this.sendInQueueUsers());
       this.setupAndStartGame(
         { ...playerOne },
         { ...playerTwo },
@@ -262,6 +264,7 @@ export class GameGateway
       this.server.to(game.socketRoom).emit('endGame');
       this.server.emit('liveGames', this.getOngoingGames());
       this.server.emit('askStatsUpdate');
+      this.server.emit('sendInGameUsers');
 
       // Make the players / spectators leave the room
       this.server.to(game.socketRoom).socketsLeave(game.socketRoom);
@@ -292,6 +295,7 @@ export class GameGateway
     }
   }
 
+  // Invite handling
   @SubscribeMessage('getInvitesGame')
   getInvites(@ConnectedSocket() client: Socket, @MessageBody() user: User) {
     const indexInvites = this.invites.findIndex(
@@ -348,7 +352,6 @@ export class GameGateway
     }
   }
 
-  // Invite handling
   @SubscribeMessage('acceptInviteToGame')
   async handleInvite(
     @ConnectedSocket() client: Socket,
@@ -408,5 +411,37 @@ export class GameGateway
           this.invites.splice(guestIndex, 1);
       }
     }
+  }
+
+  // Determine if user is in queue
+  @SubscribeMessage('inQueueUsers')
+  inQueueUsers(@ConnectedSocket() client: Socket) {
+    const inQueueUsers: User[] = this.queue.map(
+      (connection) => connection.user,
+    );
+
+    this.server.to(client.id).emit('inQueueUsers', inQueueUsers);
+  }
+
+  sendInQueueUsers() {
+    const inQueueUsers: User[] = this.queue.map(
+      (connection) => connection.user,
+    );
+
+    this.server.emit('inQueueUsers', inQueueUsers);
+  }
+
+  // Determine if user is in game
+  @SubscribeMessage('inGameUsers')
+  isInGame(@ConnectedSocket() client: Socket) {
+    const inGameUsers = this.gameService.inGameUsers();
+
+    this.server.to(client.id).emit('inGameUsers', inGameUsers);
+  }
+
+  sendInGameUsers() {
+    const inGameUsers = this.gameService.inGameUsers();
+
+    this.server.emit('inGameUsers', inGameUsers);
   }
 }
