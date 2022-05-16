@@ -130,14 +130,11 @@ export class GameGateway
   ) {
     // Create a socket room, and make ALL player's sockets join
     const roomName = `${playerOne.player.user.id}-${playerTwo.player.user.id}`;
-    this.joinRoom(roomName, [
-      ...this.connectedClients.find(
-        (client) => client.user.id === playerOne.player.user.id,
-      ).socketID,
-      ...this.connectedClients.find(
-        (client) => client.user.id === playerTwo.player.user.id,
-      ).socketID,
-    ]);
+    this.addSocketsToRoom(
+      playerOne.player.user,
+      playerTwo.player.user,
+      roomName,
+    );
 
     // Send startGame event to clients
     this.server
@@ -209,8 +206,9 @@ export class GameGateway
 
   // SocketIO room managment
   joinRoom(roomName: string, socketIDs: string[]) {
-    for (const socketID of socketIDs)
-      this.server.to(socketID).socketsJoin(roomName);
+    if (socketIDs)
+      for (const socketID of socketIDs)
+        this.server.to(socketID).socketsJoin(roomName);
   }
 
   leaveRoom(roomName: string, socketIDs: string[]) {
@@ -222,6 +220,22 @@ export class GameGateway
     for (const socket of socketID) {
       this.server.to(socket).emit(event, data);
     }
+  }
+
+  addSocketsToRoom(playerOne: User, playerTwo: User, socketRoom: string) {
+    const playerOneConnection = this.connectedClients.find(
+      (client) => client.user.id === playerOne.id,
+    );
+    const playerTwoConnection = this.connectedClients.find(
+      (client) => client.user.id === playerTwo.id,
+    );
+
+    let playerOneSockets = [];
+    let playerTwoSockets = [];
+    if (playerOneConnection) playerOneSockets = playerOneConnection.socketID;
+    if (playerTwoConnection) playerTwoSockets = playerTwoConnection.socketID;
+
+    this.joinRoom(socketRoom, [...playerOneSockets, ...playerTwoSockets]);
   }
 
   sendGameUpdate(game: Game) {

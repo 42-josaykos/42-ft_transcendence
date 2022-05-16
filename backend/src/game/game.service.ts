@@ -82,6 +82,14 @@ export class GameService implements OnModuleInit {
 
     // Main game loop
     game.intervalID = setInterval(async () => {
+      // Update game sockets
+      this.gateway.addSocketsToRoom(
+        game.players[0].player.user,
+        game.players[1].player.user,
+        game.socketRoom,
+      );
+
+      //Game loop
       if (!pause) {
         // Updating ball position
         game.ball.x += game.ball.velocityX;
