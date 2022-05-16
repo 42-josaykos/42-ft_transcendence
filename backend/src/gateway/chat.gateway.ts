@@ -93,7 +93,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     } else {
       this.connectedClients[userIndex].socketID.push(client.id);
     }
-
+    this.server
+      .emit(
+        'receiveFilteredUsers',
+        await this.usersService.getUsersByFilter({}),
+      );
     // console.log('Clients connected after connect: ', this.connectedClients);
   }
 
