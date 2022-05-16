@@ -1,4 +1,4 @@
-import type { Channel } from './channel.model';
+import type { Channel } from "./channel.model";
 
 export interface User {
   id: number;
@@ -11,6 +11,8 @@ export interface User {
   muteChannels: MutedUser[];
   banChannels: BanedUser[];
   inviteChannels: Channel[];
+  friends: User[];
+  friendsInverse: User[];
 }
 
 export interface BanedUser {
