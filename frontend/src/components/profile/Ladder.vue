@@ -1,34 +1,44 @@
 <script setup lang="ts">
-import { Get } from '@/services/requests';
-import { useUserStore } from '@/stores/user';
-import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
+import { Get } from "@/services/requests";
+import { useUserStore } from "@/stores/user";
+import { storeToRefs } from "pinia";
+import { ref } from "vue";
 
 const userStore = useUserStore();
-const { userClick, setting_open } = storeToRefs(userStore);
+const { userClick, setting_open, leaderboard, gameSocket, socketChat } =
+  storeToRefs(userStore);
 
-const players = ref();
+// Listen and ask stats updates
+gameSocket.value?.on("askStatsUpdate", (data: any) => {
+  socketChat.value?.emit("getStats");
+});
+socketChat.value?.on("receiveStatsUpdate", (data: any) => {
+  leaderboard.value = data;
+  getLadder();
+});
 
 async function getPlayersStats() {
   let response;
   try {
-    response = await Get('/stats');
+    response = await Get("/stats");
     if (response.status === 200) {
-      players.value = response.data;
+      leaderboard.value = response.data;
       getLadder();
     }
   } catch (error: any) {}
 }
 
 function getLadder() {
-  players.value = players.value.sort((a: any, b: any) => {
-    if (a.ratio > b.ratio) return -1;
-    else if (a.ratio < b.ratio) return 1;
-    else {
-      if (a.played > b.played) return -1;
-      else if (a.played < b.played) return 1;
-    }
-  });
+  if (leaderboard.value) {
+    leaderboard.value = leaderboard.value.sort((a: any, b: any) => {
+      if (a.ratio > b.ratio) return -1;
+      else if (a.ratio < b.ratio) return 1;
+      else {
+        if (a.played > b.played) return -1;
+        else if (a.played < b.played) return 1;
+      }
+    });
+  }
 }
 
 getPlayersStats();
@@ -43,37 +53,43 @@ getPlayersStats();
       >
         LeaderBoard
       </div>
-    <hr />
-    <br />
-    <table style="width: 90%; table-layout: fixed; margin-left: 5%">
-      <thead style="border-bottom: 20px solid rgba(0, 0, 0, 0)">
-        <tr>
-          <th class="table_title" scope="col">Rank</th>
-          <th class="table_title" scope="col">UserName</th>
-          <th class="table_title" scope="col">Winrate</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(player, index) in players?.slice(0, 20)">
-          <!-- Print top 20 of the leaderboard -->
-          <th
-            v-bind:class="{
-              first: index + 1 === 1,
-              second: index + 1 === 2,
-              third: index + 1 === 3
-            }"
-          >
-            {{ index + 1 }}
-          </th>
-          <td>
-            <button class="user_btn" @click="userClick = player.user; setting_open = true">
-              {{ player.user.username }}
-            </button>
-          </td>
-          <td>{{ player.ratio * 100 }} %</td>
-        </tr>
-      </tbody>
-    </table>
+      <hr />
+      <br />
+      <table style="width: 90%; table-layout: fixed; margin-left: 5%">
+        <thead style="border-bottom: 20px solid rgba(0, 0, 0, 0)">
+          <tr>
+            <th class="table_title" scope="col">Rank</th>
+            <th class="table_title" scope="col">UserName</th>
+            <th class="table_title" scope="col">Winrate</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(player, index) in leaderboard?.slice(0, 20)">
+            <!-- Print top 20 of the leaderboard -->
+            <th
+              v-bind:class="{
+                first: index + 1 === 1,
+                second: index + 1 === 2,
+                third: index + 1 === 3,
+              }"
+            >
+              {{ index + 1 }}
+            </th>
+            <td>
+              <button
+                class="user_btn"
+                @click="
+                  userClick = player.user;
+                  setting_open = true;
+                "
+              >
+                {{ player.user.username }}
+              </button>
+            </td>
+            <td>{{ player.ratio * 100 }} %</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>

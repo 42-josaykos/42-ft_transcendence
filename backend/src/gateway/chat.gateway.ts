@@ -20,6 +20,8 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { FilterUserDTO } from 'src/api/users/dto/filter-user.dto';
 import { UpdateUserDTO } from 'src/api/users/dto/update-user.dto';
+import { StatsService } from 'src/api/stats/stats.service';
+import Stats from 'src/api/stats/entities/stats.entity';
 
 class Connections {
   userID: number;
@@ -37,6 +39,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly channelsService: ChannelsService,
     private readonly usersService: UsersService,
+    private readonly statsService: StatsService,
     private readonly messagesService: MessagesService,
   ) {}
 
@@ -567,34 +570,46 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async getAllUsers(
     @ConnectedSocket() client: Socket,
     @MessageBody() filter: FilterUserDTO,
-  ): Promise<WsResponse<User[]>> {
-    return {
-      event: 'receiveFilteredUsers',
-      data: await this.usersService.getUsersByFilter(filter),
-    };
+  ) {
+    this.server
+      .to(client.id)
+      .emit(
+        'receiveFilteredUsers',
+        await this.usersService.getUsersByFilter(filter),
+      );
   }
 
   @SubscribeMessage('getUserFriends')
   async getUserFriends(
     @ConnectedSocket() client: Socket,
     @MessageBody() loggedUser: User,
-  ): Promise<WsResponse<User[]>> {
-    return {
-      event: 'receiveFriends',
-      data: (await this.usersService.getUserByID(loggedUser.id, ['friends']))
-        .friends,
-    };
+  ) {
+    this.server
+      .to(client.id)
+      .emit(
+        'receiveFriends',
+        (await this.usersService.getUserByID(loggedUser.id, ['friends']))
+          .friends,
+      );
   }
 
   @SubscribeMessage('updateFriends')
   async removeFriend(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
-  ): Promise<WsResponse<User[]>> {
-    return {
-      event: 'receiveFriends',
-      data: (await this.usersService.updateUser(data.id, data.updateDTO))
-        .friends,
-    };
+  ) {
+    this.server
+      .to(client.id)
+      .emit(
+        'receiveFriends',
+        (await this.usersService.updateUser(data.id, data.updateDTO)).friends,
+      );
+  }
+
+  @SubscribeMessage('getStats')
+  async getStats(@ConnectedSocket() client: Socket) {
+    this.server
+      .to(client.id)
+      .emit('receiveStatsUpdate', await this.statsService.getAllStats());
   }
 }

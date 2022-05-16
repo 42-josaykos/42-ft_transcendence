@@ -261,6 +261,7 @@ export class GameGateway
 
       this.server.to(game.socketRoom).emit('endGame');
       this.server.emit('liveGames', this.getOngoingGames());
+      this.server.emit('askStatsUpdate');
 
       // Make the players / spectators leave the room
       this.server.to(game.socketRoom).socketsLeave(game.socketRoom);
