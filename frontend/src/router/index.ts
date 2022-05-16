@@ -13,8 +13,6 @@ import Register from "@/components/Register.vue";
 import Toto from "@/components/Toto.vue";
 import Authenticate2fa from "@/components/Authenticate2fa.vue";
 import MatchHistory from "@/components/profile/MatchHistory.vue";
-import { useUserStore } from "@/stores/user";
-import { storeToRefs } from "pinia";
 
 const routes = [
   {
@@ -99,13 +97,15 @@ const router = createRouter({
   routes,
 });
 
+function getCookie(name: string) {
+    var v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+    return v ? v[2] : null;
+}
+
 // Block login, register and 2fa page access when already logged in
 function isNotAuthenticatedGuard(to: any, from: any, next: any){
-  const userStore = useUserStore()
-  const { isAuthenticated} = storeToRefs(userStore)
-  console.log('AUTH GUARD');
-  
-  if (!isAuthenticated.value) {
+  const token = getCookie('Authentication')
+  if (!token) {
     next()
   } else {
     next(from.path)
