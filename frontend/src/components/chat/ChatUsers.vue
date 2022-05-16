@@ -142,7 +142,7 @@ const addAdmin = () => {
 <template>
   <div v-if="channel != undefined">
     <div class="horizontal-line-bottom d-grid">
-      <div v-if="channelStore.isAdmin(channel, loggedUser?.id)" class="wrapper-btn-friends">
+      <div v-if="channelStore.isAdmin(channel, loggedUser?.id) && !channel.isDirectChannel" class="wrapper-btn-friends">
         <BansMutesButton @removeBan="removeBanMute(true)" @removeMute="removeBanMute(false)"/>
       </div>
     </div>
