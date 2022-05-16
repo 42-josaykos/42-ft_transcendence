@@ -7,6 +7,7 @@ import { Get } from "@/services/requests";
 import type { User } from "@/models/user.model";
 import { useMessageStore } from "@/stores/message";
 import UserCard from "./UserCard.vue";
+import { computed } from "@vue/reactivity";
 
 // Stores
 const userStore = useUserStore();
@@ -46,6 +47,11 @@ const isFriend = (user: User): boolean => {
   if (friendIndex === -1) return false;
   else return true;
 };
+
+// User list without logged user
+const userList = computed(() => {
+  return users.value.filter((value) => value.id !== loggedUser.value?.id);
+});
 </script>
 
 <template>
@@ -60,15 +66,11 @@ const isFriend = (user: User): boolean => {
       <hr />
       <br />
       <table style="width: 90%; table-layout: fixed; margin-left: 5%">
-        <tr v-for="player in users" :key="player.id">
+        <tr v-for="player in userList" :key="player.id">
+          <!-- User -->
           <td style="width: 50%">
             <UserCard :user="player" :dashboard="true" />
           </td>
-          <!-- <th class="watch_player">{{ player.username }}</th> -->
-          <!-- Online status -->
-          <!-- <td>
-            <i class="fa-solid fa-circle" style="color: greenyellow"></i>
-          </td> -->
           <!-- Profile -->
           <td>
             <a
@@ -103,13 +105,12 @@ const isFriend = (user: User): boolean => {
               class="hovertext"
               data-hover="Invite to game"
               href="#"
-              @click="if (player.id !== loggedUser?.id) {
+              @click="
                 modaleOpenInviteGame = true;
                 userClick = player;
-              }
               "
             >
-            <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
+              <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
             </a>
           </td>
           <!-- Add friend -->

@@ -4,7 +4,7 @@ import { useUserStore } from "@/stores/user";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 // import Modale from "../Modale.vue";
-import UserCard from '../UserCard.vue';
+import UserCard from "../UserCard.vue";
 
 // Stores
 const userStore = useUserStore();
@@ -14,8 +14,8 @@ const router = useRouter();
 
 // Live games
 const liveGames = ref<any>(null);
-const gameInvites = ref<any>(null);
-const modaleAllInvitesGame= ref<boolean>(false);
+const gameInvites = ref<any>([]);
+const modaleAllInvitesGame = ref<boolean>(false);
 
 gameSocket.value?.emit("getOngoingGames");
 gameSocket.value?.on("liveGames", (games: any) => {
@@ -24,14 +24,9 @@ gameSocket.value?.on("liveGames", (games: any) => {
 });
 
 gameSocket.value?.emit("getInvitesGame", loggedUser.value);
-gameSocket.value?.on("invitesGame", (invitesGame: any) => {
-    // console.log("[InviteGames] Invites games: ", invitesGame);
-  gameInvites.value = invitesGame ? invitesGame : null;
-});
-
-gameSocket.value?.on("updateInviteGame", (invitesGame: any) => {
-    // console.log("[updateInviteGame] Invites games: ", invitesGame);
-  gameInvites.value = invitesGame ? invitesGame : null;
+gameSocket.value?.on("updateGameInvites", (invites: any) => {
+  // console.log("[updateInviteGame] Invites games: ", invites);
+  gameInvites.value = invites;
 });
 
 // Spectate
@@ -44,14 +39,14 @@ gameSocket.value?.on("spectateGame", () => {
 });
 
 const acceptInviteToGame = (inviteUser: any) => {
-  gameSocket.value?.emit("acceptInviteToGame", inviteUser, loggedUser.value)
-}
+  gameSocket.value?.emit("acceptInviteToGame", inviteUser, loggedUser.value);
+};
 </script>
 
 <template>
   <div class="infoGame mb-5">
     <div class="cont">
-      <div class="d-flex" style="justify-content: center;">
+      <div class="d-flex" style="justify-content: center">
         <div
           class="neon-typo pt-4"
           style="font-size: xx-large; font-weight: bold"
@@ -65,7 +60,7 @@ const acceptInviteToGame = (inviteUser: any) => {
           data-hover="See all invitations to play"
         >
           <span class="position-badge-game translate-middle rounded-pill">
-            {{gameInvites ? gameInvites.length : '0'}}
+            {{ gameInvites.length }}
           </span>
         </button>
       </div>
@@ -87,7 +82,10 @@ const acceptInviteToGame = (inviteUser: any) => {
   </div>
 
   <div class="bloc_modale" v-if="modaleAllInvitesGame">
-    <div class="overlay" @click="modaleAllInvitesGame = !modaleAllInvitesGame"></div>
+    <div
+      class="overlay"
+      @click="modaleAllInvitesGame = !modaleAllInvitesGame"
+    ></div>
     <div class="modale card">
       <h2 class="pt-4 pb-4">
         <u>Invitations received :</u>
@@ -99,11 +97,13 @@ const acceptInviteToGame = (inviteUser: any) => {
             v-for="invite in gameInvites"
             :key="invite.user.id"
           >
-            <div class="d-flex ms-auto my-2 " style="align-items: center" >
+            <div class="d-flex ms-auto my-2" style="align-items: center">
               <UserCard class="ms-2" :user="invite.user" :dashboard="true" />
               <div class="ms-auto">
                 <button
-                  @click="modaleAllInvitesGame = false; acceptInviteToGame(invite.user)
+                  @click="
+                    modaleAllInvitesGame = false;
+                    acceptInviteToGame(invite.user);
                   "
                   type="button"
                   class="mod-btn mod-btn-cyan btn-sm"
@@ -116,11 +116,10 @@ const acceptInviteToGame = (inviteUser: any) => {
         </div>
       </div>
       <div v-else>
-        <p style="color: red;">No invitation to play</p>
+        <p style="color: red">No invitation to play</p>
       </div>
     </div>
   </div>
-
 </template>
 
 <style scoped>
@@ -202,7 +201,7 @@ th {
   left: 90% !important;
   top: 50% !important;
   display: initial;
-  padding: 0.30em 0.50em;
+  padding: 0.3em 0.5em;
   font-size: 0.75em;
   font-weight: 700;
   line-height: 1;
