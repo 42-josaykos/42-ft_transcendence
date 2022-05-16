@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import UserCard from "../UserCard.vue";
+import BtnUserCard from "../BtnUserCard.vue";
 import ModalChat from "./ModalChat.vue";
 import ModalMessage from "./ModalMessage.vue";
+import BansMutesButton from './BansMutesButton.vue';
 
 import { ref } from "vue";
 import { storeToRefs } from "pinia";
@@ -140,55 +141,64 @@ const addAdmin = () => {
 
 <template>
   <div v-if="channel != undefined">
-    <div v-if="usersMembers" class="ps-2">
-      <span class="d-flex mb-3">
-        <span class="horizontal-line-center"></span>
-          Online - {{numberUsersOnline}}
-        <span class="horizontal-line-center"></span>
-      </span>
-      <span v-for="user in usersMembers" :key="user.id">
-        <div v-if="isOnline(user) && !channelStore.isBan(channel, user.id)" class="list-group">
-          <UserCard
-            :user="user"
-            @open="
-              userClickBool = true;
-              userClick = user;
-            "
-          />
-        </div>
-      </span>
-      <span class="d-flex my-3">
-        <span class="horizontal-line-center"></span>
-          Offline - {{numberUsersOffline}}
-        <span class="horizontal-line-center"></span>
-      </span>
-      <span v-for="user in usersMembers" :key="user.id">
-        <div v-if="!isOnline(user) && !channelStore.isBan(channel, user.id)" class="list-group">
-          <UserCard
-            :user="user"
-            @open="
-              userClickBool = true;
-              userClick = user;
-            "
-          />
-        </div>
-      </span>
-      <span class="d-flex my-3">
-        <span class="horizontal-line-center"></span>
-          Ban - {{numberUsersBan}}
-        <span class="horizontal-line-center"></span>
-      </span>
-      <span v-for="user in usersMembers" :key="user.id">
-        <div v-if="channelStore.isBan(channel, user.id)" class="list-group">
-          <UserCard
-            :user="user"
-            @open="
-              userClickBool = true;
-              userClick = user;
-            "
-          />
-        </div>
-      </span>
+    <div class="horizontal-line-bottom d-grid">
+      <div v-if="channelStore.isAdmin(channel, loggedUser?.id)" class="wrapper-btn-friends">
+        <BansMutesButton @removeBan="removeBanMute(true)" @removeMute="removeBanMute(false)"/>
+      </div>
+    </div>
+    <div class="scrollspy-example mb-5 px-2 py-2" style="min-height: 80vh">
+
+      <!-- <div v-if="channel != undefined"> -->
+      <div v-if="usersMembers" class="ps-2">
+        <span class="d-flex mb-3">
+          <span class="horizontal-line-center"></span>
+            Online - {{numberUsersOnline}}
+          <span class="horizontal-line-center"></span>
+        </span>
+        <span v-for="user in usersMembers" :key="user.id">
+          <div v-if="isOnline(user) && !channelStore.isBan(channel, user.id)" class="list-group">
+            <BtnUserCard
+              :user="user"
+              @open="
+                userClickBool = true;
+                userClick = user;
+              "
+            />
+          </div>
+        </span>
+        <span class="d-flex my-3">
+          <span class="horizontal-line-center"></span>
+            Offline - {{numberUsersOffline}}
+          <span class="horizontal-line-center"></span>
+        </span>
+        <span v-for="user in usersMembers" :key="user.id">
+          <div v-if="!isOnline(user) && !channelStore.isBan(channel, user.id)" class="list-group">
+            <BtnUserCard
+              :user="user"
+              @open="
+                userClickBool = true;
+                userClick = user;
+              "
+            />
+          </div>
+        </span>
+        <!-- <span class="d-flex my-3">
+          <span class="horizontal-line-center"></span>
+            Ban - {{numberUsersBan}}
+          <span class="horizontal-line-center"></span>
+        </span>
+        <span v-for="user in usersMembers" :key="user.id">
+          <div v-if="channelStore.isBan(channel, user.id)" class="list-group">
+            <BtnUserCard
+              :user="user"
+              @open="
+                userClickBool = true;
+                userClick = user;
+              "
+            />
+          </div>
+        </span> -->
+      </div>
     </div>
   </div>
 

@@ -178,7 +178,8 @@ const timerMute = computed(() => {
       </textarea>
       <button
         type="submit"
-        class="rounded btn-channel wrapper-icon-leave ms-auto"
+        class="rounded btn-channel wrapper-icon-leave ms-auto hovertext hovertextL hovertextT"
+        data-hover="Send Message"
       >
         <i class="fa-solid fa-paper-plane"></i>
       </button>

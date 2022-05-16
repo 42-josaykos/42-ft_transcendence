@@ -4,6 +4,7 @@ import { useUserStore } from "@/stores/user";
 import { useMessageStore } from "@/stores/message";
 import { useRouter } from "vue-router";
 import type { User } from "@/models/user.model";
+import UserCard from "./UserCard.vue";
 
 // Props
 const props = defineProps<{
@@ -28,7 +29,7 @@ const { modalSendMessage } = storeToRefs(messageStore);
 <template>
   <div class="d-flex" style="align-items: center">
     <div class="px-3">
-      <p class="pt-3" style="">{{ props.user.username }}</p>
+      <UserCard :user="props.user" :dashboard="true" />
     </div>
     <div class="ms-auto px-2" style="width: 500px">
       <button

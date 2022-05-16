@@ -8,7 +8,7 @@ import { computed } from "vue";
 export const useUserStore = defineStore("user", () => {
   const users = ref<User[]>([]);
   const usersOnline = ref<Number[]>([]);
-  const loggedUser = ref<User | null>(null);
+  const loggedUser = ref<User | undefined>();
   const gameSocket = ref<Socket>();
   const isAuthenticated = ref(false);
   const socketChat = ref<Socket>();
@@ -20,6 +20,9 @@ export const useUserStore = defineStore("user", () => {
   const setting_open = ref<boolean>(false);
   const playersDuo = ref<User[]>([]);
   const modalFriends = ref<boolean>(false);
+  const leaderboard = ref<any>([]);
+
+  const modaleOpenInviteGame = ref<boolean>(false);
 
   const createUser = (newUser: User) => {
     users.value.push(newUser);
@@ -99,6 +102,8 @@ export const useUserStore = defineStore("user", () => {
     userClick,
     setting_open,
     modalFriends,
+    modaleOpenInviteGame,
+    leaderboard,
     createUser,
     deleteUser,
     updateUser,

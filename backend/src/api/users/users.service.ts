@@ -172,13 +172,17 @@ export class UsersService {
     const count = await this.usersRepository.count({
       where: { username: user.username },
     });
-    if (count > 0)
-      throw new ForbiddenException(
-        "Can't create new User (username must be unique)",
-      );
+    const userData = { ...user };
+    if (count > 0) {
+      // Concatenate random numbers to username
+      userData.username =
+        user.username +
+        Math.floor(Math.random() * 100)
+          .toString()
+          .padStart(2, '0');
+    }
 
     // Hashing password
-    const userData = { ...user };
     if (userData.password) {
       const hash = await bcrypt.hash(user.password, 10);
       userData.password = hash;

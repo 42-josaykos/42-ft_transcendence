@@ -6,112 +6,125 @@ import { useUserStore } from "@/stores/user";
 const userStore = useUserStore();
 const { usersOnline } = storeToRefs(userStore);
 
-  const props = defineProps({
-      user: Object
-  })
+const props = defineProps({
+  user: Object,
+  dashboard: Boolean,
+});
 
-const emit = defineEmits(['open'])
-const open = () => {
-    emit('open');
-}
-const isOnlineBool = ref<boolean>(false)
+const isOnlineBool = ref<boolean>(false);
 
 const isOnline = computed(() => {
   if (usersOnline.value.findIndex((el: Number) => el == props.user?.id) == -1) {
-    isOnlineBool.value = false
-    return 'Offline';
+    isOnlineBool.value = false;
+    return "Offline";
   }
-  isOnlineBool.value = true
-  return 'Online';
+  isOnlineBool.value = true;
+  return "Online";
 });
-
 </script>
 
 <template>
-  <button  @click="open()" type="button" class="btn-user-card">
-    <div class="row no-gutters d-flex">
-      <div class="col-md-4 cercle-user-card">
-        <img v-bind:src=props.user?.avatar alt="Avatar" class="card-img">
-      </div>
-      <div class="col-md-7 infos"  style="margin-left: 15px;">
-        <div class="text-truncate">
-          <div class="info" >
-            {{props.user?.username}}
-          </div>
-          <div class="info">
-            <div class="status d-flex">
-              <div  v-if="isOnlineBool == true" >
-                <i class="fa fa-circle online"></i>
-              </div>
-              <div v-else>
-                <i class="fa fa-circle offline"></i>
-              </div>
-              <small class="text-muted ps-1">{{ isOnline }}</small>
+  <div class="row no-gutters d-flex">
+    <div v-if="props.dashboard" class="col-md-4 cercle-user-card-dashboard">
+      <img v-bind:src="props.user?.avatar" alt="Avatar" class="card-img" />
+    </div>
+    <div v-else class="col-md-4 cercle-user-card">
+      <img v-bind:src="props.user?.avatar" alt="Avatar" class="card-img" />
+    </div>
+    <div class="col-md-7 infos" v-bind:class="{ infosChat: !props.dashboard }">
+      <div class="text-truncate">
+        <div class="info">
+          {{ props.user?.username }}
+        </div>
+        <div class="info">
+          <div class="status d-flex">
+            <div v-if="isOnlineBool == true">
+              <i class="fa fa-circle online"></i>
             </div>
+            <div v-else>
+              <i class="fa fa-circle offline"></i>
+            </div>
+            <small class="text-muted ps-1">{{ isOnline }}</small>
           </div>
-          </div>
+        </div>
       </div>
     </div>
-  </button>
+  </div>
 </template>
 
 <style>
+.infos {
+  display: flex;
+  align-items: center;
+  padding-left: 10px !important;
+  padding-top: 4px;
+}
+.infosChat {
+  margin-left: 10px;
+}
 
-  .infos {
-    display: flex;
-    align-items: center;
-    padding-left: 10px !important;
-    padding-top: 4px;
-  }
+.info {
+  text-align: left;
+}
 
-  .info {
-    text-align: left;
-  }
+.cercle-user-card {
+  border-radius: 50% !important;
+  padding: 5px;
+}
 
-  .cercle-user-card{
-    border-radius: 50% !important;
-    padding: 5px;
-  }
+.cercle-user-card img {
+  border-radius: 50%;
+  border: var(--clr-neon) 3px solid;
+  background-color: transparent;
+  box-shadow: inset 0 0 0.5em 0 var(--clr-neon), 0 0 0.5em 0 var(--clr-neon);
+  object-fit: cover;
+  width: 60px;
+  height: 60px;
+}
 
-  .cercle-user-card img{
-    border-radius: 50%;
-    border: var(--clr-neon) 3px solid;
-    background-color: transparent;
-    box-shadow: inset 0 0 0.5em 0 var(--clr-neon), 0 0 0.5em 0 var(--clr-neon);
-    object-fit: cover;
-    width: 60px;
-    height: 60px;
-  }
+.cercle-user-card-dashboard {
+  border-radius: 50% !important;
+  padding: 5px;
+}
 
-  .online,
-  .offline
-  {
-    margin-right: 2px;
-    font-size: 8px;
-    vertical-align: middle;
-  }
+.cercle-user-card-dashboard img {
+  border-radius: 50%;
+  border: var(--clr-neon) 3px solid;
+  background-color: transparent;
+  box-shadow: inset 0 0 0.5em 0 var(--clr-neon), 0 0 0.5em 0 var(--clr-neon);
+  object-fit: cover;
+  width: 40px;
+  height: 40px;
+}
 
-  .online {
-    color: #86c541;
-  }
+.online,
+.offline {
+  margin-right: 2px;
+  font-size: 8px;
+  vertical-align: middle;
+}
 
-  .offline {
-    color: #e47297;
-  }
+.online {
+  color: #86c541;
+}
 
-  .btn-user-card {
-    background-color: transparent;
-    color: #6c757d;
-    box-shadow: 0px 0px 10px 2px var(--clr-neon);
-    position: relative;
-    border-radius: 10px;
-    border: none;
-    transition: 0.4s;
-    margin: 5px 15px 5px;
-  }
+.offline {
+  color: #e47297;
+}
 
-  .btn-user-card:hover {
-    transform: scale(1.1);
-    box-shadow: 0px 0px 10px var(--clr-neon), 0px 0px 15px 5px var(--clr-neon);
-  }
+.btn-user-card {
+  background-color: transparent;
+  color: #6c757d;
+  box-shadow: 0px 0px 10px 2px var(--clr-neon);
+  position: relative;
+  border-radius: 10px;
+  border: none;
+  transition: 0.4s;
+  margin: 5px 15px 5px;
+}
+
+.btn-user-card:hover {
+  transform: scale(1.1);
+  box-shadow: 0px 0px 10px var(--clr-neon), 0px 0px 15px 5px var(--clr-neon);
+}
 </style>

@@ -121,7 +121,7 @@ export default {
   },
   unmounted() {
     clearInterval(this.intervalID);
-    return ;
+    return;
   },
   destroyed() {
     window.removeEventListener("keydown", this.getKeyDown);
@@ -288,6 +288,7 @@ export default {
 </script>
 
 <template>
+  <Navbar componentName="Pong" />
   <div>
     <matchinfo></matchinfo>
     <div class="pong-game">

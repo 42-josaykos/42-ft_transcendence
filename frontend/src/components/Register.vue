@@ -1,35 +1,37 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
-import { useUserStore } from '@/stores/user';
-import { ref } from 'vue';
-import { Post } from '@/services/requests';
-import { useRouter } from 'vue-router';
-import { login_open, register_open } from './Modale.vue';
+import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/user";
+import { ref } from "vue";
+import { Post } from "@/services/requests";
+import { useRouter } from "vue-router";
 
 const userStore = useUserStore();
 const { isAuthenticated, loggedUser } = storeToRefs(userStore);
 const router = useRouter();
 
-const username = ref('');
-const password1 = ref('');
-const password2 = ref('');
+const username = ref("");
+const password1 = ref("");
+const password2 = ref("");
 
 function register() {
-  if (password1.value == password2.value) {
-    Post('/users', {
+  if (username.value.length > 15) {
+    alert("Username must be less than 15 characters")
+  }
+  else if (password1.value == password2.value) {
+    Post("/users", {
       username: username.value,
-      password: password1.value
-    }).then(res => {
+      password: password1.value,
+    }).then((res) => {
       if (res.status == 201) {
         userStore.createUser(res.data);
-        Post('/auth/login/local', {
-          username: username.value,
-          password: password1.value
-        }).then(res => {
+        Post("/auth/login/local", {
+          username: res.data.username,
+          password: password1.value,
+        }).then((res) => {
           if (res.status == 201) {
             isAuthenticated.value = true;
             loggedUser.value = res.data;
-            router.push('/');
+            router.push("/");
           }
         });
       }
@@ -41,13 +43,12 @@ function register() {
 
 const seePassword = (stringId: string) => {
   let pass = document.getElementById(stringId);
-  if (pass?.getAttribute('type') === 'password') {
-      pass?.setAttribute('type', 'text')
+  if (pass?.getAttribute("type") === "password") {
+    pass?.setAttribute("type", "text");
+  } else {
+    pass?.setAttribute("type", "password");
   }
-  else {
-    pass?.setAttribute('type', 'password')
-  }
-}
+};
 </script>
 
 <template>
@@ -56,50 +57,59 @@ const seePassword = (stringId: string) => {
 
     <div>
       <form @submit.prevent.trim.lazy="register" class="form-signup">
-      <div class="form-signin pt-3">
-        <label for="inputUsername" class="sr-only">Username</label>
-        <input
-          type="text"
-          id="inputUsername"
-          class="form-control"
-          placeholder="Username"
-          v-model="username"
-          required
-          autofocus
-        />
-        <label for="inputPassword1" class="sr-only">Password</label>
-        <div class="d-flex register mt-3">
-          <span @click="seePassword('inputPassword1')" class="input-group-text" id="basic-addon1"><i class="fa-regular fa-eye"></i></span>
-        <input
-          type="password"
-          id="inputPassword1"
-          class="form-control input-pass"
-          placeholder="Password"
-          v-model="password1"
-          required
-        />
-
-        </div>
-        <label for="inputPassword2" class="sr-only">Confirm Password</label>
-        <div class="d-flex register mt-3 mb-3">
-          <span @click="seePassword('inputPassword2')" class="input-group-text" id="basic-addon1"><i class="fa-regular fa-eye"></i></span>
-        <input
-          type="password"
-          id="inputPassword2"
-          class="form-control input-pass"
-          placeholder="Confirm password"
-          v-model="password2"
-          required
-        />
-        </div>
-        <button
-          class="mod-btn mod-btn-yellow"
-          type="submit"
-          style="margin: 20px"
-        >
-          Register and Login
-        </button>
-        <br />
+        <div class="form-signin pt-3">
+          <label for="inputUsername" class="sr-only">Username</label>
+          <input
+            type="text"
+            id="inputUsername"
+            class="form-control"
+            placeholder="Username"
+            v-model="username"
+            required
+            autofocus
+          />
+          <label for="inputPassword1" class="sr-only">Password</label>
+          <div class="d-flex register mt-3">
+            <span
+              @click="seePassword('inputPassword1')"
+              class="input-group-text"
+              id="basic-addon1"
+              ><i class="fa-regular fa-eye"></i
+            ></span>
+            <input
+              type="password"
+              id="inputPassword1"
+              class="form-control input-pass"
+              placeholder="Password"
+              v-model="password1"
+              required
+            />
+          </div>
+          <label for="inputPassword2" class="sr-only">Confirm Password</label>
+          <div class="d-flex register mt-3 mb-3">
+            <span
+              @click="seePassword('inputPassword2')"
+              class="input-group-text"
+              id="basic-addon1"
+              ><i class="fa-regular fa-eye"></i
+            ></span>
+            <input
+              type="password"
+              id="inputPassword2"
+              class="form-control input-pass"
+              placeholder="Confirm password"
+              v-model="password2"
+              required
+            />
+          </div>
+          <button
+            class="mod-btn mod-btn-yellow"
+            type="submit"
+            style="margin: 20px"
+          >
+            Register and Login
+          </button>
+          <br />
         </div>
       </form>
     </div>
@@ -107,7 +117,6 @@ const seePassword = (stringId: string) => {
 </template>
 
 <style scoped>
-
 input#inputUsername {
   text-align: center;
   margin: auto;
