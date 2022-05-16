@@ -50,6 +50,7 @@ getPlayersStats();
         <tr>
           <th class="table_title" scope="col">Rank</th>
           <th class="table_title" scope="col">UserName</th>
+          <th class="table_title" scope="col">Played</th>
           <th class="table_title" scope="col">Winrate</th>
         </tr>
       </thead>
@@ -70,7 +71,8 @@ getPlayersStats();
               {{ player.user.username }}
             </button>
           </td>
-          <td>{{ player.ratio * 100 }} %</td>
+          <td>{{ player.played }}</td>
+          <td>{{ (player.ratio * 100).toFixed(2) }} %</td>
         </tr>
       </tbody>
     </table>
