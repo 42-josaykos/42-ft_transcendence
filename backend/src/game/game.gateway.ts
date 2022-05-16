@@ -44,7 +44,7 @@ export class GameGateway
   }
 
   handleConnection(@ConnectedSocket() client: Socket) {
-    this.logger.log(`Connection: ${client.id}`);
+    // this.logger.log(`Connection: ${client.id}`);
     this.server.to(client.id).emit('requestGameUserInfo', '');
   }
 
@@ -68,7 +68,7 @@ export class GameGateway
   }
 
   handleDisconnect(@ConnectedSocket() client: Socket) {
-    this.logger.log(`Disconnect: ${client.id}`);
+    // this.logger.log(`Disconnect: ${client.id}`);
     const userIndex = this.connectedClients.findIndex(
       (connection) => connection.socketID.indexOf(client.id) !== -1,
     );
@@ -400,7 +400,6 @@ export class GameGateway
 
   removeGameInvite(userInvite: Connection, userGuest: Connection) {
     // Find guest
-    console.log('invites: ', this.invites);
     const guestIndex = this.invites.findIndex(
       (guest) => guest.user.user.id === userGuest.user.id,
     );

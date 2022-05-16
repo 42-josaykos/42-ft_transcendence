@@ -25,6 +25,18 @@ export const useUserStore = defineStore("user", () => {
 
   const modaleOpenInviteGame = ref<boolean>(false);
 
+  const IDInArray = (id: any, array: any[]) => {
+    const index = array.findIndex((arrayValue: any) => id == arrayValue);
+    if (index === -1) return false;
+    else return true;
+  };
+
+  const valueInArray = (value: any, array: any[]) => {
+    const index = array.findIndex((arrayValue: any) => value == arrayValue.id);
+    if (index === -1) return false;
+    else return true;
+  };
+
   const createUser = (newUser: User) => {
     users.value.push(newUser);
   };
@@ -117,6 +129,8 @@ export const useUserStore = defineStore("user", () => {
     addUserFriend,
     removeUserFriend,
     initUserClick,
+    IDInArray,
+    valueInArray,
     isMyProfile,
   };
 });

@@ -38,41 +38,55 @@ gameSocket.value?.on("startGameInvite", (data: any) => {
   }, 10000);
 });
 
-const emit = defineEmits(["queueWaiting"]);
-const queueWaiting = () => {
-  emit("queueWaiting");
-};
-
 // Determine if already in queue, and update in queue users
 const inQueue = ref<boolean>(false);
-gameSocket.value?.emit("inQueueUsers");
 gameSocket.value?.on("inQueueUsers", (inQueueUsers: User[]) => {
   usersInQueue.value = inQueueUsers;
-  if (inQueueUsers.findIndex((user) => user.id === loggedUser.value?.id) !== -1)
+  if (
+    inQueueUsers.findIndex((user) => user.id === loggedUser.value?.id) !== -1
+  ) {
+    enterQueue();
     inQueue.value = true;
-  else inQueue.value = false;
+  } else {
+    leaveQueue();
+    inQueue.value = false;
+  }
 });
+gameSocket.value?.emit("inQueueUsers");
 
 // Determine if in game, and update in queue users
 const inGame = ref<boolean>(false);
-gameSocket.value?.emit("inGameUsers");
 gameSocket.value?.on("inGameUsers", (inGameUsers: User[]) => {
+  console.log("inGameUsers: ", inGameUsers);
   usersInGame.value = inGameUsers;
   if (inGameUsers.findIndex((user) => user.id === loggedUser.value?.id) !== -1)
     inGame.value = true;
   else inGame.value = false;
 });
+gameSocket.value?.emit("inGameUsers");
 
 const buttonAction = () => {
   // Enter / leave queue
   if (!inGame.value) {
-    queueWaiting();
-    if (inQueue.value) gameSocket.value?.emit("leaveQueue", loggedUser.value);
-    else gameSocket.value?.emit("queue", loggedUser.value);
+    if (inQueue.value) {
+      leaveQueue();
+      gameSocket.value?.emit("leaveQueue", loggedUser.value);
+    } else {
+      gameSocket.value?.emit("queue", loggedUser.value);
+      enterQueue();
+    }
     inQueue.value = !inQueue.value;
   }
   // Go back to the game
   else router.push("/matchmaking");
+};
+
+const emit = defineEmits(["enterQueue", "leaveQueue"]);
+const enterQueue = () => {
+  emit("enterQueue");
+};
+const leaveQueue = () => {
+  emit("leaveQueue");
 };
 </script>
 
