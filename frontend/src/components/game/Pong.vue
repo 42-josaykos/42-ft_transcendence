@@ -288,8 +288,8 @@ export default {
 </script>
 
 <template>
-  <Navbar componentName="Pong" />
-  <div style="position: absolute; top: 15%; left: 25%; max-width: 1000px; max-height:600px;">
+  <Navbar style="position: absolute;" componentName="Pong"/>
+  <div class="pong-set" style="top: 15%; left: 25%; max-width: 1000px; max-height:600px;">
     <matchinfo></matchinfo>
     <div class="pong-game">
       <canvas
@@ -301,13 +301,13 @@ export default {
       >
       </canvas>
     </div>
-    <modaleresult
-      v-if="endgame"
-      v-bind:player_L="player_L"
-      v-bind:player_R="player_R"
-    >
-    </modaleresult>
   </div>
+  <modaleresult
+    v-if="endgame"
+    v-bind:player_L="player_L"
+    v-bind:player_R="player_R"
+  >
+  </modaleresult>
 </template>
 
 <style scoped>
