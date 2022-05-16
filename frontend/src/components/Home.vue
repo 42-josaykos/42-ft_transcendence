@@ -22,7 +22,7 @@ const { isAuthenticated, loggedUser, setting_open, userClick } =
 <template>
   <Navbar componentName="Home" />
   <div class="container-flex" style="position: relative">
-    <div id="HomePage" class="full-height">
+    <div id="HomePage">
       <div class="container">
         <div class="row pb-5">
           <div class="col-lg-6">

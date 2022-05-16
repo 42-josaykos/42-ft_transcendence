@@ -290,9 +290,11 @@ export default {
 .pong-game {
   align-items: center;
   justify-content: center;
+  min-height: 100vh;
 }
 .pong {
   background: #0c2039;
   border: 7.5px solid #fff961;
+  margin-top: 60px;
 }
 </style>
