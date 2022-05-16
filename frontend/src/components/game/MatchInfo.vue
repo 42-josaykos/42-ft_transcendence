@@ -98,7 +98,7 @@ export default {
   order: 1;
   color: #ffffff;
   text-shadow: 0px 4px 15px #5ecef8, 0px 0px 10px #5ecef8;
-  max-width: 40%;
+  max-width: 50%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -112,7 +112,7 @@ export default {
   order: 2;
   color: #ffffff;
   text-shadow: 0px 4px 15px #ff83ba, 0px 0px 10px #ff83ba;
-  max-width: 40%;
+  max-width: 50%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
