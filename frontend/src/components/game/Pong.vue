@@ -288,7 +288,7 @@ export default {
 </script>
 
 <template>
-  <div style="position: absolute; top: 15%; left: 25%; max-width: 800px; max-height:500px;">
+  <div style="position: absolute; top: 15%; left: 25%; max-width: 1000px; max-height:600px;">
     <matchinfo></matchinfo>
     <div class="pong-game">
       <canvas

@@ -41,32 +41,46 @@ export default {
 <template>
   <div class="fb-player_name">
     <div class="p1">
-      <h1 v-if="you_lead"> YOU </h1>
-      <h1 v-else> {{ this.opponent.username }} </h1>
+      <h1 v-if="you_lead">
+        <img
+            class="circular--square icon_navbar"
+            style="width: 60px; height: 60px; object-fit: cover"
+            v-bind:src="this.loggedUser?.avatar"
+            alt="Avatar"
+        />
+        YOU
+      </h1>
+      <h1 v-else> 
+        <img
+          class="circular--square icon_navbar"
+          style="width: 60px; height: 60px; object-fit: cover"
+          v-bind:src="this.opponent?.avatar"
+          alt="Avatar"
+        />
+        {{ this.opponent.username }} </h1>
     </div>
     <div class="p2">
-      <h1 v-if="!you_lead"> YOU </h1>
-      <h1 v-else> {{ this.opponent.username }} </h1>
+      <h1 v-if="!you_lead"> 
+        YOU 
+        <img
+          class="circular--square icon_navbar"
+          style="width: 60px; height: 60px; object-fit: cover"
+          v-bind:src="this.loggedUser?.avatar"
+          alt="Avatar"
+        />
+      </h1>
+      <h1 v-else>
+        {{ this.opponent.username }}
+        <img
+          class="circular--square icon_navbar"
+          style="width: 60px; height: 60px; object-fit: cover"
+          v-bind:src="this.opponent?.avatar"
+          alt="Avatar"
+        />
+      </h1>
     </div>
   </div>
 </template>
-
-<!-- <template>
-    <button @click="switch_name = !switch_name" style="position: absolute; top: 0;">Switch</button>
-    <div style="position: absolute; top: 15%; left: 25%; max-width: 800px; max-height:500px;">
-        <div v-if="switch_name" class="fb-player_name">
-            <div class="p1">
-                Player 1
-            </div>
-            <div class="p2">
-                Player 2
-            </div>
-        </div>
-        <div style="width:800px;height:500px;border:1px solid #000; background-color: burlywood; color: #000;">
-            GAME
-        </div>
-    </div>
-</template> -->
  
 <style scoped>
  
@@ -78,36 +92,32 @@ export default {
   margin-bottom: 10px;
 }
  
-.p1{
+.p1 {
   font-weight: bold;
   font-size: 40px;
   order: 1;
-  color: #FFFFFF;
-  text-shadow: 0px 4px 15px #5ECEF8, 0px 0px 10px #5ECEF8;
+  color: #ffffff;
+  text-shadow: 0px 4px 15px #5ecef8, 0px 0px 10px #5ecef8;
   max-width: 40%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  padding-left: 20px;
+  padding-right: 20px;
 }
- 
-.p2{
+
+.p2 {
   font-weight: bold;
   font-size: 40px;
   order: 2;
-  color: #FFFFFF;
-  text-shadow: 0px 4px 15px #FF83BA, 0px 0px 10px #FF83BA;
+  color: #ffffff;
+  text-shadow: 0px 4px 15px #ff83ba, 0px 0px 10px #ff83ba;
   max-width: 40%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  padding-left: 20px;
+  padding-right: 20px;
 }
  
-</style>
-
-
-
-<style>
-/* .left-player {
-  
-} */
 </style>
