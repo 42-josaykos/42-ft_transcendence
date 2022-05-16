@@ -13,6 +13,7 @@ import ChatUsers from "./ChatUsers.vue";
 import ChatMessages from "./ChatMessages.vue";
 import ModalChat from "./ModalChat.vue";
 import Navbar from '../Navbar.vue';
+// import BansMutesButton from './BansMutesButton.vue';
 
 const userStore = useUserStore();
 const { isAuthenticated, loggedUser, socketChat, usersBlocked, usersFriends } =
@@ -73,7 +74,7 @@ if (socketChat.value != undefined) {
 </script>
 
 <template>
-  <Navbar :isAuthenticated="isAuthenticated" />
+  <Navbar componentName="Chat"/>
   <div class="container">
     <div class="row-chat">
       <div class="col-md-3 col-chat">
@@ -87,9 +88,18 @@ if (socketChat.value != undefined) {
         </div>
       </div>
       <div class="col-md-3 col-chat ms-auto">
-        <div class="scrollspy-example my-5 px-2 py-2" style="min-height: 80vh">
+
+
+        <!-- <div class="horizontal-line-bottom d-grid">
+          <div class="wrapper-btn-friends">
+            <BansMutesButton />
+          </div>
+        </div> -->
+
+        <!-- <div class="scrollspy-example mb-5 px-2 py-2" style="min-height: 80vh">
           <ChatUsers />
-        </div>
+        </div> -->
+        <ChatUsers />
       </div>
     </div>
   </div>

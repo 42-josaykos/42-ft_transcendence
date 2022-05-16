@@ -6,9 +6,7 @@ import { ref } from 'vue';
 import Setting from './Setting.vue';
 import Stats from './profile/Stats.vue';
 import Match_History from './profile/MatchHistory.vue';
-import { useMatchStore } from '@/stores/match';
 
-const { matches, stats } = storeToRefs(useMatchStore());
 const userStore = useUserStore();
 const { loggedUser, setting_open, userClick, isMyProfile } =
   storeToRefs(userStore);
@@ -16,19 +14,9 @@ const { loggedUser, setting_open, userClick, isMyProfile } =
 const stat_open = ref(true);
 const mh_open = ref(false);
 const set_open = ref(false);
-let wonMatches;
 
 const emits = defineEmits(['updateUserProfil']);
 
-function getStats() {
-  stats.value[0] = matches.value.length;
-  wonMatches = matches.value.filter(
-    match => match.winner.id === userClick.value?.id
-  );
-  stats.value[1] = wonMatches.length;
-  stats.value[2] = stats.value[0] - stats.value[1];
-  stats.value[3] = (stats.value[1] / stats.value[0]) * 100;
-}
 </script>
 
 <template>
@@ -114,7 +102,7 @@ function getStats() {
         </div>
         <hr />
         <div v-if="stat_open">
-          <Stats :stats="stats" />
+          <Stats />
         </div>
         <div v-if="mh_open">
           <Match_History />

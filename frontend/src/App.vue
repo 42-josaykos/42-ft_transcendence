@@ -8,6 +8,8 @@ import { useStatusStore } from "@/stores/status";
 import { onMounted, ref } from "vue";
 import { Get } from "./services/requests";
 import ChatSocket from "./components/chat/ChatSocket.vue";
+import axios from "axios";
+import Login from "./components/Login.vue";
 
 const userStore = useUserStore();
 const { loggedUser, isAuthenticated } = storeToRefs(userStore);
@@ -19,6 +21,7 @@ onMounted(() => {
       if (res.status == 403) {
         console.log("[App] isAuthenticated: ", false);
         isAuthenticated.value = false;
+        loggedUser.value = undefined;
       } else {
         console.log("[App] isAuthenticated: ", true);
         isAuthenticated.value = true;
@@ -44,7 +47,6 @@ onMounted(() => {
         background: radial-gradient(ellipse at top, #1b2735 0%, #080e21 70%);
       "
     >
-      <!-- <Navbar :isAuthenticated="isAuthenticated" :loggedUser="loggedUser" /> -->
       <div v-if="isAuthenticated">
         <StatusSystem />
         <GameSystem />

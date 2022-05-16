@@ -278,47 +278,47 @@ const leaveChannel = () => {
               loggedUser.value
             );
           } else {
-            if (
-              channelStore.isBan(channelLeave.value, loggedUser.value.id) && !channelStore.isMute(channelLeave.value, loggedUser.value.id)
-            ) {
-              socketChat.value.emit(
-                "updateMember",
-                channelLeave.value?.id,
-                {
-                  removeBans: [{user: {id: loggedUser.value?.id}}],
-                  removeMembers: [{ id: loggedUser.value.id }],
-                },
-                msg,
-                loggedUser.value
-              );
-            } else if (
-              channelStore.isMute(channelLeave.value, loggedUser.value.id) && !channelStore.isBan(channelLeave.value, loggedUser.value.id)
-            ) {
-              socketChat.value.emit(
-                "updateMember",
-                channelLeave.value?.id,
-                {
-                  removeMutes: [{user: {id: loggedUser.value?.id}}],
-                  removeMembers: [{ id: loggedUser.value.id }],
-                },
-                msg,
-                loggedUser.value
-              );
-            } else if (
-              channelStore.isMute(channelLeave.value, loggedUser.value.id) && channelStore.isBan(channelLeave.value, loggedUser.value.id)
-            ) {
-              socketChat.value.emit(
-                "updateMember",
-                channelLeave.value?.id,
-                {
-                  removeBans: [{user: {id: loggedUser.value?.id}}],
-                  removeMutes: [{user: {id: loggedUser.value?.id}}],
-                  removeMembers: [{ id: loggedUser.value.id }],
-                },
-                msg,
-                loggedUser.value
-              );
-            } else {
+            // if (
+            //   channelStore.isBan(channelLeave.value, loggedUser.value.id) && !channelStore.isMute(channelLeave.value, loggedUser.value.id)
+            // ) {
+            //   socketChat.value.emit(
+            //     "updateMember",
+            //     channelLeave.value?.id,
+            //     {
+            //       removeBans: [{user: {id: loggedUser.value?.id}}],
+            //       removeMembers: [{ id: loggedUser.value.id }],
+            //     },
+            //     msg,
+            //     loggedUser.value
+            //   );
+            // } else if (
+            //   channelStore.isMute(channelLeave.value, loggedUser.value.id) && !channelStore.isBan(channelLeave.value, loggedUser.value.id)
+            // ) {
+            //   socketChat.value.emit(
+            //     "updateMember",
+            //     channelLeave.value?.id,
+            //     {
+            //       removeMutes: [{user: {id: loggedUser.value?.id}}],
+            //       removeMembers: [{ id: loggedUser.value.id }],
+            //     },
+            //     msg,
+            //     loggedUser.value
+            //   );
+            // } else if (
+            //   channelStore.isMute(channelLeave.value, loggedUser.value.id) && channelStore.isBan(channelLeave.value, loggedUser.value.id)
+            // ) {
+            //   socketChat.value.emit(
+            //     "updateMember",
+            //     channelLeave.value?.id,
+            //     {
+            //       removeBans: [{user: {id: loggedUser.value?.id}}],
+            //       removeMutes: [{user: {id: loggedUser.value?.id}}],
+            //       removeMembers: [{ id: loggedUser.value.id }],
+            //     },
+            //     msg,
+            //     loggedUser.value
+            //   );
+            // } else {
               socketChat.value.emit(
                 "updateMember",
                 channelLeave.value?.id,
@@ -326,7 +326,7 @@ const leaveChannel = () => {
                 msg,
                 loggedUser.value
               );
-            }
+            // }
           }
         }
         // channelStore.leaveChannel(channelLeave.value);
@@ -416,6 +416,27 @@ const seePassword = (stringId: string) => {
 </script>
 
 <template>
+
+  <div>
+    <button
+      @click="
+        Get('/users/search').then((res) => {
+          if (res.status == 200) {
+            users = res.data;
+            usersInvite = [];
+            modalNewChannel = true;
+            channelType = 1;
+          }
+        })
+      "
+      type="button"
+      class="rounded btn-channel wrapper-icon-leave ms-auto hovertext hovertextC"
+      data-hover="New Channel"
+    >
+      <i class="fa-solid fa-circle-plus"></i>
+    </button>
+  </div>
+
   <div class="wrapper-accordion">
     <h2 class="accordion-header" id="channels-heading">
       <button
@@ -433,7 +454,7 @@ const seePassword = (stringId: string) => {
         <div class="wrapper-icon">
           <i class="fa-solid fa-caret-down"></i>
         </div>
-        <div class="col-sm-10 text-truncate title-btn">Channels</div>
+        <div class="col-sm-10 text-truncate title-btn">My channels</div>
       </button>
     </h2>
     <div
@@ -478,7 +499,8 @@ const seePassword = (stringId: string) => {
                       });
                   "
                   type="button"
-                  class="rounded btn-channel wrapper-icon-leave ms-auto"
+                  class="rounded btn-channel wrapper-icon-leave ms-auto hovertext hovertextL"
+                  data-hover="Update Channel"
                 >
                   <i class="fa-solid fa-pen"></i>
                 </button>
@@ -495,7 +517,8 @@ const seePassword = (stringId: string) => {
                       })
                   "
                   type="button"
-                  class="rounded btn-channel wrapper-icon-leave ms-auto"
+                  class="rounded btn-channel wrapper-icon-leave ms-auto hovertext hovertextL"
+                  data-hover="Leave Channel"
                 >
                   <i class="fa-solid fa-xmark"></i>
                 </button>
@@ -553,7 +576,8 @@ const seePassword = (stringId: string) => {
                       .then((res) => {if (res.status == 200) {[channelJoin] = res.data}});
                   "
                   type="button"
-                  class="rounded btn-channel wrapper-icon-leave ms-auto"
+                  class="rounded btn-channel wrapper-icon-leave ms-auto hovertext hovertextL"
+                  data-hover="Join Channel"
                 >
                   <i class="fa-solid fa-plus"></i>
                 </button>
@@ -664,7 +688,8 @@ const seePassword = (stringId: string) => {
                     channelJoin = item;
                   "
                   type="button"
-                  class="rounded btn-channel wrapper-icon-leave ms-auto"
+                  class="rounded btn-channel wrapper-icon-leave ms-auto hovertext hovertextL"
+                  data-hover="Accept Invite"
                 >
                   <i class="fa-solid fa-check"></i>
                 </button>
@@ -675,7 +700,8 @@ const seePassword = (stringId: string) => {
                       .then((res) => {if (res.status == 200) {[channelJoin] = res.data}});
                   "
                   type="button"
-                  class="rounded btn-channel wrapper-icon-leave ms-auto"
+                  class="rounded btn-channel wrapper-icon-leave ms-auto hovertext hovertextL"
+                  data-hover="Refuse Invite"
                 >
                   <i class="fa-solid fa-xmark"></i>
                 </button>
@@ -685,25 +711,6 @@ const seePassword = (stringId: string) => {
         </div>
       </div>
     </div>
-  </div>
-
-  <div>
-    <button
-      @click="
-        Get('/users/search').then((res) => {
-          if (res.status == 200) {
-            users = res.data;
-            usersInvite = [];
-            modalNewChannel = true;
-            channelType = 1;
-          }
-        })
-      "
-      type="button"
-      class="rounded btn-channel wrapper-icon-leave ms-auto"
-    >
-      <i class="fa-solid fa-circle-plus"></i>
-    </button>
   </div>
 
   <ModalChat
@@ -1267,15 +1274,15 @@ const seePassword = (stringId: string) => {
   left: 90% !important;
   top: 50% !important;
   display: inline-block;
-  padding: 0.35em 0.65em;
+  padding: 0.30em 0.50em;
   font-size: 0.75em;
   font-weight: 700;
   line-height: 1;
   color: #fff;
-  background-color: rgb(54, 224, 28);
+  background-color: red;
   text-align: center;
   white-space: nowrap;
-  border: rgb(54, 224, 28) 3px solid;
+  border: red 3px solid;
   box-shadow: inset 0 0 0.5em 0 hsl(54, 224, 28), 0 0 0.5em 0 hsl(54, 224, 28);
 }
 
@@ -1410,6 +1417,44 @@ input.input-pass-channel:focus {
   outline-style: none;
   box-shadow: none;
   border-color: white;
+}
+
+.hovertext {
+  position: relative;
+  border-bottom: 1px dotted black;
+}
+
+.hovertext:before {
+  content: attr(data-hover);
+  visibility: hidden;
+  opacity: 0;
+  width: 140px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  padding: 5px 0;
+  transition: opacity 1s ease-in-out;
+
+  position: absolute;
+  z-index: 1;
+  top: 110%;
+}
+.hovertextR:before {
+  left: 0px;
+}
+.hovertextL:before {
+  left: -120px;
+}
+.hovertextC:before {
+  left: -60px;
+}
+.hovertextT:before {
+  top: -20px;
+}
+.hovertext:hover:before {
+  opacity: 1;
+  visibility: visible;
 }
 
 </style>

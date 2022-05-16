@@ -97,12 +97,15 @@ export default {
       this.updateGame(data);
     });
     this.gameSocket.on("endGame", () => {
-      clearInterval(this.intervalID);
       this.router.push("/");
     });
     // ##########################################################################
 
     this.launch();
+    return;
+  },
+  unmounted() {
+    clearInterval(this.intervalID);
     return;
   },
   destroyed() {
@@ -270,6 +273,7 @@ export default {
 </script>
 
 <template>
+  <Navbar componentName="Pong" />
   <div class="pong-game">
     <canvas
       ref="pong"
