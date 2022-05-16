@@ -5,9 +5,8 @@ import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
 import Ladder from "./profile/Ladder.vue";
 import Navbar from "./Navbar.vue";
-import Queue from "./game/Queue.vue";
 import LiveGames from "./game/LiveGames.vue";
-import UserActions from "./UserActions.vue";
+import UserList from "./UserList.vue";
 
 const profil_vmoreau = ref(false);
 const profil_mabriand = ref(false);
@@ -18,22 +17,15 @@ const profil_adupuy = ref(false);
 const userStore = useUserStore();
 const { isAuthenticated, loggedUser, setting_open, userClick } =
   storeToRefs(userStore);
-
-const showActions = ref<boolean>(false);
 </script>
 
 <template>
-  <Navbar :isAuthenticated="isAuthenticated" />
+  <Navbar componentName="Home" />
   <div class="container-flex" style="position: relative">
     <div id="HomePage" class="full-height">
       <div class="container">
         <div class="row pb-5">
           <div class="col-lg-6">
-            <div class="text-center mb-3 d-block d-lg-none">
-              <h1 class="neonText display-1" style="font-size: 10vw">
-                <b>Space Pong</b>
-              </h1>
-            </div>
             <br />
             <h1 class="neon-typo" style="float: left"><u>What is Pong?</u></h1>
             <br /><br /><br />
@@ -66,114 +58,17 @@ const showActions = ref<boolean>(false);
             <div class="container-fluid p-0">
               <div class="row">
                 <Ladder />
-                <!-- <div
-                  class="col-lg-7 pb-3 watch_player"
-                  style="color: white; text-align: start"
-                >
-                  Pong was the first commercially successful video game, and it
-                  helped to establish the video game industry along with the
-                  Magnavox Odyssey. Soon after its release, several companies
-                  began producing games that closely mimicked its gameplay.
-                  <br /><br />
-                  Pong is a two-dimensional sports game that simulates table
-                  tennis. The player controls an in-game paddle by moving it
-                  vertically across the left or right side of the screen. They
-                  can compete against another player controlling a second paddle
-                  on the opposing side. Players use the paddles to hit a ball
-                  back and forth. The goal is for each player to reach eleven
-                  points before the opponent; points are earned when one fails
-                  to return the ball to the other.
-                </div> -->
-                <!-- <div class="col-lg-5 d-flex align-items-center">
-                  <img
-                    src="../assets/home/Arcade-pong.jpeg"
-                    alt="BorneArcade"
-                    style="width: 100%"
-                  />
-                </div> -->
               </div>
             </div>
           </div>
           <div class="col-1" style="min-height: 50px" />
           <div class="col-lg-5">
-            <div class="text-center mb-3 d-none d-lg-block">
-              <div class="GameName neon-typo" style="font-size: 4vw">
-                <b>SPACE PONG</b>
-              </div>
-            </div>
-
             <LiveGames />
-
-            <div class="infoGame">
-              <div class="req neon-typo" v-if="!isAuthenticated">
-                Log in to access
-              </div>
-              <div class="cont">
-                <div
-                  class="neon-typo pt-4"
-                  style="font-size: xx-large; font-weight: bold"
-                >
-                  Online Player
-                </div>
-                <hr />
-                <br />
-                <table style="width: 90%; table-layout: fixed; margin-left: 5%">
-                  <tr>
-                    <th class="watch_player">Mabriand</th>
-                    <td>
-                      <i
-                        class="fa-solid fa-circle"
-                        style="color: greenyellow"
-                      ></i>
-                    </td>
-                    <td>
-                      <i class="fa-solid fa-comment-dots fa-xl action_icon"></i>
-                    </td>
-                    <td>
-                      <a
-                        href="#"
-                        @click="
-                          setting_open = true;
-                          userClick = loggedUser;
-                        "
-                        ><i class="fa-solid fa-gamepad fa-xl action_icon"></i
-                      ></a>
-                    </td>
-                    <!-- <td>
-                      <a href="#" @click="spectate(game.id)"
-                        ><i class="fa-solid fa-eye fa-xl action_icon"></i
-                      ></a>
-                      <i
-                        class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
-                      ></i>
-                    </td> -->
-                    <td>
-                      <a href="#" @click="showActions = !showActions"
-                        ><i
-                          class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
-                        ></i
-                      ></a>
-                      <!-- <i
-                        class="fa-solid fa-ellipsis-vertical fa-xl action_icon"
-                      ></i> -->
-                    </td>
-                  </tr>
-                </table>
-              </div>
-            </div>
+            <UserList />
           </div>
         </div>
       </div>
     </div>
-
-    <!-- TO DELETE!! -->
-    <div class="bloc_modale" v-if="showActions">
-      <div class="overlay" @click="showActions = !showActions"></div>
-      <div class="modale card">
-        <UserActions v-if="showActions" :user="loggedUser" />
-      </div>
-    </div>
-    <!-- TO DELETE!! -->
 
     <div id="Contact" class="p-4 ps-4">
       <h2 class="neon-typo pb-4"><u>Team Contact</u></h2>

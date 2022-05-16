@@ -18,6 +18,10 @@ import { AuthService } from 'src/auth/auth.service';
 import { MessagesService } from 'src/api/messages/messages.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { FilterUserDTO } from 'src/api/users/dto/filter-user.dto';
+import { UpdateUserDTO } from 'src/api/users/dto/update-user.dto';
+import { StatsService } from 'src/api/stats/stats.service';
+import Stats from 'src/api/stats/entities/stats.entity';
 
 class Connections {
   userID: number;
@@ -35,6 +39,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly channelsService: ChannelsService,
     private readonly usersService: UsersService,
+    private readonly statsService: StatsService,
     private readonly messagesService: MessagesService,
   ) {}
 
@@ -560,13 +565,51 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage('getAllUsers')
+  // Access to the API
+  @SubscribeMessage('getUsersByFilter')
   async getAllUsers(
     @ConnectedSocket() client: Socket,
-  ): Promise<WsResponse<User[]>> {
-    return {
-      event: 'receiveAllUsers',
-      data: await this.usersService.getAllUsers(),
-    };
+    @MessageBody() filter: FilterUserDTO,
+  ) {
+    this.server
+      .to(client.id)
+      .emit(
+        'receiveFilteredUsers',
+        await this.usersService.getUsersByFilter(filter),
+      );
+  }
+
+  @SubscribeMessage('getUserFriends')
+  async getUserFriends(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() loggedUser: User,
+  ) {
+    this.server
+      .to(client.id)
+      .emit(
+        'receiveFriends',
+        (await this.usersService.getUserByID(loggedUser.id, ['friends']))
+          .friends,
+      );
+  }
+
+  @SubscribeMessage('updateFriends')
+  async removeFriend(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ) {
+    this.server
+      .to(client.id)
+      .emit(
+        'receiveFriends',
+        (await this.usersService.updateUser(data.id, data.updateDTO)).friends,
+      );
+  }
+
+  @SubscribeMessage('getStats')
+  async getStats(@ConnectedSocket() client: Socket) {
+    this.server
+      .to(client.id)
+      .emit('receiveStatsUpdate', await this.statsService.getAllStats());
   }
 }

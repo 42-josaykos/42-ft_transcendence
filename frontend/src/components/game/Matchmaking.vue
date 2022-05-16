@@ -1,5 +1,6 @@
 <script>
 import Pong from "./Pong.vue";
+
 export default {
   name: "Matchmaking",
   components: {

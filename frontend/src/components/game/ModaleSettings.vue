@@ -1,5 +1,7 @@
 <script>
 import PowerUps from "./PowerUps.vue";
+import { storeToRefs, mapState  } from 'pinia';
+import { useUserStore } from "@/stores/user";
 export default {
   name: "ModaleSettings",
   components: {
@@ -11,6 +13,9 @@ export default {
     this.$emit("paddleSizeChange", this.paddleSize);
     this.$emit("ballSpeedChange", this.ballSpeed);
     return;
+  },
+  computed: {
+    ...mapState(useUserStore, ["loggedUser", "userClick", "gameSocket"]),
   },
   methods: {
     updatePaddleSize: function (variable) {
@@ -24,6 +29,10 @@ export default {
       return;
     },
     close: function () {
+      this.$emit("close");
+    },
+    inviteToGame: function () {
+      this.gameSocket.emit("addInvite", this.loggedUser, this.userClick)
       this.$emit("close");
     }
   },
@@ -49,12 +58,12 @@ export default {
         @ballSpeedChange="updateBallSpeed"
       />
       <button
-        @click=""
+        @click="inviteToGame()"
         type="button"
         class="mod-btn mod-btn-blue"
         style="width: 75%; margin: auto;"
       >
-        START
+        INVITE TO GAME
       </button>
     </div> 
   </div>

@@ -11,7 +11,6 @@ const decrement = () => {
   if (time.value < 0) {
     clearInterval(intervalId);
   } else {
-    console.log("time.value => ", time.value);
     time.value--;
   }
 };
