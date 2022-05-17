@@ -8,7 +8,7 @@ import { useMessageStore } from '@/stores/message';
 import { useChannelStore } from '@/stores/channel';
 import { useMatchStore } from '@/stores/match';
 
-const { userClick, loggedUser, usersOnline, isAuthenticated, statusSocket, users, usersFriends } = storeToRefs(useUserStore());
+const { userClick, loggedUser, usersOnline, isAuthenticated, statusSocket, users, usersFriends, leaderboard } = storeToRefs(useUserStore());
 const { channel, usersMembers, channelLeave, channelUpdate, allChannels } = storeToRefs(useChannelStore());
 const { matches } = storeToRefs(useMatchStore());
 
@@ -46,10 +46,10 @@ if (isAuthenticated.value) {
         matches.value = response.data.reverse();
       }
     }
-    // const response = await Get('/stats');
-    // if (response.status === 200) {
-    //   players.value = response.data;
-    // }
+    const response = await Get('/stats');
+    if (response.status === 200) {
+      leaderboard.value = response.data;
+    }
     if (channel.value) {
       Get(
         '/channels/search?id=' +

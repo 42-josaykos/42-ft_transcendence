@@ -9,7 +9,7 @@ import { Get } from "@/services/requests";
 import ModalMessage from "./chat/ModalMessage.vue";
 import { useMessageStore } from "@/stores/message";
 import Queue from "./game/Queue.vue";
-import ModaleInviteGame from './game/ModaleInviteGame.vue';
+import ModaleInviteGame from "./game/ModaleInviteGame.vue";
 
 const {
   setting_open,
@@ -69,7 +69,7 @@ const waiting = ref<boolean>(false);
       </div>
 
       <div style="width: 67vw">
-        <span class="neonText display-1 size-title" >
+        <span class="neonText display-1 size-title">
           <b>Space Pong</b>
         </span>
       </div>
@@ -114,7 +114,7 @@ const waiting = ref<boolean>(false);
           v-if="componentName === 'Home' || componentName === 'Chat'"
           class="d-flex justify-content-center my-2 mx-2"
         >
-          <Queue @queueWaiting="waiting = !waiting" />
+          <Queue @enterQueue="waiting = true" @leaveQueue="waiting = false" />
         </span>
       </div>
       <div style="text-align: end; color: hsl(317 100% 54%)" v-if="waiting">
@@ -138,7 +138,10 @@ const waiting = ref<boolean>(false);
 
   <ModalMessage v-if="modalSendMessage == true" />
 
-  <ModaleInviteGame v-if="modaleOpenInviteGame" @close="modaleOpenInviteGame = false"/>
+  <ModaleInviteGame
+    v-if="modaleOpenInviteGame"
+    @close="modaleOpenInviteGame = false"
+  />
 </template>
 
 <style scoped>

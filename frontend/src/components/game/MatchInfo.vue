@@ -31,7 +31,7 @@ export default {
 	},
 	created() {
 		this.duo = this.playersDuo;
-		console.log("this.duo in created: ",this.duo);
+		console.log("this.duo in created: ", this.duo);
 		this.isYouLead;
     this.getOpponent;
 		return ;
