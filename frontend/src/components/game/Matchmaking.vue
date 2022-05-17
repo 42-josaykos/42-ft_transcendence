@@ -21,7 +21,6 @@ props: ["revelePlay", "toggleModaleSettings", "launch"]
 
 <template>
   <section class="matchmaking">
-    <!-- <h2>Matchmaking</h2> -->
     <section class="pong-game">
       <pong
         v-bind:revelePlay="revelePlay"
@@ -33,11 +32,7 @@ props: ["revelePlay", "toggleModaleSettings", "launch"]
 </template>
 
 <style>
-/* .matchmaking {
-  overflow: auto;
-
-  overflow-y: scroll;
-  scrollbar-color: rgb(32, 31, 31) transparent;
-  scrollbar-width: thin !important;
-} */
+.pong-game {
+  min-height: 0%;
+}
 </style>

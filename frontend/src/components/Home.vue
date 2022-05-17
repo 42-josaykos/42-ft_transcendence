@@ -22,7 +22,7 @@ const { isAuthenticated, loggedUser, setting_open, userClick } =
 <template>
   <Navbar componentName="Home" />
   <div class="container-flex" style="position: relative">
-    <div id="HomePage" class="full-height">
+    <div id="HomePage">
       <div class="container">
         <div class="row pb-5">
           <div class="col-lg-6">
@@ -136,36 +136,6 @@ const { isAuthenticated, loggedUser, setting_open, userClick } =
 </template>
 
 <style scoped>
-.infoGame {
-  display: grid;
-
-  background-color: rgba(0, 0, 0, 0.4);
-  padding-bottom: 4vh;
-  min-height: 400px;
-  max-height: 400px;
-  overflow-y: scroll;
-  border-radius: 30px;
-  box-shadow: 0px 0px 10px 2px white, inset 0px 0px 4px 2px white;
-}
-
-.req,
-.cont {
-  grid-area: 1 / 1;
-}
-.req {
-  font-size: xx-large;
-  font-weight: bold;
-  background-color: rgba(0, 0, 0, 0.89);
-  min-height: 400px;
-  text-align: center;
-  align-items: center;
-  z-index: 2;
-  display: grid;
-}
-
-.cont {
-  z-index: 1;
-}
 
 #Footer {
   background-color: rgba(0, 0, 0, 0.65);
@@ -201,49 +171,15 @@ p {
   color: #ffffff;
   text-shadow: 0px 4px 15px white, 0px 0px 10px white;
 }
-.GameName {
-  font-family: "Vibure", cursive;
-  font-style: normal;
-}
-
-.infoGame {
-  overflow: hidden;
-}
-
-.infoGame hr {
-  display: block;
-  position: relative;
-  height: 2px;
-  box-shadow: 0px 0px 10px white, 0px 0px 15px 5px white;
-  opacity: 1;
-  width: 90%;
-  color: #fffed9;
-  margin: auto;
-  margin-top: 2vh;
-}
 
 th {
   white-space: nowrap;
   width: 40%;
 }
 
-.versus {
-  font-size: large;
-  font-weight: bold;
-}
 .watch_player {
   font-size: large;
   overflow-x: hidden;
-}
-
-.action_icon {
-  color: var(--sidebar-icon-color);
-}
-
-.action_icon:hover {
-  transform: scale(1.5);
-  transition: 0.4s;
-  cursor: pointer;
 }
 
 th {

@@ -17,26 +17,28 @@ const liveGames = ref<any>(null);
 const gameInvites = ref<any>([]);
 const modaleAllInvitesGame = ref<boolean>(false);
 
-gameSocket.value?.emit("getOngoingGames");
-gameSocket.value?.on("liveGames", (games: any) => {
-  //   console.log("[LiveGames] Live games: ", games);
-  liveGames.value = games;
-});
+if (gameSocket.value) {
+  gameSocket.value.on("liveGames", (games: any) => {
+    //   console.log("[LiveGames] Live games: ", games);
+    liveGames.value = games;
+  });
 
-gameSocket.value?.emit("getInvitesGame", loggedUser.value);
-gameSocket.value?.on("updateGameInvites", (invites: any) => {
-  // console.log("[updateInviteGame] Invites games: ", invites);
-  gameInvites.value = invites;
-});
+  gameSocket.value.emit("getInvitesGame", loggedUser.value);
+  gameSocket.value.on("updateGameInvites", (invites: any) => {
+    // console.log("[updateInviteGame] Invites games: ", invites);
+    gameInvites.value = invites;
+  });
+  gameSocket.value.emit("getOngoingGames");
+
+  gameSocket.value.on("spectateGame", () => {
+    router.push("/spectate");
+  });
+}
 
 // Spectate
 const spectate = (gameID: number) => {
   gameSocket.value?.emit("addSpectator", gameID);
 };
-
-gameSocket.value?.on("spectateGame", () => {
-  router.push("/spectate");
-});
 
 const acceptInviteToGame = (inviteUser: any) => {
   gameSocket.value?.emit("acceptInviteToGame", inviteUser, loggedUser.value);
@@ -167,7 +169,7 @@ p {
   width: 90%;
   color: #fffed9;
   margin: auto;
-  margin-top: 2vh;
+  margin-top: 10px;
 }
 
 th {
