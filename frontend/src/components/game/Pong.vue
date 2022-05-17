@@ -109,10 +109,14 @@ export default {
         this.endgame = !this.endgame
       }
       console.log("after : ", this.endgame);
-      return ;
+
       // clearInterval(this.intervalID);
       // this.router.push("/debug");
       // this.router.push("/");
+      
+     setTimeout(() => {
+      this.router.push("/");
+     }, 5000);
     });
     // ##########################################################################
 
