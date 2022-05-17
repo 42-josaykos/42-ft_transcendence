@@ -32,4 +32,12 @@ props: ["revelePlay", "toggleModaleSettings", "launch"]
   </section>
 </template>
 
-<style></style>
+<style>
+/* .matchmaking {
+  overflow: auto;
+
+  overflow-y: scroll;
+  scrollbar-color: rgb(32, 31, 31) transparent;
+  scrollbar-width: thin !important;
+} */
+</style>
