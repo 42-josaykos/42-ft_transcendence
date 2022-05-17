@@ -9,7 +9,7 @@ import type { User } from '@/models/user.model';
 import { computed } from '@vue/reactivity';
 
 const userStore = useUserStore();
-const { isTwoFactorAuth, loggedUser } = storeToRefs(userStore);
+const { isTwoFactorAuth, loggedUser, flashMsg } = storeToRefs(userStore);
 if (loggedUser.value && loggedUser.value.isTwoFactorAuthenticationEnabled) {
   isTwoFactorAuth.value = true;
 } else {
@@ -19,12 +19,15 @@ const qrcode = ref(null);
 const twoFactorInput = ref('');
 const usernameInput = ref('');
 const turnOffForm = ref(false);
-const error = ref(0);
+const error = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
-const inputErrorStyle = computed(() => {
-  if (error.value) return "form-control is-invalid"
-  else return ""
-})
+const isInvalid = computed(() => {
+  if (flashMsg.value && error.value) {
+    return 'form-control is-invalid';
+  } else {
+    return 'form-control';
+  }
+});
 
 const emit = defineEmits<{
   (e: 'updateUserProfil'): void;
@@ -107,16 +110,21 @@ function updateUsername() {
           loggedUser.value = updatedUser;
           usernameInput.value = '';
           emit('updateUserProfil');
+          error.value = false;
+          flashMsg.value = 'Username updated !';
         }
       } else {
-        error.value = 1;
+        error.value = true;
+        flashMsg.value = 'Username already exists';
       }
     });
   } else {
-    error.value = 2
+    error.value = true;
+    flashMsg.value = 'Username must be not empty and 15 characters or less';
   }
   setTimeout(() => {
-    error.value = 0;
+    error.value = false;
+    flashMsg.value = '';
   }, 5000);
 }
 
@@ -140,6 +148,8 @@ async function updateAvatar(event: any) {
                 loggedUser.value.avatar = res.data.avatar;
                 fileInput.value = null;
                 emit('updateUserProfil');
+                error.value = false;
+                flashMsg.value = 'Avatar updated !';
               }
             }
           });
@@ -148,6 +158,10 @@ async function updateAvatar(event: any) {
         alert(er.response.data.message);
       }
     }
+    setTimeout(() => {
+      error.value = false;
+      flashMsg.value = '';
+    }, 5000);
   }
 }
 </script>
@@ -204,7 +218,7 @@ async function updateAvatar(event: any) {
             <div class="row">
               <div class="col-10 p-0">
                 <input
-                  :class="inputErrorStyle"
+                  :class="isInvalid"
                   v-model="usernameInput"
                   name="username"
                   type="text"
@@ -222,8 +236,8 @@ async function updateAvatar(event: any) {
         </form>
       </div>
     </div>
-    <div v-if="error === 1" style="color: red;">Username already exists</div>
-    <div v-if="error === 2" style="color: red;">Username must be 15 characters or less</div>
+    <div v-if="flashMsg && error" style="color: red">{{ flashMsg }}</div>
+    <div v-if="flashMsg && !error" style="color: green">{{ flashMsg }}</div>
   </div>
 
   <hr />
