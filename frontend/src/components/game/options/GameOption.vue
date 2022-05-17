@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import PowerUps from "./PowerUps.vue";
-import { storeToRefs, mapState } from "pinia";
-import { useUserStore } from "@/stores/user";
-import { ref } from "vue";
+import PowerUp from "./PowerUp.vue";
 
 // Event emits
 const emit = defineEmits([
@@ -49,7 +46,7 @@ const incrementBallSpeed = () => {
           >Start a game</u
         >
       </h2>
-      <powerups
+      <PowerUp
         @decrementPaddleSize="decrementPaddleSize"
         @incrementPaddleSize="incrementPaddleSize"
         @decrementBallSpeed="decrementBallSpeed"

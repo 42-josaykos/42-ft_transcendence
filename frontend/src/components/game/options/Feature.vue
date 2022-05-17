@@ -1,37 +1,52 @@
 <script setup lang="ts">
+import { ref } from "vue";
+
 // Props
 const props = defineProps({
   name: String,
   levelMin: Number,
   levelMax: Number,
-  startNumber: Number,
-  increment: Function,
-  decrement: Function,
+  startLevel: Number,
+  feature: String,
 });
 
-let level: number = props.startNumber;
+const emit = defineEmits([
+  "decrementPaddleSize",
+  "incrementPaddleSize",
+  "decrementBallSpeed",
+  "incrementBallSpeed",
+]);
+
+let level = ref<Number>(props.startLevel ? props.startLevel : 2);
 
 // Determine
 const isMin = () => {
-  return level === props.levelMin ? true : false;
+  return level.value === props.levelMin ? true : false;
 };
 
 const isMax = () => {
-  return level === props.levelMax ? true : false;
+  return level.value === props.levelMax ? true : false;
 };
 
 const levelUp = () => {
-  if (props.levelMax && level < props.levelMax) {
-    ++level;
-    props.increment;
+  if (props.levelMax && level.value < props.levelMax) {
+    level.value = getter(level.value) + 1;
+    if (props.feature === "paddle") emit("incrementPaddleSize");
+    else if (props.feature === "ball") emit("incrementBallSpeed");
   }
 };
 
 const levelDown = () => {
-  if (props.levelMin && level > props.levelMin) {
-    --level;
-    props.decrement;
+  if (props.levelMin && level.value > props.levelMin) {
+    level.value = getter(level.value) - 1;
+    if (props.feature === "paddle") emit("decrementPaddleSize");
+    else if (props.feature === "ball") emit("decrementBallSpeed");
   }
+};
+
+// Oops
+const getter = (variable: any) => {
+  return variable;
 };
 </script>
 

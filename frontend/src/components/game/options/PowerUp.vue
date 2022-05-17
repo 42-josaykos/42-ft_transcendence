@@ -14,16 +14,20 @@ const emit = defineEmits([
   "incrementBallSpeed",
 ]);
 
-const decrementPaddleSize: Function = () => {
+const decrementPaddleSize = () => {
+  // console.log("decrementPaddleSize");
   emit("decrementPaddleSize");
 };
-const incrementPaddleSize: Function = () => {
+const incrementPaddleSize = () => {
+  // console.log("incrementPaddleSize");
   emit("incrementPaddleSize");
 };
-const decrementBallSpeed: Function = () => {
+const decrementBallSpeed = () => {
+  // console.log("decrementBallSpeed");
   emit("decrementBallSpeed");
 };
-const incrementBallSpeed: Function = () => {
+const incrementBallSpeed = () => {
+  // console.log("incrementBallSpeed");
   emit("incrementBallSpeed");
 };
 
@@ -33,68 +37,17 @@ const features = [
     id: id++,
     featureName: "Paddle size",
     min: 1,
-    max: 3,
-    decrement: decrementPaddleSize(),
-    increment: incrementPaddleSize(),
+    max: 10,
+    feature: "paddle",
   },
   {
     id: id++,
     featureName: "Ball speed",
     min: 1,
-    max: 5,
-    decrement: decrementBallSpeed(),
-    increment: incrementBallSpeed(),
+    max: 10,
+    feature: "ball",
   },
 ];
-
-// let id = 0;
-// import Feature from "./Feature.vue";
-// import { storeToRefs, mapState } from 'pinia';
-// import { useUserStore } from "@/stores/user";
-// export default {
-
-//   name: "PowerUps",
-//   components: {
-//     feature: Feature,
-//   },
-//   data() {
-//     return {
-//       paddleSize: {},
-//       ballSpeed: {},
-//       features: [
-//         {
-//           id: id++,
-//           featureName: "Paddle size",
-//           min: 1,
-//           max: 3,
-//           updateFunc: this.updatePaddleSize,
-//         },
-//         {
-//           id: id++,
-//           featureName: "Ball speed",
-//           min: 1,
-//           max: 5,
-//           updateFunc: this.updateBallSpeed,
-//         },
-//       ],
-//     };
-//   },
-//   computed: {
-//     ...mapState(useUserStore, ["loggedUser", "userClick"]),
-//   },
-//   methods: {
-//     updatePaddleSize: function (variable) {
-//       this.paddleSize = variable;
-//       this.$emit("paddleSizeChange", this.paddleSize);
-//       return;
-//     },
-//     updateBallSpeed: function (variable) {
-//       this.ballSpeed = variable;
-//       this.$emit("ballSpeedChange", this.ballSpeed);
-//       return;
-//     },
-//   },
-// };
 </script>
 
 <template>
@@ -103,13 +56,16 @@ const features = [
       <header>
         <ul class="powerups-list">
           <li v-for="feature in features" :key="feature.id">
-            <feature
+            <Feature
               :name="feature.featureName"
               :levelMin="feature.min"
               :levelMax="feature.max"
-              :startLevel="(feature.max + 1) / 2"
-              :decrement="feature.decrement"
-              :increment="feature.increment"
+              :startLevel="feature.max / 2"
+              :feature="feature.feature"
+              @decrementPaddleSize="decrementPaddleSize"
+              @incrementPaddleSize="incrementPaddleSize"
+              @decrementBallSpeed="decrementBallSpeed"
+              @incrementBallSpeed="incrementBallSpeed"
             />
           </li>
         </ul>

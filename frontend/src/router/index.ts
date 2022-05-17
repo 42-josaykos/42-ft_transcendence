@@ -1,8 +1,6 @@
 import { createWebHistory, createRouter } from "vue-router";
 import { Get } from "@/services/requests";
 import Home from "@/components/Home.vue";
-import Game from "@/components/game/Game.vue";
-import Matchmaking from "@/components/game/Matchmaking.vue";
 import Pong from "@/components/game/Pong.vue";
 import Debug from "@/components/debug/Debug.vue";
 import PageNotFound from "@/components/PageNotFound.vue";
@@ -33,15 +31,9 @@ const routes = [
   },
   {
     path: "/game",
-    name: "Game",
+    name: "Pong",
     beforeEnter: routeGuard,
-    component: Game,
-  },
-  {
-    path: "/matchmaking",
-    name: "Matchmaking",
-    beforeEnter: routeGuard,
-    component: Matchmaking,
+    component: Pong,
   },
   {
     path: "/spectate",
@@ -98,17 +90,17 @@ const router = createRouter({
 });
 
 function getCookie(name: string) {
-    var v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
-    return v ? v[2] : null;
+  var v = document.cookie.match("(^|;) ?" + name + "=([^;]*)(;|$)");
+  return v ? v[2] : null;
 }
 
 // Block login, register and 2fa page access when already logged in
-function isNotAuthenticatedGuard(to: any, from: any, next: any){
-  const token = getCookie('Authentication')
+function isNotAuthenticatedGuard(to: any, from: any, next: any) {
+  const token = getCookie("Authentication");
   if (!token) {
-    next()
+    next();
   } else {
-    next(from.path)
+    next(from.path);
   }
 }
 
@@ -119,10 +111,10 @@ async function routeGuard(to: any, from: any, next: any) {
     if (response.status != 401) {
       next(); // allow to enter route
     } else {
-      next('/login');
+      next("/login");
     }
   } catch (error: any) {
-    next('/login');
+    next("/login");
   }
 }
 

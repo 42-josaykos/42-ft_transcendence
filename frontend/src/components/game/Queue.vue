@@ -27,7 +27,7 @@ if (gameSocket.value) {
     matchFound.value = true;
     setTimeout(() => {
       matchFound.value = false;
-      router.push("/matchmaking");
+      router.push("/game");
     }, 5000);
   });
 
@@ -38,7 +38,7 @@ if (gameSocket.value) {
     setTimeout(() => {
       matchInvite.value = false;
       players.value = null;
-      router.push("/matchmaking");
+      router.push("/game");
     }, 10000);
   });
 
@@ -82,7 +82,7 @@ const buttonAction = () => {
     inQueue.value = !inQueue.value;
   }
   // Go back to the game
-  else router.push("/matchmaking");
+  else router.push("/game");
 };
 
 const emit = defineEmits(["enterQueue", "leaveQueue"]);

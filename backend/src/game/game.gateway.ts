@@ -394,14 +394,13 @@ export class GameGateway
       players[1],
     );
 
+    // Get game options
     const inviteGuest = this.invites.find(
       (invite) => invite.user.user.id === userGuest.user.id,
     );
-
     const options = inviteGuest.invitesReceived.find(
       (invite) => invite.sender.user.id === userInvite.user.id,
     ).gameOptions;
-    console.log('options: ', options);
 
     // If user are still connected
     if (userInvite && userGuest) {

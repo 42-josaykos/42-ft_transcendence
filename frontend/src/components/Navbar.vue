@@ -9,7 +9,7 @@ import { Get } from "@/services/requests";
 import ModalMessage from "./chat/ModalMessage.vue";
 import { useMessageStore } from "@/stores/message";
 import Queue from "./game/Queue.vue";
-import ModaleInviteGame from "./game/ModaleInviteGame.vue";
+import GameOptionModal from "./game/options/GameOptionModal.vue";
 
 const {
   setting_open,
@@ -138,7 +138,7 @@ const waiting = ref<boolean>(false);
 
   <ModalMessage v-if="modalSendMessage == true" />
 
-  <ModaleInviteGame
+  <GameOptionModal
     v-if="modaleOpenInviteGame"
     @close="modaleOpenInviteGame = false"
   />
