@@ -49,7 +49,8 @@ export default {
             v-bind:src="this.loggedUser?.avatar"
             alt="Avatar"
         />
-        YOU
+        {{ this.loggedUser.username }}
+        (you)
       </h1>
       <h1 v-else> 
         <img
@@ -62,7 +63,8 @@ export default {
     </div>
     <div class="p2">
       <h1 v-if="!you_lead"> 
-        YOU 
+        {{ this.loggedUser.username }}
+        (you)
         <img
           class="circular--square icon_navbar"
           style="width: 60px; height: 60px; object-fit: cover"
