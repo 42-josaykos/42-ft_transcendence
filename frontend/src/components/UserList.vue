@@ -58,6 +58,7 @@ const userListOffline = computed(() => {
     usersOnline.value.findIndex((id) => id == value.id) == -1
   ).sort((a, b) => (a.username.toLowerCase() > b.username.toLowerCase()) ? 1 : -1)
 });
+
 </script>
 
 <template>
@@ -70,9 +71,7 @@ const userListOffline = computed(() => {
         Players List
       </div>
       <hr />
-      <br />
       <BtnUserList v-if="userListOnline.length > 0" :usersList="userListOnline" :isOffLine="false"/>
-      <hr class="seperator-user-online-offline" v-if="userListOnline.length > 0 && userListOffline.length > 0"/>
       <BtnUserList v-if="userListOffline.length > 0" :usersList="userListOffline" :isOffLine="true"/>
     </div>
   </div>

@@ -91,16 +91,6 @@ const numberUsersOffline = computed(() => {
   return totalOffline.toString()
 })
 
-const numberUsersBan = computed(() => {
-  let totalBan = 0;
-  for (const user of usersMembers.value) {
-    if (channelStore.isBan(channel.value, user.id)) {
-      totalBan++;
-    }
-  }
-  return totalBan.toString()
-})
-
 const addAdmin = () => {
   if (channelStore.isBan(channel.value, userClick.value?.id) && channelStore.isMute(channel.value, userClick.value?.id)) {
     socketChat.value?.emit('updateMember',

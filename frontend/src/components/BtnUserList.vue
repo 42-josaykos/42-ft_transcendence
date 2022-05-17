@@ -5,6 +5,7 @@ import { useRouter } from "vue-router";
 import type { User } from "@/models/user.model";
 import { useMessageStore } from "@/stores/message";
 import UserCard from "./UserCard.vue";
+import { computed } from "@vue/reactivity";
 
 // Stores
 const userStore = useUserStore();
@@ -31,9 +32,27 @@ const isFriend = (user: User): boolean => {
   if (friendIndex === -1) return false;
   else return true;
 };
+
+const numberUsers = computed(() => {
+  let totalOnline = 0;
+  if (props.usersList){
+    for (const user in props.usersList) {
+        totalOnline++;
+      }
+  }
+  return totalOnline.toString()
+})
+
 </script>
 
 <template>
+  <br />
+  <span class="d-flex mb-3">
+    <span class="horizontal-line-center"></span>
+      {{isOffLine ? 'Offline' : 'Online'}} - {{numberUsers}}
+    <span class="horizontal-line-center"></span>
+  </span>
+
   <table style="width: 90%; table-layout: fixed; margin-left: 5%">
     <tr v-for="player in props.usersList" :key="player.id">
       <!-- User -->
