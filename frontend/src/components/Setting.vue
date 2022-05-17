@@ -1,15 +1,15 @@
 <script setup lang="ts">
-// import { setting_open } from './Modale.vue';
 import Toggle from '@vueform/toggle';
 import { useUserStore } from '@/stores/user';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
-import { Get, Patch, Post } from '@/services/requests';
+import { Patch, Post } from '@/services/requests';
 import ax from '@/services/interceptors';
 import type { User } from '@/models/user.model';
+import { computed } from '@vue/reactivity';
 
 const userStore = useUserStore();
-const { isTwoFactorAuth, isAuthenticated, loggedUser } = storeToRefs(userStore);
+const { isTwoFactorAuth, loggedUser } = storeToRefs(userStore);
 if (loggedUser.value && loggedUser.value.isTwoFactorAuthenticationEnabled) {
   isTwoFactorAuth.value = true;
 } else {
@@ -19,8 +19,12 @@ const qrcode = ref(null);
 const twoFactorInput = ref('');
 const usernameInput = ref('');
 const turnOffForm = ref(false);
-const error = ref(false);
+const error = ref(0);
 const fileInput = ref<HTMLInputElement | null>(null);
+const inputErrorStyle = computed(() => {
+  if (error.value) return "form-control is-invalid"
+  else return ""
+})
 
 const emit = defineEmits<{
   (e: 'updateUserProfil'): void;
@@ -92,7 +96,7 @@ function toggleTwoFactorAuthentication() {
 
 // Update username
 function updateUsername() {
-  if (usernameInput.value) {
+  if (usernameInput.value && usernameInput.value.length < 15) {
     Patch(`/users/${loggedUser.value?.id}`, {
       username: usernameInput.value
     }).then(res => {
@@ -105,13 +109,15 @@ function updateUsername() {
           emit('updateUserProfil');
         }
       } else {
-        error.value = true;
-        setTimeout(() => {
-          error.value = false;
-        }, 5000);
+        error.value = 1;
       }
     });
+  } else {
+    error.value = 2
   }
+  setTimeout(() => {
+    error.value = 0;
+  }, 5000);
 }
 
 async function updateAvatar(event: any) {
@@ -143,13 +149,6 @@ async function updateAvatar(event: any) {
       }
     }
   }
-}
-
-async function logoutUser() {
-  Get('/auth/logout').then(res => {
-    loggedUser.value = null;
-    isAuthenticated.value = false;
-  });
 }
 </script>
 
@@ -205,6 +204,7 @@ async function logoutUser() {
             <div class="row">
               <div class="col-10 p-0">
                 <input
+                  :class="inputErrorStyle"
                   v-model="usernameInput"
                   name="username"
                   type="text"
@@ -222,6 +222,8 @@ async function logoutUser() {
         </form>
       </div>
     </div>
+    <div v-if="error === 1" style="color: red;">Username already exists</div>
+    <div v-if="error === 2" style="color: red;">Username must be 15 characters or less</div>
   </div>
 
   <hr />
