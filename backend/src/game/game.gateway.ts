@@ -112,13 +112,15 @@ export class GameGateway
       // console.log('playerOne: ', playerOne);
       // console.log('playerTwo: ', playerTwo);
 
-      this.server.emit('inQueueUsers', this.sendInQueueUsers());
-      this.setupAndStartGame(
-        { ...playerOne },
-        { ...playerTwo },
-        'startGame',
-        5000,
-      );
+      if (playerOne.player.user.id !== playerTwo.player.user.id) {
+        this.server.emit('inQueueUsers', this.sendInQueueUsers());
+        this.setupAndStartGame(
+          { ...playerOne },
+          { ...playerTwo },
+          'startGame',
+          5000,
+        );
+      }
     }
   }
 

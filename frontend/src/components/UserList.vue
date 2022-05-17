@@ -26,19 +26,22 @@ const { modalSendMessage } = storeToRefs(messageStore);
 
 const router = useRouter();
 
-// Get all users at page startup
 const users = ref<User[]>([]);
-socketChat.value?.emit("getUsersByFilter", {});
-socketChat.value?.on(
-  "receiveFilteredUsers",
-  (userList) => (users.value = userList)
-);
 
-// Get user friends
-socketChat.value?.on("receiveFriends", (friendsList: User[]) => {
-  usersFriends.value = friendsList;
-});
-socketChat.value?.emit("getUserFriends", loggedUser.value);
+if (socketChat.value) {
+  // Get all users at page startup
+  socketChat.value.emit("getUsersByFilter", {});
+  socketChat.value.on(
+    "receiveFilteredUsers",
+    (userList) => (users.value = userList)
+  );
+
+  // Get user friends
+  socketChat.value.on("receiveFriends", (friendsList: User[]) => {
+    usersFriends.value = friendsList;
+  });
+  socketChat.value.emit("getUserFriends", loggedUser.value);
+}
 
 const isFriend = (user: User): boolean => {
   const friendIndex = usersFriends.value.findIndex(
