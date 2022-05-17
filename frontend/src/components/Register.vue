@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/user';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { Post } from '@/services/requests';
 import { useRouter } from 'vue-router';
 
@@ -12,6 +12,13 @@ const router = useRouter();
 const username = ref('');
 const password1 = ref('');
 const password2 = ref('');
+const isInvalid = computed(() => {
+  if (flashMsg.value) {
+    return 'form-control is-invalid';
+  } else {
+    return 'form-control';
+  }
+});
 
 function register() {
   if (username.value.length > 15) {
@@ -36,10 +43,10 @@ function register() {
       }
     });
   } else {
-    flashMsg.value = "Password doesn't matched";
+    flashMsg.value = "Password doesn't match";
   }
   setTimeout(() => {
-    flashMsg.value === '';
+    flashMsg.value = '';
   }, 5000);
 }
 
@@ -65,8 +72,8 @@ const seePassword = (stringId: string) => {
           <input
             type="text"
             id="inputUsername"
-            class="form-control"
             placeholder="Username"
+            :class="isInvalid"
             v-model="username"
             required
             autofocus
@@ -80,9 +87,9 @@ const seePassword = (stringId: string) => {
               ><i class="fa-regular fa-eye"></i
             ></span>
             <input
+              :class="isInvalid + ' input-pass'"
               type="password"
               id="inputPassword1"
-              class="form-control input-pass"
               placeholder="Password"
               v-model="password1"
               required
@@ -97,9 +104,9 @@ const seePassword = (stringId: string) => {
               ><i class="fa-regular fa-eye"></i
             ></span>
             <input
+              :class="isInvalid + ' input-pass'"
               type="password"
               id="inputPassword2"
-              class="form-control input-pass"
               placeholder="Confirm password"
               v-model="password2"
               required
