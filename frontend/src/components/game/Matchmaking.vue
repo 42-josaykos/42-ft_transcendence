@@ -21,7 +21,7 @@ props: ["revelePlay", "toggleModaleSettings", "launch"]
 
 <template>
   <section class="matchmaking">
-    <h2>Matchmaking</h2>
+    <!-- <h2>Matchmaking</h2> -->
     <section class="pong-game">
       <pong
         v-bind:revelePlay="revelePlay"

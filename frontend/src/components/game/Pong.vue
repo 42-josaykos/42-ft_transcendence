@@ -289,17 +289,19 @@ export default {
 
 <template>
   <Navbar style="position: absolute;" componentName="Pong"/>
-  <div class="pong-set" style="top: 15%; left: 25%; max-width: 1000px; max-height:600px;">
-    <matchinfo></matchinfo>
-    <div class="pong-game">
-      <canvas
-        ref="pong"
-        class="pong"
-        id="pong"
-        :width="canvas.w"
-        :height="canvas.h"
-      >
-      </canvas>
+  <div class="container">
+    <div class="pong-set" style="top: 15%; left: 25%; max-width: 1000px; max-height:600px;">
+      <matchinfo></matchinfo>
+      <div class="pong-game">
+        <canvas
+          ref="pong"
+          class="pong"
+          id="pong"
+          :width="canvas.w"
+          :height="canvas.h"
+        >
+        </canvas>
+      </div>
     </div>
   </div>
   <modaleresult
@@ -318,5 +320,11 @@ export default {
 .pong {
   background: #0c2039;
   border: 7.5px solid #1A3558;
+}
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 75%;
 }
 </style>
