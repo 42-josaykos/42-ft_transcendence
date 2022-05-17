@@ -109,9 +109,9 @@ export default {
         this.endgame = !this.endgame
       }
       console.log("after : ", this.endgame);
-    //  setTimeout(() => {
-    //   this.router.push("/");
-    //  }, 5000);
+      setTimeout(() => {
+        this.router.push("/");
+      }, 5000);
     });
     // ##########################################################################
 
