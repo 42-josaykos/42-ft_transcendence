@@ -16,7 +16,7 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 const userStore = useUserStore();
-const { loggedUser, socketChat, usersOnline, userClick, setting_open } = storeToRefs(userStore);
+const { loggedUser, socketChat, usersOnline, userClick, setting_open, modaleOpenInviteGame } = storeToRefs(userStore);
 
 const channelStore = useChannelStore();
 
@@ -198,7 +198,7 @@ const addAdmin = () => {
             SEND MESSAGE
           </button>
             <button
-              @click="userClickBool = false; router.push('/game')"
+              @click="userClickBool = false; modaleOpenInviteGame = true;"
               type="button"
               class="btn-user-click my-2"
             >

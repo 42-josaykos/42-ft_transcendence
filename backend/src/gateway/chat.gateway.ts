@@ -229,8 +229,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
       if (index != -1) {
         const socketIds = this.connectedClients[index].socketID;
+        let [channelJoin] = await this.channelsService.getChannelsByFilter({
+          id: channel.id,
+          admins: true,
+        });
         for (const socketId of socketIds) {
-          this.server.to(socketId).emit('joinChannel');
+          this.server.to(socketId).emit('joinChannel', channelJoin);
         }
       }
     } catch (error) {
