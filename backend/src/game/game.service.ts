@@ -45,6 +45,15 @@ export class GameService implements OnModuleInit {
     return this.games;
   }
 
+  inGameUsers() {
+    let inGameUsers: User[] = [];
+    for (const game of this.games) {
+      for (const player of game.players) inGameUsers.push(player.player.user);
+    }
+
+    return inGameUsers;
+  }
+
   // Main game code
   createGame(playerOne: Player, playerTwo: Player, socket: Server) {
     // Create and start game
@@ -65,6 +74,7 @@ export class GameService implements OnModuleInit {
     };
 
     this.games.push(game);
+    this.gateway.sendInGameUsers();
     let pause = true;
     setTimeout(() => {
       pause = false;
@@ -72,6 +82,14 @@ export class GameService implements OnModuleInit {
 
     // Main game loop
     game.intervalID = setInterval(async () => {
+      // Update game sockets
+      this.gateway.addSocketsToRoom(
+        game.players[0].player.user,
+        game.players[1].player.user,
+        game.socketRoom,
+      );
+
+      //Game loop
       if (!pause) {
         // Updating ball position
         game.ball.x += game.ball.velocityX;

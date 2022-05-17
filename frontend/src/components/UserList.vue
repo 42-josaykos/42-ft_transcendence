@@ -8,6 +8,7 @@ import type { User } from "@/models/user.model";
 import { useMessageStore } from "@/stores/message";
 import UserCard from "./UserCard.vue";
 import { computed } from "@vue/reactivity";
+import BtnUserList from "./BtnUserList.vue";
 
 // Stores
 const userStore = useUserStore();
@@ -19,6 +20,7 @@ const {
   loggedUser,
   usersFriends,
   modaleOpenInviteGame,
+  usersOnline,
 } = storeToRefs(userStore);
 
 const messageStore = useMessageStore();
@@ -26,31 +28,35 @@ const { modalSendMessage } = storeToRefs(messageStore);
 
 const router = useRouter();
 
-// Get all users at page startup
 const users = ref<User[]>([]);
-socketChat.value?.emit("getUsersByFilter", {});
-socketChat.value?.on(
-  "receiveFilteredUsers",
-  (userList) => (users.value = userList)
-);
 
-// Get user friends
-socketChat.value?.on("receiveFriends", (friendsList: User[]) => {
-  usersFriends.value = friendsList;
-});
-socketChat.value?.emit("getUserFriends", loggedUser.value);
-
-const isFriend = (user: User): boolean => {
-  const friendIndex = usersFriends.value.findIndex(
-    (friend) => friend.id === user.id
+if (socketChat.value) {
+  // Get all users at page startup
+  socketChat.value.emit("getUsersByFilter", {});
+  socketChat.value.on(
+    "receiveFilteredUsers",
+    (userList) => (users.value = userList)
   );
-  if (friendIndex === -1) return false;
-  else return true;
-};
+
+  // Get user friends
+  socketChat.value.on("receiveFriends", (friendsList: User[]) => {
+    usersFriends.value = friendsList;
+  });
+  socketChat.value.emit("getUserFriends", loggedUser.value);
+}
+
+// User list online without logged user
+const userListOnline = computed(() => {
+  return users.value.filter((value) => 
+    usersOnline.value.findIndex((id) => id == value.id) != -1
+  ).sort((a, b) => (a.username.toLowerCase() > b.username.toLowerCase()) ? 1 : -1)
+});
 
 // User list without logged user
-const userList = computed(() => {
-  return users.value.filter((value) => value.id !== loggedUser.value?.id);
+const userListOffline = computed(() => {
+  return users.value.filter((value) => 
+    usersOnline.value.findIndex((id) => id == value.id) == -1
+  ).sort((a, b) => (a.username.toLowerCase() > b.username.toLowerCase()) ? 1 : -1)
 });
 </script>
 
@@ -65,88 +71,9 @@ const userList = computed(() => {
       </div>
       <hr />
       <br />
-      <table style="width: 90%; table-layout: fixed; margin-left: 5%">
-        <tr v-for="player in userList" :key="player.id">
-          <!-- User -->
-          <td style="width: 50%">
-            <UserCard :user="player" :dashboard="true" />
-          </td>
-          <!-- Profile -->
-          <td>
-            <a
-              class="hovertext"
-              data-hover="Profile"
-              href="#"
-              @click="
-                setting_open = true;
-                userClick = player;
-              "
-            >
-              <i class="fa-solid fa-user action_icon"></i
-            ></a>
-          </td>
-          <!-- Send message -->
-          <td>
-            <a
-              class="hovertext"
-              data-hover="Send message"
-              href="#"
-              @click="
-                modalSendMessage = true;
-                userClick = player;
-              "
-            >
-              <i class="fa-solid fa-comment-dots fa-xl action_icon"></i
-            ></a>
-          </td>
-          <!-- Invite to a game -->
-          <td>
-            <a
-              class="hovertext"
-              data-hover="Invite to game"
-              href="#"
-              @click="
-                modaleOpenInviteGame = true;
-                userClick = player;
-              "
-            >
-              <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
-            </a>
-          </td>
-          <!-- Add friend -->
-          <td v-if="!isFriend(player)">
-            <a
-              class="hovertext"
-              data-hover="Add friend"
-              href="#"
-              @click="
-                socketChat?.emit('updateFriends', {
-                  id: loggedUser?.id,
-                  updateDTO: { addFriends: [{ id: player.id }] },
-                })
-              "
-            >
-              <i class="fa-solid fa-user-plus action_icon"></i
-            ></a>
-          </td>
-          <!-- Remove friend -->
-          <td v-else>
-            <a
-              class="hovertext"
-              data-hover="Remove friend"
-              href="#"
-              @click="
-                socketChat?.emit('updateFriends', {
-                  id: loggedUser?.id,
-                  updateDTO: { removeFriends: [{ id: player.id }] },
-                })
-              "
-            >
-              <i class="fa-solid fa-user-minus action_icon"></i
-            ></a>
-          </td>
-        </tr>
-      </table>
+      <BtnUserList v-if="userListOnline.length > 0" :usersList="userListOnline" :isOffLine="false"/>
+      <hr class="seperator-user-online-offline" v-if="userListOnline.length > 0 && userListOffline.length > 0"/>
+      <BtnUserList v-if="userListOffline.length > 0" :usersList="userListOffline" :isOffLine="true"/>
     </div>
   </div>
 </template>
@@ -224,7 +151,7 @@ p {
   width: 90%;
   color: #fffed9;
   margin: auto;
-  margin-top: 2vh;
+  margin-top: 10px;
 }
 
 th {
@@ -249,5 +176,10 @@ th {
 
 th {
   padding: 5px;
+}
+
+.seperator-user-online-offline{
+  margin-bottom: 10px !important;
+  width: 150px !important;
 }
 </style>

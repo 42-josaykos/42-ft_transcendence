@@ -38,20 +38,20 @@ export class StatusGateway
   }
 
   handleConnection(@ConnectedSocket() client: Socket) {
-    this.logger.log(`Connection: ${client.id}`);
+    // this.logger.log(`Connection: ${client.id}`);
     this.server.to(client.id).emit('requestUserInfo', '');
   }
 
   handleDisconnect(@ConnectedSocket() client: Socket) {
-    this.logger.log(`Disconnect: ${client.id}`);
+    // this.logger.log(`Disconnect: ${client.id}`);
     const userIndex = this.connectedClients.findIndex(
       (connection) => connection.socketID.indexOf(client.id) !== -1,
     );
 
     // Should never append, but prevention is better than cure
     if (userIndex === -1) {
-      console.log('Client: ', client);
-      console.log('Connected Clients: ', this.connectedClients);
+      // console.log('Client: ', client);
+      // console.log('Connected Clients: ', this.connectedClients);
       throw new WsException('Disconnecting user was not found');
     }
 
@@ -106,10 +106,7 @@ export class StatusGateway
   }
 
   @SubscribeMessage('updateUser')
-  updateUser(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: User,
-  ) {
+  updateUser(@ConnectedSocket() client: Socket, @MessageBody() data: User) {
     for (const client of this.connectedClients) {
       const socketIds = client.socketID;
       for (const socketId of socketIds) {
