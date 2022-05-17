@@ -197,13 +197,13 @@ const addAdmin = () => {
           >
             SEND MESSAGE
           </button>
-            <button
-              @click="userClickBool = false; modaleOpenInviteGame = true;"
-              type="button"
-              class="btn-user-click my-2"
-            >
-              INVITE TO PLAY
-            </button>
+          <button v-if="userStore.IDInArray(userClick?.id, usersOnline)"
+            @click="userClickBool = false; modaleOpenInviteGame = true;"
+            type="button"
+            class="btn-user-click my-2"
+          >
+            INVITE TO PLAY
+          </button>
           <button
             @click="modalFriend = true; userClickBool = false"
             type="button" class="btn-user-click my-2">
