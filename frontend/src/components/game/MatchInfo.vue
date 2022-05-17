@@ -3,6 +3,7 @@ import { mapState } from "pinia";
 import { useUserStore } from "@/stores/user";
 export default {
 	name: "MatchInfo",
+  props: ["player_L", "player_R"],
 	data: function () {
 		return {
 			duo: {}, //duo[0] is LEFT, duo[1] is RIGHT
@@ -39,13 +40,21 @@ export default {
 </script>
 
 <template>
+  <!-- <div class="fb-player_score">
+    <div class="s1">
+    {{ this.player_L.score }}
+    </div>
+    <div class="s2">
+    {{ this.player_R.score }}
+    </div>
+  </div> -->
   <div class="fb-player_name">
     <div class="p1">
       <h1 v-if="you_lead">
         <img
             class="circular--square icon_navbar"
             style="width: 60px; height: 60px; object-fit: cover"
-            v-bind:src="this.loggedUser?.avatar"
+            v-bind:src="c.avatar"
             alt="Avatar"
         />
         YOU
@@ -80,8 +89,16 @@ export default {
       </h1>
     </div>
   </div>
+  <!-- <div class="fb-player_score">
+    <div class="s1">
+    {{ this.player_L.score }}
+    </div>
+    <div class="s2">
+    {{ this.player_R.score }}
+    </div>
+  </div> -->
 </template>
- 
+
 <style scoped>
  
 .fb-player_name{
@@ -91,7 +108,22 @@ export default {
   justify-content: space-between;
   margin-bottom: 10px;
 }
- 
+
+.fb-player_score{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+.info1 {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  margin-bottom: 10px;
+
+}
 .p1 {
   font-weight: bold;
   font-size: 40px;
@@ -118,6 +150,34 @@ export default {
   text-overflow: ellipsis;
   padding-left: 20px;
   padding-right: 20px;
+}
+
+.s1 {
+  font-weight: bold;
+  font-size: 100px;
+  order: 1;
+  color: #ffffff;
+  text-shadow: 0px 4px 15px #5ecef8, 0px 0px 10px #5ecef8;
+  max-width: 50%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 50px;
+  padding-right: 50px;
+}
+
+.s2 {
+  font-weight: bold;
+  font-size: 100px;
+  order: 2;
+  color: #ffffff;
+  text-shadow: 0px 4px 15px #ff83ba, 0px 0px 10px #ff83ba;
+  max-width: 50%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 50px;
+  padding-right: 50px;
 }
  
 </style>

@@ -209,7 +209,7 @@ export default {
       this.drawPlayerLeft(this.getPaddle);
       this.drawPlayerRight(this.getPaddle);
       this.drawBall();
-      this.drawScore(this.player_L, this.player_R);
+      // this.drawScore(this.player_L, this.player_R);
       return;
     },
     drawPlayerLeft: function (paddle) {
@@ -295,7 +295,10 @@ export default {
   <Navbar style="position: absolute;" componentName="Pong"/>
   <div class="container">
     <div class="pong-set" style="top: 15%; left: 25%; max-width: 1000px; max-height:600px;">
-      <matchinfo></matchinfo>
+      <matchinfo
+        v-bind:player_L="player_L"
+        v-bind:player_R="player_R">
+      </matchinfo>
       <div class="pong-game">
         <canvas
           ref="pong"
@@ -305,6 +308,14 @@ export default {
           :height="canvas.h"
         >
         </canvas>
+      </div>
+      <div class="fb-player_score">
+        <div class="s1">
+          {{ this.player_L.score }}
+        </div>
+        <div class="s2">
+          {{ this.player_R.score }}
+        </div>
       </div>
     </div>
   </div>
@@ -331,4 +342,40 @@ export default {
   align-items: center;
   min-width: 75%;
 }
+
+.fb-player_score{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+.s1 {
+  font-weight: bold;
+  font-size: 160px;
+  order: 1;
+  color: #ffffff;
+  text-shadow: 0px 4px 15px #5ecef8, 0px 0px 10px #5ecef8;
+  max-width: 50%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 120px;
+  padding-right: 120px;
+}
+
+.s2 {
+  font-weight: bold;
+  font-size: 160px;
+  order: 2;
+  color: #ffffff;
+  text-shadow: 0px 4px 15px #ff83ba, 0px 0px 10px #ff83ba;
+  max-width: 50%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 120px;
+  padding-right: 120px;
+}
+ 
 </style>
