@@ -16,7 +16,7 @@ import axios from 'axios';
 import User from 'src/api/users/entities/user.entity';
 import { Connection } from 'src/status/status.class';
 import { GameService } from './game.service';
-import { Game, Player, Invites } from 'src/game/game.class';
+import { Game, Player, Invites, GameOptions } from 'src/game/game.class';
 import { use } from 'passport';
 
 @WebSocketGateway({
@@ -38,6 +38,8 @@ export class GameGateway
   private connectedClients: Connection[] = [];
   private queue: Connection[] = [];
   private invites: Invites[] = [];
+
+  private matchmakingOptions: GameOptions = { paddleSize: 2, ballSpeed: 3 };
 
   afterInit(server: any) {
     this.logger.log('Game gateway is initialized');
@@ -106,6 +108,7 @@ export class GameGateway
 
     // Start a game if there is at least 2 players in the queue waiting
     while (this.queue.length >= 2) {
+      const gameOptions = { paddleSize: 2, ballSpeed: 3 };
       // Remove players from queue
       const playerOne: Player = { player: this.queue.shift() };
       const playerTwo: Player = { player: this.queue.shift() };
@@ -117,6 +120,7 @@ export class GameGateway
         this.setupAndStartGame(
           { ...playerOne },
           { ...playerTwo },
+          this.matchmakingOptions,
           'startGame',
           5000,
         );
@@ -127,6 +131,7 @@ export class GameGateway
   setupAndStartGame(
     playerOne: Player,
     playerTwo: Player,
+    gameOptions: GameOptions,
     startGameEvent: string,
     startTimeout: number,
   ) {
@@ -147,7 +152,7 @@ export class GameGateway
     setTimeout(
       (playerOne, playerTwo) => {
         // Create and start game
-        this.gameService.createGame(playerOne, playerTwo, this.server);
+        this.gameService.createGame(playerOne, playerTwo, gameOptions);
 
         // Emit live games to clients
         this.server.emit('liveGames', this.getOngoingGames());
@@ -280,7 +285,7 @@ export class GameGateway
       this.server.to(game.socketRoom).emit('endGame');
       this.server.emit('liveGames', this.getOngoingGames());
       this.server.emit('askStatsUpdate');
-      this.server.emit('sendInGameUsers');
+      this.sendInGameUsers();
 
       // Make the players / spectators leave the room
       this.server.to(game.socketRoom).socketsLeave(game.socketRoom);
@@ -391,6 +396,7 @@ export class GameGateway
       this.setupAndStartGame(
         { ...playerOne },
         { ...playerTwo },
+        this.matchmakingOptions,
         'startGameInvite',
         10000,
       );

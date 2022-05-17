@@ -24,7 +24,6 @@ export class GameService implements OnModuleInit {
 
   private gameID = 0;
   private games: Game[] = [];
-  private options: GameOptions = { paddleSize: 2, ballSpeed: 3 };
   private readonly canvas: Canvas = {
     h: 600,
     w: 1000,
@@ -55,16 +54,17 @@ export class GameService implements OnModuleInit {
   }
 
   // Main game code
-  createGame(playerOne: Player, playerTwo: Player, socket: Server) {
+  createGame(playerOne: Player, playerTwo: Player, gameOptions: GameOptions) {
     // Create and start game
-    playerOne = this.initNewPlayerOne(playerOne.player);
-    playerTwo = this.initNewPlayerTwo(playerTwo.player);
-    const newBall = this.initNewBall();
+    playerOne = this.initNewPlayerOne(playerOne.player, gameOptions);
+    playerTwo = this.initNewPlayerTwo(playerTwo.player, gameOptions);
+    const newBall = this.initNewBall(gameOptions);
     const events = this.initEvents();
 
     const roomName = `${playerOne.player.user.id}-${playerTwo.player.user.id}`;
     let game: Game = {
       id: this.gameID++,
+      options: gameOptions,
       players: [playerOne, playerTwo],
       ball: newBall,
       events: events,
@@ -156,7 +156,7 @@ export class GameService implements OnModuleInit {
     }
 
     // Setting new ball direction
-    game.ball = this.initNewBall();
+    game.ball = this.initNewBall(game.options);
     return game;
   }
 
@@ -282,9 +282,9 @@ export class GameService implements OnModuleInit {
   }
 
   // Game components initialization
-  initNewPaddle(): Paddle {
+  initNewPaddle(gameOptions: GameOptions): Paddle {
     const paddleHeight =
-      (0.2 + (this.options.paddleSize - 1) * 0.05) * this.canvas.h;
+      (0.2 + (gameOptions.paddleSize - 1) * 0.05) * this.canvas.h;
     const paddleWidth = 0.2 * 0.2 * this.canvas.h;
     const paddleSpeed = 0.05 * (this.canvas.h / 2 - paddleHeight / 2);
 
@@ -297,12 +297,12 @@ export class GameService implements OnModuleInit {
     return newPaddle;
   }
 
-  initNewBall(): Ball {
-    const paddle = this.initNewPaddle();
+  initNewBall(gameOptions: GameOptions): Ball {
+    const paddle = this.initNewPaddle(gameOptions);
     const ballX = this.canvas.w / 2;
     const ballY = this.canvas.h / 2;
     const ballSize = paddle.w / 2;
-    const ballSpeed = 5 * (1 + (this.options.ballSpeed * 2) / 10);
+    const ballSpeed = 5 * (1 + (gameOptions.ballSpeed * 2) / 10);
 
     // Giving the new ball a random direction (left / right and angle)
     const randDirectionX = Math.round(Math.random());
@@ -325,8 +325,8 @@ export class GameService implements OnModuleInit {
     return newBall;
   }
 
-  initNewPlayerOne(user: Connection): Player {
-    const paddle = this.initNewPaddle();
+  initNewPlayerOne(user: Connection, gameOptions: GameOptions): Player {
+    const paddle = this.initNewPaddle(gameOptions);
     const playerX = this.canvas.bound;
     const playerY = this.canvas.h / 2 - paddle.h / 2;
 
@@ -342,8 +342,8 @@ export class GameService implements OnModuleInit {
     return playerOne;
   }
 
-  initNewPlayerTwo(user: Connection): Player {
-    const paddle = this.initNewPaddle();
+  initNewPlayerTwo(user: Connection, gameOptions: GameOptions): Player {
+    const paddle = this.initNewPaddle(gameOptions);
     const playerX = this.canvas.w - this.canvas.bound - paddle.w;
     const playerY = this.canvas.h / 2 - paddle.h / 2;
 
