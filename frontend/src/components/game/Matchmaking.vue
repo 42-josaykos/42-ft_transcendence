@@ -20,7 +20,6 @@ export default {
 
 <template>
   <section class="matchmaking">
-    <h2>Matchmaking</h2>
     <section class="pong-game">
       <pong
         v-bind:revelePlay="revelePlay"
@@ -31,4 +30,8 @@ export default {
   </section>
 </template>
 
-<style></style>
+<style>
+.pong-game {
+  min-height: 0%;
+}
+</style>

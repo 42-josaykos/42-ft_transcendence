@@ -23,7 +23,7 @@ const channelStore = useChannelStore();
 const { channel, usersMembers, arrayTime } = storeToRefs(channelStore);
 
 const messageStore = useMessageStore();
-const { stringSendMessage, modalSendMessage } = storeToRefs(messageStore);
+const { modalSendMessage } = storeToRefs(messageStore);
 
 const userClickBool = ref<boolean>(false);
 const modalAdmin = ref<boolean>(false);
@@ -142,13 +142,11 @@ const addAdmin = () => {
 <template>
   <div v-if="channel != undefined">
     <div class="horizontal-line-bottom d-grid">
-      <div v-if="channelStore.isAdmin(channel, loggedUser?.id)" class="wrapper-btn-friends">
+      <div v-if="channelStore.isAdmin(channel, loggedUser?.id) && !channel.isDirectChannel" class="wrapper-btn-friends">
         <BansMutesButton @removeBan="removeBanMute(true)" @removeMute="removeBanMute(false)"/>
       </div>
     </div>
     <div class="scrollspy-example mb-5 px-2 py-2" style="min-height: 80vh">
-
-      <!-- <div v-if="channel != undefined"> -->
       <div v-if="usersMembers" class="ps-2">
         <span class="d-flex mb-3">
           <span class="horizontal-line-center"></span>
@@ -182,22 +180,6 @@ const addAdmin = () => {
             />
           </div>
         </span>
-        <!-- <span class="d-flex my-3">
-          <span class="horizontal-line-center"></span>
-            Ban - {{numberUsersBan}}
-          <span class="horizontal-line-center"></span>
-        </span>
-        <span v-for="user in usersMembers" :key="user.id">
-          <div v-if="channelStore.isBan(channel, user.id)" class="list-group">
-            <BtnUserCard
-              :user="user"
-              @open="
-                userClickBool = true;
-                userClick = user;
-              "
-            />
-          </div>
-        </span> -->
       </div>
     </div>
   </div>
