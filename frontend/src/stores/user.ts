@@ -8,6 +8,8 @@ import { computed } from "vue";
 export const useUserStore = defineStore("user", () => {
   const users = ref<User[]>([]);
   const usersOnline = ref<Number[]>([]);
+  const usersInQueue = ref<User[]>([]);
+  const usersInGame = ref<User[]>([]);
   const loggedUser = ref<User | undefined>();
   const gameSocket = ref<Socket>();
   const isAuthenticated = ref(false);
@@ -22,6 +24,18 @@ export const useUserStore = defineStore("user", () => {
   const leaderboard = ref<any>([]);
 
   const modaleOpenInviteGame = ref<boolean>(false);
+
+  const IDInArray = (id: any, array: any[]) => {
+    const index = array.findIndex((arrayValue: any) => id == arrayValue);
+    if (index === -1) return false;
+    else return true;
+  };
+
+  const valueInArray = (value: any, array: any[]) => {
+    const index = array.findIndex((arrayValue: any) => value == arrayValue.id);
+    if (index === -1) return false;
+    else return true;
+  };
 
   const createUser = (newUser: User) => {
     users.value.push(newUser);
@@ -91,6 +105,8 @@ export const useUserStore = defineStore("user", () => {
     users,
     loggedUser,
     usersOnline,
+    usersInQueue,
+    usersInGame,
     isAuthenticated,
     socketChat,
     statusSocket,
@@ -113,6 +129,8 @@ export const useUserStore = defineStore("user", () => {
     addUserFriend,
     removeUserFriend,
     initUserClick,
+    IDInArray,
+    valueInArray,
     isMyProfile,
   };
 });

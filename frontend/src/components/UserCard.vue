@@ -4,7 +4,7 @@ import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
 
 const userStore = useUserStore();
-const { usersOnline } = storeToRefs(userStore);
+const { usersOnline, usersInQueue, usersInGame } = storeToRefs(userStore);
 
 const props = defineProps({
   user: Object,
@@ -13,14 +13,32 @@ const props = defineProps({
 });
 
 const isOnlineBool = ref<boolean>(false);
+const isInQueue = ref<boolean>(false);
+const isInGame = ref<boolean>(false);
 
 const isOnline = computed(() => {
+  let status = "Offline";
+
+  // Online status
   if (usersOnline.value.findIndex((el: Number) => el == props.user?.id) == -1) {
     isOnlineBool.value = false;
-    return "Offline";
+    status = "Offline";
+  } else {
+    isOnlineBool.value = true;
+    status = "Online";
+    // If in Queue
+    if (userStore.valueInArray(props.user?.id, usersInQueue.value)) {
+      isInQueue.value = true;
+      status = "In Queue";
+    } else isInQueue.value = false;
+    // If in Game
+    if (userStore.valueInArray(props.user?.id, usersInGame.value)) {
+      isInGame.value = true;
+      status = "In Game";
+    } else isInGame.value = false;
   }
-  isOnlineBool.value = true;
-  return "Online";
+
+  return status;
 });
 </script>
 

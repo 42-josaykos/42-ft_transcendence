@@ -44,7 +44,7 @@ export class GameGateway
   }
 
   handleConnection(@ConnectedSocket() client: Socket) {
-    this.logger.log(`Connection: ${client.id}`);
+    // this.logger.log(`Connection: ${client.id}`);
     this.server.to(client.id).emit('requestGameUserInfo', '');
   }
 
@@ -68,7 +68,7 @@ export class GameGateway
   }
 
   handleDisconnect(@ConnectedSocket() client: Socket) {
-    this.logger.log(`Disconnect: ${client.id}`);
+    // this.logger.log(`Disconnect: ${client.id}`);
     const userIndex = this.connectedClients.findIndex(
       (connection) => connection.socketID.indexOf(client.id) !== -1,
     );
@@ -101,6 +101,7 @@ export class GameGateway
   ) {
     // Adding player to queue
     this.queue.push(this.gameService.getUser(this.connectedClients, data));
+    this.server.emit('inQueueUsers', this.sendInQueueUsers());
     // console.log('queue: ', this.queue);
 
     // Start a game if there is at least 2 players in the queue waiting
@@ -111,12 +112,15 @@ export class GameGateway
       // console.log('playerOne: ', playerOne);
       // console.log('playerTwo: ', playerTwo);
 
-      this.setupAndStartGame(
-        { ...playerOne },
-        { ...playerTwo },
-        'startGame',
-        5000,
-      );
+      if (playerOne.player.user.id !== playerTwo.player.user.id) {
+        this.server.emit('inQueueUsers', this.sendInQueueUsers());
+        this.setupAndStartGame(
+          { ...playerOne },
+          { ...playerTwo },
+          'startGame',
+          5000,
+        );
+      }
     }
   }
 
@@ -128,14 +132,11 @@ export class GameGateway
   ) {
     // Create a socket room, and make ALL player's sockets join
     const roomName = `${playerOne.player.user.id}-${playerTwo.player.user.id}`;
-    this.joinRoom(roomName, [
-      ...this.connectedClients.find(
-        (client) => client.user.id === playerOne.player.user.id,
-      ).socketID,
-      ...this.connectedClients.find(
-        (client) => client.user.id === playerTwo.player.user.id,
-      ).socketID,
-    ]);
+    this.addSocketsToRoom(
+      playerOne.player.user,
+      playerTwo.player.user,
+      roomName,
+    );
 
     // Send startGame event to clients
     this.server
@@ -207,8 +208,9 @@ export class GameGateway
 
   // SocketIO room managment
   joinRoom(roomName: string, socketIDs: string[]) {
-    for (const socketID of socketIDs)
-      this.server.to(socketID).socketsJoin(roomName);
+    if (socketIDs)
+      for (const socketID of socketIDs)
+        this.server.to(socketID).socketsJoin(roomName);
   }
 
   leaveRoom(roomName: string, socketIDs: string[]) {
@@ -220,6 +222,22 @@ export class GameGateway
     for (const socket of socketID) {
       this.server.to(socket).emit(event, data);
     }
+  }
+
+  addSocketsToRoom(playerOne: User, playerTwo: User, socketRoom: string) {
+    const playerOneConnection = this.connectedClients.find(
+      (client) => client.user.id === playerOne.id,
+    );
+    const playerTwoConnection = this.connectedClients.find(
+      (client) => client.user.id === playerTwo.id,
+    );
+
+    let playerOneSockets = [];
+    let playerTwoSockets = [];
+    if (playerOneConnection) playerOneSockets = playerOneConnection.socketID;
+    if (playerTwoConnection) playerTwoSockets = playerTwoConnection.socketID;
+
+    this.joinRoom(socketRoom, [...playerOneSockets, ...playerTwoSockets]);
   }
 
   sendGameUpdate(game: Game) {
@@ -262,6 +280,7 @@ export class GameGateway
       this.server.to(game.socketRoom).emit('endGame');
       this.server.emit('liveGames', this.getOngoingGames());
       this.server.emit('askStatsUpdate');
+      this.server.emit('sendInGameUsers');
 
       // Make the players / spectators leave the room
       this.server.to(game.socketRoom).socketsLeave(game.socketRoom);
@@ -292,6 +311,7 @@ export class GameGateway
     }
   }
 
+  // Invite handling
   @SubscribeMessage('getInvitesGame')
   getInvites(@ConnectedSocket() client: Socket, @MessageBody() user: User) {
     const indexInvites = this.invites.findIndex(
@@ -348,7 +368,6 @@ export class GameGateway
     }
   }
 
-  // Invite handling
   @SubscribeMessage('acceptInviteToGame')
   async handleInvite(
     @ConnectedSocket() client: Socket,
@@ -383,7 +402,6 @@ export class GameGateway
 
   removeGameInvite(userInvite: Connection, userGuest: Connection) {
     // Find guest
-    console.log('invites: ', this.invites);
     const guestIndex = this.invites.findIndex(
       (guest) => guest.user.user.id === userGuest.user.id,
     );
@@ -408,5 +426,37 @@ export class GameGateway
           this.invites.splice(guestIndex, 1);
       }
     }
+  }
+
+  // Determine if user is in queue
+  @SubscribeMessage('inQueueUsers')
+  inQueueUsers(@ConnectedSocket() client: Socket) {
+    const inQueueUsers: User[] = this.queue.map(
+      (connection) => connection.user,
+    );
+
+    this.server.to(client.id).emit('inQueueUsers', inQueueUsers);
+  }
+
+  sendInQueueUsers() {
+    const inQueueUsers: User[] = this.queue.map(
+      (connection) => connection.user,
+    );
+
+    this.server.emit('inQueueUsers', inQueueUsers);
+  }
+
+  // Determine if user is in game
+  @SubscribeMessage('inGameUsers')
+  isInGame(@ConnectedSocket() client: Socket) {
+    const inGameUsers = this.gameService.inGameUsers();
+
+    this.server.to(client.id).emit('inGameUsers', inGameUsers);
+  }
+
+  sendInGameUsers() {
+    const inGameUsers = this.gameService.inGameUsers();
+
+    this.server.emit('inGameUsers', inGameUsers);
   }
 }

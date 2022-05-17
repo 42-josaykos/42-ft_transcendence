@@ -92,7 +92,7 @@ const waiting = ref<boolean>(false);
           v-if="componentName === 'Home' || componentName === 'Chat'"
           class="d-flex justify-content-center my-2 mx-2"
         >
-          <Queue @queueWaiting="waiting = !waiting" />
+          <Queue @enterQueue="waiting = true" @leaveQueue="waiting = false" />
         </span>
       </div>
       <div style="text-align: end; color: hsl(317 100% 54%)" v-if="waiting">
@@ -116,7 +116,10 @@ const waiting = ref<boolean>(false);
 
   <ModalMessage v-if="modalSendMessage == true" />
 
-  <ModaleInviteGame v-if="modaleOpenInviteGame" @close="modaleOpenInviteGame = false"/>
+  <ModaleInviteGame
+    v-if="modaleOpenInviteGame"
+    @close="modaleOpenInviteGame = false"
+  />
 </template>
 
 <style scoped>
