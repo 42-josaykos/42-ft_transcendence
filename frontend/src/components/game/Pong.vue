@@ -314,12 +314,12 @@ export default {
       </div>
     </div>
   </div>
-  <!-- <modaleresult
+  <modaleresult
     v-if="endgame"
     v-bind:player_L="player_L"
     v-bind:player_R="player_R"
   >
-  </modaleresult> -->
+  </modaleresult>
 </template>
 
 <style scoped>

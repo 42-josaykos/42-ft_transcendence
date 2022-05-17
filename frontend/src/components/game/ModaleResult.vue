@@ -45,10 +45,17 @@ export default {
         <div class="bloc_modale_result">
             <div class="overlay_result" @click="active_result = false"></div>
             <div class="modale_result card" @click="active_result = false">
-                <span v-if="this.result" class="shiny">
+                <!-- <span v-if="this.result" class="shiny">
                     <span class="inner-shiny">YOU WIN</span>
+                </span> -->
+                <span v-if="this.result" class="glitch win">
+                   <span aria-hidden="true">YOU WIN</span>
+                    YOU WIN
+                    <span aria-hidden="true">YOU WIN</span>
                 </span>
-                <p v-else class="glitch">
+
+
+                <p v-else class="glitch loose">
                     <span aria-hidden="true">YOU LOOSE</span>
                     YOU LOOSE
                     <span aria-hidden="true">YOU LOOSE</span>
@@ -59,7 +66,7 @@ export default {
 </template>
  
 <style scoped>
-.shiny
+/* .shiny
 {
     color: #F5C21B;
     background: -webkit-gradient(linear, left top, left bottom, from(#F5C21B), to(#D17000));
@@ -71,9 +78,9 @@ export default {
     font-weight: 900;
     position: relative;
     text-transform: uppercase;
-}
+} */
  
-.shiny::before
+/* .shiny::before
 {
     background-position: -180px;
     -webkit-animation: flare 5s infinite;
@@ -81,26 +88,26 @@ export default {
     background-image: linear-gradient(65deg, transparent 20%, rgba(255, 255, 255, 0.2) 20%, rgba(255, 255, 255, 0.3) 27%, transparent 27%, transparent 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    /* content: "YOU WIN"; */
+    content: "YOU WIN";
     white-space: pre-line;
     color: #FFF;
     display: block;
     padding-right: 140px;
     position: absolute;
-}
+} */
  
-.shiny::after
+/* .shiny::after
 {
-    /* content: "YOU WIN"; */
+    content: "YOU WIN";
     color: #FFF;
     display: block;
     position: absolute;
     text-shadow: 0 1px #6E4414, 0 2px #6E4414, 0 3px #6E4414, 0 4px #6E4414, 0 5px #6E4414, 0 6px #6E4414, 0 7px #6E4414, 0 8px #6E4414, 0 9px #6E4414, 0 10px #6E4414;
     top: 0;
     z-index: -1;
-}
+} */
  
-.inner-shiny::after, .inner-shiny::before
+/* .inner-shiny::after, .inner-shiny::before
 {
     -webkit-animation: sparkle 2s infinite;
     -webkit-animation-timing-function: linear;
@@ -113,22 +120,22 @@ export default {
     opacity: 0.7;
     position: absolute;
     width: 10px;
-}
+} */
  
-.inner-shiny::before
+/* .inner-shiny::before
 {
     -webkit-animation-delay: 0.2s;
     height: 7px;
     left: 0.12em;
     top: 0.8em;
     width: 7px;
-}
+} */
  
-.inner-shiny::after
+/* .inner-shiny::after
 {
     top: 0.32em;
     right: -5px;
-}
+} */
  
 @-webkit-keyframes flare
 {
@@ -145,9 +152,10 @@ export default {
     60% { opacity: 0; }
     100% { opacity: 0; }
 }
+
 .glitch{
     color: white;
-        font-size: 7rem;
+        font-size: 5rem;
         font-weight: bold;
         text-transform: uppercase;
         position: relative;
