@@ -45,7 +45,6 @@ socketChat.value?.emit("getUserFriends", loggedUser.value);
 // User list online without logged user
 const userListOnline = computed(() => {
   return users.value.filter((value) => 
-    value.id !== loggedUser.value?.id &&
     usersOnline.value.findIndex((id) => id == value.id) != -1
   ).sort((a, b) => (a.username.toLowerCase() > b.username.toLowerCase()) ? 1 : -1)
 });
@@ -53,7 +52,6 @@ const userListOnline = computed(() => {
 // User list without logged user
 const userListOffline = computed(() => {
   return users.value.filter((value) => 
-    value.id !== loggedUser.value?.id &&
     usersOnline.value.findIndex((id) => id == value.id) == -1
   ).sort((a, b) => (a.username.toLowerCase() > b.username.toLowerCase()) ? 1 : -1)
 });
@@ -70,9 +68,9 @@ const userListOffline = computed(() => {
       </div>
       <hr />
       <br />
-      <BtnUserList v-if="userListOnline.length > 0" :usersList="userListOnline"/>
-      <hr v-if="userListOnline.length > 0 && userListOffline.length > 0"/>
-      <BtnUserList v-if="userListOffline.length > 0" :usersList="userListOffline"/>
+      <BtnUserList v-if="userListOnline.length > 0" :usersList="userListOnline" :isOffLine="false"/>
+      <hr class="seperator-user-online-offline" v-if="userListOnline.length > 0 && userListOffline.length > 0"/>
+      <BtnUserList v-if="userListOffline.length > 0" :usersList="userListOffline" :isOffLine="true"/>
     </div>
   </div>
 </template>
@@ -150,7 +148,7 @@ p {
   width: 90%;
   color: #fffed9;
   margin: auto;
-  margin-top: 2vh;
+  margin-top: 10px;
 }
 
 th {
@@ -175,5 +173,10 @@ th {
 
 th {
   padding: 5px;
+}
+
+.seperator-user-online-offline{
+  margin-bottom: 10px !important;
+  width: 150px !important;
 }
 </style>
