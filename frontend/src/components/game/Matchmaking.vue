@@ -35,4 +35,7 @@ props: ["revelePlay", "toggleModaleSettings", "launch"]
 .pong-game {
   min-height: 0%;
 }
+.matchmaking {
+  min-height: 100vh;
+}
 </style>

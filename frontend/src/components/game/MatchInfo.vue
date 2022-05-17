@@ -40,21 +40,13 @@ export default {
 </script>
 
 <template>
-  <!-- <div class="fb-player_score">
-    <div class="s1">
-    {{ this.player_L.score }}
-    </div>
-    <div class="s2">
-    {{ this.player_R.score }}
-    </div>
-  </div> -->
   <div class="fb-player_name">
     <div class="p1">
       <h1 v-if="you_lead">
         <img
             class="circular--square icon_navbar"
             style="width: 60px; height: 60px; object-fit: cover"
-            v-bind:src="c.avatar"
+            v-bind:src="this.loggedUser?.avatar"
             alt="Avatar"
         />
         YOU
@@ -89,14 +81,6 @@ export default {
       </h1>
     </div>
   </div>
-  <!-- <div class="fb-player_score">
-    <div class="s1">
-    {{ this.player_L.score }}
-    </div>
-    <div class="s2">
-    {{ this.player_R.score }}
-    </div>
-  </div> -->
 </template>
 
 <style scoped>
@@ -109,21 +93,21 @@ export default {
   margin-bottom: 10px;
 }
 
-.fb-player_score{
+/* .fb-player_score{
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: center;
   margin-bottom: 10px;
-}
-.info1 {
+} */
+/* .info1 {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: space-between;
   margin-bottom: 10px;
 
-}
+} */
 .p1 {
   font-weight: bold;
   font-size: 40px;
@@ -152,7 +136,7 @@ export default {
   padding-right: 20px;
 }
 
-.s1 {
+/* .s1 {
   font-weight: bold;
   font-size: 100px;
   order: 1;
@@ -178,6 +162,6 @@ export default {
   text-overflow: ellipsis;
   padding-left: 50px;
   padding-right: 50px;
-}
+} */
  
 </style>

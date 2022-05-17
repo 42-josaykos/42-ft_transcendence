@@ -109,14 +109,9 @@ export default {
         this.endgame = !this.endgame
       }
       console.log("after : ", this.endgame);
-
-      // clearInterval(this.intervalID);
-      // this.router.push("/debug");
-      // this.router.push("/");
-      
-     setTimeout(() => {
-      this.router.push("/");
-     }, 5000);
+    //  setTimeout(() => {
+    //   this.router.push("/");
+    //  }, 5000);
     });
     // ##########################################################################
 
@@ -257,22 +252,22 @@ export default {
       }
       return;
     },
-    drawScore: function (leftPlayer, rightPlayer) {
-      let canvas = document.getElementById("pong");
-      if (canvas.getContext) {
-        let context = canvas.getContext("2d");
-        let size = 0.2 * this.canvas.h;
-        context.font = size + "px Impact";
-        let xLeft = this.canvas.w / 4;
-        let xRight = (3 * this.canvas.w) / 4 - size / 2;
+    // drawScore: function (leftPlayer, rightPlayer) {
+    //   let canvas = document.getElementById("pong");
+    //   if (canvas.getContext) {
+    //     let context = canvas.getContext("2d");
+    //     let size = 0.2 * this.canvas.h;
+    //     context.font = size + "px Impact";
+    //     let xLeft = this.canvas.w / 4;
+    //     let xRight = (3 * this.canvas.w) / 4 - size / 2;
 
-        context.fillStyle = "#5ECEF8";//"#FFF961";
-        context.fillText(leftPlayer.score, xLeft, this.canvas.h / 5);
-        context.fillStyle = "#FF83BA";//"#FFF961";
-        context.fillText(rightPlayer.score, xRight, this.canvas.h / 5);
-      }
-      return;
-    },
+    //     context.fillStyle = "#5ECEF8";//"#FFF961";
+    //     context.fillText(leftPlayer.score, xLeft, this.canvas.h / 5);
+    //     context.fillStyle = "#FF83BA";//"#FFF961";
+    //     context.fillText(rightPlayer.score, xRight, this.canvas.h / 5);
+    //   }
+    //   return;
+    // },
     //  Keyboard Event Management
     //  ##########################################################################
     getKeyDown: function (e) {
@@ -319,19 +314,26 @@ export default {
       </div>
     </div>
   </div>
-  <modaleresult
+  <!-- <modaleresult
     v-if="endgame"
     v-bind:player_L="player_L"
     v-bind:player_R="player_R"
   >
-  </modaleresult>
+  </modaleresult> -->
 </template>
 
 <style scoped>
+
+.full-height {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0vh;
+}
 .pong-game {
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  /* min-height: 100vh; */
 }
 .pong {
   background: #0c2039;
@@ -350,7 +352,8 @@ export default {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  justify-content: center;
+  /* justify-content: center; */
+  justify-content: space-between;
   margin-bottom: 10px;
 }
 .s1 {
