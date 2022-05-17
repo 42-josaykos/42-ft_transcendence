@@ -258,6 +258,7 @@ export class GameGateway
         score: game.players[1].score,
       },
       ball: { x: game.ball.x, y: game.ball.y, size: game.ball.size },
+      options: game.options,
       events: game.events,
     };
 
@@ -331,12 +332,12 @@ export class GameGateway
   }
 
   @SubscribeMessage('addInvite')
-  addInvite(@ConnectedSocket() client: Socket, @MessageBody() players: User[]) {
+  addInvite(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
     const userWhoInvites = this.connectedClients.find(
-      (connection) => connection.user.id === players[0].id,
+      (connection) => connection.user.id === data.playerOne.id,
     );
     const guestUser = this.connectedClients.find(
-      (connection) => connection.user.id === players[1].id,
+      (connection) => connection.user.id === data.playerTwo.id,
     );
 
     if (guestUser) {
@@ -348,11 +349,17 @@ export class GameGateway
         guestIndex =
           this.invites.push({
             user: guestUser,
-            invitesReceived: [userWhoInvites],
+            invitesReceived: [
+              { sender: userWhoInvites, gameOptions: data.options },
+            ],
           }) - 1;
       }
       // If it already exists, push the new invites
-      else this.invites[guestIndex].invitesReceived.push(userWhoInvites);
+      else
+        this.invites[guestIndex].invitesReceived.push({
+          sender: userWhoInvites,
+          gameOptions: data.options,
+        });
 
       // Send updated invites list
       this.emitToSockets(
@@ -387,6 +394,15 @@ export class GameGateway
       players[1],
     );
 
+    const inviteGuest = this.invites.find(
+      (invite) => invite.user.user.id === userGuest.user.id,
+    );
+
+    const options = inviteGuest.invitesReceived.find(
+      (invite) => invite.sender.user.id === userInvite.user.id,
+    ).gameOptions;
+    console.log('options: ', options);
+
     // If user are still connected
     if (userInvite && userGuest) {
       const playerOne: Player = { player: userInvite };
@@ -396,7 +412,7 @@ export class GameGateway
       this.setupAndStartGame(
         { ...playerOne },
         { ...playerTwo },
-        this.matchmakingOptions,
+        options,
         'startGameInvite',
         10000,
       );
@@ -414,7 +430,7 @@ export class GameGateway
     if (guestIndex != -1) {
       // Find invite
       const indexInvite = this.invites[guestIndex].invitesReceived.findIndex(
-        (invite) => invite.user.id === userInvite.user.id,
+        (invite) => invite.sender.user.id === userInvite.user.id,
       );
       if (indexInvite != -1) {
         // Remove invite

@@ -75,5 +75,10 @@ export class Sound {
 
 export class Invites {
   user: Connection;
-  invitesReceived: Connection[];
+  invitesReceived: GameInvite[];
+}
+
+export class GameInvite {
+  sender: Connection;
+  gameOptions: GameOptions;
 }
