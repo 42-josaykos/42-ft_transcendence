@@ -38,12 +38,12 @@ const isFriend = (user: User): boolean => {
     <tr v-for="player in props.usersList" :key="player.id">
       <!-- User -->
       <td style="width: 50%">
-        <UserCard :user="player" :dashboard="true" />
+        <UserCard :user="player" :dashboard="true" :profile="true"/>
       </td>
         <!-- Profile -->
       <td>
         <a v-if="player.id != loggedUser?.id"
-          class="hovertext"
+          class="hovertext hovertextC"
           data-hover="Profile"
           href="#"
           @click="
@@ -58,7 +58,7 @@ const isFriend = (user: User): boolean => {
       <!-- Send message -->
       <td>
         <a v-if="player.id != loggedUser?.id"
-          class="hovertext"
+          class="hovertext hovertextC"
           data-hover="Send message"
           href="#"
           @click="
@@ -72,7 +72,7 @@ const isFriend = (user: User): boolean => {
       <!-- Invite to a game -->
       <td>
         <a v-if="props.isOffLine == false && player.id != loggedUser?.id"
-          class="hovertext"
+          class="hovertext hovertextC"
           data-hover="Invite to game"
           href="#"
           @click="
@@ -86,7 +86,7 @@ const isFriend = (user: User): boolean => {
       <!-- Add friend -->
       <td v-if="!isFriend(player)">
         <a v-if="player.id != loggedUser?.id"
-          class="hovertext"
+          class="hovertext hovertextL"
           data-hover="Add friend"
           href="#"
           @click="
@@ -102,7 +102,7 @@ const isFriend = (user: User): boolean => {
       <!-- Remove friend -->
       <td v-else>
         <a v-if="player.id != loggedUser?.id"
-          class="hovertext"
+          class="hovertext hovertextL"
           data-hover="Remove friend"
           href="#"
           @click="
@@ -146,6 +146,12 @@ const isFriend = (user: User): boolean => {
 .hovertext:hover:before {
   opacity: 1;
   visibility: visible;
+}
+.hovertextL:before {
+  left: -120px;
+}
+.hovertextC:before {
+  left: -60px;
 }
 
 p {

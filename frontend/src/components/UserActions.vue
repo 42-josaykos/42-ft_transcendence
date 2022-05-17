@@ -29,7 +29,7 @@ const { modalSendMessage } = storeToRefs(messageStore);
 <template>
   <div class="d-flex" style="align-items: center">
     <div class="px-3">
-      <UserCard :user="props.user" :dashboard="true" />
+      <UserCard :user="props.user" :dashboard="true" :profile="false"/>
     </div>
     <div class="ms-auto px-2" style="width: 500px">
       <button

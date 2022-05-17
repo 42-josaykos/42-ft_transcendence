@@ -157,6 +157,7 @@ const addAdmin = () => {
           <div v-if="isOnline(user) && !channelStore.isBan(channel, user.id)" class="list-group">
             <BtnUserCard
               :user="user"
+              :profile="false"
               @open="
                 userClickBool = true;
                 userClick = user;
@@ -173,6 +174,7 @@ const addAdmin = () => {
           <div v-if="!isOnline(user) && !channelStore.isBan(channel, user.id)" class="list-group">
             <BtnUserCard
               :user="user"
+              :profile="false"
               @open="
                 userClickBool = true;
                 userClick = user;
