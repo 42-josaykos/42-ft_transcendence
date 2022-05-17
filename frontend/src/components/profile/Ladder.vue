@@ -188,7 +188,7 @@ getPlayersStats();
   width: 90%;
   color: #fffed9;
   margin: auto;
-  margin-top: 2vh;
+  margin-top: 10px;
 }
 
 th {

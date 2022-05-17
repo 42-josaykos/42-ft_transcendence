@@ -30,4 +30,8 @@ export default {
   </section>
 </template>
 
-<style></style>
+<style>
+.pong-game {
+  min-height: 0%;
+}
+</style>
