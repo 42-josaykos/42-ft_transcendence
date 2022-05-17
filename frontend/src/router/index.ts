@@ -7,7 +7,6 @@ import PageNotFound from "@/components/PageNotFound.vue";
 import Login from "@/components/Login.vue";
 import Chat from "@/components/chat/Chat.vue";
 import Setting from "@/components/Setting.vue";
-import Register from "@/components/Register.vue";
 import Toto from "@/components/Toto.vue";
 import Authenticate2fa from "@/components/Authenticate2fa.vue";
 import MatchHistory from "@/components/profile/MatchHistory.vue";
@@ -64,12 +63,6 @@ const routes = [
     name: "Login",
     beforeEnter: isNotAuthenticatedGuard,
     component: Login,
-  },
-  {
-    path: "/register",
-    name: "Register",
-    beforeEnter: isNotAuthenticatedGuard,
-    component: Register,
   },
   {
     path: "/twofactorauth",
