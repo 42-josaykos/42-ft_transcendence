@@ -40,83 +40,81 @@ const isFriend = (user: User): boolean => {
       <td style="width: 50%">
         <UserCard :user="player" :dashboard="true" />
       </td>
-      <template v-if="player.id != loggedUser?.id">
         <!-- Profile -->
-        <td>
-          <a
-            class="hovertext"
-            data-hover="Profile"
-            href="#"
-            @click="
-              setting_open = true;
-              userClick = player;
-            "
-          >
-            <i class="fa-solid fa-user action_icon"></i
-          ></a>
-        </td>
+      <td>
+        <a v-if="player.id != loggedUser?.id"
+          class="hovertext"
+          data-hover="Profile"
+          href="#"
+          @click="
+            setting_open = true;
+            userClick = player;
+          "
+        >
+          <i class="fa-solid fa-user action_icon"></i
+        ></a>
+      </td>
 
-        <!-- Send message -->
-        <td>
-          <a
-            class="hovertext"
-            data-hover="Send message"
-            href="#"
-            @click="
-              modalSendMessage = true;
-              userClick = player;
-            "
-          >
-            <i class="fa-solid fa-comment-dots fa-xl action_icon"></i
-          ></a>
-        </td>
-        <!-- Invite to a game -->
-        <td>
-          <a v-if="props.isOffLine == false"
-            class="hovertext"
-            data-hover="Invite to game"
-            href="#"
-            @click="
-              modaleOpenInviteGame = true;
-              userClick = player;
-            "
-          >
-            <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
-          </a>
-        </td>
-        <!-- Add friend -->
-        <td v-if="!isFriend(player)">
-          <a
-            class="hovertext"
-            data-hover="Add friend"
-            href="#"
-            @click="
-              socketChat?.emit('updateFriends', {
-                id: loggedUser?.id,
-                    updateDTO: { addFriends: [{ id: player.id }] },
-              })
-            "
-          >
-            <i class="fa-solid fa-user-plus action_icon"></i
-          ></a>
-        </td>
-        <!-- Remove friend -->
-        <td v-else>
-          <a
-            class="hovertext"
-            data-hover="Remove friend"
-            href="#"
-            @click="
-              socketChat?.emit('updateFriends', {
-                id: loggedUser?.id,
-                updateDTO: { removeFriends: [{ id: player.id }] },
-              })
-            "
-          >
-            <i class="fa-solid fa-user-minus action_icon"></i
-          ></a>
-        </td>
-      </template>
+      <!-- Send message -->
+      <td>
+        <a v-if="player.id != loggedUser?.id"
+          class="hovertext"
+          data-hover="Send message"
+          href="#"
+          @click="
+            modalSendMessage = true;
+            userClick = player;
+          "
+        >
+          <i class="fa-solid fa-comment-dots fa-xl action_icon"></i
+        ></a>
+      </td>
+      <!-- Invite to a game -->
+      <td>
+        <a v-if="props.isOffLine == false && player.id != loggedUser?.id"
+          class="hovertext"
+          data-hover="Invite to game"
+          href="#"
+          @click="
+            modaleOpenInviteGame = true;
+            userClick = player;
+          "
+        >
+          <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
+        </a>
+      </td>
+      <!-- Add friend -->
+      <td v-if="!isFriend(player)">
+        <a v-if="player.id != loggedUser?.id"
+          class="hovertext"
+          data-hover="Add friend"
+          href="#"
+          @click="
+            socketChat?.emit('updateFriends', {
+              id: loggedUser?.id,
+                  updateDTO: { addFriends: [{ id: player.id }] },
+            })
+          "
+        >
+          <i class="fa-solid fa-user-plus action_icon"></i
+        ></a>
+      </td>
+      <!-- Remove friend -->
+      <td v-else>
+        <a v-if="player.id != loggedUser?.id"
+          class="hovertext"
+          data-hover="Remove friend"
+          href="#"
+          @click="
+            socketChat?.emit('updateFriends', {
+              id: loggedUser?.id,
+              updateDTO: { removeFriends: [{ id: player.id }] },
+            })
+          "
+        >
+          <i class="fa-solid fa-user-minus action_icon"></i
+        ></a>
+      </td>
     </tr>
   </table>
 </template>
