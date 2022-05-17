@@ -6,17 +6,12 @@ import Register from './Register.vue';
 import { useUserStore } from '@/stores/user';
 import { storeToRefs } from 'pinia';
 
-// defineProps<{
-//   isAuthenticated: boolean;
-//   loggedUser: any;
-// }>();
-
 const { setting_open, isAuthenticated, loggedUser, statusSocket } = storeToRefs(
   useUserStore()
 );
 
 async function getUserData() {
-  statusSocket.value?.emit('updateUser', loggedUser.value)
+  statusSocket.value?.emit('updateUser', loggedUser.value);
 }
 </script>
 
