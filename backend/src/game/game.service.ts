@@ -146,10 +146,10 @@ export class GameService implements OnModuleInit {
     game.events.sounds.score = true;
 
     //  Ends game if one of the two players reached 10.
-    if (game.players[0].score == 10 || game.players[1].score == 10) {
+    if (game.players[0].score == 5 || game.players[1].score == 5) {
       game.finished = true;
       game.winner =
-        game.players[0].score == 10 ? game.players[0] : game.players[1];
+        game.players[0].score == 5 ? game.players[0] : game.players[1];
       // game.events.sounds.win = true;
       // game.events.sounds.loose = true;
       return game;

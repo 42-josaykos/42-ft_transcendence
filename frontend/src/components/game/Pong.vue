@@ -101,7 +101,7 @@ export default {
     });
     this.gameSocket.on("endGame", () => {
       if (this.endgame == false) {
-        this.endgame = !this.endgame;
+        this.endgame = true;
       }
 
       setTimeout(() => {
@@ -164,7 +164,6 @@ export default {
       this.drawPlayerLeft(this.getPaddle);
       this.drawPlayerRight(this.getPaddle);
       this.drawBall();
-      // this.drawScore(this.player_L, this.player_R);
       return;
     },
     drawPlayerLeft: function (paddle) {
@@ -264,8 +263,10 @@ export default {
   </div>
   <modaleresult
     v-if="endgame"
-    v-bind:player_L="player_L"
-    v-bind:player_R="player_R"
+    v-bind:player_L="this.player_L.user"
+    v-bind:player_R="this.player_R.user"
+    v-bind:score_L="this.player_L.score"
+    v-bind:score_R="this.player_R.score"
   >
   </modaleresult>
 </template>

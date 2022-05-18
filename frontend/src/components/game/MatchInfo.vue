@@ -19,7 +19,8 @@ export default {
           style="width: 60px; height: 60px; object-fit: cover"
           v-bind:src="this.player_L.avatar"
           alt="Avatar"
-        />{{ this.player_L.username }}
+        />
+        {{ this.player_L.username }}
         <template v-if="this.player_L.id == this.loggedUser.id">(You)</template>
       </div>
       <div class="p2">

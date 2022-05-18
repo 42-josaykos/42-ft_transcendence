@@ -17,7 +17,6 @@ import User from 'src/api/users/entities/user.entity';
 import { Connection } from 'src/status/status.class';
 import { GameService } from './game.service';
 import { Game, Player, Invites, GameOptions } from 'src/game/game.class';
-import { use } from 'passport';
 
 @WebSocketGateway({
   namespace: 'game',
