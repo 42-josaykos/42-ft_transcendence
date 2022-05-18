@@ -22,6 +22,7 @@ export const useUserStore = defineStore("user", () => {
   const setting_open = ref<boolean>(false);
   const modalFriends = ref<boolean>(false);
   const leaderboard = ref<any>([]);
+  const usersList = ref<User[]>([]);
 
   const modaleOpenInviteGame = ref<boolean>(false);
 
@@ -119,6 +120,7 @@ export const useUserStore = defineStore("user", () => {
     modalFriends,
     modaleOpenInviteGame,
     leaderboard,
+    usersList,
     createUser,
     deleteUser,
     updateUser,

@@ -21,6 +21,7 @@ const {
   usersFriends,
   modaleOpenInviteGame,
   usersOnline,
+  usersList,
 } = storeToRefs(userStore);
 
 const messageStore = useMessageStore();
@@ -28,33 +29,22 @@ const { modalSendMessage } = storeToRefs(messageStore);
 
 const router = useRouter();
 
-const users = ref<User[]>([]);
-
 if (socketChat.value) {
   // Get all users at page startup
   socketChat.value.emit("getUsersByFilter", {});
-  socketChat.value.on(
-    "receiveFilteredUsers",
-    (userList) => (users.value = userList)
-  );
-
-  // Get user friends
-  socketChat.value.on("receiveFriends", (friendsList: User[]) => {
-    usersFriends.value = friendsList;
-  });
   socketChat.value.emit("getUserFriends", loggedUser.value);
 }
 
 // User list online without logged user
 const userListOnline = computed(() => {
-  return users.value.filter((value) => 
+  return usersList.value.filter((value) => 
     usersOnline.value.findIndex((id) => id == value.id) != -1
   ).sort((a, b) => (a.username.toLowerCase() > b.username.toLowerCase()) ? 1 : -1)
 });
 
 // User list without logged user
 const userListOffline = computed(() => {
-  return users.value.filter((value) => 
+  return usersList.value.filter((value) => 
     usersOnline.value.findIndex((id) => id == value.id) == -1
   ).sort((a, b) => (a.username.toLowerCase() > b.username.toLowerCase()) ? 1 : -1)
 });

@@ -13,7 +13,7 @@ import type { User } from "@/models/user.model";
 
 
 const userStore = useUserStore();
-const { loggedUser, isAuthenticated, socketChat } = storeToRefs(userStore);
+const { loggedUser, isAuthenticated, socketChat, usersFriends, usersList } = storeToRefs(userStore);
 
 const messageStore = useMessageStore();
 const { messages } = storeToRefs(messageStore);
@@ -33,6 +33,14 @@ if (isAuthenticated.value) {
       withCredentials: true,
     });
   }
+
+  socketChat.value.on(
+    "receiveFilteredUsers",
+    (userList) => (usersList.value = userList)
+  );
+  socketChat.value.on("receiveFriends", (friendsList: User[]) => {
+    usersFriends.value = friendsList;
+  });
 
   socketChat.value.on('askInfo', () => {
     socketChat.value?.emit('sendInfo', loggedUser.value);
