@@ -145,12 +145,10 @@ export class GameGateway
     );
 
     // Send startGame event to clients
-    this.server
-      .to(roomName)
-      .emit(startGameEvent, {
-        mode: gameMode,
-        players: [playerOne, playerTwo],
-      });
+    this.server.to(roomName).emit(startGameEvent, {
+      mode: gameMode,
+      players: [playerOne.player.user, playerTwo.player.user],
+    });
 
     // Start the game is the backend
     setTimeout(
