@@ -222,6 +222,11 @@ th {
 .position-badge-game:hover {
   box-shadow: 0px 0px 10px #dfaf2c, 0px 0px 15px 5px #dfaf2c;
 }
+
+.btn-badge{
+  transition: 0.2s;
+}
+
 .btn-badge:hover {
   transform: scale(1.2);
 }
