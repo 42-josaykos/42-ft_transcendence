@@ -13,20 +13,16 @@ export default {
     matchinfo: MatchInfo,
     modaleresult: ModaleResult,
   },
-  props: ["revelePlay", "msg", "paddleSize", "ballSpeed"],
   data: function () {
     return {
-      rcv_paddleSize: 2,
-      rcv_ballSpeed: 3,
-
+      paddleSize: 1,
+      ballSpeed: 2,
       canvas: { w: 1000, h: 600 },
       paddle: {},
       player_L: {},
       player_R: {},
       ball: {},
 
-      newpause: true,
-      startTime: {},
       sounds: {},
 
       intervalID: {},
@@ -41,7 +37,7 @@ export default {
     //	Compute respectively the values of the component attributes that depend on data and props, sets some others to
     //	default, and returns them (Paddle, PlayerL, PlayeR, Ball, Sounds).
     getPaddle: function () {
-      this.paddle.h = (0.2 + (this.rcv_paddleSize - 1) * 0.05) * this.canvas.h;
+      this.paddle.h = (0.2 + (this.paddleSize - 1) * 0.05) * this.canvas.h;
       this.paddle.w = 0.2 * 0.2 * this.canvas.h;
       this.paddle.speed = 0.05 * (this.canvas.h / 2 - this.paddle.h / 2);
       return this.paddle;
@@ -66,7 +62,7 @@ export default {
       this.ball.y = this.canvas.h / 2;
       this.ball.size = this.paddle.w / 2;
       this.ball.color = "#FFF961";
-      this.ball.speed = 5 * (1 + (this.rcv_ballSpeed * 2) / 10);
+      this.ball.speed = 5 * (1 + (this.ballSpeed * 2) / 10);
       this.ball.velocityX = 1 * this.ball.speed;
       this.ball.velocityY = 1 * this.ball.speed; //	Velocity = Speed & Direction
       return this.ball;
@@ -104,11 +100,10 @@ export default {
       this.updateGame(data);
     });
     this.gameSocket.on("endGame", () => {
-      console.log("before : ", this.endgame);
       if (this.endgame == false) {
-        this.endgame = !this.endgame;
+        this.endgame = true;
       }
-      console.log("after : ", this.endgame);
+
       setTimeout(() => {
         this.router.push("/");
       }, 5000);
@@ -155,50 +150,13 @@ export default {
       this.ball.x = data.ball.x;
       this.ball.y = data.ball.y;
       this.ball.size = data.ball.size;
+      this.paddleSize = data.options.paddleSize;
+      this.ballSpeed = data.options.ballSpeed;
 
       // Playing sound events
       for (const field in data.events.sounds) {
         if (data.events.sounds[field]) this.sounds[field].play();
       }
-    },
-    updateSettings: function () {
-      //  Both rcv_ are updated here because the props 'revelPlay' is set at true, meaning the user is done modifying
-      //  the game settings.
-      this.rcv_paddleSize = this.paddleSize;
-      this.rcv_ballSpeed = this.ballSpeed;
-      //  Calls getBall to update its attributes, then set the boolean gameplay at true so that the game can properly
-      //  start now that all is up to date.
-      let gameBall = this.getBall;
-      this.gameplay = true;
-      return;
-    },
-    countdown: function () {
-      let canvas = document.getElementById("pong");
-      if (canvas.getContext) {
-        let context = canvas.getContext("2d");
-        context.clearRect(0, 0, this.canvas.w, this.canvas.h);
-
-        //	Computes the position (x, y) of the countdown's digits
-        let size = 0.65 * this.canvas.h;
-        context.font = size + "px Impact";
-        let x = this.canvas.w / 2 - size / 4;
-        let y = (this.canvas.h * 3) / 4;
-
-        context.fillStyle = "red";
-        if (this.newpause == true) {
-          this.startTime = new Date().getTime();
-          this.newpause = false;
-        }
-        var end = new Date().getTime();
-        //	Renders the appropriate digit given the amout of time that has passed since the begining of the countdown.
-        if (end < this.startTime + 1500) context.fillText("3", x, y);
-        else if (end >= this.startTime + 1500 && end < this.startTime + 3000)
-          context.fillText("2", x, y);
-        else if (end >= this.startTime + 3000 && end < this.startTime + 4500)
-          context.fillText("1", x, y);
-        else this.newgame = false;
-      }
-      return;
     },
     //  Elements Rendering
     //  ##########################################################################
@@ -206,7 +164,6 @@ export default {
       this.drawPlayerLeft(this.getPaddle);
       this.drawPlayerRight(this.getPaddle);
       this.drawBall();
-      // this.drawScore(this.player_L, this.player_R);
       return;
     },
     drawPlayerLeft: function (paddle) {
@@ -254,22 +211,6 @@ export default {
       }
       return;
     },
-    // drawScore: function (leftPlayer, rightPlayer) {
-    //   let canvas = document.getElementById("pong");
-    //   if (canvas.getContext) {
-    //     let context = canvas.getContext("2d");
-    //     let size = 0.2 * this.canvas.h;
-    //     context.font = size + "px Impact";
-    //     let xLeft = this.canvas.w / 4;
-    //     let xRight = (3 * this.canvas.w) / 4 - size / 2;
-
-    //     context.fillStyle = "#5ECEF8";//"#FFF961";
-    //     context.fillText(leftPlayer.score, xLeft, this.canvas.h / 5);
-    //     context.fillStyle = "#FF83BA";//"#FFF961";
-    //     context.fillText(rightPlayer.score, xRight, this.canvas.h / 5);
-    //   }
-    //   return;
-    // },
     //  Keyboard Event Management
     //  ##########################################################################
     getKeyDown: function (e) {
@@ -289,7 +230,7 @@ export default {
 </script>
 
 <template>
-  <Navbar style="position: absolute" componentName="Pong" />
+  <Navbar componentName="Pong" />
   <div class="container">
     <div
       class="pong-set"
@@ -322,8 +263,10 @@ export default {
   </div>
   <modaleresult
     v-if="endgame"
-    v-bind:player_L="player_L"
-    v-bind:player_R="player_R"
+    v-bind:player_L="this.player_L.user"
+    v-bind:player_R="this.player_R.user"
+    v-bind:score_L="this.player_L.score"
+    v-bind:score_R="this.player_R.score"
   >
   </modaleresult>
 </template>
