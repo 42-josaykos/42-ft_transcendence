@@ -1,19 +1,27 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/user';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { Post } from '@/services/requests';
 import { useRouter } from 'vue-router';
 import Register from './Register.vue';
 
 const userStore = useUserStore();
-const { isAuthenticated, loggedUser, isTwoFactorAuth } = storeToRefs(userStore);
+const { isAuthenticated, loggedUser, isTwoFactorAuth, flashMsg } =
+  storeToRefs(userStore);
 const router = useRouter();
 
 const username = ref('');
 const password = ref('');
 const loader = ref(false);
 const registerForm = ref(false);
+const isInvalid = computed(() => {
+  if (flashMsg.value) {
+    return 'form-control is-invalid';
+  } else {
+    return 'form-control';
+  }
+});
 
 function loginLocal() {
   loader.value = true;
@@ -29,10 +37,15 @@ function loginLocal() {
       } else if (res.status == 303) {
         isTwoFactorAuth.value = true;
         router.push('/twofactorauth');
+      } else {
+        flashMsg.value = 'Wrong username or password';
       }
       loader.value = false;
     })
     .catch((error: any) => {});
+  setTimeout(() => {
+    flashMsg.value = '';
+  }, 5000);
 }
 </script>
 
@@ -40,12 +53,13 @@ function loginLocal() {
   <div class="container">
     <h1 class="neonText display-1">Space Pong</h1>
     <div v-if="!loader && !registerForm">
+      <div v-if="flashMsg" style="color: red">{{ flashMsg }}</div>
       <form @submit.prevent.trim.lazy="loginLocal" class="form-signin">
         <label for="inputUsername" class="sr-only">Username</label>
         <input
           type="text"
           id="inputUsername"
-          class="form-control"
+          :class="isInvalid"
           placeholder="Username"
           v-model="username"
           required
@@ -55,7 +69,7 @@ function loginLocal() {
         <input
           type="password"
           id="inputPassword"
-          class="form-control"
+          :class="isInvalid"
           placeholder="Password"
           v-model="password"
           required
@@ -86,25 +100,20 @@ function loginLocal() {
         </button>
       </div>
       <div v-if="!isAuthenticated">
-      Don't have an account ?
-        <a
-          href="#"
-          @click="
-            registerForm = true;
-          "
-        >
-          Register
-        </a>
+        Don't have an account ?
+        <a href="#" @click="registerForm = true"> Register </a>
       </div>
     </div>
     <div v-else-if="loader" class="loader"></div>
     <div v-else-if="registerForm">
-      <Register  />
+      <Register />
       <button
-          class="mod-btn mod-btn-red"
-          style="margin: 10px"
-          @click="registerForm=false"
-      >Back</button>
+        class="mod-btn mod-btn-red"
+        style="margin: 10px"
+        @click="registerForm = false"
+      >
+        Back
+      </button>
     </div>
   </div>
 </template>
@@ -116,7 +125,6 @@ function loginLocal() {
   align-items: center;
   justify-content: center;
 }
-
 
 input {
   text-align: center;

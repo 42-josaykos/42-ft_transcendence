@@ -97,15 +97,15 @@ const acceptInviteToGame = (inviteUser: any) => {
           <div
             class="separator-list"
             v-for="invite in gameInvites"
-            :key="invite.user.id"
+            :key="invite.sender.user.id"
           >
             <div class="d-flex ms-auto my-2" style="align-items: center">
-              <UserCard class="ms-2" :user="invite.user" :dashboard="true" :profile="false"/>
+              <UserCard class="ms-2" :user="invite.sender.user" :dashboard="true" :profile="false"/>
               <div class="ms-auto">
                 <button
                   @click="
                     modaleAllInvitesGame = false;
-                    acceptInviteToGame(invite.user);
+                    acceptInviteToGame(invite.sender.user);
                   "
                   type="button"
                   class="mod-btn mod-btn-cyan btn-sm"

@@ -23,16 +23,19 @@ export const useUserStore = defineStore("user", () => {
   const modalFriends = ref<boolean>(false);
   const leaderboard = ref<any>([]);
   const usersList = ref<User[]>([]);
+  const flashMsg = ref<string>("");
 
   const modaleOpenInviteGame = ref<boolean>(false);
 
   const IDInArray = (id: any, array: any[]) => {
+    if (!id || !array) return false;
     const index = array.findIndex((arrayValue: any) => id == arrayValue);
     if (index === -1) return false;
     else return true;
   };
 
   const valueInArray = (value: any, array: any[]) => {
+    if (!value || !array) return false;
     const index = array.findIndex((arrayValue: any) => value == arrayValue.id);
     if (index === -1) return false;
     else return true;
@@ -134,5 +137,6 @@ export const useUserStore = defineStore("user", () => {
     IDInArray,
     valueInArray,
     isMyProfile,
+    flashMsg,
   };
 });

@@ -201,7 +201,6 @@ export class UsersService {
     delete newUser.password;
     delete newUser.refreshToken;
     delete newUser.twoFactorAuthenticationSecret;
-    console.log('New user created: ', newUser);
     return newUser;
   }
 

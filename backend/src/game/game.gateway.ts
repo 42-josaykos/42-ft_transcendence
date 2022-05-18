@@ -16,8 +16,7 @@ import axios from 'axios';
 import User from 'src/api/users/entities/user.entity';
 import { Connection } from 'src/status/status.class';
 import { GameService } from './game.service';
-import { Game, Player, Invites } from 'src/game/game.class';
-import { use } from 'passport';
+import { Game, Player, Invites, GameOptions } from 'src/game/game.class';
 
 @WebSocketGateway({
   namespace: 'game',
@@ -38,6 +37,8 @@ export class GameGateway
   private connectedClients: Connection[] = [];
   private queue: Connection[] = [];
   private invites: Invites[] = [];
+
+  private matchmakingOptions: GameOptions = { paddleSize: 2, ballSpeed: 3 };
 
   afterInit(server: any) {
     this.logger.log('Game gateway is initialized');
@@ -106,6 +107,7 @@ export class GameGateway
 
     // Start a game if there is at least 2 players in the queue waiting
     while (this.queue.length >= 2) {
+      const gameOptions = { paddleSize: 2, ballSpeed: 3 };
       // Remove players from queue
       const playerOne: Player = { player: this.queue.shift() };
       const playerTwo: Player = { player: this.queue.shift() };
@@ -117,6 +119,8 @@ export class GameGateway
         this.setupAndStartGame(
           { ...playerOne },
           { ...playerTwo },
+          this.matchmakingOptions,
+          'matchmaking',
           'startGame',
           5000,
         );
@@ -127,6 +131,8 @@ export class GameGateway
   setupAndStartGame(
     playerOne: Player,
     playerTwo: Player,
+    gameOptions: GameOptions,
+    gameMode: string,
     startGameEvent: string,
     startTimeout: number,
   ) {
@@ -139,15 +145,16 @@ export class GameGateway
     );
 
     // Send startGame event to clients
-    this.server
-      .to(roomName)
-      .emit(startGameEvent, [playerOne.player.user, playerTwo.player.user]);
+    this.server.to(roomName).emit(startGameEvent, {
+      mode: gameMode,
+      players: [playerOne.player.user, playerTwo.player.user],
+    });
 
     // Start the game is the backend
     setTimeout(
       (playerOne, playerTwo) => {
         // Create and start game
-        this.gameService.createGame(playerOne, playerTwo, this.server);
+        this.gameService.createGame(playerOne, playerTwo, gameOptions);
 
         // Emit live games to clients
         this.server.emit('liveGames', this.getOngoingGames());
@@ -243,16 +250,19 @@ export class GameGateway
   sendGameUpdate(game: Game) {
     const gameUpdate = {
       playerOne: {
+        user: game.players[0].player.user,
         x: game.players[0].x,
         y: game.players[0].y,
         score: game.players[0].score,
       },
       playerTwo: {
+        user: game.players[1].player.user,
         x: game.players[1].x,
         y: game.players[1].y,
         score: game.players[1].score,
       },
       ball: { x: game.ball.x, y: game.ball.y, size: game.ball.size },
+      options: game.options,
       events: game.events,
     };
 
@@ -280,7 +290,7 @@ export class GameGateway
       this.server.to(game.socketRoom).emit('endGame');
       this.server.emit('liveGames', this.getOngoingGames());
       this.server.emit('askStatsUpdate');
-      this.server.emit('sendInGameUsers');
+      this.sendInGameUsers();
 
       // Make the players / spectators leave the room
       this.server.to(game.socketRoom).socketsLeave(game.socketRoom);
@@ -326,12 +336,12 @@ export class GameGateway
   }
 
   @SubscribeMessage('addInvite')
-  addInvite(@ConnectedSocket() client: Socket, @MessageBody() players: User[]) {
+  addInvite(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
     const userWhoInvites = this.connectedClients.find(
-      (connection) => connection.user.id === players[0].id,
+      (connection) => connection.user.id === data.playerOne.id,
     );
     const guestUser = this.connectedClients.find(
-      (connection) => connection.user.id === players[1].id,
+      (connection) => connection.user.id === data.playerTwo.id,
     );
 
     if (guestUser) {
@@ -343,11 +353,17 @@ export class GameGateway
         guestIndex =
           this.invites.push({
             user: guestUser,
-            invitesReceived: [userWhoInvites],
+            invitesReceived: [
+              { sender: userWhoInvites, gameOptions: data.options },
+            ],
           }) - 1;
       }
       // If it already exists, push the new invites
-      else this.invites[guestIndex].invitesReceived.push(userWhoInvites);
+      else
+        this.invites[guestIndex].invitesReceived.push({
+          sender: userWhoInvites,
+          gameOptions: data.options,
+        });
 
       // Send updated invites list
       this.emitToSockets(
@@ -382,6 +398,14 @@ export class GameGateway
       players[1],
     );
 
+    // Get game options
+    const inviteGuest = this.invites.find(
+      (invite) => invite.user.user.id === userGuest.user.id,
+    );
+    const options = inviteGuest.invitesReceived.find(
+      (invite) => invite.sender.user.id === userInvite.user.id,
+    ).gameOptions;
+
     // If user are still connected
     if (userInvite && userGuest) {
       const playerOne: Player = { player: userInvite };
@@ -391,7 +415,9 @@ export class GameGateway
       this.setupAndStartGame(
         { ...playerOne },
         { ...playerTwo },
-        'startGameInvite',
+        options,
+        'invite',
+        'startGame',
         10000,
       );
 
@@ -408,7 +434,7 @@ export class GameGateway
     if (guestIndex != -1) {
       // Find invite
       const indexInvite = this.invites[guestIndex].invitesReceived.findIndex(
-        (invite) => invite.user.id === userInvite.user.id,
+        (invite) => invite.sender.user.id === userInvite.user.id,
       );
       if (indexInvite != -1) {
         // Remove invite

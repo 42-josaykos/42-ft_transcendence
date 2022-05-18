@@ -2,6 +2,7 @@
 import { io } from "socket.io-client";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
+import type { User } from "@/models/user.model";
 
 const userStore = useUserStore();
 const { loggedUser, gameSocket, isAuthenticated } = storeToRefs(userStore);
@@ -11,7 +12,7 @@ if (isAuthenticated.value) {
     withCredentials: true,
   });
 
-  // After socker connection, the server needs the logged user id
+  // After socket connection, the server needs the logged user id
   gameSocket.value.on("requestGameUserInfo", function (data: any) {
     gameSocket.value?.emit("gameConnection", loggedUser.value);
   });
