@@ -2,7 +2,6 @@ import { createWebHistory, createRouter } from "vue-router";
 import { Get } from "@/services/requests";
 import Home from "@/components/Home.vue";
 import Pong from "@/components/game/Pong.vue";
-import Debug from "@/components/debug/Debug.vue";
 import PageNotFound from "@/components/PageNotFound.vue";
 import Login from "@/components/Login.vue";
 import Chat from "@/components/chat/Chat.vue";
@@ -16,11 +15,6 @@ const routes = [
     path: "/toto",
     name: "Toto",
     component: Toto,
-  },
-  {
-    path: "/debug",
-    name: "Debug",
-    component: Debug,
   },
   {
     path: "/",
