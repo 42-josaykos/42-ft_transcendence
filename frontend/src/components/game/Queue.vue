@@ -3,13 +3,13 @@ import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
+import type { User } from "@/models/user.model";
 import TimerStartGame from "./TimerStartGame.vue";
 import TimerStartGameInvite from "./TimerStartGameInvite.vue";
-import type { User } from "@/models/user.model";
 
 // Stores
 const userStore = useUserStore();
-const { loggedUser, usersInGame, usersInQueue, gameSocket } =
+const { loggedUser, usersInGame, usersInQueue, gameSocket, playersDuo } =
   storeToRefs(userStore);
 
 const router = useRouter();
@@ -22,11 +22,12 @@ const inGame = ref<boolean>(false);
 
 if (gameSocket.value) {
   // Start games
-  gameSocket.value.on("startGame", (data: any) => {
+  gameSocket.value.on("startGame", (players: User[]) => {
     console.log("[QueueSystem] A new match is starting");
     matchFound.value = true;
     setTimeout(() => {
       matchFound.value = false;
+      playersDuo.value = players;
       router.push("/matchmaking");
     }, 5000);
   });

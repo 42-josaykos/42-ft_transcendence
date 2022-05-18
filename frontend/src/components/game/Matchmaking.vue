@@ -16,6 +16,7 @@ export default {
   created() {},
   methods: {},
 };
+props: ["revelePlay", "toggleModaleSettings", "launch"]
 </script>
 
 <template>
@@ -33,5 +34,8 @@ export default {
 <style>
 .pong-game {
   min-height: 0%;
+}
+.matchmaking {
+  min-height: 100vh;
 }
 </style>

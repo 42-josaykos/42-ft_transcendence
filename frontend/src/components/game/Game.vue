@@ -11,6 +11,7 @@ export default {
     Navbar,
     modalesettings: ModaleSettings,
     pong: Pong,
+    notification: Notification,
   },
   data() {
     return {
@@ -54,12 +55,12 @@ export default {
         v-bind:ballSpeed="3"
       />
     </div>
-  </div>
-  <modalesettings  v-if="revelePlay"
-    @close="toggleModaleSettings"
-    @paddleSizeChange="updatePaddleSize"
-    @ballSpeedChange="updateBallSpeed"
-  />
+    </div>
+    <modalesettings  v-if="revelePlay"
+      @close="toggleModaleSettings"
+      @paddleSizeChange="updatePaddleSize"
+      @ballSpeedChange="updateBallSpeed"
+    />
 </template>
 
 <style>

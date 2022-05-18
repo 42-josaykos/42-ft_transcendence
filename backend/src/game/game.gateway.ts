@@ -243,11 +243,13 @@ export class GameGateway
   sendGameUpdate(game: Game) {
     const gameUpdate = {
       playerOne: {
+        user: game.players[0].player.user,
         x: game.players[0].x,
         y: game.players[0].y,
         score: game.players[0].score,
       },
       playerTwo: {
+        user: game.players[1].player.user,
         x: game.players[1].x,
         y: game.players[1].y,
         score: game.players[1].score,
