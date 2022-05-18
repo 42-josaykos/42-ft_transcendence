@@ -145,12 +145,9 @@ async function updateAvatar(event: any) {
     if (file) {
       let formData = new FormData();
       formData.append('avatarUpload', file);
-      if (loggedUser.value) {
-        formData.append('id', loggedUser.value.id.toString())
-      }
       let response;
       try {
-        response = await ax.post('/upload', formData, {
+        response = await ax.post('/upload/' + loggedUser.value?.id, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         if (response.status === 201) {
@@ -160,7 +157,6 @@ async function updateAvatar(event: any) {
             if (res.status === 200) {
               if (loggedUser.value) {
                 loggedUser.value.avatar = res.data.avatar;
-                fileInput.value = null;
                 emit('updateUserProfil');
                 notify({
                   type: 'success',
@@ -173,14 +169,18 @@ async function updateAvatar(event: any) {
         }
       } catch (er: any) {
         notify({
-          type: 'Error',
+          type: 'error',
           title: "Error",
           text: er.response.data.message,
         });
       }
     }
     else {
-      alert('invalid file')
+      notify({
+        type: 'error',
+        title: "Error",
+        text: 'Invalid file',
+      });
     }
   }
 }
