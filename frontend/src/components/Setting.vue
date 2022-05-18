@@ -113,7 +113,7 @@ function updateUsername() {
           flashMsg.value = false;
           notify({
             type: 'success',
-            title: "Succes",
+            title: "Change username",
             text: 'Username updated !',
           });
         }
@@ -121,7 +121,7 @@ function updateUsername() {
         flashMsg.value = true;
         notify({
           type: 'error',
-          title: "Error",
+          title: "Change username",
           text: 'Username already exists',
         });
       }
@@ -130,8 +130,8 @@ function updateUsername() {
     flashMsg.value = true;
     notify({
       type: 'error',
-      title: "Error",
-      text: 'Username must be not empty and less than 16 characters',
+      title: "Change username",
+      text: 'Username must not be empty or more than 15 characters',
     });
   }
   setTimeout(() => {
@@ -160,7 +160,7 @@ async function updateAvatar(event: any) {
                 emit('updateUserProfil');
                 notify({
                   type: 'success',
-                  title: "Succes",
+                  title: "Change avatar",
                   text: 'Avatar updated !',
                 });
               }
@@ -170,7 +170,7 @@ async function updateAvatar(event: any) {
       } catch (er: any) {
         notify({
           type: 'error',
-          title: "Error",
+          title: "Change avatar",
           text: er.response.data.message,
         });
       }
@@ -178,7 +178,7 @@ async function updateAvatar(event: any) {
     else {
       notify({
         type: 'error',
-        title: "Error",
+        title: "Change avatar",
         text: 'Invalid file',
       });
     }
