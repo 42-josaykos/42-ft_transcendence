@@ -7,6 +7,7 @@ import {
   Res,
   StreamableFile,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -16,6 +17,7 @@ import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer
 import { diskStorage } from 'multer';
 import { createReadStream, existsSync } from 'fs';
 import { join } from 'path';
+import { JwtAccessGuard } from 'src/auth/guards';
 
 // Path to where store avatars
 const avatarFolder = 'assets/avatars';
@@ -39,6 +41,7 @@ function generateFilename(file: Express.Multer.File): string {
 }
 
 @Controller('upload')
+@UseGuards(JwtAccessGuard)
 @ApiTags('upload')
 export class UploadController {
   @Get()

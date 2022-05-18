@@ -52,6 +52,7 @@ onMounted(() => {
         <GameSystem />
         <ChatSocket />
       </div>
+      <notifications />
       <div class="routerView"><router-view /></div>
     </div>
   </div>

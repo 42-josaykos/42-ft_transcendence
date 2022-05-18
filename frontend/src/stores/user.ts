@@ -22,7 +22,7 @@ export const useUserStore = defineStore('user', () => {
   const setting_open = ref<boolean>(false);
   const modalFriends = ref<boolean>(false);
   const leaderboard = ref<any>([]);
-  const flashMsg = ref<string>('');
+  const flashMsg = ref<boolean>(false)
 
   const modaleOpenInviteGame = ref<boolean>(false);
 

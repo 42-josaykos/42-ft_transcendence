@@ -5,13 +5,16 @@ import {
   Param,
   ParseIntPipe,
   Patch,
+  UseGuards,
 } from '@nestjs/common';
 import { StatsService } from './stats.service';
 import { ApiTags } from '@nestjs/swagger';
 import Stats from './entities/stats.entity';
 import { UpdateStatsDTO } from './dto/update-stats.dto';
+import { JwtAccessGuard } from 'src/auth/guards';
 
 @Controller('stats')
+@UseGuards(JwtAccessGuard)
 @ApiTags('stats')
 export class StatsController {
   constructor(private readonly statsService: StatsService) {}
