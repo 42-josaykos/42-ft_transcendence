@@ -10,6 +10,7 @@ export const useUserStore = defineStore("user", () => {
   const usersOnline = ref<Number[]>([]);
   const usersInQueue = ref<User[]>([]);
   const usersInGame = ref<User[]>([]);
+  const usersList = ref<User[]>([]);
   const loggedUser = ref<User | undefined>();
   const gameSocket = ref<Socket>();
   const isAuthenticated = ref(false);
@@ -110,6 +111,7 @@ export const useUserStore = defineStore("user", () => {
     usersOnline,
     usersInQueue,
     usersInGame,
+    usersList,
     isAuthenticated,
     socketChat,
     statusSocket,

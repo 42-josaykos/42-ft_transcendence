@@ -17,7 +17,6 @@ const {
   modalFriends,
   usersFriends,
   loggedUser,
-  gameSocket,
   modaleOpenInviteGame,
 } = storeToRefs(useUserStore());
 const { modalSendMessage } = storeToRefs(useMessageStore());
