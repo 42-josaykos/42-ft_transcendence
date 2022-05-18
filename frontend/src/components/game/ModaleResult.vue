@@ -7,11 +7,19 @@ export default {
 		return {
 			result: {},
 			duo: {}, //duo[0] is LEFT, duo[1] is RIGHT
+            sounds: {},
 		};
 	},
 	props: ["player_L", "player_R"],
 	computed: {
 		...mapState(useUserStore, ["loggedUser", "playersDuo"]),
+        getSounds: function () {
+            this.sounds.win = new Audio("./src/components/sounds/win.wav");
+            this.sounds.win.volume = 0.1;
+            this.sounds.loose = new Audio("./src/components/sounds/loose.wav");
+            this.sounds.loose.volume = 0.1;
+            return this.sounds;
+        },
 		getResult: function() {
 			if (this.loggedUser.username == this.duo[0].username) { // loggedUser est a gauche
 				
@@ -26,6 +34,10 @@ export default {
 				else
 					this.result = false;
 			}
+            if (this.result == true)
+                this.sounds.win.play();
+            else
+                this.sounds.loose.play();
 			return (this.result);
 		},
 	},
