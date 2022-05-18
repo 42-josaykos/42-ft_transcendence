@@ -27,7 +27,7 @@ import BanedUser from './entities/baned.user.entity';
 
 @Controller('users')
 @ApiTags('users')
-@UseGuards(JwtAccessGuard)
+// @UseGuards(JwtAccessGuard)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,

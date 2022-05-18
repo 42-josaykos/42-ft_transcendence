@@ -4,6 +4,7 @@ import { useUserStore } from '@/stores/user';
 import { ref, computed } from 'vue';
 import { Post } from '@/services/requests';
 import { useRouter } from 'vue-router';
+import { notify } from "@kyvg/vue3-notification";
 
 const userStore = useUserStore();
 const { isAuthenticated, loggedUser, flashMsg } = storeToRefs(userStore);
@@ -22,7 +23,12 @@ const isInvalid = computed(() => {
 
 function register() {
   if (username.value.length > 15) {
-    flashMsg.value = 'Username must be less than 15 characters';
+    flashMsg.value = true
+    notify({
+      type: 'error',
+      title: "Register",
+      text: 'Username must be less than 15 characters',
+    });
   } else if (password1.value == password2.value) {
     Post('/users', {
       username: username.value,
@@ -41,12 +47,24 @@ function register() {
           }
         });
       }
-    });
+    }).catch((error: any) => {
+      flashMsg.value = true;
+      notify({
+        type: 'error',
+        title: "Register",
+        text: error.response.data.message,
+      });
+    })
   } else {
-    flashMsg.value = "Password doesn't match";
+    flashMsg.value = true;
+    notify({
+      type: 'error',
+      title: "Register",
+      text: "Password doesn't match",
+    });
   }
   setTimeout(() => {
-    flashMsg.value = '';
+    flashMsg.value = false;
   }, 5000);
 }
 
@@ -63,9 +81,6 @@ const seePassword = (stringId: string) => {
 <template>
   <div>
     <h2><u>Create a new account</u></h2>
-    <div v-if="flashMsg" style="color: red">{{ flashMsg }}</div>
-
-    <div>
       <form @submit.prevent.trim.lazy="register" class="form-signup">
         <div class="form-signin pt-3">
           <label for="inputUsername" class="sr-only">Username</label>
@@ -122,7 +137,6 @@ const seePassword = (stringId: string) => {
           <br />
         </div>
       </form>
-    </div>
   </div>
 </template>
 

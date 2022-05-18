@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Toggle from '@vueform/toggle';
 import { useUserStore } from '@/stores/user';
+import { useInputStore } from '@/stores/input';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import { Patch, Post } from '@/services/requests';
@@ -10,6 +11,7 @@ import { computed } from '@vue/reactivity';
 import { notify } from "@kyvg/vue3-notification";
 
 const userStore = useUserStore();
+const inputStore = useInputStore();
 const { isTwoFactorAuth, loggedUser, flashMsg } = storeToRefs(userStore);
 if (loggedUser.value && loggedUser.value.isTwoFactorAuthenticationEnabled) {
   isTwoFactorAuth.value = true;
@@ -80,7 +82,11 @@ function validateCode() {
       qrcode.value = null;
       turnOffForm.value = false;
     } else {
-      alert('Invalid 2FA code');
+      notify({
+        type: 'error',
+        title: "Two-Factor Authentication",
+        text: 'Invalid code',
+      });
     }
     twoFactorInput.value = '';
   });
@@ -99,7 +105,15 @@ function toggleTwoFactorAuthentication() {
 
 // Update username
 function updateUsername() {
-  if (usernameInput.value && usernameInput.value.length < 15) {
+  if (inputStore.containsSpecialChars(usernameInput.value)) {
+    flashMsg.value = true;
+    notify({
+      type: 'error',
+      title: "Change username",
+      text: 'Username must not contains whitespace or special characters',
+    });
+  }
+  else if (usernameInput.value && usernameInput.value.length < 15) {
     Patch(`/users/${loggedUser.value?.id}`, {
       username: usernameInput.value
     }).then(res => {
