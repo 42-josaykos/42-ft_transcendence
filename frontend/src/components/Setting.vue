@@ -7,6 +7,7 @@ import { Patch, Post } from '@/services/requests';
 import ax from '@/services/interceptors';
 import type { User } from '@/models/user.model';
 import { computed } from '@vue/reactivity';
+import { notify } from "@kyvg/vue3-notification";
 
 const userStore = useUserStore();
 const { isTwoFactorAuth, loggedUser, flashMsg } = storeToRefs(userStore);
@@ -19,10 +20,9 @@ const qrcode = ref(null);
 const twoFactorInput = ref('');
 const usernameInput = ref('');
 const turnOffForm = ref(false);
-const error = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
 const isInvalid = computed(() => {
-  if (flashMsg.value && error.value) {
+  if (flashMsg.value) {
     return 'form-control is-invalid';
   } else {
     return 'form-control';
@@ -110,21 +110,32 @@ function updateUsername() {
           loggedUser.value = updatedUser;
           usernameInput.value = '';
           emit('updateUserProfil');
-          error.value = false;
-          flashMsg.value = 'Username updated !';
+          flashMsg.value = false;
+          notify({
+            type: 'success',
+            title: "Succes",
+            text: 'Username updated !',
+          });
         }
       } else {
-        error.value = true;
-        flashMsg.value = 'Username already exists';
+        flashMsg.value = true;
+        notify({
+          type: 'error',
+          title: "Error",
+          text: 'Username already exists',
+        });
       }
     });
   } else {
-    error.value = true;
-    flashMsg.value = 'Username must be not empty and 15 characters or less';
+    flashMsg.value = true;
+    notify({
+      type: 'error',
+      title: "Error",
+      text: 'Username must be not empty and less than 16 characters',
+    });
   }
   setTimeout(() => {
-    error.value = false;
-    flashMsg.value = '';
+    flashMsg.value = false;
   }, 5000);
 }
 
@@ -148,20 +159,26 @@ async function updateAvatar(event: any) {
                 loggedUser.value.avatar = res.data.avatar;
                 fileInput.value = null;
                 emit('updateUserProfil');
-                error.value = false;
-                flashMsg.value = 'Avatar updated !';
+                notify({
+                  type: 'success',
+                  title: "Succes",
+                  text: 'Avatar updated !',
+                });
               }
             }
           });
         }
       } catch (er: any) {
-        alert(er.response.data.message);
+        notify({
+          type: 'Error',
+          title: "Error",
+          text: er.response.data.message,
+        });
       }
     }
-    setTimeout(() => {
-      error.value = false;
-      flashMsg.value = '';
-    }, 5000);
+    else {
+      alert('invalid file')
+    }
   }
 }
 </script>
@@ -236,8 +253,6 @@ async function updateAvatar(event: any) {
         </form>
       </div>
     </div>
-    <div v-if="flashMsg && error" style="color: red">{{ flashMsg }}</div>
-    <div v-if="flashMsg && !error" style="color: green">{{ flashMsg }}</div>
   </div>
 
   <hr />
