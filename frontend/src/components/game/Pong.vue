@@ -4,9 +4,15 @@ import { storeToRefs, mapState } from "pinia";
 import { useUserStore } from "@/stores/user";
 import { useRouter } from "vue-router";
 import { Player } from "src/../../backend/src/game/game.class.ts";
+import MatchInfo from "./MatchInfo.vue";
+import ModaleResult from "./ModaleResult.vue";
 
 export default {
   name: "Pong",
+  components: {
+    matchinfo: MatchInfo,
+    modaleresult: ModaleResult,
+  },
   props: ["revelePlay", "msg", "paddleSize", "ballSpeed"],
   data: function () {
     return {
@@ -27,6 +33,7 @@ export default {
       keyState: {},
 
       router: {},
+      endgame: false,
     };
   },
   computed: {
@@ -43,14 +50,14 @@ export default {
     getPlayerL: function () {
       this.player_L.x = this.bound;
       this.player_L.y = this.canvas.h / 2 - this.paddle.h / 2;
-      this.player_L.color = "blue";
+      this.player_L.color = "#5ECEF8";
       this.player_L.score = 0;
       return this.player_L;
     },
     getPlayerR: function () {
       this.player_R.x = this.canvas.w - this.bound - this.paddle.w;
       this.player_R.y = this.canvas.h / 2 - this.paddle.h / 2;
-      this.player_R.color = "pink";
+      this.player_R.color = "#FF83BA";
       this.player_R.score = 0;
       return this.player_R;
     },
@@ -58,7 +65,7 @@ export default {
       this.ball.x = this.canvas.w / 2;
       this.ball.y = this.canvas.h / 2;
       this.ball.size = this.paddle.w / 2;
-      this.ball.color = "yellow";
+      this.ball.color = "#FFF961";
       this.ball.speed = 5 * (1 + (this.rcv_ballSpeed * 2) / 10);
       this.ball.velocityX = 1 * this.ball.speed;
       this.ball.velocityY = 1 * this.ball.speed; //	Velocity = Speed & Direction
@@ -97,7 +104,14 @@ export default {
       this.updateGame(data);
     });
     this.gameSocket.on("endGame", () => {
-      this.router.push("/");
+      console.log("before : ", this.endgame);
+      if (this.endgame == false) {
+        this.endgame = !this.endgame;
+      }
+      console.log("after : ", this.endgame);
+      setTimeout(() => {
+        this.router.push("/");
+      }, 5000);
     });
     // ##########################################################################
 
@@ -120,7 +134,6 @@ export default {
       // if (this.revelePlay == true) this.updateSettings();
       const framePerSec = 1000 / 60;
       this.intervalID = setInterval(this.game, framePerSec);
-
       return;
     },
     game: function () {
@@ -131,8 +144,10 @@ export default {
       return;
     },
     updateGame: function (data) {
+      this.player_L.user = data.playerOne.user;
       this.player_L.x = data.playerOne.x;
       this.player_L.y = data.playerOne.y;
+      this.player_R.user = data.playerTwo.user;
       this.player_R.x = data.playerTwo.x;
       this.player_R.y = data.playerTwo.y;
       this.player_L.score = data.playerOne.score;
@@ -191,7 +206,7 @@ export default {
       this.drawPlayerLeft(this.getPaddle);
       this.drawPlayerRight(this.getPaddle);
       this.drawBall();
-      this.drawScore(this.player_L, this.player_R);
+      // this.drawScore(this.player_L, this.player_R);
       return;
     },
     drawPlayerLeft: function (paddle) {
@@ -216,7 +231,7 @@ export default {
       let canvas = document.getElementById("pong");
       if (canvas.getContext) {
         let context = canvas.getContext("2d");
-        context.fillStyle = "yellow";
+        context.fillStyle = "#FFF961";
         context.beginPath();
         context.arc(
           this.ball.x,
@@ -239,21 +254,22 @@ export default {
       }
       return;
     },
-    drawScore: function (leftPlayer, rightPlayer) {
-      let canvas = document.getElementById("pong");
-      if (canvas.getContext) {
-        let context = canvas.getContext("2d");
-        let size = 0.2 * this.canvas.h;
-        context.font = size + "px Impact";
-        let xLeft = this.canvas.w / 4;
-        let xRight = (3 * this.canvas.w) / 4 - size / 2;
+    // drawScore: function (leftPlayer, rightPlayer) {
+    //   let canvas = document.getElementById("pong");
+    //   if (canvas.getContext) {
+    //     let context = canvas.getContext("2d");
+    //     let size = 0.2 * this.canvas.h;
+    //     context.font = size + "px Impact";
+    //     let xLeft = this.canvas.w / 4;
+    //     let xRight = (3 * this.canvas.w) / 4 - size / 2;
 
-        context.fillStyle = "yellow";
-        context.fillText(leftPlayer.score, xLeft, this.canvas.h / 5);
-        context.fillText(rightPlayer.score, xRight, this.canvas.h / 5);
-      }
-      return;
-    },
+    //     context.fillStyle = "#5ECEF8";//"#FFF961";
+    //     context.fillText(leftPlayer.score, xLeft, this.canvas.h / 5);
+    //     context.fillStyle = "#FF83BA";//"#FFF961";
+    //     context.fillText(rightPlayer.score, xRight, this.canvas.h / 5);
+    //   }
+    //   return;
+    // },
     //  Keyboard Event Management
     //  ##########################################################################
     getKeyDown: function (e) {
@@ -273,28 +289,103 @@ export default {
 </script>
 
 <template>
-  <Navbar componentName="Pong" />
-  <div class="pong-game">
-    <canvas
-      ref="pong"
-      class="pong"
-      id="pong"
-      :width="canvas.w"
-      :height="canvas.h"
+  <Navbar style="position: absolute" componentName="Pong" />
+  <div class="container">
+    <div
+      class="pong-set"
+      style="top: 15%; left: 25%; max-width: 1000px; max-height: 600px"
     >
-    </canvas>
+      <matchinfo
+        v-bind:player_L="this.player_L.user"
+        v-bind:player_R="this.player_R.user"
+      >
+      </matchinfo>
+      <div class="pong-game">
+        <canvas
+          ref="pong"
+          class="pong"
+          id="pong"
+          :width="canvas.w"
+          :height="canvas.h"
+        >
+        </canvas>
+      </div>
+      <div class="fb-player_score">
+        <div class="s1">
+          {{ this.player_L.score }}
+        </div>
+        <div class="s2">
+          {{ this.player_R.score }}
+        </div>
+      </div>
+    </div>
   </div>
+  <modaleresult
+    v-if="endgame"
+    v-bind:player_L="player_L"
+    v-bind:player_R="player_R"
+  >
+  </modaleresult>
 </template>
 
 <style scoped>
+.full-height {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0vh;
+}
 .pong-game {
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  /* min-height: 100vh; */
 }
 .pong {
   background: #0c2039;
-  border: 7.5px solid #fff961;
-  margin-top: 60px;
+  border: 7.5px solid #1a3558;
+  /* border: 7.5px solid #fff961;
+  margin-top: 60px; */
+}
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 75%;
+}
+
+.fb-player_score {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  /* justify-content: center; */
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.s1 {
+  font-weight: bold;
+  font-size: 160px;
+  order: 1;
+  color: #ffffff;
+  text-shadow: 0px 4px 15px #5ecef8, 0px 0px 10px #5ecef8;
+  max-width: 50%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 120px;
+  padding-right: 120px;
+}
+
+.s2 {
+  font-weight: bold;
+  font-size: 160px;
+  order: 2;
+  color: #ffffff;
+  text-shadow: 0px 4px 15px #ff83ba, 0px 0px 10px #ff83ba;
+  max-width: 50%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 120px;
+  padding-right: 120px;
 }
 </style>
