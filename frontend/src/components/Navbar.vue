@@ -39,6 +39,9 @@ onMounted(async () => {
 });
 
 const waiting = ref<boolean>(false);
+const tab_home = ref(true);
+const tab_chat = ref(false);
+
 </script>
 
 <template>
@@ -87,8 +90,8 @@ const waiting = ref<boolean>(false);
           class="d-flex justify-content-center my-2 mx-2 router-nav"
         >
           <button
-            @click=""
             class="btn-block set-btn set-btn-nav btn-nav selector"
+            v-bind:class="{ 'active_tab' :  componentName === 'Home'}"
           >
             Home
           </button>
@@ -99,8 +102,8 @@ const waiting = ref<boolean>(false);
           class="d-flex justify-content-center my-2 mx-2 router-nav"
         >
           <button
-            @click=""
             class="btn-block set-btn set-btn-nav btn-nav selector"
+            v-bind:class="{ 'active_tab' : componentName === 'Chat' }"
           >
             Chat
           </button>
@@ -196,6 +199,13 @@ li .row:hover {
 
 .title-small-screen{
   display: none;
+}
+
+.active_tab{
+  background-color: #b4b4b4;
+  color: #66645f;
+  transform: scale(1.2);
+  box-shadow: 0px 0px 10px #ffffff, 0px 0px 15px 5px #ffffff;
 }
 
 @media screen and (max-width: 540px) {
