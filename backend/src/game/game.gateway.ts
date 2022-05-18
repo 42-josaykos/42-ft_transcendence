@@ -120,6 +120,7 @@ export class GameGateway
           { ...playerOne },
           { ...playerTwo },
           this.matchmakingOptions,
+          'matchmaking',
           'startGame',
           5000,
         );
@@ -131,6 +132,7 @@ export class GameGateway
     playerOne: Player,
     playerTwo: Player,
     gameOptions: GameOptions,
+    gameMode: string,
     startGameEvent: string,
     startTimeout: number,
   ) {
@@ -145,7 +147,10 @@ export class GameGateway
     // Send startGame event to clients
     this.server
       .to(roomName)
-      .emit(startGameEvent, [playerOne.player.user, playerTwo.player.user]);
+      .emit(startGameEvent, {
+        mode: gameMode,
+        players: [playerOne, playerTwo],
+      });
 
     // Start the game is the backend
     setTimeout(
@@ -413,7 +418,8 @@ export class GameGateway
         { ...playerOne },
         { ...playerTwo },
         options,
-        'startGameInvite',
+        'invite',
+        'startGame',
         10000,
       );
 

@@ -9,7 +9,7 @@ import TimerStartGameInvite from "./TimerStartGameInvite.vue";
 
 // Stores
 const userStore = useUserStore();
-const { loggedUser, usersInGame, usersInQueue, gameSocket, playersDuo } =
+const { loggedUser, usersInGame, usersInQueue, gameSocket } =
   storeToRefs(userStore);
 
 const router = useRouter();
@@ -22,24 +22,24 @@ const inGame = ref<boolean>(false);
 
 if (gameSocket.value) {
   // Start games
-  gameSocket.value.on("startGame", (players: User[]) => {
-    console.log("[QueueSystem] A new match is starting");
-    matchFound.value = true;
-    setTimeout(() => {
-      matchFound.value = false;
-      router.push("/game");
-    }, 5000);
-  });
+  gameSocket.value.on("startGame", (startEvent: any) => {
+    // console.log("[QueueSystem] A new match is starting");
 
-  gameSocket.value.on("startGameInvite", (data: any) => {
-    console.log("[InviteSystem] A new match is starting");
-    players.value = data;
-    matchInvite.value = true;
+    let startTime;
+    players.value = startEvent.players;
+    if (startEvent.mode === "matchmaking") {
+      matchFound.value = true;
+      startTime = 5000;
+    } else if (startEvent.mode === "invite") {
+      matchInvite.value = true;
+      startTime = 10000;
+    }
+
     setTimeout(() => {
-      matchInvite.value = false;
-      players.value = null;
+      if (startEvent.mode === "matchmaking") matchFound.value = false;
+      else if (startEvent.mode === "invite") matchInvite.value = false;
       router.push("/game");
-    }, 10000);
+    }, startTime);
   });
 
   // Determine if already in queue, and update in queue users

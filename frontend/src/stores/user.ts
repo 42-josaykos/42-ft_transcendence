@@ -20,7 +20,6 @@ export const useUserStore = defineStore("user", () => {
   const isTwoFactorAuth = ref<boolean>(false);
   const userClick = ref<User>();
   const setting_open = ref<boolean>(false);
-  const playersDuo = ref<User[]>([]);
   const modalFriends = ref<boolean>(false);
   const leaderboard = ref<any>([]);
   const flashMsg = ref<string>("");
@@ -136,7 +135,6 @@ export const useUserStore = defineStore("user", () => {
     IDInArray,
     valueInArray,
     isMyProfile,
-    playersDuo,
     flashMsg,
   };
 });
