@@ -61,7 +61,7 @@ const userListOffline = computed(() => {
 </script>
 
 <template>
-  <div class="infoGame">
+  <div class="infoGame scrollBar_invisible">
     <div class="cont">
       <div
         class="neon-typo pt-4"
@@ -79,6 +79,15 @@ const userListOffline = computed(() => {
 </template>
 
 <style scoped>
+
+.scrollBar_invisible {
+  scrollbar-width: none;
+}
+
+.scrollBar_invisible::-webkit-scrollbar {
+  display: none;
+}
+
 .hovertext {
   position: relative;
   border-bottom: 1px dotted black;
@@ -115,8 +124,21 @@ const userListOffline = computed(() => {
   min-height: 400px;
   max-height: 400px;
   overflow-y: scroll;
+  overflow-x: hidden;
   border-radius: 30px;
   box-shadow: 0px 0px 10px 2px white, inset 0px 0px 4px 2px white;
+}
+
+.infoGame hr {
+  display: block;
+  position: relative;
+  height: 2px;
+  box-shadow: 0px 0px 10px white, 0px 0px 15px 5px white;
+  opacity: 1;
+  width: 90%;
+  color: #fffed9;
+  margin: auto;
+  margin-top: 10px;
 }
 
 .cont {
@@ -136,22 +158,6 @@ p {
 .neon-typo {
   color: #ffffff;
   text-shadow: 0px 4px 15px white, 0px 0px 10px white;
-}
-
-.infoGame {
-  overflow: hidden;
-}
-
-.infoGame hr {
-  display: block;
-  position: relative;
-  height: 2px;
-  box-shadow: 0px 0px 10px white, 0px 0px 15px 5px white;
-  opacity: 1;
-  width: 90%;
-  color: #fffed9;
-  margin: auto;
-  margin-top: 10px;
 }
 
 th {
