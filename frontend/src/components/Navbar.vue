@@ -75,6 +75,11 @@ const waiting = ref<boolean>(false);
       </div>
     </div>
 
+    <div class="title-small-screen">
+      <span class="neonText">
+          Space Pong
+        </span>
+    </div>
     <div class="row">
       <div class="d-flex btn-navbar">
         <router-link
@@ -188,9 +193,11 @@ li .row:hover {
   width: 8vw;
   height: 8vw;
 }
-.size-title {
-  font-size: 7vw;
+
+.title-small-screen{
+  display: none;
 }
+
 @media screen and (max-width: 540px) {
   .btn-nav {
     margin-bottom: 45px;
@@ -207,6 +214,16 @@ li .row:hover {
   }
   .size-title {
     margin-left: 30px;
+    font-size: calc(1.625rem + 1vw);
+  }
+}
+
+@media screen and (max-width: 340px) {
+  .size-title {
+    display: none;
+  }
+  .title-small-screen{
+    display: block;
     font-size: x-large;
   }
 }
