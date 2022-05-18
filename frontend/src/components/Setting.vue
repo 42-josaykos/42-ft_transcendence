@@ -145,6 +145,9 @@ async function updateAvatar(event: any) {
     if (file) {
       let formData = new FormData();
       formData.append('avatarUpload', file);
+      if (loggedUser.value) {
+        formData.append('id', loggedUser.value.id.toString())
+      }
       let response;
       try {
         response = await ax.post('/upload', formData, {
