@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import TeamProfil from "./TeamProfil.vue";
-import { storeToRefs } from "pinia";
-import { useUserStore } from "@/stores/user";
-import Ladder from "./profile/Ladder.vue";
-import Navbar from "./Navbar.vue";
-import LiveGames from "./game/LiveGames.vue";
-import UserList from "./UserList.vue";
+import { ref } from 'vue';
+import TeamProfil from './TeamProfil.vue';
+import { storeToRefs } from 'pinia';
+import { useUserStore } from '@/stores/user';
+import Ladder from './profile/Ladder.vue';
+import Navbar from './Navbar.vue';
+import LiveGames from './game/LiveGames.vue';
+import UserList from './UserList.vue';
 
 const profil_vmoreau = ref(false);
 const profil_mabriand = ref(false);
@@ -15,8 +15,7 @@ const profil_lchapren = ref(false);
 const profil_adupuy = ref(false);
 
 const userStore = useUserStore();
-const { isAuthenticated, loggedUser, setting_open, userClick } =
-  storeToRefs(userStore);
+storeToRefs(userStore);
 </script>
 
 <template>
@@ -136,7 +135,6 @@ const { isAuthenticated, loggedUser, setting_open, userClick } =
 </template>
 
 <style scoped>
-
 #Footer {
   background-color: rgba(0, 0, 0, 0.65);
 }
@@ -146,7 +144,7 @@ const { isAuthenticated, loggedUser, setting_open, userClick } =
 }
 .team_btn {
   position: relative;
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
   font-size: x-large;
   border-radius: 10px;
   border: none;
