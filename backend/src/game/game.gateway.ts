@@ -173,6 +173,8 @@ export class GameGateway
     );
 
     if (userIndex !== -1) this.queue.splice(userIndex, 1);
+
+    this.sendInQueueUsers()
   }
 
   @SubscribeMessage('getOngoingGames')
