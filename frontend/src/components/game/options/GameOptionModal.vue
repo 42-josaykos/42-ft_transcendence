@@ -10,8 +10,8 @@ const { gameSocket, loggedUser, userClick, modaleOpenInviteGame } =
   storeToRefs(userStore);
 
 // Game options
-const paddleSize = ref<number>(2);
-const ballSpeed = ref<number>(3);
+const paddleSize = ref<number>(5);
+const ballSpeed = ref<number>(5);
 
 // Oops
 const getter = (variable: any) => {
@@ -19,7 +19,10 @@ const getter = (variable: any) => {
 };
 
 const decrementPaddleSize = () => {
+  // console.log("dec paddle: ", paddleSize.value);
+
   paddleSize.value = getter(paddleSize.value) - 1;
+  // console.log("after dec paddle: ", paddleSize.value);
 };
 const incrementPaddleSize = () => {
   paddleSize.value = getter(paddleSize.value) + 1;
@@ -32,6 +35,8 @@ const incrementBallSpeed = () => {
 };
 
 const inviteToGame = () => {
+  console.log("paddle.size: ", paddleSize.value);
+  console.log("ball.speed: ", ballSpeed.value);
   gameSocket.value?.emit("addInvite", {
     playerOne: loggedUser.value,
     playerTwo: userClick.value,

@@ -17,7 +17,7 @@ const emit = defineEmits([
   "incrementBallSpeed",
 ]);
 
-let level = ref<Number>(props.startLevel ? props.startLevel : 2);
+let level = ref<Number>(props.startLevel ? props.startLevel : 5);
 
 // Determine
 const isMin = () => {
