@@ -12,7 +12,7 @@ const userStore = useUserStore();
 const { loggedUser } = storeToRefs(userStore);
 
 const gameStore = useGameStore();
-const { gameSocket } = storeToRefs(gameStore);
+const { gameSocket, usersInGame } = storeToRefs(gameStore);
 
 const router = useRouter();
 
@@ -107,14 +107,15 @@ const acceptInviteToGame = (inviteUser: any) => {
               <UserCard class="ms-2" :user="invite.sender.user" :dashboard="true" :profile="false"/>
               <div class="ms-auto">
                 <button
-                  @click="
+                  @click="if (!userStore.valueInArray(invite.sender.user.id, usersInGame)) {
                     modaleAllInvitesGame = false;
                     acceptInviteToGame(invite.sender.user);
+                  }
                   "
                   type="button"
                   class="mod-btn mod-btn-cyan btn-sm"
                 >
-                  Play
+                  {{userStore.valueInArray(invite.sender.user.id, usersInGame) ? 'Already in game' : 'Play'}}
                 </button>
               </div>
             </div>
