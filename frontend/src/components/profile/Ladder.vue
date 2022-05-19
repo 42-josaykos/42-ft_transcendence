@@ -48,7 +48,7 @@ getPlayersStats();
 </script>
 
 <template>
-  <div class="leaderBoard mb-5">
+  <div class="leaderBoard scrollBar_invisible mb-5">
     <div class="cont">
       <div
         class="neon-typo pt-4"
@@ -179,7 +179,6 @@ getPlayersStats();
   border-radius: 30px;
   box-shadow: 0px 0px 10px 2px white, inset 0px 0px 4px 2px white;
   overflow-y: scroll;
-  /* overflow: hidden; */
 }
 
 .leaderBoard hr {
@@ -192,6 +191,14 @@ getPlayersStats();
   color: #fffed9;
   margin: auto;
   margin-top: 10px;
+}
+
+.scrollBar_invisible {
+  scrollbar-width: none;
+}
+
+.scrollBar_invisible::-webkit-scrollbar {
+  display: none;
 }
 
 th {
