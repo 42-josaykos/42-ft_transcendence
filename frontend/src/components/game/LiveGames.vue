@@ -89,7 +89,7 @@ const acceptInviteToGame = (inviteUser: any) => {
           <td class="neon-typo versus">VS</td>
           <th class="watch_player">{{ game.playerTwo.username }}</th>
           <td>
-            <a href="#" @click="spectate(game.id)" class="hovertext hovertextL" data-hover="See the game"
+            <a href="javascript:void();" @click="spectate(game.id)" class="hovertext hovertextL" data-hover="See the game"
               ><i class="fa-solid fa-eye fa-xl action_icon"></i
             ></a>
           </td>
