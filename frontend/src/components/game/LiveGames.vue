@@ -55,7 +55,8 @@ const acceptInviteToGame = (inviteUser: any) => {
         >
           Live Game
         </div>
-        <button
+
+        <!-- <button
           @click="modaleAllInvitesGame = true"
           type="button"
           class="rounded btn-channel wrapper-icon-leave hovertext hovertextC pt-4 btn-badge"
@@ -64,7 +65,17 @@ const acceptInviteToGame = (inviteUser: any) => {
           <span class="position-badge-game translate-middle rounded-pill">
             {{ gameInvites.length }}
           </span>
-        </button>
+        </button> -->
+        <div
+          @click="modaleAllInvitesGame = true"
+          type="button"
+          class="hovertext hovertextC invit_pod"
+          data-hover="See all invitations to play"
+        >
+          <div class="invit_info">
+            {{ gameInvites.length }}
+          </div>
+        </div>
       </div>
       <hr />
       <br />
@@ -129,6 +140,40 @@ const acceptInviteToGame = (inviteUser: any) => {
 </template>
 
 <style scoped>
+
+.invit_pod{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #dfaf2c;
+  border: #dfaf2c 5px solid;
+  box-shadow: 0px 0px 10px 2px #daba64;
+  margin-left: 2rem;
+  margin-top: 2rem;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  transition: 0.4s;
+  text-align: center;
+}
+
+.invit_pod:hover{
+  box-shadow: 0px 0px 10px #daba64, 0px 0px 15px 5px #daba64;
+}
+
+@-moz-document url-prefix() {
+  .invit_pod {
+    padding-top: 5px;
+    padding-left: 1px;
+  }
+}
+.invit_info{
+  color: white;
+  font-weight: bold;
+  transition: 0.4s;
+
+}
+
 .infoGame {
   display: grid;
 
