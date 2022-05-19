@@ -25,7 +25,7 @@ const router = useRouter();
 
 if (isAuthenticated.value) {
   gameSocket.value = io(
-    "ws://${process.env.BACKEND_HOST}:${process.env.GAME_PORT}/game",
+    `ws://${process.env.BACKEND_HOST}:${process.env.GAME_PORT}/game`,
     {
       withCredentials: true,
     }
