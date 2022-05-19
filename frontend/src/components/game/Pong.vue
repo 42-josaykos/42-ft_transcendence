@@ -4,7 +4,6 @@ import { storeToRefs, mapState } from "pinia";
 import { useUserStore } from "@/stores/user";
 import { useGameStore } from "@/stores/game";
 import { useRouter } from "vue-router";
-import { Player } from "@/models/game.model";
 import MatchInfo from "./MatchInfo.vue";
 import ModaleResult from "./ModaleResult.vue";
 
