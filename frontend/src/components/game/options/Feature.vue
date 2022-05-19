@@ -17,7 +17,7 @@ const emit = defineEmits([
   "incrementBallSpeed",
 ]);
 
-let level = ref<Number>(props.startLevel ? props.startLevel : 5);
+const level = ref<Number>(props.startLevel ? props.startLevel : 5);
 
 // Determine
 const isMin = () => {
@@ -67,6 +67,7 @@ const getter = (variable: any) => {
         v-model="level"
         :min="props.levelMin"
         :max="props.levelMax"
+        disabled
       />
       <button
         class="mod-btn mod-btn-cyan"

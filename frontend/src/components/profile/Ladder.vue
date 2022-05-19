@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { Get } from "@/services/requests";
+import { useGameStore } from "@/stores/game";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
-import { ref } from "vue";
 
 const userStore = useUserStore();
-const { userClick, setting_open, leaderboard, gameSocket, socketChat } =
+const { userClick, setting_open, leaderboard, socketChat } =
   storeToRefs(userStore);
+
+const gameStore = useGameStore();
+const { gameSocket } = storeToRefs(gameStore);
 
 // Listen and ask stats updates
 gameSocket.value?.on("askStatsUpdate", (data: any) => {
@@ -45,7 +48,7 @@ getPlayersStats();
 </script>
 
 <template>
-  <div class="leaderBoard mb-5">
+  <div class="leaderBoard scrollBar_invisible mb-5">
     <div class="cont">
       <div
         class="neon-typo pt-4"
@@ -176,7 +179,6 @@ getPlayersStats();
   border-radius: 30px;
   box-shadow: 0px 0px 10px 2px white, inset 0px 0px 4px 2px white;
   overflow-y: scroll;
-  /* overflow: hidden; */
 }
 
 .leaderBoard hr {
@@ -189,6 +191,14 @@ getPlayersStats();
   color: #fffed9;
   margin: auto;
   margin-top: 10px;
+}
+
+.scrollBar_invisible {
+  scrollbar-width: none;
+}
+
+.scrollBar_invisible::-webkit-scrollbar {
+  display: none;
 }
 
 th {

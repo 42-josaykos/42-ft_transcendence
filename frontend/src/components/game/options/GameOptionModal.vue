@@ -3,11 +3,14 @@ import GameOption from "./GameOption.vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
 import { ref } from "vue";
+import { useGameStore } from "@/stores/game";
 
 // Stores
 const userStore = useUserStore();
-const { gameSocket, loggedUser, userClick, modaleOpenInviteGame } =
-  storeToRefs(userStore);
+const { loggedUser, userClick, modaleOpenInviteGame } = storeToRefs(userStore);
+
+const gameStore = useGameStore();
+const { gameSocket } = storeToRefs(gameStore);
 
 // Game options
 const paddleSize = ref<number>(5);
@@ -19,10 +22,7 @@ const getter = (variable: any) => {
 };
 
 const decrementPaddleSize = () => {
-  // console.log("dec paddle: ", paddleSize.value);
-
   paddleSize.value = getter(paddleSize.value) - 1;
-  // console.log("after dec paddle: ", paddleSize.value);
 };
 const incrementPaddleSize = () => {
   paddleSize.value = getter(paddleSize.value) + 1;
@@ -35,8 +35,8 @@ const incrementBallSpeed = () => {
 };
 
 const inviteToGame = () => {
-  console.log("paddle.size: ", paddleSize.value);
-  console.log("ball.speed: ", ballSpeed.value);
+  // console.log("paddleSize: ", paddleSize.value);
+  // console.log("ballSpeed: ", ballSpeed.value);
   gameSocket.value?.emit("addInvite", {
     playerOne: loggedUser.value,
     playerTwo: userClick.value,

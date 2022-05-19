@@ -5,7 +5,7 @@ import { useMatchStore } from '@/stores/match';
 import { storeToRefs } from 'pinia';
 import { onMounted, ref } from 'vue';
 
-const { userClick } = storeToRefs(useUserStore());
+const { userClick, loggedUser } = storeToRefs(useUserStore());
 const { matches } = storeToRefs(useMatchStore());
 const nbMatches = ref(0)
 
@@ -26,27 +26,26 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container">
-
-    <div class="history">
-      <h4>
-        <b><u>History</u></b>
-      </h4>
-      <table class="table table-dark table-bordered">
-        <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Player 1</th>
-            <th scope="col">Player 2</th>
-            <th scope="col">Score</th>
-            <th scope="col">Win / Lose</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(match, index) in matches" :key="match.id">
-            <th scope="row">{{ nbMatches - index }}</th>
-            <td>
+  <h4>
+    <b><u>Match history</u></b>
+  </h4>
+  <div class="match_history">
+    <table style="table-layout: fixed;">
+      <thead style="border-bottom: 10px solid rgba(0, 0, 0, 0);">
+        <tr>
+          <!-- <th scope="col">#</th> -->
+          <th class="table_title" scope="col">Player 1</th>
+          <th class="table_title" scope="col">Player 2</th>
+          <th class="table_title" scope="col">Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(match, index) in matches" :key="match.id">
+          <td style="" v-bind:class="{'mePlayer' : loggedUser?.id === match.players[0].id }" class="player">
+            <div class="box" style="gap: 5px;">
+              <div class="item"><img class="circular--square" style="width: 25px" v-bind:src="match.players[0].avatar" /></div>
               <a
+                class="item player"
                 href="#"
                 @click="
                   userClick = match.players[0];
@@ -54,9 +53,14 @@ onMounted(() => {
                 "
                 >{{ match.players[0].username }}</a
               >
-            </td>
-            <td>
+              <!-- <div class="item player">{{ match.players[0].username }}</div> -->
+            </div>
+          </td>
+          <td v-bind:class="{'mePlayer' : loggedUser?.id === match.players[1].id}" class="player">
+            <div class="box" style="gap: 5px;">
+              <div class="item"><img class="circular--square" style="width: 25px" v-bind:src="match.players[1].avatar" /></div>
               <a
+                class="item player"
                 href="#"
                 @click="
                   userClick = match.players[1];
@@ -64,22 +68,65 @@ onMounted(() => {
                 "
                 >{{ match.players[1].username }}</a
               >
-            </td>
-            <td>{{ match.score[0] }} - {{ match.score[1] }}</td>
-            <td v-if="match.winner.id === userClick?.id">Win</td>
-            <td v-else>Lose</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+              <!-- <div class="item player">{{ match.players[1].username }}</div> -->
+            </div>
+          </td>
+          <td>
+            <div class="box">
+              <div class="item" v-bind:style= "match.score[0] === 10 ? 'color: #1e9c61;' :'' ">{{ match.score[0] }} </div>
+              <div class="item">-</div>
+              <div class="item" v-bind:style= "match.score[1] === 10 ? 'color: #1e9c61;' :'' ">{{ match.score[1] }} </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
 <style scoped>
-.container {
+
+.box{
   display: flex;
-  flex-direction: column;
   align-items: center;
-  min-width: 75%;
+  flex-wrap: nowrap;
+  justify-content: center;
+}
+
+.box .item{
+  width: 20px;
+}
+.winScore{
+  color: #1e9c61;
+}
+
+a.item.player{
+  text-decoration: none;
+  color: inherit;
+}
+
+.item.player{
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100px;
+}
+
+.item.player:hover{
+  overflow: visible;
+  white-space: normal;
+  width: 100px;
+  text-decoration: underline;
+}
+.mePlayer{
+  color: #1e579c !important;
+}
+
+.match_history {
+  display: grid;
+}
+
+.table_title{
+  font-size: large;
 }
 </style>

@@ -8,10 +8,8 @@ import { computed } from 'vue';
 export const useUserStore = defineStore('user', () => {
   const users = ref<User[]>([]);
   const usersOnline = ref<Number[]>([]);
-  const usersInQueue = ref<User[]>([]);
-  const usersInGame = ref<User[]>([]);
+  const usersList = ref<User[]>([]);
   const loggedUser = ref<User | undefined>();
-  const gameSocket = ref<Socket>();
   const isAuthenticated = ref(false);
   const socketChat = ref<Socket>();
   const statusSocket = ref<Socket>();
@@ -108,14 +106,12 @@ export const useUserStore = defineStore('user', () => {
     users,
     loggedUser,
     usersOnline,
-    usersInQueue,
-    usersInGame,
+    usersList,
     isAuthenticated,
     socketChat,
     statusSocket,
     usersBlocked,
     usersFriends,
-    gameSocket,
     isTwoFactorAuth,
     userClick,
     setting_open,

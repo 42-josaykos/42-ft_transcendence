@@ -9,7 +9,7 @@ const props = defineProps({
   playerTwo: Object,
 });
 
-const time = ref<number>(9);
+const time = ref<number>(4);
 let intervalId: any;
 
 const decrement = () => {
