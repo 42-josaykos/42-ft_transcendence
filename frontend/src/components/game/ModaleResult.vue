@@ -1,82 +1,70 @@
-<script>
-import { mapState } from "pinia";
+<script setup lang="ts">
+import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
-export default {
-	name: "ModaleResult",
-	data: function () {
-		return {
-			result: {},
-			duo: {}, //duo[0] is LEFT, duo[1] is RIGHT
-            sounds: {},
-		};
-	},
-	props: ["player_L", "player_R"],
-	computed: {
-		...mapState(useUserStore, ["loggedUser", "playersDuo"]),
-        getSounds: function () {
-            this.sounds.win = new Audio("./src/components/sounds/win.wav");
-            this.sounds.win.volume = 0.1;
-            this.sounds.loose = new Audio("./src/components/sounds/loose.wav");
-            this.sounds.loose.volume = 0.1;
-            return this.sounds;
-        },
-		getResult: function() {
-			if (this.loggedUser.username == this.duo[0].username) { // loggedUser est a gauche
-				
-				if (this.player_L.score == 10)
-					this.result = true;
-				else
-					this.result = false;
-			}
-			else {
-				if (this.player_R.score == 10)
-					this.result = true;
-				else
-					this.result = false;
-			}
-            if (this.result == true)
-                this.sounds.win.play();
-            else
-                this.sounds.loose.play();
-			return (this.result);
-		},
-	},
-	created() {
-		console.log("HERE");
-		console.log(this.endgame);
-		this.duo = this.playersDuo;
-		this.getResult;
-		console.log("HERE");
-		return ;
-	},
+
+// Props
+const props = defineProps({
+  player_L: Object,
+  player_R: Object,
+  score_L: Number,
+  score_R: Number,
+});
+
+// Stores
+const userStore = useUserStore();
+const { loggedUser } = storeToRefs(userStore);
+
+const sounds = {
+  win: new Audio("./src/components/sounds/win.wav"),
+  loose: new Audio("./src/components/sounds/loose.wav"),
+};
+sounds.win.volume = 0.1;
+sounds.loose.volume = 0.1;
+
+const winner = props.score_L > props.score_R ? props.player_L : props.player_R;
+
+const isPlayer = () => {
+  return (
+    props.player_L.id === loggedUser.value.id ||
+    props.player_R.id === loggedUser.value.id
+  );
+};
+
+const playerWon = () => {
+  if (winner.id === loggedUser.value.id) {
+    sounds.win.play();
+    return true;
+  } else {
+    sounds.loose.play();
+    return false;
+  }
 };
 </script>
 
 <template>
-    <!-- <div v-if="active_result"> -->
-        <div class="bloc_modale_result">
-            <div class="overlay_result" @click="active_result = false"></div>
-            <div class="modale_result card" @click="active_result = false">
-                <!-- <span v-if="this.result" class="shiny">
-                    <span class="inner-shiny">YOU WIN</span>
-                </span> -->
-                <span v-if="this.result" class="glitch win">
-                   <span aria-hidden="true">YOU WIN</span>
-                    YOU WIN
-                    <span aria-hidden="true">YOU WIN</span>
-                </span>
-
-
-                <p v-else class="glitch loose">
-                    <span aria-hidden="true">YOU LOOSE</span>
-                    YOU LOOSE
-                    <span aria-hidden="true">YOU LOOSE</span>
-                </p>
-            </div>
-        </div>
-    <!-- </div> -->
+  <div class="bloc_modale_result">
+    <div class="overlay_result" @click="active_result = false"></div>
+    <div class="modale_result card" @click="active_result = false"></div>
+    <span v-if="isPlayer()">
+      <span v-if="playerWon()" class="glitch win">
+        <span aria-hidden="true">YOU WIN</span>
+        YOU WIN
+        <span aria-hidden="true">YOU WIN</span>
+      </span>
+      <span v-else class="glitch loose">
+        <span aria-hidden="true">YOU LOOSE</span>
+        YOU LOOSE
+        <span aria-hidden="true">YOU LOOSE</span>
+      </span>
+    </span>
+    <span v-else class="glitch">
+      <span aria-hidden="true">{{ winner.username }} WON</span>
+      {{ winner.username }} WON
+      <span aria-hidden="true">{{ winner.username }} WON</span>
+    </span>
+  </div>
 </template>
- 
+
 <style scoped>
 /* .shiny
 {
@@ -91,7 +79,7 @@ export default {
     position: relative;
     text-transform: uppercase;
 } */
- 
+
 /* .shiny::before
 {
     background-position: -180px;
@@ -107,7 +95,7 @@ export default {
     padding-right: 140px;
     position: absolute;
 } */
- 
+
 /* .shiny::after
 {
     content: "YOU WIN";
@@ -118,7 +106,7 @@ export default {
     top: 0;
     z-index: -1;
 } */
- 
+
 /* .inner-shiny::after, .inner-shiny::before
 {
     -webkit-animation: sparkle 2s infinite;
@@ -133,7 +121,7 @@ export default {
     position: absolute;
     width: 10px;
 } */
- 
+
 /* .inner-shiny::before
 {
     -webkit-animation-delay: 0.2s;
@@ -142,165 +130,165 @@ export default {
     top: 0.8em;
     width: 7px;
 } */
- 
+
 /* .inner-shiny::after
 {
     top: 0.32em;
     right: -5px;
 } */
- 
-@-webkit-keyframes flare
-{
-    0%   { background-position: -180px; }
-    30% { background-position: 500px; }
-    100% { background-position: 500px; }
-}
- 
-@-webkit-keyframes sparkle
-{
-    0%   { opacity: 0; }
-    30% { opacity: 0; }
-    40% { opacity: 0.8; }
-    60% { opacity: 0; }
-    100% { opacity: 0; }
+
+@-webkit-keyframes flare {
+  0% {
+    background-position: -180px;
+  }
+  30% {
+    background-position: 500px;
+  }
+  100% {
+    background-position: 500px;
+  }
 }
 
-.glitch{
-    color: white;
-        font-size: 5rem;
-        font-weight: bold;
-        text-transform: uppercase;
-        position: relative;
- 
-        text-shadow:
-                0.05em 0 0 rgba(0, 0, 255, 0.75),
-                -0.025em -0.05em 0 #FFF961,
-                0.025em 0.05em 0 #FF83BA;
- 
-        animation: glitch 500ms infinite;
-}
- 
-.glitch span{
-        position: absolute;
-        top: 0;
-        left: 0;
-}
- 
-.glitch span:first-child{
-        animation: glitch 650ms infinite;
-        clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
-        transform: translate(-.05em, -0.0125em);
-        opacity: 0.8;
-}
-.glitch span:last-child{
-        animation: glitch 375ms infinite;
-        clip-path: polygon(0 60%, 100% 60%, 100% 100%, 0 100%);
-        transform: translate(0.0125em, 0.025em);
-        opacity: 0.8;
-}
- 
-@keyframes glitch{
-        0%{
-                text-shadow:
-                0.05em 0 0 rgba(0, 0, 255, 0.75),
-                -0.05em -0.025em 0 #FFF961,
-                -0.025em 0.05em 0 #FF83BA;
-        }
-        14%{
-                text-shadow:
-                0.05em 0 0 rgba(0, 0, 255, 0.75),
-                -0.05em -0.025em 0 #FFF961,
-                -0.025em 0.05em 0 #FF83BA;
-        }
-        15%{
-                text-shadow:
-                -0.05em -0.025em 0 rgba(0, 0, 255, 0.75),
-                0.025em 0.025em 0 #FFF961,
-                -0.05em -0.05em 0 #FF83BA;
-        }
-        49%{
-                text-shadow:
-                -0.05em -0.025em 0 rgba(0, 0, 255, 0.75),
-                0.025em 0.025em 0 #FFF961,
-                -0.05em -0.05em 0 #FF83BA;
-        }
-        50%{
-                text-shadow:
-                0.025em 0.05em 0 rgba(0, 0, 255, 0.75),
-                0.05em 0 0 #FFF961,
-                0 -0.05em 0 #FF83BA;
-        }
-        99%{
-                text-shadow:
-                0.025em 0.05em 0 rgba(0, 0, 255, 0.75),
-                0.05em 0 0 #FFF961,
-                0 -0.05em 0 #FF83BA;
-        }
-        100%{
-                text-shadow:
-                -0.025em 0 0 rgba(0, 0, 255, 0.75),
-                -0.025em -0.025em 0 #FFF961,
-                -0.025em -0.05em 0 #FF83BA;
-        }
-}
- 
-@media (prefers-reduced-motion: reduce) {
-        *,::before, ::after{
-                animation-delay: -1ms !important;
-                animation-duration: 1ms !important;
-                animation-iteration-count: 1 !important;
-                background-attachment: initial !important;
-                scroll-behavior: auto !important;
-                transition-duration: 0s !important;
-                transition-delay: 0s !important;
-        }
-}
-.test_btn{
-    width: 200px;
-    height: 100px;
-    border-radius: 10px;
-    font-size: 40px;
-}
- 
-.bloc_modale_result {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    animation: fadeInAnimation ease 1s;
-    animation-fill-mode: forwards;
-    animation-iteration-count: 1;
-}
- 
-.bloc_modale_result .overlay_result {
-    background-color: rgba(0, 0, 0, 0.65);
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    opacity: 1;
-}
- 
-.bloc_modale_result .modale_result {
-    background: rgba(0, 0, 0, 0);
-    border: none;
-    padding: 30px;
-    position: fixed;
-    opacity: 1;
-}
- 
-@keyframes fadeInAnimation {
-    0% {
+@-webkit-keyframes sparkle {
+  0% {
     opacity: 0;
-    }
-    100% {
+  }
+  30% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 0.8;
+  }
+  60% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.glitch {
+  color: white;
+  font-size: 5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  position: relative;
+
+  text-shadow: 0.05em 0 0 rgba(0, 0, 255, 0.75), -0.025em -0.05em 0 #fff961,
+    0.025em 0.05em 0 #ff83ba;
+
+  animation: glitch 500ms infinite;
+}
+
+.glitch span {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.glitch span:first-child {
+  animation: glitch 650ms infinite;
+  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+  transform: translate(-0.05em, -0.0125em);
+  opacity: 0.8;
+}
+.glitch span:last-child {
+  animation: glitch 375ms infinite;
+  clip-path: polygon(0 60%, 100% 60%, 100% 100%, 0 100%);
+  transform: translate(0.0125em, 0.025em);
+  opacity: 0.8;
+}
+
+@keyframes glitch {
+  0% {
+    text-shadow: 0.05em 0 0 rgba(0, 0, 255, 0.75), -0.05em -0.025em 0 #fff961,
+      -0.025em 0.05em 0 #ff83ba;
+  }
+  14% {
+    text-shadow: 0.05em 0 0 rgba(0, 0, 255, 0.75), -0.05em -0.025em 0 #fff961,
+      -0.025em 0.05em 0 #ff83ba;
+  }
+  15% {
+    text-shadow: -0.05em -0.025em 0 rgba(0, 0, 255, 0.75),
+      0.025em 0.025em 0 #fff961, -0.05em -0.05em 0 #ff83ba;
+  }
+  49% {
+    text-shadow: -0.05em -0.025em 0 rgba(0, 0, 255, 0.75),
+      0.025em 0.025em 0 #fff961, -0.05em -0.05em 0 #ff83ba;
+  }
+  50% {
+    text-shadow: 0.025em 0.05em 0 rgba(0, 0, 255, 0.75), 0.05em 0 0 #fff961,
+      0 -0.05em 0 #ff83ba;
+  }
+  99% {
+    text-shadow: 0.025em 0.05em 0 rgba(0, 0, 255, 0.75), 0.05em 0 0 #fff961,
+      0 -0.05em 0 #ff83ba;
+  }
+  100% {
+    text-shadow: -0.025em 0 0 rgba(0, 0, 255, 0.75), -0.025em -0.025em 0 #fff961,
+      -0.025em -0.05em 0 #ff83ba;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-delay: -1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    background-attachment: initial !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+}
+.test_btn {
+  width: 200px;
+  height: 100px;
+  border-radius: 10px;
+  font-size: 40px;
+}
+
+.bloc_modale_result {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeInAnimation ease 1s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: 1;
+}
+
+.bloc_modale_result .overlay_result {
+  background-color: rgba(0, 0, 0, 0.65);
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  opacity: 1;
+}
+
+.bloc_modale_result .modale_result {
+  background: rgba(0, 0, 0, 0);
+  border: none;
+  padding: 30px;
+  position: fixed;
+  opacity: 1;
+}
+
+@keyframes fadeInAnimation {
+  0% {
+    opacity: 0;
+  }
+  100% {
     opacity: 1;
-    }
+  }
 }
 </style>

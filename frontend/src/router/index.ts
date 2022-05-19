@@ -1,30 +1,15 @@
 import { createWebHistory, createRouter } from 'vue-router';
 import { Get } from '@/services/requests';
 import Home from '@/components/Home.vue';
-import Game from '@/components/game/Game.vue';
-import Matchmaking from '@/components/game/Matchmaking.vue';
 import Pong from '@/components/game/Pong.vue';
-import Debug from '@/components/debug/Debug.vue';
 import PageNotFound from '@/components/PageNotFound.vue';
 import Login from '@/components/Login.vue';
 import Chat from '@/components/chat/Chat.vue';
 import Setting from '@/components/Setting.vue';
-import Register from '@/components/Register.vue';
-import Toto from '@/components/Toto.vue';
 import Authenticate2fa from '@/components/Authenticate2fa.vue';
 import MatchHistory from '@/components/profile/MatchHistory.vue';
 
 const routes = [
-  {
-    path: '/toto',
-    name: 'Toto',
-    component: Toto
-  },
-  {
-    path: '/debug',
-    name: 'Debug',
-    component: Debug
-  },
   {
     path: '/',
     name: 'Home',
@@ -33,15 +18,9 @@ const routes = [
   },
   {
     path: '/game',
-    name: 'Game',
+    name: 'Pong',
     beforeEnter: routeGuard,
-    component: Game
-  },
-  {
-    path: '/matchmaking',
-    name: 'Matchmaking',
-    beforeEnter: routeGuard,
-    component: Matchmaking
+    component: Pong
   },
   {
     path: '/spectate',

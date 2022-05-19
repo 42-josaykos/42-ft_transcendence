@@ -20,20 +20,21 @@ export const useUserStore = defineStore('user', () => {
   const isTwoFactorAuth = ref<boolean>(false);
   const userClick = ref<User>();
   const setting_open = ref<boolean>(false);
-  const playersDuo = ref<User[]>([]);
   const modalFriends = ref<boolean>(false);
   const leaderboard = ref<any>([]);
-  const flashMsg = ref<boolean>(false)
+  const flashMsg = ref<boolean>(false);
 
   const modaleOpenInviteGame = ref<boolean>(false);
 
   const IDInArray = (id: any, array: any[]) => {
+    if (!id || !array) return false;
     const index = array.findIndex((arrayValue: any) => id == arrayValue);
     if (index === -1) return false;
     else return true;
   };
 
   const valueInArray = (value: any, array: any[]) => {
+    if (!value || !array) return false;
     const index = array.findIndex((arrayValue: any) => value == arrayValue.id);
     if (index === -1) return false;
     else return true;
@@ -134,7 +135,6 @@ export const useUserStore = defineStore('user', () => {
     IDInArray,
     valueInArray,
     isMyProfile,
-    playersDuo,
-    flashMsg,
+    flashMsg
   };
 });
