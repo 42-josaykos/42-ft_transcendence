@@ -89,6 +89,11 @@ if (isAuthenticated.value) {
       router.push("/game");
     }, startTime);
   });
+
+  gameSocket.value.on('userInviteDisconnect', (message: String) => {
+    //TO DO: DISPLAY NOTIFICATION
+    console.log("Message error disconnect => ", message)
+  })
 }
 </script>
 

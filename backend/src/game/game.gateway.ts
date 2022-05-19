@@ -425,16 +425,16 @@ export class GameGateway
     if (userInviteIndex !== -1) this.queue.splice(userInviteIndex, 1)
     if (userGuestIndex !== -1) this.queue.splice(userGuestIndex, 1)
 
-    // Get game options
-    const inviteGuest = this.invites.find(
-      (invite) => invite.user.user.id === userGuest.user.id,
-    );
-    const options = inviteGuest.invitesReceived.find(
-      (invite) => invite.sender.user.id === userInvite.user.id,
-    ).gameOptions;
-
     // If user are still connected
     if (userInvite && userGuest) {
+      // Get game options
+      const inviteGuest = this.invites.find(
+        (invite) => invite.user.user.id === userGuest.user.id,
+      );
+      const options = inviteGuest.invitesReceived.find(
+        (invite) => invite.sender.user.id === userInvite.user.id,
+      ).gameOptions;
+
       const playerOne: Player = { player: userInvite };
       const playerTwo: Player = { player: userGuest };
 
@@ -449,6 +449,9 @@ export class GameGateway
 
       // Delete guest's invite
       this.removeGameInvite(userInvite, userGuest);
+    }
+    else {
+      this.server.to(client.id).emit('userInviteDisconnect', `${players[0].username} is disconnect, the game can't be started`)
     }
   }
 
