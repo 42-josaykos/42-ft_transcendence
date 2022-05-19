@@ -11,7 +11,6 @@ import { useMessageStore } from "@/stores/message";
 import Queue from "./game/Queue.vue";
 import BtnUserCard from './BtnUserCard.vue';
 import GameOptionModal from "./game/options/GameOptionModal.vue";
-
 const {
   setting_open,
   userClick,
@@ -21,11 +20,9 @@ const {
   modaleOpenInviteGame,
 } = storeToRefs(useUserStore());
 const { modalSendMessage } = storeToRefs(useMessageStore());
-
 defineProps<{
   componentName: string;
 }>();
-
 onMounted(async () => {
   if (loggedUser.value != undefined) {
     await Get(`/users/search?id=${loggedUser.value?.id}&friends`).then(
@@ -160,13 +157,11 @@ li .row:hover {
   width: 8vw;
   height: 8vw;
 }
-
 @media screen and (max-width: 540px) {
   .btn-nav {
     margin-bottom: 45px;
     margin-right: auto;
     margin-left: auto;
-
     width: 55px;
     padding-left: 0px !important;
     padding-right: 0px !important;
@@ -175,6 +170,5 @@ li .row:hover {
     width: 12vw;
     height: 12vw;
   }
-
 }
 </style>

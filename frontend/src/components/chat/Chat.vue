@@ -164,6 +164,9 @@ if (socketChat.value != undefined) {
 .col-chat {
   min-height: 90vh;
   width: -webkit-fill-available;
+  width: -moz-available;
+  width: fill-available;
+
   justify-content: center;
   text-decoration: none;
   border: white 3px solid;
