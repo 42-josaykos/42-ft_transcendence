@@ -45,7 +45,7 @@ export class GameGateway
   }
 
   handleConnection(@ConnectedSocket() client: Socket) {
-    this.logger.log(`Connection: ${client.id}`);
+    // this.logger.log(`Connection: ${client.id}`);
     this.server.to(client.id).emit('requestGameUserInfo', '');
   }
 
@@ -69,7 +69,7 @@ export class GameGateway
   }
 
   handleDisconnect(@ConnectedSocket() client: Socket) {
-    this.logger.log(`Disconnect: ${client.id}`);
+    // this.logger.log(`Disconnect: ${client.id}`);
     const userIndex = this.connectedClients.findIndex(
       (connection) => connection.socketID.indexOf(client.id) !== -1,
     );
@@ -77,7 +77,7 @@ export class GameGateway
     // Should never append, but prevention is better than cure
     if (userIndex === -1) {
       // console.log('Client: ', client);
-      console.log('Connected Clients: ', this.connectedClients);
+      console.log('[Game] Connected Clients: ', this.connectedClients);
       throw new WsException('Disconnecting user was not found');
     }
 
@@ -96,7 +96,7 @@ export class GameGateway
 
   @SubscribeMessage('logout')
   handleLogout(@ConnectedSocket() client: Socket) {
-    this.logger.log(`Logout: ${client.id}`);
+    // this.logger.log(`Logout: ${client.id}`);
     const userIndex = this.connectedClients.findIndex(
       (connection) => connection.socketID.indexOf(client.id) !== -1,
     );
@@ -104,13 +104,17 @@ export class GameGateway
     // Should never append, but prevention is better than cure
     if (userIndex === -1) {
       // console.log('Client: ', client);
-      console.log('Connected Clients: ', this.connectedClients);
+      console.log('[Game] Connected Clients: ', this.connectedClients);
       throw new WsException('Disconnecting user was not found');
     }
 
-    // Tell the other sockets to logout
-    console.log('User sockets: ', this.connectedClients[userIndex].socketID);
-    this.server.to(this.connectedClients[userIndex].socketID).emit('logout');
+    // console.log(
+    //   'User game sockets: ',
+    //   this.connectedClients[userIndex].socketID,
+    // );
+
+    // Move to login page, but not needed here, already in StatusSystem
+    // this.server.to(this.connectedClients[userIndex].socketID).emit('logout');
     // Disconnect all sockets
     this.server
       .to(this.connectedClients[userIndex].socketID)

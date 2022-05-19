@@ -52,7 +52,7 @@ export class StatusGateway
     if (userIndex === -1) {
       // console.log('Client: ', client);
       // console.log('Connected Clients: ', this.connectedClients);
-      throw new WsException('Disconnecting user was not found');
+      throw new WsException('[Status] Disconnecting user was not found');
     }
 
     // Removing socketID from corresponding user
@@ -72,6 +72,35 @@ export class StatusGateway
     }
 
     // console.log('Clients connected: ', this.connectedClients);
+  }
+
+  @SubscribeMessage('logout')
+  handleLogout(@ConnectedSocket() client: Socket) {
+    // this.logger.log(`Logout: ${client.id}`);
+    const userIndex = this.connectedClients.findIndex(
+      (connection) => connection.socketID.indexOf(client.id) !== -1,
+    );
+
+    // Should never append, but prevention is better than cure
+    if (userIndex === -1) {
+      // console.log('Client: ', client);
+      console.log('[Status] Connected Clients: ', this.connectedClients);
+      throw new WsException('Disconnecting user was not found');
+    }
+
+    // console.log(
+    //   'User status sockets: ',
+    //   this.connectedClients[userIndex].socketID,
+    // );
+
+    // Move to login page
+    this.server.to(this.connectedClients[userIndex].socketID).emit('logout');
+    // Disconnect all sockets
+    this.server
+      .to(this.connectedClients[userIndex].socketID)
+      .disconnectSockets(true);
+    // Delete user and it's sockets from connectedClients
+    this.connectedClients.splice(userIndex, 1);
   }
 
   @SubscribeMessage('connection')

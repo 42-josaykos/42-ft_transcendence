@@ -24,9 +24,9 @@ const set_open = ref(false);
 const emits = defineEmits(["updateUserProfil"]);
 
 const disconnectSockets = () => {
-  console.log("disconnect sockets");
-  // socketChat.value?.emit("disconnect", "logout");
-  // statusSocket.value?.emit("disconnect", "logout");
+  console.log("[Logout] Disconnecting sockets");
+  statusSocket.value?.emit("logout");
+  socketChat.value?.emit("logout");
   gameSocket.value?.emit("logout");
 };
 </script>

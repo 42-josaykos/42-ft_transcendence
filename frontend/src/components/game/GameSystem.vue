@@ -23,14 +23,15 @@ if (isAuthenticated.value) {
     gameSocket.value?.emit("gameConnection", loggedUser.value);
   });
 
-  gameSocket.value.on("logout", () => {
-    console.log("Logout");
-    window.location.href = "/auth/logout";
-  });
+  // Disconnect events
+  // gameSocket.value.on("logout", () => {
+  //   console.log("[GameSystem] Logout");
+  //   window.location.href = "/auth/logout";
+  // });
 
-  gameSocket.value.on("disconnect", (reason) => {
-    console.log("Game socket disconnection reason: ", reason);
-  });
+  // gameSocket.value.on("disconnect", (reason) => {
+  //   console.log("Game socket disconnection reason: ", reason);
+  // });
 
   // // Game socket event
   // gameSocket.value.on("inQueueUsers", (inQueueUsers: User[]) => {

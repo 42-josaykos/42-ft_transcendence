@@ -28,6 +28,16 @@ if (isAuthenticated.value) {
     });
   }
 
+  // // Disconnect events
+  // socketChat.value.on("logout", () => {
+  //   console.log("[ChatSystem] Logout");
+  //   window.location.href = "/auth/logout";
+  // });
+
+  // socketChat.value.on("disconnect", (reason) => {
+  //   console.log("Chat socket disconnection reason: ", reason);
+  // });
+
   socketChat.value.on("askInfo", () => {
     socketChat.value?.emit("sendInfo", loggedUser.value);
   });
