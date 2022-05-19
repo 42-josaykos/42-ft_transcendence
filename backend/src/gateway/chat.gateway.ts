@@ -121,6 +121,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
     if (userIndex === -1) {
       this.connectedClients.push({ userID: data.id, socketID: [client.id] });
+      this.server
+      .emit('receiveStatsUpdate', await this.statsService.getAllStats());
     } else {
       this.connectedClients[userIndex].socketID.push(client.id);
     }
