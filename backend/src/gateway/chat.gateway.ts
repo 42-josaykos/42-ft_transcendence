@@ -66,9 +66,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     // Should never append, but prevention is better than cure
     if (userIndex === -1) {
-      console.log('Client: ', client);
-      console.log('Connected Clients: ', this.connectedClients);
-      throw new WsException('Disconnecting user was not found');
+      // console.log('Client: ', client);
+      // console.log('[Chat] Connected Clients: ', this.connectedClients);
+      return;
+      // throw new WsException('Disconnecting user was not found');
     }
 
     // Removing socketID from corresponding user
@@ -83,6 +84,36 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  @SubscribeMessage('logout')
+  handleLogout(@ConnectedSocket() client: Socket) {
+    // this.logger.log(`Logout: ${client.id}`);
+    const userIndex = this.connectedClients.findIndex(
+      (connection) => connection.socketID.indexOf(client.id) !== -1,
+    );
+
+    // Should never append, but prevention is better than cure
+    if (userIndex === -1) {
+      // console.log('Client: ', client);
+      // console.log('[Chat] Connected Clients: ', this.connectedClients);
+      return;
+      // throw new WsException('Disconnecting user was not found');
+    }
+
+    // console.log(
+    //   'User chat sockets: ',
+    //   this.connectedClients[userIndex].socketID,
+    // );
+
+    // Move to login page, but not needed here, already in StatusSystem
+    // this.server.to(this.connectedClients[userIndex].socketID).emit('logout');
+    // Disconnect all sockets
+    this.server
+      .to(this.connectedClients[userIndex].socketID)
+      .disconnectSockets(true);
+    // Delete user and it's sockets from connectedClients
+    this.connectedClients.splice(userIndex, 1);
+  }
+
   @SubscribeMessage('sendInfo')
   async sendInfo(@ConnectedSocket() client: Socket, @MessageBody() data: User) {
     const userIndex = this.connectedClients.findIndex(
@@ -93,11 +124,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     } else {
       this.connectedClients[userIndex].socketID.push(client.id);
     }
-    this.server
-      .emit(
-        'receiveFilteredUsers',
-        await this.usersService.getUsersByFilter({}),
-      );
+    this.server.emit(
+      'receiveFilteredUsers',
+      await this.usersService.getUsersByFilter({}),
+    );
     // console.log('Clients connected after connect: ', this.connectedClients);
   }
 

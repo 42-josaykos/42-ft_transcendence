@@ -42,6 +42,16 @@ if (isAuthenticated.value) {
     // console.log("[StatusStore] usersOnline: ", usersOnline.value);
   });
 
+  // Disconnect events
+  statusSocket.value.on("logout", () => {
+    // console.log("[StatusSystem] Logout");
+    window.location.href = "/auth/logout";
+  });
+
+  // statusSocket.value.on("disconnect", (reason) => {
+  //   console.log("Status socket disconnection reason: ", reason);
+  // });
+
   statusSocket.value.on("updateUser", async (data: User) => {
     if (userClick.value?.id == data.id) {
       userClick.value = data;
