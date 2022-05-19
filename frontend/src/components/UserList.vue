@@ -13,7 +13,6 @@ import BtnUserList from "./BtnUserList.vue";
 // Stores
 const userStore = useUserStore();
 const {
-  gameSocket,
   socketChat,
   setting_open,
   userClick,
@@ -37,16 +36,24 @@ if (socketChat.value) {
 
 // User list online without logged user
 const userListOnline = computed(() => {
-  return usersList.value.filter((value) => 
-    usersOnline.value.findIndex((id) => id == value.id) != -1
-  ).sort((a, b) => (a.username.toLowerCase() > b.username.toLowerCase()) ? 1 : -1)
+  return usersList.value
+    .filter(
+      (value) => usersOnline.value.findIndex((id) => id == value.id) != -1
+    )
+    .sort((a, b) =>
+      a.username.toLowerCase() > b.username.toLowerCase() ? 1 : -1
+    );
 });
 
 // User list without logged user
 const userListOffline = computed(() => {
-  return usersList.value.filter((value) => 
-    usersOnline.value.findIndex((id) => id == value.id) == -1
-  ).sort((a, b) => (a.username.toLowerCase() > b.username.toLowerCase()) ? 1 : -1)
+  return usersList.value
+    .filter(
+      (value) => usersOnline.value.findIndex((id) => id == value.id) == -1
+    )
+    .sort((a, b) =>
+      a.username.toLowerCase() > b.username.toLowerCase() ? 1 : -1
+    );
 });
 
 </script>
@@ -167,7 +174,7 @@ th {
   padding: 5px;
 }
 
-.seperator-user-online-offline{
+.seperator-user-online-offline {
   margin-bottom: 10px !important;
   width: 150px !important;
 }

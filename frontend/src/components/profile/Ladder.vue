@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { Get } from "@/services/requests";
+import { useGameStore } from "@/stores/game";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
-import { ref } from "vue";
 
 const userStore = useUserStore();
-const { userClick, setting_open, leaderboard, gameSocket, socketChat } =
+const { userClick, setting_open, leaderboard, socketChat } =
   storeToRefs(userStore);
+
+const gameStore = useGameStore();
+const { gameSocket } = storeToRefs(gameStore);
 
 // Listen and ask stats updates
 gameSocket.value?.on("askStatsUpdate", (data: any) => {

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import { io } from "socket.io-client";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
@@ -11,46 +10,59 @@ import type { Channel } from "@/models/channel.model";
 import type { Message } from "@/models/message.model";
 import type { User } from "@/models/user.model";
 
-
 const userStore = useUserStore();
-const { loggedUser, isAuthenticated, socketChat, usersFriends, usersList } = storeToRefs(userStore);
+const { loggedUser, isAuthenticated, socketChat, usersList, usersFriends } =
+  storeToRefs(userStore);
 
 const messageStore = useMessageStore();
 const { messages } = storeToRefs(messageStore);
 
 const channelStore = useChannelStore();
-const {
-  channel,
-  channelJoin,
-  usersMembers,
-  usersInvite,
-} = storeToRefs(channelStore);
+const { channel, channelJoin, usersMembers, usersInvite } =
+  storeToRefs(channelStore);
 
 if (isAuthenticated.value) {
-
   if (socketChat.value == undefined) {
     socketChat.value = io("http://localhost:4000/chat", {
       withCredentials: true,
     });
   }
 
+  // // Disconnect events
+  // socketChat.value.on("logout", () => {
+  //   console.log("[ChatSystem] Logout");
+  //   window.location.href = "/auth/logout";
+  // });
+
+  // socketChat.value.on("disconnect", (reason) => {
+  //   console.log("Chat socket disconnection reason: ", reason);
+  // });
+
+  socketChat.value.on("askInfo", () => {
+    socketChat.value?.emit("sendInfo", loggedUser.value);
+  });
+
   socketChat.value.on(
     "receiveFilteredUsers",
     (userList) => (usersList.value = userList)
   );
+
+  // Get user friends
   socketChat.value.on("receiveFriends", (friendsList: User[]) => {
     usersFriends.value = friendsList;
   });
 
-  socketChat.value.on('askInfo', () => {
-    socketChat.value?.emit('sendInfo', loggedUser.value);
-  })
-
   socketChat.value.on("newMessage", async (newMessage: Message) => {
-    if (channel.value != undefined && channel.value.id == newMessage.channel.id) {
+    if (
+      channel.value != undefined &&
+      channel.value.id == newMessage.channel.id
+    ) {
       messageStore.createMessage(newMessage);
-    }
-    else if (channel.value != undefined && channel.value.id != newMessage.channel.id && loggedUser.value?.id == newMessage.author.id) {
+    } else if (
+      channel.value != undefined &&
+      channel.value.id != newMessage.channel.id &&
+      loggedUser.value?.id == newMessage.author.id
+    ) {
       await Get(
         `/channels/search?id=${newMessage.channel.id.toString()}&members&bans&mutes&admins&owner&messages`
       ).then((res) => {
@@ -70,7 +82,10 @@ if (isAuthenticated.value) {
     if (loggedUser.value != undefined) {
       if (loggedUser.value?.id === newChannel.owner.id) {
         messages.value = [];
-        if (newChannel.isPrivate == true && newChannel.isDirectChannel == false) {
+        if (
+          newChannel.isPrivate == true &&
+          newChannel.isDirectChannel == false
+        ) {
           socketChat.value?.emit(
             "inviteChannel",
             newChannel,
@@ -103,7 +118,7 @@ if (isAuthenticated.value) {
         channelStore.updateMember(loggedUser.value.id);
       }
     }
-  })
+  });
 
   socketChat.value.on("inviteChannel", (inviteChannel: Channel) => {
     channelStore.addChannelInvite(inviteChannel);
@@ -152,11 +167,12 @@ if (isAuthenticated.value) {
       channelStore.updateMember(loggedUser.value.id);
       channelStore.updateOwner(loggedUser.value.id);
       if (channel.value?.id === updateChannel.id) {
-        Get(`/channels/search?id=${channel.value.id.toString()}&owner&admins&members&mutes&bans&messages`
+        Get(
+          `/channels/search?id=${channel.value.id.toString()}&owner&admins&members&mutes&bans&messages`
         ).then((res) => {
           if (res.status == 200) {
             usersMembers.value = res.data[0].members;
-            messageStore.sortMessages(res.data[0].messages)
+            messageStore.sortMessages(res.data[0].messages);
           }
         });
         channel.value = updateChannel;
@@ -164,69 +180,80 @@ if (isAuthenticated.value) {
     }
   });
 
-  socketChat.value.on('userAddBan', (updateChannel: Channel) => {
-    if (channel.value != undefined && loggedUser.value != null && channel.value.id == updateChannel.id) {
-      channelStore.handleBanMute({...updateChannel}, true)
+  socketChat.value.on("userAddBan", (updateChannel: Channel) => {
+    if (
+      channel.value != undefined &&
+      loggedUser.value != null &&
+      channel.value.id == updateChannel.id
+    ) {
+      channelStore.handleBanMute({ ...updateChannel }, true);
     }
-  })
+  });
 
-  socketChat.value.on('userRemoveBan', (updateChannel: Channel) => {
+  socketChat.value.on("userRemoveBan", (updateChannel: Channel) => {
     if (loggedUser.value != null) {
-      console.log("ICI channel => ", updateChannel)
-      channelStore.stopTimer({...updateChannel}, true)
+      console.log("ICI channel => ", updateChannel);
+      channelStore.stopTimer({ ...updateChannel }, true);
       if (channel.value != undefined && channel.value.id == updateChannel.id) {
         channel.value = updateChannel;
       }
     }
-  })
+  });
 
-  socketChat.value.on('userAddMute', (updateChannel: Channel) => {
-    if (channel.value != undefined && loggedUser.value != null && channel.value.id == updateChannel.id) {
-      channelStore.handleBanMute({...updateChannel}, false)
+  socketChat.value.on("userAddMute", (updateChannel: Channel) => {
+    if (
+      channel.value != undefined &&
+      loggedUser.value != null &&
+      channel.value.id == updateChannel.id
+    ) {
+      channelStore.handleBanMute({ ...updateChannel }, false);
     }
-  })
+  });
 
-  socketChat.value.on('userRemoveMute', (updateChannel: Channel) => {
+  socketChat.value.on("userRemoveMute", (updateChannel: Channel) => {
     if (undefined && loggedUser.value != null) {
-      channelStore.stopTimer({...updateChannel}, false)
+      channelStore.stopTimer({ ...updateChannel }, false);
       if (channel.value != undefined && channel.value.id == updateChannel.id) {
         channel.value = updateChannel;
       }
     }
-  })
+  });
 
-  socketChat.value.on('addUserBlocked', (userBlocked: User) => {
+  socketChat.value.on("addUserBlocked", (userBlocked: User) => {
     if (loggedUser.value != null) {
-      userStore.addUserBlocked(userBlocked)
+      userStore.addUserBlocked(userBlocked);
     }
-  })
+  });
 
-  socketChat.value.on('removeUserBlocked', (userBlocked: User) => {
+  socketChat.value.on("removeUserBlocked", (userBlocked: User) => {
     if (loggedUser.value != null) {
-      userStore.removeUserBlocked(userBlocked.id)
+      userStore.removeUserBlocked(userBlocked.id);
     }
-  })
+  });
 
-  socketChat.value.on('userRemoveMember', (updateChannel: Channel) => {
+  socketChat.value.on("userRemoveMember", (updateChannel: Channel) => {
     if (loggedUser.value != null) {
-      channelStore.updateChannel(updateChannel.id, updateChannel, loggedUser.value.id)
-      channelStore.updateMember(loggedUser.value.id)
+      channelStore.updateChannel(
+        updateChannel.id,
+        updateChannel,
+        loggedUser.value.id
+      );
+      channelStore.updateMember(loggedUser.value.id);
     }
-  })
+  });
 
-  socketChat.value.on('addUserFriend', (userFriend: User) => {
+  socketChat.value.on("addUserFriend", (userFriend: User) => {
     if (loggedUser.value != null) {
-      userStore.addUserFriend(userFriend)
+      userStore.addUserFriend(userFriend);
     }
-  })
+  });
 
-  socketChat.value.on('removeUserFriend', (userFriend: User) => {
+  socketChat.value.on("removeUserFriend", (userFriend: User) => {
     if (loggedUser.value != null) {
-      userStore.removeUserFriend(userFriend.id)
+      userStore.removeUserFriend(userFriend.id);
     }
-  })
-} 
+  });
+}
 </script>
 
-<template>
-</template>
+<template></template>

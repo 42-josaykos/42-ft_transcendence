@@ -2,102 +2,35 @@
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
 import { useRouter } from "vue-router";
-import { ref } from "vue";
-import type { User } from "@/models/user.model";
 import TimerStartGame from "./TimerStartGame.vue";
 import TimerStartGameInvite from "./TimerStartGameInvite.vue";
+import { useGameStore } from "@/stores/game";
 
 // Stores
 const userStore = useUserStore();
-const { loggedUser, usersInGame, usersInQueue, gameSocket } =
-  storeToRefs(userStore);
+const { loggedUser } = storeToRefs(userStore);
+
+const gameStore = useGameStore();
+const { gameSocket, inQueue, inGame, matchFound, matchInvite, players } =
+  storeToRefs(gameStore);
 
 const router = useRouter();
-const matchFound = ref<boolean>(false);
-const matchInvite = ref<boolean>(false);
-const players = ref<any>(null);
 
-const inQueue = ref<boolean>(false);
-const inGame = ref<boolean>(false);
+// Determine if already in queue, and update in queue users
+gameSocket.value?.emit("inQueueUsers");
 
-if (gameSocket.value) {
-  // Start games
-  gameSocket.value.on("startGame", (startEvent: any) => {
-    // console.log("[QueueSystem] A new match is starting");
-
-    // If players aren't already in game
-    if (userStore.valueInArray(startEvent.players[0].id, usersInGame.value) || userStore.valueInArray(startEvent.players[1].id, usersInGame.value))
-      return
-
-    const startTime = 5000;
-    players.value = startEvent.players;
-    if (startEvent.mode === "matchmaking") 
-      matchFound.value = true;
-    else if (startEvent.mode === "invite")
-      matchInvite.value = true;
-
-
-    setTimeout(() => {
-      console.log("players =>  ", players.value )
-      if (startEvent.mode === "matchmaking") matchFound.value = false;
-      else if (startEvent.mode === "invite") matchInvite.value = false;
-      router.push("/game");
-    }, startTime);
-  });
-
-  // Determine if already in queue, and update in queue users
-  gameSocket.value.on("inQueueUsers", (inQueueUsers: User[]) => {
-    if (!inQueueUsers) return;
-
-    usersInQueue.value = inQueueUsers;
-    if (
-      inQueueUsers.findIndex((user) => user.id === loggedUser.value?.id) !== -1
-    ) {
-      enterQueue();
-      inQueue.value = true;
-    } else {
-      leaveQueue();
-      inQueue.value = false;
-    }
-  });
-  gameSocket.value.emit("inQueueUsers");
-
-  // Determine if in game, and update in queue users
-  gameSocket.value.on("inGameUsers", (inGameUsers: User[]) => {
-    if (!inGameUsers) return;
-
-    usersInGame.value = inGameUsers;
-    if (
-      inGameUsers.findIndex((user) => user.id === loggedUser.value?.id) !== -1
-    )
-      inGame.value = true;
-    else inGame.value = false;
-  });
-  gameSocket.value.emit("inGameUsers");
-}
+// Determine if in game, and update in queue users
+gameSocket.value?.emit("inGameUsers");
 
 const buttonAction = () => {
   // Enter / leave queue
   if (!inGame.value) {
-    if (inQueue.value) {
-      leaveQueue();
-      gameSocket.value?.emit("leaveQueue", loggedUser.value);
-    } else {
-      gameSocket.value?.emit("queue", loggedUser.value);
-      enterQueue();
-    }
+    if (inQueue.value) gameSocket.value?.emit("leaveQueue", loggedUser.value);
+    else gameSocket.value?.emit("queue", loggedUser.value);
     inQueue.value = !inQueue.value;
   }
   // Go back to the game
   else router.push("/game");
-};
-
-const emit = defineEmits(["enterQueue", "leaveQueue"]);
-const enterQueue = () => {
-  emit("enterQueue");
-};
-const leaveQueue = () => {
-  emit("leaveQueue");
 };
 </script>
 

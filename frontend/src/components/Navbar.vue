@@ -18,7 +18,6 @@ const {
   modalFriends,
   usersFriends,
   loggedUser,
-  gameSocket,
   modaleOpenInviteGame,
 } = storeToRefs(useUserStore());
 const { modalSendMessage } = storeToRefs(useMessageStore());
@@ -38,8 +37,6 @@ onMounted(async () => {
     );
   }
 });
-
-const waiting = ref<boolean>(false);
 </script>
 
 <template>
@@ -92,11 +89,8 @@ const waiting = ref<boolean>(false);
           v-if="componentName === 'Home' || componentName === 'Chat'"
           class="d-flex justify-content-center my-2 mx-2"
         >
-          <Queue @enterQueue="waiting = true" @leaveQueue="waiting = false" />
+          <Queue />
         </span>
-      </div>
-      <div style="text-align: end; color: hsl(317 100% 54%)" v-if="waiting">
-        <span>Waiting for a game ...</span>
       </div>
     </div>
   </div>
