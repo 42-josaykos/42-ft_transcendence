@@ -54,7 +54,7 @@ services:
       - default
     volumes:
       - ./backend:/usr/app
-      - /usr/app/node_modules
+    #   - /usr/app/node_modules
     restart: unless-stopped
 
   ############################################################
@@ -79,7 +79,7 @@ services:
       - default
     volumes:
       - ./frontend:/usr/app
-      - /usr/app/node_modules
+    #   - /usr/app/node_modules
     restart: unless-stopped
 
 volumes:
