@@ -33,7 +33,6 @@ onMounted(() => {
     <table style="table-layout: fixed;">
       <thead style="border-bottom: 10px solid rgba(0, 0, 0, 0);">
         <tr>
-          <!-- <th scope="col">#</th> -->
           <th class="table_title" scope="col">Player 1</th>
           <th class="table_title" scope="col">Player 2</th>
           <th class="table_title" scope="col">Score</th>
@@ -53,7 +52,6 @@ onMounted(() => {
                 "
                 >{{ match.players[0].username }}</a
               >
-              <!-- <div class="item player">{{ match.players[0].username }}</div> -->
             </div>
           </td>
           <td v-bind:class="{'mePlayer' : loggedUser?.id === match.players[1].id}" class="player">
@@ -68,7 +66,6 @@ onMounted(() => {
                 "
                 >{{ match.players[1].username }}</a
               >
-              <!-- <div class="item player">{{ match.players[1].username }}</div> -->
             </div>
           </td>
           <td>
