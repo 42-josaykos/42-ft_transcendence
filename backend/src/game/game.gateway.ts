@@ -152,8 +152,7 @@ export class GameGateway
           { ...playerTwo },
           this.matchmakingOptions,
           'matchmaking',
-          'startGame',
-          5000,
+          'startGame'
         );
       }
     }
@@ -165,7 +164,6 @@ export class GameGateway
     gameOptions: GameOptions,
     gameMode: string,
     startGameEvent: string,
-    startTimeout: number,
   ) {
     // Create a socket room, and make ALL player's sockets join
     const roomName = `${playerOne.player.user.id}-${playerTwo.player.user.id}`;
@@ -182,18 +180,9 @@ export class GameGateway
     });
 
     // Start the game is the backend
-    setTimeout(
-      (playerOne, playerTwo) => {
-        // Create and start game
-        this.gameService.createGame(playerOne, playerTwo, gameOptions);
-
-        // Emit live games to clients
-        this.server.emit('liveGames', this.getOngoingGames());
-      },
-      startTimeout,
-      playerOne,
-      playerTwo,
-    );
+    this.gameService.createGame(playerOne, playerTwo, gameOptions);
+    // Emit live games to clients
+    this.server.emit('liveGames', this.getOngoingGames());
   }
 
   @SubscribeMessage('leaveQueue')
@@ -409,7 +398,7 @@ export class GameGateway
         (userInvite, userGuest) => {
           this.removeGameInvite(userInvite, userGuest);
         },
-        10000,
+        30000,
         { ...userWhoInvites },
         { ...guestUser },
       );
@@ -429,6 +418,12 @@ export class GameGateway
       this.connectedClients,
       players[1],
     );
+
+    //Remove users from queue
+    const userInviteIndex = this.queue.findIndex((user) => user.user.id === userInvite.user.id)
+    const userGuestIndex = this.queue.findIndex((user) => user.user.id === userGuest.user.id)
+    if (userInviteIndex !== -1) this.queue.splice(userInviteIndex, 1)
+    if (userGuestIndex !== -1) this.queue.splice(userGuestIndex, 1)
 
     // Get game options
     const inviteGuest = this.invites.find(
@@ -450,7 +445,6 @@ export class GameGateway
         options,
         'invite',
         'startGame',
-        10000,
       );
 
       // Delete guest's invite

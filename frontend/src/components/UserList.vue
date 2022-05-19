@@ -28,8 +28,6 @@ const { modalSendMessage } = storeToRefs(messageStore);
 
 const router = useRouter();
 
-// const users = ref<User[]>([]);
-
 if (socketChat.value) {
   // Get all users at page startup
   socketChat.value.emit("getUsersByFilter", {});
@@ -57,6 +55,7 @@ const userListOffline = computed(() => {
       a.username.toLowerCase() > b.username.toLowerCase() ? 1 : -1
     );
 });
+
 </script>
 
 <template>
@@ -69,21 +68,8 @@ const userListOffline = computed(() => {
         Players List
       </div>
       <hr />
-      <br />
-      <BtnUserList
-        v-if="userListOnline.length > 0"
-        :usersList="userListOnline"
-        :isOffLine="false"
-      />
-      <hr
-        class="seperator-user-online-offline"
-        v-if="userListOnline.length > 0 && userListOffline.length > 0"
-      />
-      <BtnUserList
-        v-if="userListOffline.length > 0"
-        :usersList="userListOffline"
-        :isOffLine="true"
-      />
+      <BtnUserList v-if="userListOnline.length > 0" :usersList="userListOnline" :isOffLine="false"/>
+      <BtnUserList v-if="userListOffline.length > 0" :usersList="userListOffline" :isOffLine="true"/>
     </div>
   </div>
 </template>

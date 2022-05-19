@@ -233,7 +233,7 @@ export default {
 
 <template>
   <Navbar componentName="Pong" />
-  <div class="container">
+  <div class="container" style="min-height: 100vh;">
     <div
       class="pong-set"
       style="top: 15%; left: 25%; max-width: 1000px; max-height: 600px"

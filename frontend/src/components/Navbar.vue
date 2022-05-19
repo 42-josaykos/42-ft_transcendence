@@ -9,6 +9,7 @@ import { Get } from "@/services/requests";
 import ModalMessage from "./chat/ModalMessage.vue";
 import { useMessageStore } from "@/stores/message";
 import Queue from "./game/Queue.vue";
+import BtnUserCard from './BtnUserCard.vue';
 import GameOptionModal from "./game/options/GameOptionModal.vue";
 
 const {
@@ -41,32 +42,9 @@ onMounted(async () => {
 <template>
   <div class="container pt-2">
     <div v-if="loggedUser" class="d-flex pb-4 my-navbar">
-      <div class="d-flex" style="width: 33vw">
-        <div class="cercle-user-card">
-          <img
-            v-bind:src="loggedUser.avatar"
-            alt="Avatar"
-            class="card-img avatar-img"
-          />
-        </div>
-        <div class="infos">
-          <div class="info">
-            <h3>{{ loggedUser.username }}</h3>
-            <button
-              @click="
-                userClick = loggedUser;
-                setting_open = !setting_open;
-              "
-              class="btn-block set-btn set-btn-nav btn-profile selector"
-            >
-              Profile
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div style="width: 67vw">
-        <span class="neonText display-1 size-title">
+      <BtnUserCard :user="loggedUser" :profile="true" @open="userClick = loggedUser; setting_open = !setting_open;"/>
+      <div>
+        <span class="neonText display-1 size-title" >
           <b>Space Pong</b>
         </span>
       </div>
@@ -182,9 +160,7 @@ li .row:hover {
   width: 8vw;
   height: 8vw;
 }
-.size-title {
-  font-size: 7vw;
-}
+
 @media screen and (max-width: 540px) {
   .btn-nav {
     margin-bottom: 45px;
@@ -199,9 +175,6 @@ li .row:hover {
     width: 12vw;
     height: 12vw;
   }
-  .size-title {
-    margin-left: 30px;
-    font-size: x-large;
-  }
+
 }
 </style>

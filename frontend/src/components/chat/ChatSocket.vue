@@ -128,10 +128,10 @@ if (isAuthenticated.value) {
     channelStore.deleteChannelInvite(uninviteChannel);
   });
 
-  socketChat.value.on("joinChannel", () => {
+  socketChat.value.on("joinChannel", (newChannelJoin: Channel) => {
     if (loggedUser.value != undefined) {
       if (channelJoin.value != undefined) {
-        channel.value = channelJoin.value;
+        channel.value = newChannelJoin;
         messages.value = channelJoin.value.messages;
         socketChat.value?.emit(
           "updateMember",

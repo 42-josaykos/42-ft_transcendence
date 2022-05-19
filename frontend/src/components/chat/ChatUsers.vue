@@ -16,7 +16,7 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 const userStore = useUserStore();
-const { loggedUser, socketChat, usersOnline, userClick, setting_open } = storeToRefs(userStore);
+const { loggedUser, socketChat, usersOnline, userClick, setting_open, modaleOpenInviteGame } = storeToRefs(userStore);
 
 const channelStore = useChannelStore();
 
@@ -91,16 +91,6 @@ const numberUsersOffline = computed(() => {
   return totalOffline.toString()
 })
 
-const numberUsersBan = computed(() => {
-  let totalBan = 0;
-  for (const user of usersMembers.value) {
-    if (channelStore.isBan(channel.value, user.id)) {
-      totalBan++;
-    }
-  }
-  return totalBan.toString()
-})
-
 const addAdmin = () => {
   if (channelStore.isBan(channel.value, userClick.value?.id) && channelStore.isMute(channel.value, userClick.value?.id)) {
     socketChat.value?.emit('updateMember',
@@ -157,6 +147,7 @@ const addAdmin = () => {
           <div v-if="isOnline(user) && !channelStore.isBan(channel, user.id)" class="list-group">
             <BtnUserCard
               :user="user"
+              :profile="false"
               @open="
                 userClickBool = true;
                 userClick = user;
@@ -173,6 +164,7 @@ const addAdmin = () => {
           <div v-if="!isOnline(user) && !channelStore.isBan(channel, user.id)" class="list-group">
             <BtnUserCard
               :user="user"
+              :profile="false"
               @open="
                 userClickBool = true;
                 userClick = user;
@@ -205,13 +197,13 @@ const addAdmin = () => {
           >
             SEND MESSAGE
           </button>
-            <button
-              @click="userClickBool = false; router.push('/game')"
-              type="button"
-              class="btn-user-click my-2"
-            >
-              INVITE TO PLAY
-            </button>
+          <button v-if="userStore.IDInArray(userClick?.id, usersOnline)"
+            @click="userClickBool = false; modaleOpenInviteGame = true;"
+            type="button"
+            class="btn-user-click my-2"
+          >
+            INVITE TO PLAY
+          </button>
           <button
             @click="modalFriend = true; userClickBool = false"
             type="button" class="btn-user-click my-2">
