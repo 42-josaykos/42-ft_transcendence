@@ -5,6 +5,7 @@ import { ref } from "vue";
 import Setting from "./Setting.vue";
 import Stats from "./profile/Stats.vue";
 import Match_History from "./profile/MatchHistory.vue";
+import { useGameStore } from "@/stores/game";
 
 const userStore = useUserStore();
 const {
@@ -13,9 +14,11 @@ const {
   userClick,
   isMyProfile,
   statusSocket,
-  gameSocket,
   socketChat,
 } = storeToRefs(userStore);
+
+const gameStore = useGameStore();
+const { gameSocket } = storeToRefs(gameStore);
 
 const stat_open = ref(true);
 const mh_open = ref(false);
@@ -24,10 +27,11 @@ const set_open = ref(false);
 const emits = defineEmits(["updateUserProfil"]);
 
 const disconnectSockets = () => {
-  console.log("[Logout] Disconnecting sockets");
+  // console.log("[Logout] Disconnecting sockets");
   statusSocket.value?.emit("logout");
   socketChat.value?.emit("logout");
   gameSocket.value?.emit("logout");
+  window.location.href = "/auth/logout";
 };
 </script>
 

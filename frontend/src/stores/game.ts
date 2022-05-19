@@ -1,31 +1,34 @@
 import { defineStore } from "pinia";
 import type { User } from "@/models/user.model";
 import type { Socket } from "socket.io-client";
+import { ref } from "vue";
 
-export const useGameStore = defineStore("game", {
-  state: () => {
-    return {
-      /** @type { Socket } */
-      gameSocket: undefined,
+export const useGameStore = defineStore("game", () => {
+  const gameSocket = ref<Socket>();
 
-      /** @type {{ any }[]} */
-      gameInvites: [],
-      /** @type {{ any }[]} */
-      liveGames: [],
+  const gameInvites = ref<any>();
+  const liveGames = ref<any>();
 
-      /** @type {{ User }[]} */
-      usersInQueue: [],
-      /** @type {{ User }[]} */
-      usersInGame: [],
+  const usersInQueue = ref<User[]>([]);
+  const usersInGame = ref<User[]>([]);
 
-      /** @type { boolean } */
-      inQueue: false,
-      /** @type { boolean } */
-      inGame: false,
-      // /** @type { Socket } */
-      // socket: io("ws://localhost:6060/game", {
-      //   withCredentials: true,
-      // }),
-    };
-  },
+  const inQueue = ref<boolean>(false);
+  const inGame = ref<boolean>(false);
+
+  const players = ref<User[]>([]);
+  const matchFound = ref<boolean>(false);
+  const matchInvite = ref<boolean>(false);
+
+  return {
+    gameSocket,
+    gameInvites,
+    liveGames,
+    usersInQueue,
+    usersInGame,
+    inQueue,
+    inGame,
+    players,
+    matchFound,
+    matchInvite,
+  };
 });

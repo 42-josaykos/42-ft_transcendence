@@ -5,10 +5,14 @@ import { useRouter } from "vue-router";
 import { ref } from "vue";
 // import Modale from "../Modale.vue";
 import UserCard from "../UserCard.vue";
+import { useGameStore } from "@/stores/game";
 
 // Stores
 const userStore = useUserStore();
-const { gameSocket, loggedUser } = storeToRefs(userStore);
+const { loggedUser } = storeToRefs(userStore);
+
+const gameStore = useGameStore();
+const { gameSocket } = storeToRefs(gameStore);
 
 const router = useRouter();
 

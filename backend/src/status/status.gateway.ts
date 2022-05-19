@@ -52,7 +52,8 @@ export class StatusGateway
     if (userIndex === -1) {
       // console.log('Client: ', client);
       // console.log('Connected Clients: ', this.connectedClients);
-      throw new WsException('[Status] Disconnecting user was not found');
+      return;
+      // throw new WsException('[Status] Disconnecting user was not found');
     }
 
     // Removing socketID from corresponding user
@@ -84,8 +85,9 @@ export class StatusGateway
     // Should never append, but prevention is better than cure
     if (userIndex === -1) {
       // console.log('Client: ', client);
-      console.log('[Status] Connected Clients: ', this.connectedClients);
-      throw new WsException('Disconnecting user was not found');
+      // console.log('[Status] Connected Clients: ', this.connectedClients);
+      return;
+      // throw new WsException('Disconnecting user was not found');
     }
 
     // console.log(

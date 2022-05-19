@@ -2,9 +2,13 @@
 import { computed, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
+import { useGameStore } from "@/stores/game";
 
 const userStore = useUserStore();
-const { usersOnline, usersInQueue, usersInGame } = storeToRefs(userStore);
+const { usersOnline } = storeToRefs(userStore);
+
+const gameStore = useGameStore();
+const { usersInQueue, usersInGame } = storeToRefs(gameStore);
 
 const props = defineProps({
   user: Object,

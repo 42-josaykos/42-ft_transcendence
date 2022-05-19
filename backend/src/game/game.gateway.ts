@@ -77,8 +77,9 @@ export class GameGateway
     // Should never append, but prevention is better than cure
     if (userIndex === -1) {
       // console.log('Client: ', client);
-      console.log('[Game] Connected Clients: ', this.connectedClients);
-      throw new WsException('Disconnecting user was not found');
+      // console.log('[Game] Connected Clients: ', this.connectedClients);
+      return;
+      // throw new WsException('Disconnecting user was not found');
     }
 
     // Removing socketID from corresponding user
@@ -104,8 +105,9 @@ export class GameGateway
     // Should never append, but prevention is better than cure
     if (userIndex === -1) {
       // console.log('Client: ', client);
-      console.log('[Game] Connected Clients: ', this.connectedClients);
-      throw new WsException('Disconnecting user was not found');
+      // console.log('[Game] Connected Clients: ', this.connectedClients);
+      return;
+      // throw new WsException('Disconnecting user was not found');
     }
 
     // console.log(
