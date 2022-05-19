@@ -9,23 +9,20 @@ import { Get } from "@/services/requests";
 import ModalMessage from "./chat/ModalMessage.vue";
 import { useMessageStore } from "@/stores/message";
 import Queue from "./game/Queue.vue";
+import BtnUserCard from './BtnUserCard.vue';
 import GameOptionModal from "./game/options/GameOptionModal.vue";
-
 const {
   setting_open,
   userClick,
   modalFriends,
   usersFriends,
   loggedUser,
-  gameSocket,
   modaleOpenInviteGame,
 } = storeToRefs(useUserStore());
 const { modalSendMessage } = storeToRefs(useMessageStore());
-
 defineProps<{
   componentName: string;
 }>();
-
 onMounted(async () => {
   if (loggedUser.value != undefined) {
     await Get(`/users/search?id=${loggedUser.value?.id}&friends`).then(
@@ -37,52 +34,19 @@ onMounted(async () => {
     );
   }
 });
-
-const waiting = ref<boolean>(false);
-const tab_home = ref(true);
-const tab_chat = ref(false);
-
 </script>
 
 <template>
   <div class="container pt-2">
     <div v-if="loggedUser" class="d-flex pb-4 my-navbar">
-      <div class="d-flex" style="width: 33vw">
-        <div class="cercle-user-card">
-          <img
-            v-bind:src="loggedUser.avatar"
-            alt="Avatar"
-            class="card-img avatar-img"
-          />
-        </div>
-        <div class="infos">
-          <div class="info">
-            <h3>{{ loggedUser.username }}</h3>
-            <button
-              @click="
-                userClick = loggedUser;
-                setting_open = !setting_open;
-              "
-              class="btn-block set-btn set-btn-nav btn-profile selector"
-            >
-              Profile
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div style="width: 67vw">
-        <span class="neonText display-1 size-title">
+      <BtnUserCard :user="loggedUser" :profile="true" @open="userClick = loggedUser; setting_open = !setting_open;"/>
+      <div>
+        <span class="neonText display-1 size-title" >
           <b>Space Pong</b>
         </span>
       </div>
     </div>
 
-    <div class="title-small-screen">
-      <span class="neonText">
-          Space Pong
-        </span>
-    </div>
     <div class="row">
       <div class="d-flex btn-navbar">
         <router-link
@@ -90,8 +54,8 @@ const tab_chat = ref(false);
           class="d-flex justify-content-center my-2 mx-2 router-nav"
         >
           <button
+            @click=""
             class="btn-block set-btn set-btn-nav btn-nav selector"
-            v-bind:class="{ 'active_tab' :  componentName === 'Home'}"
           >
             Home
           </button>
@@ -102,8 +66,8 @@ const tab_chat = ref(false);
           class="d-flex justify-content-center my-2 mx-2 router-nav"
         >
           <button
+            @click=""
             class="btn-block set-btn set-btn-nav btn-nav selector"
-            v-bind:class="{ 'active_tab' : componentName === 'Chat' }"
           >
             Chat
           </button>
@@ -122,11 +86,8 @@ const tab_chat = ref(false);
           v-if="componentName === 'Home' || componentName === 'Chat'"
           class="d-flex justify-content-center my-2 mx-2"
         >
-          <Queue @enterQueue="waiting = true" @leaveQueue="waiting = false" />
+          <Queue />
         </span>
-      </div>
-      <div style="text-align: end; color: hsl(317 100% 54%)" v-if="waiting">
-        <span>Waiting for a game ...</span>
       </div>
     </div>
   </div>
@@ -196,24 +157,11 @@ li .row:hover {
   width: 8vw;
   height: 8vw;
 }
-
-.title-small-screen{
-  display: none;
-}
-
-.active_tab{
-  background-color: #b4b4b4;
-  color: #66645f;
-  transform: scale(1.2);
-  box-shadow: 0px 0px 10px #ffffff, 0px 0px 15px 5px #ffffff;
-}
-
 @media screen and (max-width: 540px) {
   .btn-nav {
     margin-bottom: 45px;
     margin-right: auto;
     margin-left: auto;
-
     width: 55px;
     padding-left: 0px !important;
     padding-right: 0px !important;
@@ -221,20 +169,6 @@ li .row:hover {
   .avatar-img {
     width: 12vw;
     height: 12vw;
-  }
-  .size-title {
-    margin-left: 30px;
-    font-size: calc(1.625rem + 1vw);
-  }
-}
-
-@media screen and (max-width: 340px) {
-  .size-title {
-    display: none;
-  }
-  .title-small-screen{
-    display: block;
-    font-size: x-large;
   }
 }
 </style>
