@@ -9,8 +9,9 @@ import { getRepository } from 'typeorm';
 import { TypeORMSession } from './auth/entities/session.entity';
 import { TypeormStore } from 'connect-typeorm';
 import { UploadModule } from './upload/upload.module';
+import { StatusModule } from './status/status.module';
 import * as cookieParser from 'cookie-parser';
-import { appendFile } from 'fs';
+import { GameModule } from './game/game.module';
 
 async function bootstrap() {
   const api = await NestFactory.create(AppModule);
@@ -40,7 +41,7 @@ async function bootstrap() {
 
   // Starting up API service
   const configService = api.get(ConfigService);
-  const port = configService.get('API_PORT') || 4000;
+  const port = configService.get('API_PORT') || 4001;
 
   // Cookie parser
   api.use(cookieParser());
@@ -71,6 +72,20 @@ async function bootstrap() {
   // Auth Module
   // const authApp = await NestFactory.create(AuthModule);
   // await authApp.listen(5000);
+
+  // Status Module
+  const statusSystemPort = 3615;
+  const statusSystem = await NestFactory.create(StatusModule);
+  await statusSystem.listen(statusSystemPort, '0.0.0.0');
+  console.log(
+    `[StatusSystem] Status service running on: ${await statusSystem.getUrl()}`,
+  );
+
+  // Game Module
+  const gameGatewayPort = 6060;
+  const game = await NestFactory.create(GameModule);
+  await game.listen(gameGatewayPort, '0.0.0.0');
+  console.log(`[GameModule] Game gateway running on: ${await game.getUrl()}`);
 
   // Upload Module
   const uploadModulePort = configService.get('UPLOAD_PORT') || 7000;

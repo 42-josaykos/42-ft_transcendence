@@ -1,78 +1,180 @@
 <script setup lang="ts">
+import Modale from "./Modale.vue";
+import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/user";
+import ModalChat from "./chat/ModalChat.vue";
+import UsersFriends from "./UsersFriends.vue";
+import { onMounted, ref } from "vue";
+import { Get } from "@/services/requests";
+import ModalMessage from "./chat/ModalMessage.vue";
+import { useMessageStore } from "@/stores/message";
+import Queue from "./game/Queue.vue";
+import BtnUserCard from './BtnUserCard.vue';
+import GameOptionModal from "./game/options/GameOptionModal.vue";
 
-defineProps < {
-	isAuthenticated: boolean;
-	loggedUser: any;
-} > ();
+const {
+  setting_open,
+  userClick,
+  modalFriends,
+  usersFriends,
+  loggedUser,
+  modaleOpenInviteGame,
+} = storeToRefs(useUserStore());
+const { modalSendMessage } = storeToRefs(useMessageStore());
 
+defineProps<{
+  componentName: string;
+}>();
 
+onMounted(async () => {
+  if (loggedUser.value != undefined) {
+    await Get(`/users/search?id=${loggedUser.value?.id}&friends`).then(
+      (res: any) => {
+        if (res.status == 200) {
+          usersFriends.value = res.data[0].friends;
+        }
+      }
+    );
+  }
+});
 </script>
 
-<style>
-	@import url("../assets/sidebarStyles.css");
-</style>
-
 <template>
-	<div class="sidebar">
-		<li class="list">
-			<router-link to="/" >
-				<a href="#">
-					<span class="icon"><i class="fa-solid fa-house fa-2x"></i></span>
-					<span class="text"><b>Home</b></span>
-				</a>
-			</router-link>
-		</li>
-		<li class="list">
-			<router-link to="/toto" >
-				<a href="#">
-					<span class="icon"><i class="fa-solid fa-screwdriver-wrench fa-2x"></i></span>
-					<span class="text"><b>Toto</b></span>
-				</a>
-			</router-link>
-		</li>
-		<li class="list">
-			<router-link to="/game" >
-				<a href="#">
-					<span class="icon"><i class="fa-solid fa-gamepad fa-2x"></i></span>
-					<span class="text"><b>Game</b></span>
-				</a>
-			</router-link>
-		</li>
-		<li class="list">
-			<router-link to="/chat" >
-				<a href="#">
-					<span class="icon"><i class="fa-solid fa-cat fa-2x"></i></span>
-					<span class="text"><b>Chat</b></span>
-				</a>
-			</router-link>
-		</li>
-		<li class="list">
-			<router-link to="/debug" >
-				<a href="#">
-					<span class="icon"><i class="fa-solid fa-bug fa-2x"></i></span>
-					<span class="text"><b>Debug</b></span>
-				</a>
-			</router-link>
-		</li>
-		<li class="list">
-			<router-link to="/setting" >
-				<a href="#">
-					<span class="icon"><i class="fa-solid fa-gear fa-2x"></i></span>
-					<span class="text"><b>Setting</b></span>
-				</a>
-			</router-link>
-		</li>
-		<li class="list end">
-			<router-link to="/login" >
-				<a href="#">
-					<span class="icon" v-if="!isAuthenticated"><i class="fa-solid fa-door-open fa-2x"></i></span>
-					<span class="icon" v-else><img class="circular--square" v-bind:src=loggedUser.avatar alt="Avatar" /></span>
+  <div class="container pt-2">
+    <div v-if="loggedUser" class="d-flex pb-4 my-navbar">
+      <BtnUserCard :user="loggedUser" :profile="true" @open="userClick = loggedUser; setting_open = !setting_open;"/>
+      <div>
+        <span class="neonText display-1 size-title" >
+          <b>Space Pong</b>
+        </span>
+      </div>
+    </div>
 
-					<span class="text" v-if="!isAuthenticated"><b>Login</b></span>
-					<span class="text logout" v-else><b>Logout</b></span>
-				</a>
-			</router-link>
-		</li>
-		<div id="indicator" class="indicator"></div>
-	</div>
+    <div class="row">
+      <div class="d-flex btn-navbar">
+        <router-link
+          to="/"
+          class="d-flex justify-content-center my-2 mx-2 router-nav"
+        >
+          <button
+            @click=""
+            class="btn-block set-btn set-btn-nav btn-nav selector"
+          >
+            Home
+          </button>
+        </router-link>
+
+        <router-link
+          to="/chat"
+          class="d-flex justify-content-center my-2 mx-2 router-nav"
+        >
+          <button
+            @click=""
+            class="btn-block set-btn set-btn-nav btn-nav selector"
+          >
+            Chat
+          </button>
+        </router-link>
+
+        <span class="d-flex justify-content-center my-2 mx-2">
+          <button
+            @click="modalFriends = true"
+            class="btn-block set-btn set-btn-nav btn-nav set-btn-nav-friends selector"
+          >
+            Friends
+          </button>
+        </span>
+
+        <span
+          v-if="componentName === 'Home' || componentName === 'Chat'"
+          class="d-flex justify-content-center my-2 mx-2"
+        >
+          <Queue />
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <Modale />
+
+  <ModalChat v-if="modalFriends == true" @close="modalFriends = false">
+    <template v-slot:header>
+      <h2 class="pt-4">
+        <u>Friends list</u>
+      </h2>
+    </template>
+    <template v-slot:body>
+      <UsersFriends />
+    </template>
+  </ModalChat>
+
+  <ModalMessage v-if="modalSendMessage == true" />
+
+  <GameOptionModal
+    v-if="modaleOpenInviteGame"
+    @close="modaleOpenInviteGame = false"
+  />
 </template>
+
+<style scoped>
+li .row {
+  transition: 0.4s;
+}
+li .row:hover {
+  transform: scale(1.3);
+  color: #fffed4;
+  filter: drop-shadow(0px 0px 5px #fff961);
+}
+.btn-profile {
+  padding-left: 0px !important;
+  padding-right: 0px !important;
+}
+.set-btn-nav {
+  background-color: white;
+  color: #66645f;
+  box-shadow: 0px 0px 10px 2px white;
+  font-weight: bold;
+  text-decoration: none;
+}
+.set-btn-nav:hover {
+  box-shadow: 0px 0px 10px white, 0px 0px 15px 5px white;
+}
+.btn-nav {
+  margin-bottom: 45px;
+  margin-right: auto;
+  margin-left: auto;
+  width: 115px;
+}
+.btn-navbar {
+  justify-content: space-around;
+}
+.my-navbar {
+  align-items: center;
+  justify-content: space-between;
+}
+.router-nav {
+  text-decoration: none;
+  color: inherit;
+}
+.avatar-img {
+  width: 8vw;
+  height: 8vw;
+}
+
+@media screen and (max-width: 540px) {
+  .btn-nav {
+    margin-bottom: 45px;
+    margin-right: auto;
+    margin-left: auto;
+
+    width: 55px;
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+  }
+  .avatar-img {
+    width: 12vw;
+    height: 12vw;
+  }
+
+}
+</style>

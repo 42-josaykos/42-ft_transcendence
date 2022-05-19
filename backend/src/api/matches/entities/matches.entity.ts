@@ -30,6 +30,9 @@ class Match {
     cascade: true,
   })
   public winner: User;
+
+  @Column({ default: false })
+  public isRankedMatch: boolean;
 }
 
 export default Match;

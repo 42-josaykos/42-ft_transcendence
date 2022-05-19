@@ -5,6 +5,8 @@ import { ApiModule } from './api/api.module';
 import { ChatGateway } from './gateway/chat.gateway';
 import { UploadController } from './upload/upload.controller';
 import { UploadModule } from './upload/upload.module';
+import { StatusModule } from './status/status.module';
+import { GameModule } from './game/game.module';
 import * as Joi from 'joi';
 
 const envSchema = Joi.object({
@@ -14,8 +16,10 @@ const envSchema = Joi.object({
   POSTGRES_PASSWORD: Joi.string().required(),
   POSTGRES_DB: Joi.string().required(),
   POR: Joi.string(),
-  JWT_SECRET: Joi.string().required(),
-  JWT_EXPIRATION_TIME: Joi.string().required(),
+  JWT_ACCESS_SECRET: Joi.string().required(),
+  JWT_ACCESS_EXPIRATION_TIME: Joi.string().required(),
+  JWT_REFRESH_SECRET: Joi.string().required(),
+  JWT_REFRESH_EXPIRATION_TIME: Joi.string().required(),
 });
 
 @Module({
@@ -24,9 +28,11 @@ const envSchema = Joi.object({
       envFilePath: '../.env',
       validationSchema: envSchema,
     }),
-    ApiModule,
     PassportModule.register({ session: true }),
+    ApiModule,
+    StatusModule,
     UploadModule,
+    GameModule,
   ],
   controllers: [],
   providers: [ChatGateway],

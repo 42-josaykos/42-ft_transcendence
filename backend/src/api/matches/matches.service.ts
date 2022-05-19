@@ -10,6 +10,7 @@ import { UpdateMatchDTO } from './dto/update-match.dto';
 import { FilterMatchDTO } from './dto/filter-match.dto';
 import Match from './entities/matches.entity';
 import User from '../users/entities/user.entity';
+import Stats from '../stats/entities/stats.entity';
 
 @Injectable()
 export class MatchesService {
@@ -18,6 +19,8 @@ export class MatchesService {
     private readonly matchesRepository: Repository<Match>,
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    @InjectRepository(Stats)
+    private readonly statsRepository: Repository<Stats>,
   ) {}
 
   async getAllMatches(): Promise<Match[]> {
@@ -151,6 +154,34 @@ export class MatchesService {
       }
 
       await this.matchesRepository.save(newMatch);
+
+      // Updating player stats
+      const statsPlayerOne = await this.statsRepository.findOne({
+        where: { user: { id: newMatch.players[0].id } },
+        relations: ['user'],
+      });
+      const statsPlayerTwo = await this.statsRepository.findOne({
+        where: { user: { id: newMatch.players[1].id } },
+        relations: ['user'],
+      });
+
+      ++statsPlayerOne.played;
+      ++statsPlayerTwo.played;
+
+      if (statsPlayerOne.user.id === newMatch.winner.id) {
+        ++statsPlayerOne.win;
+        ++statsPlayerTwo.lose;
+      } else {
+        ++statsPlayerOne.lose;
+        ++statsPlayerTwo.win;
+      }
+
+      statsPlayerOne.ratio = statsPlayerOne.win / statsPlayerOne.played;
+      statsPlayerTwo.ratio = statsPlayerTwo.win / statsPlayerTwo.played;
+
+      await this.statsRepository.save(statsPlayerOne);
+      await this.statsRepository.save(statsPlayerTwo);
+
       return this.getMatchByID(newMatch.id);
     } catch (error) {
       throw error;

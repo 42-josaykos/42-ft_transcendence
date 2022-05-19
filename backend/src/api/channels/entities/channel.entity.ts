@@ -26,6 +26,9 @@ class Channel {
   @Column({ nullable: true, default: false })
   public isProtected: boolean;
 
+  @Column({ nullable: true, default: false })
+  public isDirectChannel: boolean;
+
   @Column({ nullable: true, select: false })
   public password: string;
 
@@ -73,9 +76,6 @@ class Channel {
   })
   @JoinTable()
   public invites: User[];
-
-  @Column({ nullable: true, default: false })
-  public isDirectMessage: boolean;
 }
 
 export default Channel;

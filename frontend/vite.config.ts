@@ -33,6 +33,12 @@ export default ({ mode }: any) => {
         "/upload": {
           target: `http://${process.env.BACKEND_HOST}:${process.env.UPLOAD_PORT}`,
         },
+        "/upload": {
+          target: `http://localhost:7002`,
+        },
+        "/assets": {
+          target: `http://localhost:7002`,
+        },
       },
     },
     plugins: [vue()],

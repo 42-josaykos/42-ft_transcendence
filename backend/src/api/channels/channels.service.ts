@@ -14,6 +14,7 @@ import User from 'src/api/users/entities/user.entity';
 import MutedUser from 'src/api/users/entities/muted.user.entity';
 import BanedUser from 'src/api/users/entities/baned.user.entity';
 import { validate } from 'class-validator';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class ChannelsService {
@@ -75,6 +76,10 @@ export class ChannelsService {
     if ('isProtected' in filter)
       query.andWhere('channels.isProtected = :isProtected', {
         isProtected: filter.isProtected,
+      });
+    if ('isDirectChannel' in filter)
+      query.andWhere('channels.isDirectChannel = :isDirectChannel', {
+        isDirectChannel: filter.isDirectChannel,
       });
 
     // Fetch field parameters
@@ -209,8 +214,24 @@ export class ChannelsService {
   async createChannel(channel: CreateChannelDTO): Promise<Channel> {
     try {
       await this.validateChannel(channel);
-      const newChannel = this.channelsRepository.create(channel);
+      const count = await this.channelsRepository.count({
+        where: { name: channel.name },
+      });
+      if (count > 0)
+        throw new ForbiddenException(
+          "Can't create new Channel (name must be unique)",
+        );
+
+      const channelData = { ...channel };
+      if (channelData.password) {
+        const hash = await bcrypt.hash(channel.password, 10);
+        channelData.password = hash;
+      }
+
+      const newChannel = this.channelsRepository.create(channelData);
       await this.channelsRepository.save(newChannel);
+
+      delete newChannel.password;
       return newChannel;
     } catch (error) {
       throw error;
@@ -231,8 +252,15 @@ export class ChannelsService {
         channel.isPrivate = updatedChannel.isPrivate;
       if ('isProtected' in updatedChannel)
         channel.isProtected = updatedChannel.isProtected;
-      if ('password' in updatedChannel)
-        channel.password = updatedChannel.password;
+      if ('password' in updatedChannel) {
+        if (updatedChannel.password != null) {
+        const hash = await bcrypt.hash(updatedChannel.password, 10);
+        channel.password = hash;
+        }
+        else {
+          channel.password = null;
+        }
+      }
       if ('owner' in updatedChannel) channel.owner = updatedChannel.owner;
       if ('admins' in updatedChannel) channel.admins = updatedChannel.admins;
       if ('members' in updatedChannel) channel.members = updatedChannel.members;
@@ -278,10 +306,11 @@ export class ChannelsService {
         channel.mutes = await this.addUsersToArray(addMutes, channel.mutes);
       }
       if ('removeMutes' in updatedChannel) {
-        const oldMutes = await this.mutesRepository.find({
+        let oldMutes = await this.mutesRepository.find({
           where: updatedChannel.removeMutes,
           relations: ['user', 'channel'],
         });
+        oldMutes = oldMutes.filter((value) => value.channel.id === channelID);
         await this.mutesRepository.remove(oldMutes);
         channel.mutes = await this.mutesRepository.find({
           where: { channel: channelID },
@@ -293,10 +322,11 @@ export class ChannelsService {
         channel.bans = await this.addUsersToArray(addBans, channel.bans);
       }
       if ('removeBans' in updatedChannel) {
-        const oldBans = await this.bansRepository.find({
+        let oldBans = await this.bansRepository.find({
           where: updatedChannel.removeBans,
           relations: ['user', 'channel'],
         });
+        oldBans = oldBans.filter((value) => value.channel.id === channelID);
         await this.bansRepository.remove(oldBans);
         channel.bans = await this.bansRepository.find({
           where: { channel: channelID },
@@ -313,7 +343,6 @@ export class ChannelsService {
           updatedChannel.removeInvites,
           channel.invites,
         );
-
       await this.channelsRepository.save(channel);
       return await this.getChannelByID(channelID);
     } catch (error) {

@@ -1,96 +1,391 @@
 <script setup lang="ts">
+import Toggle from '@vueform/toggle';
+import { useUserStore } from '@/stores/user';
+import { storeToRefs } from 'pinia';
+import { ref } from 'vue';
+import { Patch, Post } from '@/services/requests';
+import ax from '@/services/interceptors';
+import type { User } from '@/models/user.model';
+import { computed } from '@vue/reactivity';
 
-import  { isMeteor }  from "../App.vue"
+const userStore = useUserStore();
+const { isTwoFactorAuth, loggedUser, flashMsg } = storeToRefs(userStore);
+if (loggedUser.value && loggedUser.value.isTwoFactorAuthenticationEnabled) {
+  isTwoFactorAuth.value = true;
+} else {
+  isTwoFactorAuth.value = false;
+}
+const qrcode = ref(null);
+const twoFactorInput = ref('');
+const usernameInput = ref('');
+const turnOffForm = ref(false);
+const error = ref(false);
+const fileInput = ref<HTMLInputElement | null>(null);
+const isInvalid = computed(() => {
+  if (flashMsg.value && error.value) {
+    return 'form-control is-invalid';
+  } else {
+    return 'form-control';
+  }
+});
 
+const emit = defineEmits<{
+  (e: 'updateUserProfil'): void;
+}>();
+
+// Convert QR code image file stream from response to base64 string
+function getBase64(file: any) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+  });
+}
+
+// Generate 2FA QR code
+function generate2FA() {
+  ax({
+    method: 'post',
+    url: '/auth/generate-2fa',
+    responseType: 'blob'
+  }).then(res => {
+    getBase64(res.data).then((data: any) => {
+      qrcode.value = data;
+    });
+  });
+}
+
+// 2FA code validation handler
+function validateCode() {
+  Post('/auth/turn-2fa-on', {
+    twoFactorAuthenticationCode: twoFactorInput.value
+  }).then(res => {
+    if (res.status === 201) {
+      if (
+        !isTwoFactorAuth.value &&
+        loggedUser.value &&
+        !loggedUser.value.isTwoFactorAuthenticationEnabled
+      ) {
+        loggedUser.value.isTwoFactorAuthenticationEnabled = true;
+        isTwoFactorAuth.value = true;
+      } else if (
+        isTwoFactorAuth &&
+        loggedUser.value &&
+        loggedUser.value.isTwoFactorAuthenticationEnabled
+      ) {
+        loggedUser.value.isTwoFactorAuthenticationEnabled = false;
+        isTwoFactorAuth.value = false;
+      }
+      qrcode.value = null;
+      turnOffForm.value = false;
+    } else {
+      alert('Invalid 2FA code');
+    }
+    twoFactorInput.value = '';
+  });
+}
+
+// 2FA option handler
+function toggleTwoFactorAuthentication() {
+  if (isTwoFactorAuth.value === true) {
+    isTwoFactorAuth.value = false;
+    generate2FA();
+  } else {
+    isTwoFactorAuth.value = true;
+    turnOffForm.value = true;
+  }
+}
+
+// Update username
+function updateUsername() {
+  if (usernameInput.value && usernameInput.value.length < 15) {
+    Patch(`/users/${loggedUser.value?.id}`, {
+      username: usernameInput.value
+    }).then(res => {
+      if (res.status === 200) {
+        if (loggedUser.value) {
+          let updatedUser: User = { ...loggedUser.value };
+          updatedUser.username = res.data.username;
+          loggedUser.value = updatedUser;
+          usernameInput.value = '';
+          emit('updateUserProfil');
+          error.value = false;
+          flashMsg.value = 'Username updated !';
+        }
+      } else {
+        error.value = true;
+        flashMsg.value = 'Username already exists';
+      }
+    });
+  } else {
+    error.value = true;
+    flashMsg.value = 'Username must be not empty and 15 characters or less';
+  }
+  setTimeout(() => {
+    error.value = false;
+    flashMsg.value = '';
+  }, 5000);
+}
+
+async function updateAvatar(event: any) {
+  if (fileInput.value !== null) {
+    const file = fileInput.value.files?.item(0);
+    if (file) {
+      let formData = new FormData();
+      formData.append('avatarUpload', file);
+      let response;
+      try {
+        response = await ax.post('/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        if (response.status === 201) {
+          Patch(`/users/${loggedUser.value?.id}`, {
+            avatar: response.data.path
+          }).then(res => {
+            if (res.status === 200) {
+              if (loggedUser.value) {
+                loggedUser.value.avatar = res.data.avatar;
+                fileInput.value = null;
+                emit('updateUserProfil');
+                error.value = false;
+                flashMsg.value = 'Avatar updated !';
+              }
+            }
+          });
+        }
+      } catch (er: any) {
+        alert(er.response.data.message);
+      }
+    }
+    setTimeout(() => {
+      error.value = false;
+      flashMsg.value = '';
+    }, 5000);
+  }
+}
 </script>
 
 <template>
-	<h2>
-		Settings
-	</h2>
-	<span>
-		Meteor:
-	<label class="switch" >
-		<input type="checkbox" @click="isMeteor = !isMeteor">
-		<span class="slider round">
-			<div class="switchOFF" v-if="isMeteor">on</div>
-			<div v-else class="switchON">off</div>
-		</span>
-	</label>
-	</span>
+  <div style="text-align: left">
+    <b><u>Profil Settings:</u></b>
+  </div>
+  <form @submit.prevent="updateAvatar">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-9 p-0 text-md-start" style="font-size: medium">
+          Change Avatar:
+        </div>
+        <div class="col-md-3 p-0">
+          <div class="container p-0">
+            <div class="row">
+              <div class="col-6">
+                <input
+                  type="file"
+                  accept="image/*"
+                  id="file"
+                  ref="fileInput"
+                  class="input-file"
+                />
+
+                <label for="file" class="label-file"
+                  ><i class="fa-solid fa-upload fa-lg"></i
+                ></label>
+              </div>
+              <div class="col-6">
+                <button type="submit" class="submit-btn">
+                  <i class="fa-solid fa-circle-check fa-lg"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <br />
+
+  <!-- Update username -->
+  <div class="container">
+    <div class="row">
+      <div class="col-md-9 p-0 text-md-start" style="font-size: medium">
+        Change Username:
+      </div>
+      <div class="col-md-3 p-0">
+        <form @submit.prevent.trim.lazy="updateUsername">
+          <div class="container p-0">
+            <div class="row">
+              <div class="col-10 p-0">
+                <input
+                  :class="isInvalid"
+                  v-model="usernameInput"
+                  name="username"
+                  type="text"
+                  style="width: 100%"
+                  placeholder="UserName"
+                />
+              </div>
+              <div class="col-2 p-0">
+                <button type="submit" class="submit-btn">
+                  <i class="fa-solid fa-circle-check fa-lg"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div v-if="flashMsg && error" style="color: red">{{ flashMsg }}</div>
+    <div v-if="flashMsg && !error" style="color: green">{{ flashMsg }}</div>
+  </div>
+
+  <hr />
+  <div>
+    <div style="text-align: left">
+      <b><u>Security Settings:</u></b>
+    </div>
+    <!-- 2FA option -->
+    <div class="container">
+      <div class="row">
+        <div class="col-md-9 p-0 text-md-start" style="font-size: medium">
+          Two-Factor Authentication (2FA):
+        </div>
+        <div class="col-md-3 p-0">
+          <Toggle
+            @change="toggleTwoFactorAuthentication"
+            v-model="isTwoFactorAuth"
+            on-label="On"
+            off-label="Off"
+            class="toggle-style"
+          />
+        </div>
+      </div>
+    </div>
+    <span class="element-set"> </span>
+
+    <!-- QR code if toggle 2FA on -->
+    <div v-if="qrcode">
+      <hr />
+      <div class="text-md-start p-1" style="font-size: medium">
+        Scan QRCode, and validate code to enable 2FA:
+      </div>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6">
+            <img :src="qrcode" alt="" width="150" />
+          </div>
+          <div class="col-md-6">
+            <div class="d-none d-md-block"><br /></div>
+            <br />
+            Refresh QRCode:
+            <button
+              class="submit-btn"
+              style="font-size: medium"
+              @click="generate2FA"
+            >
+              <i class="fa-solid fa-arrows-rotate fa-2xl"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <br />
+
+      <form @submit.prevent.trim.lazy="validateCode">
+        <div class="container p-0">
+          <div class="row">
+            <div class="col-10 p-0">
+              <input
+                v-model="twoFactorInput"
+                style="width: 100%"
+                type="text"
+                placeholder="2FA Code"
+              />
+            </div>
+            <div class="col-2 p-0">
+              <button type="submit" class="submit-btn">
+                <i class="fa-solid fa-circle-check fa-lg"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- 2FA validation if toggle off -->
+    <div v-if="turnOffForm">
+      <hr />
+      <form @submit.prevent.trim.lazy="validateCode">
+        Validate code to disable 2FA:
+        <input v-model="twoFactorInput" type="text" />
+        <button type="submit" class="submit-btn">
+          <i class="fa-solid fa-circle-check fa-lg"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+  <hr class="d-md-none" />
 </template>
 
 <style>
+@import '@vueform/toggle/themes/default.css';
 
-.switchON{
-	font-size: 2vh;
-	transform: translateX(1vh);
-}
-.switchOFF{
-	font-size: 2vh;
-	transform: translateX(-1vh);
-}
-/* The switch - the box around the slider */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 6vh;
-  height: 3vh;
+.submit-btn {
+  border: none;
+  background: rgba(0, 0, 0, 0);
+  color: var(--sidebar-icon-color);
+  transition: 0.4s;
 }
 
-/* Hide default HTML checkbox */
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
+.submit-btn:hover {
+  color: #1c4e8b;
+  transform: scale(1.2);
 }
 
-/* The slider */
-.slider {
-  position: absolute;
+.label-file {
   cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-
-  -webkit-transition: .4s;
-  transition: .4s;
+  color: var(--sidebar-icon-color);
+  transition: 0.4s;
+}
+.label-file:hover {
+  color: #1c4e8b;
+  transform: scale(1.2);
 }
 
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 2vh;
-  width: 2vh;
-  left: 0.4vh;
-  bottom: 0.5vh;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
+.input-file {
+  display: none;
 }
 
-input:checked + .slider {
-  background-color: #1d508f;
+input {
+  text-align: center;
 }
 
-input:focus + .slider {
-  box-shadow: 0 0 1px #1d508f;
+.neon-typo {
+  color: #ffffff;
+  text-shadow: 0px 4px 15px #fff961, 0px 0px 10px #fff961;
 }
 
-input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(3.2vh);
+.userName {
+  font-size: x-large;
 }
 
-/* Rounded sliders */
-.slider.round {
-  border-radius: 34px;
+.toggle-style {
+  --toggle-bg-on: var(--sidebar-icon-color);
+  --toggle-border-on: var(--sidebar-icon-color);
+  --toggle-bg-off: rgb(187, 187, 187);
+  --toggle-border-off: rgb(187, 187, 187);
+  --toggle-ring-width: 0;
 }
 
-.slider.round:before {
-  border-radius: 50%;
+.element-set {
+  margin-bottom: 10px;
+  font-size: large;
+}
+
+.carde {
+  display: flex;
+  align-items: center;
+  width: 50rem;
+  overflow: hidden;
 }
 </style>
