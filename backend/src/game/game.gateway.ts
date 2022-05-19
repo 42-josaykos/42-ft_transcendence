@@ -102,7 +102,7 @@ export class GameGateway
   ) {
     // Adding player to queue
     this.queue.push(this.gameService.getUser(this.connectedClients, data));
-    this.server.emit('inQueueUsers', this.sendInQueueUsers());
+    this.sendInQueueUsers();
     // console.log('queue: ', this.queue);
 
     // Start a game if there is at least 2 players in the queue waiting
@@ -115,7 +115,7 @@ export class GameGateway
       // console.log('playerTwo: ', playerTwo);
 
       if (playerOne.player.user.id !== playerTwo.player.user.id) {
-        this.server.emit('inQueueUsers', this.sendInQueueUsers());
+        this.sendInQueueUsers();
         this.setupAndStartGame(
           { ...playerOne },
           { ...playerTwo },
@@ -173,6 +173,7 @@ export class GameGateway
     );
 
     if (userIndex !== -1) this.queue.splice(userIndex, 1);
+    this.sendInQueueUsers();
   }
 
   @SubscribeMessage('getOngoingGames')
