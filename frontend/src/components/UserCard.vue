@@ -2,13 +2,18 @@
 import { computed, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
+import { useGameStore } from "@/stores/game";
 
 const userStore = useUserStore();
-const { usersOnline, usersInQueue, usersInGame } = storeToRefs(userStore);
+const { usersOnline } = storeToRefs(userStore);
+
+const gameStore = useGameStore();
+const { usersInQueue, usersInGame } = storeToRefs(gameStore);
 
 const props = defineProps({
   user: Object,
   dashboard: Boolean,
+  profile: Boolean,
 });
 
 const isOnlineBool = ref<boolean>(false);
@@ -42,14 +47,14 @@ const isOnline = computed(() => {
 </script>
 
 <template>
-  <div class="row no-gutters d-flex">
-    <div v-if="props.dashboard" class="col-md-4 cercle-user-card-dashboard">
+  <div v-bind:class="{ row : !props.profile}" class="no-gutters d-flex">
+    <div v-if="props.dashboard" v-bind:class="{ 'col-md-4': !props.profile}" class="cercle-user-card-dashboard">
       <img v-bind:src="props.user?.avatar" alt="Avatar" class="card-img" />
     </div>
-    <div v-else class="col-md-4 cercle-user-card">
+    <div v-else v-bind:class="{ 'col-md-4': !props.profile}" class="cercle-user-card">
       <img v-bind:src="props.user?.avatar" alt="Avatar" class="card-img" />
     </div>
-    <div class="col-md-7 infos" v-bind:class="{ infosChat: !props.dashboard }">
+    <div class="infos" v-bind:class="{ infosChat: !props.dashboard, 'col-md-7': !props.profile }">
       <div class="text-truncate">
         <div class="info">
           {{ props.user?.username }}

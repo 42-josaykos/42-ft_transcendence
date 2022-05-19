@@ -49,7 +49,7 @@ const removeMute = () => {
             :key="ban.user.id"
           >
             <div class="d-flex ms-auto my-2 " style="align-items: center" >
-              <UserCard class="ms-2" :user="ban.user" :dashboard="true" />
+              <UserCard class="ms-2" :user="ban.user" :dashboard="true" :profile="false"/>
               <div class="ms-auto">
                 <button
                   @click="
@@ -81,7 +81,7 @@ const removeMute = () => {
             :key="mute.user.id"
           >
             <div class="d-flex ms-auto my-2 " style="align-items: center" >
-              <UserCard class="ms-2" :user="mute.user" />
+              <UserCard class="ms-2" :user="mute.user" :dashboard="true" :profile="false"/>
               <div class="">
                 <button
                   @click="

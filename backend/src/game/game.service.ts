@@ -55,6 +55,10 @@ export class GameService implements OnModuleInit {
 
   // Main game code
   createGame(playerOne: Player, playerTwo: Player, gameOptions: GameOptions) {
+    const inGameUsers = this.inGameUsers()
+    if (inGameUsers.find((user) => user.id === playerOne.player.user.id) || inGameUsers.find((user) => user.id === playerTwo.player.user.id))
+      return
+
     // Create and start game
     playerOne = this.initNewPlayerOne(playerOne.player, gameOptions);
     playerTwo = this.initNewPlayerTwo(playerTwo.player, gameOptions);
@@ -78,7 +82,7 @@ export class GameService implements OnModuleInit {
     let pause = true;
     setTimeout(() => {
       pause = false;
-    }, 1500);
+    }, 6500);//5sec start time + 1.5sec ball still
 
     // Main game loop
     game.intervalID = setInterval(async () => {

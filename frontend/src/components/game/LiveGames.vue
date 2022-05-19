@@ -5,10 +5,14 @@ import { useRouter } from "vue-router";
 import { ref } from "vue";
 // import Modale from "../Modale.vue";
 import UserCard from "../UserCard.vue";
+import { useGameStore } from "@/stores/game";
 
 // Stores
 const userStore = useUserStore();
-const { gameSocket, loggedUser } = storeToRefs(userStore);
+const { loggedUser } = storeToRefs(userStore);
+
+const gameStore = useGameStore();
+const { gameSocket } = storeToRefs(gameStore);
 
 const router = useRouter();
 
@@ -85,7 +89,7 @@ const acceptInviteToGame = (inviteUser: any) => {
           <td class="neon-typo versus">VS</td>
           <th class="watch_player">{{ game.playerTwo.username }}</th>
           <td>
-            <a href="#" @click="spectate(game.id)"
+            <a href="#" @click="spectate(game.id)" class="hovertext hovertextL" data-hover="See the game"
               ><i class="fa-solid fa-eye fa-xl action_icon"></i
             ></a>
           </td>
@@ -111,11 +115,7 @@ const acceptInviteToGame = (inviteUser: any) => {
             :key="invite.sender.user.id"
           >
             <div class="d-flex ms-auto my-2" style="align-items: center">
-              <UserCard
-                class="ms-2"
-                :user="invite.sender.user"
-                :dashboard="true"
-              />
+              <UserCard class="ms-2" :user="invite.sender.user" :dashboard="true" :profile="false"/>
               <div class="ms-auto">
                 <button
                   @click="
@@ -283,5 +283,9 @@ th {
 
 .btn-badge:hover {
   transform: scale(1.2);
+}
+
+.hovertextL:before {
+  left: -120px;
 }
 </style>

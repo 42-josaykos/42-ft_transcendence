@@ -77,8 +77,9 @@ export class GameGateway
     // Should never append, but prevention is better than cure
     if (userIndex === -1) {
       // console.log('Client: ', client);
-      console.log('Connected Clients: ', this.connectedClients);
-      throw new WsException('Disconnecting user was not found');
+      // console.log('[Game] Connected Clients: ', this.connectedClients);
+      return;
+      // throw new WsException('Disconnecting user was not found');
     }
 
     // Removing socketID from corresponding user
@@ -94,6 +95,36 @@ export class GameGateway
     // console.log('Clients connected: ', this.connectedClients);
   }
 
+  @SubscribeMessage('logout')
+  handleLogout(@ConnectedSocket() client: Socket) {
+    // this.logger.log(`Logout: ${client.id}`);
+    const userIndex = this.connectedClients.findIndex(
+      (connection) => connection.socketID.indexOf(client.id) !== -1,
+    );
+
+    // Should never append, but prevention is better than cure
+    if (userIndex === -1) {
+      // console.log('Client: ', client);
+      // console.log('[Game] Connected Clients: ', this.connectedClients);
+      return;
+      // throw new WsException('Disconnecting user was not found');
+    }
+
+    // console.log(
+    //   'User game sockets: ',
+    //   this.connectedClients[userIndex].socketID,
+    // );
+
+    // Move to login page, but not needed here, already in StatusSystem
+    // this.server.to(this.connectedClients[userIndex].socketID).emit('logout');
+    // Disconnect all sockets
+    this.server
+      .to(this.connectedClients[userIndex].socketID)
+      .disconnectSockets(true);
+    // Delete user and it's sockets from connectedClients
+    this.connectedClients.splice(userIndex, 1);
+  }
+
   // Queue handling
   @SubscribeMessage('queue')
   async handleQueue(
@@ -102,7 +133,7 @@ export class GameGateway
   ) {
     // Adding player to queue
     this.queue.push(this.gameService.getUser(this.connectedClients, data));
-    this.server.emit('inQueueUsers', this.sendInQueueUsers());
+    this.sendInQueueUsers();
     // console.log('queue: ', this.queue);
 
     // Start a game if there is at least 2 players in the queue waiting
@@ -115,14 +146,13 @@ export class GameGateway
       // console.log('playerTwo: ', playerTwo);
 
       if (playerOne.player.user.id !== playerTwo.player.user.id) {
-        this.server.emit('inQueueUsers', this.sendInQueueUsers());
+        this.sendInQueueUsers();
         this.setupAndStartGame(
           { ...playerOne },
           { ...playerTwo },
           this.matchmakingOptions,
           'matchmaking',
-          'startGame',
-          5000,
+          'startGame'
         );
       }
     }
@@ -134,7 +164,6 @@ export class GameGateway
     gameOptions: GameOptions,
     gameMode: string,
     startGameEvent: string,
-    startTimeout: number,
   ) {
     // Create a socket room, and make ALL player's sockets join
     const roomName = `${playerOne.player.user.id}-${playerTwo.player.user.id}`;
@@ -151,18 +180,9 @@ export class GameGateway
     });
 
     // Start the game is the backend
-    setTimeout(
-      (playerOne, playerTwo) => {
-        // Create and start game
-        this.gameService.createGame(playerOne, playerTwo, gameOptions);
-
-        // Emit live games to clients
-        this.server.emit('liveGames', this.getOngoingGames());
-      },
-      startTimeout,
-      playerOne,
-      playerTwo,
-    );
+    this.gameService.createGame(playerOne, playerTwo, gameOptions);
+    // Emit live games to clients
+    this.server.emit('liveGames', this.getOngoingGames());
   }
 
   @SubscribeMessage('leaveQueue')
@@ -173,6 +193,7 @@ export class GameGateway
     );
 
     if (userIndex !== -1) this.queue.splice(userIndex, 1);
+    this.sendInQueueUsers();
   }
 
   @SubscribeMessage('getOngoingGames')
@@ -377,7 +398,7 @@ export class GameGateway
         (userInvite, userGuest) => {
           this.removeGameInvite(userInvite, userGuest);
         },
-        10000,
+        30000,
         { ...userWhoInvites },
         { ...guestUser },
       );
@@ -397,6 +418,12 @@ export class GameGateway
       this.connectedClients,
       players[1],
     );
+
+    //Remove users from queue
+    const userInviteIndex = this.queue.findIndex((user) => user.user.id === userInvite.user.id)
+    const userGuestIndex = this.queue.findIndex((user) => user.user.id === userGuest.user.id)
+    if (userInviteIndex !== -1) this.queue.splice(userInviteIndex, 1)
+    if (userGuestIndex !== -1) this.queue.splice(userGuestIndex, 1)
 
     // Get game options
     const inviteGuest = this.invites.find(
@@ -418,7 +445,6 @@ export class GameGateway
         options,
         'invite',
         'startGame',
-        10000,
       );
 
       // Delete guest's invite

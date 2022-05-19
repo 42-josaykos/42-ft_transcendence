@@ -13,7 +13,6 @@ import BtnUserList from "./BtnUserList.vue";
 // Stores
 const userStore = useUserStore();
 const {
-  gameSocket,
   socketChat,
   setting_open,
   userClick,
@@ -21,6 +20,7 @@ const {
   usersFriends,
   modaleOpenInviteGame,
   usersOnline,
+  usersList,
 } = storeToRefs(userStore);
 
 const messageStore = useMessageStore();
@@ -28,36 +28,34 @@ const { modalSendMessage } = storeToRefs(messageStore);
 
 const router = useRouter();
 
-const users = ref<User[]>([]);
-
 if (socketChat.value) {
   // Get all users at page startup
   socketChat.value.emit("getUsersByFilter", {});
-  socketChat.value.on(
-    "receiveFilteredUsers",
-    (userList) => (users.value = userList)
-  );
-
-  // Get user friends
-  socketChat.value.on("receiveFriends", (friendsList: User[]) => {
-    usersFriends.value = friendsList;
-  });
   socketChat.value.emit("getUserFriends", loggedUser.value);
 }
 
 // User list online without logged user
 const userListOnline = computed(() => {
-  return users.value.filter((value) => 
-    usersOnline.value.findIndex((id) => id == value.id) != -1
-  ).sort((a, b) => (a.username.toLowerCase() > b.username.toLowerCase()) ? 1 : -1)
+  return usersList.value
+    .filter(
+      (value) => usersOnline.value.findIndex((id) => id == value.id) != -1
+    )
+    .sort((a, b) =>
+      a.username.toLowerCase() > b.username.toLowerCase() ? 1 : -1
+    );
 });
 
 // User list without logged user
 const userListOffline = computed(() => {
-  return users.value.filter((value) => 
-    usersOnline.value.findIndex((id) => id == value.id) == -1
-  ).sort((a, b) => (a.username.toLowerCase() > b.username.toLowerCase()) ? 1 : -1)
+  return usersList.value
+    .filter(
+      (value) => usersOnline.value.findIndex((id) => id == value.id) == -1
+    )
+    .sort((a, b) =>
+      a.username.toLowerCase() > b.username.toLowerCase() ? 1 : -1
+    );
 });
+
 </script>
 
 <template>
@@ -70,9 +68,7 @@ const userListOffline = computed(() => {
         Players List
       </div>
       <hr />
-      <br />
       <BtnUserList v-if="userListOnline.length > 0" :usersList="userListOnline" :isOffLine="false"/>
-      <hr class="seperator-user-online-offline" v-if="userListOnline.length > 0 && userListOffline.length > 0"/>
       <BtnUserList v-if="userListOffline.length > 0" :usersList="userListOffline" :isOffLine="true"/>
     </div>
   </div>
@@ -184,7 +180,7 @@ th {
   padding: 5px;
 }
 
-.seperator-user-online-offline{
+.seperator-user-online-offline {
   margin-bottom: 10px !important;
   width: 150px !important;
 }
