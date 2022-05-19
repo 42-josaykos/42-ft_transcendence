@@ -25,17 +25,20 @@ if (gameSocket.value) {
   gameSocket.value.on("startGame", (startEvent: any) => {
     // console.log("[QueueSystem] A new match is starting");
 
-    let startTime;
+    // If players aren't already in game
+    if (userStore.valueInArray(startEvent.players[0].id, usersInGame.value) || userStore.valueInArray(startEvent.players[1].id, usersInGame.value))
+      return
+
+    const startTime = 5000;
     players.value = startEvent.players;
-    if (startEvent.mode === "matchmaking") {
+    if (startEvent.mode === "matchmaking") 
       matchFound.value = true;
-      startTime = 5000;
-    } else if (startEvent.mode === "invite") {
+    else if (startEvent.mode === "invite")
       matchInvite.value = true;
-      startTime = 10000;
-    }
+
 
     setTimeout(() => {
+      console.log("players =>  ", players.value )
       if (startEvent.mode === "matchmaking") matchFound.value = false;
       else if (startEvent.mode === "invite") matchInvite.value = false;
       router.push("/game");
