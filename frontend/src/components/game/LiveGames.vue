@@ -53,31 +53,29 @@ const acceptInviteToGame = (inviteUser: any) => {
   <div class="infoGame scrollBar_invisible mb-5">
     <div class="cont">
       <div class="d-flex" style="justify-content: center">
-        <div
-          class="neon-typo pt-4"
-          style="font-size: xx-large; font-weight: bold"
-        >
-          Live Game
-        </div>
-
-        <!-- <button
-          @click="modaleAllInvitesGame = true"
-          type="button"
-          class="rounded btn-channel wrapper-icon-leave hovertext hovertextC pt-4 btn-badge"
-          data-hover="See all invitations to play"
-        >
-          <span class="position-badge-game translate-middle rounded-pill">
-            {{ gameInvites.length }}
-          </span>
-        </button> -->
-        <div
-          @click="modaleAllInvitesGame = true"
-          type="button"
-          class="hovertext hovertextC invit_pod"
-          data-hover="See all invitations to play"
-        >
-          <div class="invit_info">
-            {{ gameInvites.length }}
+        <div>
+          <div style="display: inline-flex;">
+            <div class="neon-typo pt-4"
+                style="font-size: xx-large; font-weight: bold"
+            >
+              Game Invite
+            </div>
+            <button
+              @click="modaleAllInvitesGame = true"
+              type="button"
+              class="rounded btn-channel wrapper-icon-leave hovertext hovertextC pt-4 btn-badge"
+              data-hover="See all invitations to play"
+            >
+              <span class="position-badge-game translate-middle rounded-pill">
+                {{ gameInvites.length }}
+              </span>
+            </button>
+          </div>
+          <div
+            class="neon-typo pt-4"
+            style="font-size: xx-large; font-weight: bold"
+          >
+            Live Game
           </div>
         </div>
       </div>
@@ -141,37 +139,14 @@ const acceptInviteToGame = (inviteUser: any) => {
 
 <style scoped>
 
-.invit_pod{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #dfaf2c;
-  border: #dfaf2c 5px solid;
-  box-shadow: 0px 0px 10px 2px #daba64;
-  margin-left: 2rem;
-  margin-top: 2rem;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  transition: 0.4s;
-  text-align: center;
-}
-
-.invit_pod:hover{
-  box-shadow: 0px 0px 10px #daba64, 0px 0px 15px 5px #daba64;
-}
-
-@-moz-document url-prefix() {
-  .invit_pod {
-    padding-top: 5px;
-    padding-left: 1px;
-  }
-}
-.invit_info{
-  color: white;
-  font-weight: bold;
-  transition: 0.4s;
-
+.vertical {
+  width:3px;
+  height:100%;
+  /* position:absolute; */
+  background-color:#cb0a40;
+  margin:0;
+  padding:0;
+  left:260px;
 }
 
 .infoGame {
@@ -222,6 +197,7 @@ p {
 }
 
 .neon-typo {
+  text-align:inherit;
   color: #ffffff;
   text-shadow: 0px 4px 15px white, 0px 0px 10px white;
 }
