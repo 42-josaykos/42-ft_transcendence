@@ -58,7 +58,7 @@ const incrementBallSpeed = () => {
         class="mod-btn mod-btn-blue"
         style="width: 75%; margin: auto"
       >
-        INVITE TO GAME
+        Invite to Game
       </button>
     </div>
   </div>

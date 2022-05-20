@@ -43,7 +43,7 @@ const { modalSendMessage } = storeToRefs(messageStore);
         type="button"
         class="mod-btn-friends mod-btn-green btn-sm"
       >
-        Profil
+        Profile
       </button>
       <button
         @click="
