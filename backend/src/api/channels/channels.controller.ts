@@ -10,6 +10,7 @@ import {
   Post,
   Query,
   Redirect,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ChannelsService } from './channels.service';
@@ -22,8 +23,10 @@ import Message from 'src/api/messages/entities/message.entity';
 import User from 'src/api/users/entities/user.entity';
 import BanedUser from '../users/entities/baned.user.entity';
 import MutedUser from '../users/entities/muted.user.entity';
+import { JwtAccessGuard } from 'src/auth/guards';
 
 @Controller('channels')
+@UseGuards(JwtAccessGuard)
 @ApiTags('channels')
 export class ChannelsController {
   constructor(
