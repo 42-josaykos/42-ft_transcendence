@@ -24,7 +24,7 @@ const {
 const router = useRouter();
 
 if (isAuthenticated.value) {
-  gameSocket.value = io(`ws://localhost:6060/game`, {
+  gameSocket.value = io(`http://localhost:6060/game`, {
     withCredentials: true,
   });
 
@@ -82,7 +82,6 @@ if (isAuthenticated.value) {
     else if (startEvent.mode === "invite") matchInvite.value = true;
 
     setTimeout(() => {
-      console.log("players =>  ", players.value);
       if (startEvent.mode === "matchmaking") matchFound.value = false;
       else if (startEvent.mode === "invite") matchInvite.value = false;
       players.value = [];
