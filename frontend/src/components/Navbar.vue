@@ -118,6 +118,10 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+
+.display-1{
+  font-size: calc(1.625rem + 4.4vw);
+}
 li .row {
   transition: 0.4s;
 }
