@@ -28,6 +28,7 @@ const emits = defineEmits(["updateUserProfil"]);
 
 const disconnectSockets = () => {
   // console.log("[Logout] Disconnecting sockets");
+  gameSocket.value?.emit("leaveQueue", loggedUser.value)
   statusSocket.value?.emit("logout");
   socketChat.value?.emit("logout");
   gameSocket.value?.emit("logout");
