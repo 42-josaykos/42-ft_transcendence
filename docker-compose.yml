@@ -49,10 +49,10 @@ services:
     depends_on:
       - postgres
     ports:
-      - "${API_PORT}"
-      - "${STATUS_PORT}"
-      - "${GAME_PORT}"
-      - "${UPLOAD_PORT}"
+      - ${API_PORT}
+      - ${STATUS_PORT}
+      - ${GAME_PORT}
+      - ${UPLOAD_PORT}
     networks:
       - default
     volumes:

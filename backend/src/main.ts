@@ -69,13 +69,12 @@ async function bootstrap() {
   await api.listen(port, '0.0.0.0');
   console.log(`[APIModule] API is listening on: ${await api.getUrl()}`);
 
-  // Auth Module
-  // const authApp = await NestFactory.create(AuthModule);
-  // await authApp.listen(5000);
-
   // Status Module
   const statusSystemPort = 3615;
   const statusSystem = await NestFactory.create(StatusModule);
+  // statusSystem.enableCors({
+  //   credentials: true,
+  // })
   await statusSystem.listen(statusSystemPort, '0.0.0.0');
   console.log(
     `[StatusSystem] Status service running on: ${await statusSystem.getUrl()}`,
@@ -84,12 +83,18 @@ async function bootstrap() {
   // Game Module
   const gameGatewayPort = 6060;
   const game = await NestFactory.create(GameModule);
+  // game.enableCors({
+  //   credentials: true,
+  // })
   await game.listen(gameGatewayPort, '0.0.0.0');
   console.log(`[GameModule] Game gateway running on: ${await game.getUrl()}`);
 
   // Upload Module
   const uploadModulePort = configService.get('UPLOAD_PORT') || 7000;
   const fileUpload = await NestFactory.create(UploadModule);
+  // fileUpload.enableCors({
+  //   credentials: true,
+  // })
   await fileUpload.listen(uploadModulePort, '0.0.0.0');
   console.log(
     `[UploadModule] Upload service running on: ${await fileUpload.getUrl()}`,

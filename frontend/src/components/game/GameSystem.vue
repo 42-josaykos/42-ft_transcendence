@@ -24,12 +24,9 @@ const {
 const router = useRouter();
 
 if (isAuthenticated.value) {
-  gameSocket.value = io(
-    `ws://${process.env.BACKEND_HOST}:${process.env.GAME_PORT}/game`,
-    {
-      withCredentials: true,
-    }
-  );
+  gameSocket.value = io(`ws://localhost:6060/game`, {
+    withCredentials: true,
+  });
 
   // After socket connection, the server needs the logged user id
   gameSocket.value.on("requestGameUserInfo", function (data: any) {

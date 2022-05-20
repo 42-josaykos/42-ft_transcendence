@@ -14,12 +14,11 @@ import {
 import User from 'src/api/users/entities/user.entity';
 import { Connection } from 'src/status/status.class';
 import { Logger } from '@nestjs/common';
-import axios from 'axios';
 
 @WebSocketGateway({
   namespace: 'status',
   cors: {
-    origin: `http://${process.env.FRONTEND_HOST}:${process.env.FRONTEND_PORT}`,
+    origin: `http://frontend:3001`,
     credentials: true,
   },
 })

@@ -23,12 +23,9 @@ const { channel, channelJoin, usersMembers, usersInvite } =
 
 if (isAuthenticated.value) {
   if (socketChat.value == undefined) {
-    socketChat.value = io(
-      `http://${process.env.BACKEND_HOST}:${process.env.API_PORT}/chat`,
-      {
-        withCredentials: true,
-      }
-    );
+    socketChat.value = io(`http://localhost:4000/chat`, {
+      withCredentials: true,
+    });
   }
 
   // // Disconnect events

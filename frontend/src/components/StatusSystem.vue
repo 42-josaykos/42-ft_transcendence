@@ -26,12 +26,9 @@ console.log("[StatusStore] isAuthenticated: ", isAuthenticated.value);
 
 if (isAuthenticated.value) {
   // console.log("[StatusStore] loggedUser: ", loggedUser.value);
-  statusSocket.value = io(
-    `ws://${process.env.BACKEND_HOST}:${process.env.STATUS_PORT}/status`,
-    {
-      withCredentials: true,
-    }
-  );
+  statusSocket.value = io(`http://backend:3615/status`, {
+    withCredentials: true,
+  });
 
   // After socker connection, the server needs the logged user id
   statusSocket.value.on("requestUserInfo", function (data: any) {
