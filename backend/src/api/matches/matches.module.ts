@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { MatchesController } from './matches.controller';
+import { MatchesController, PostMatchesController } from './matches.controller';
 import { MatchesService } from './matches.service';
 import Match from './entities/matches.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -8,7 +8,7 @@ import Stats from '../stats/entities/stats.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, Match, Stats])],
-  controllers: [MatchesController],
+  controllers: [MatchesController, PostMatchesController],
   providers: [MatchesService],
   exports: [MatchesService],
 })

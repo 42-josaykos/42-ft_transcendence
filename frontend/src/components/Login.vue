@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/user';
+import { useInputStore } from '@/stores/input';
 import { computed, ref } from 'vue';
 import { Post } from '@/services/requests';
 import { useRouter } from 'vue-router';
 import Register from './Register.vue';
+import { notify } from "@kyvg/vue3-notification";
 
 const userStore = useUserStore();
+const inputStore = useInputStore();
 const { isAuthenticated, loggedUser, isTwoFactorAuth, flashMsg } =
   storeToRefs(userStore);
+const { containsSpecialChars } = useInputStore()
 const router = useRouter();
 
 const username = ref('');
@@ -38,13 +42,18 @@ function loginLocal() {
         isTwoFactorAuth.value = true;
         router.push('/twofactorauth');
       } else {
-        flashMsg.value = 'Wrong username or password';
+        flashMsg.value = true;
+        notify({
+          type: 'error',
+          title: "Authentication",
+          text: 'Wrong username or password',
+        });
       }
       loader.value = false;
     })
     .catch((error: any) => {});
   setTimeout(() => {
-    flashMsg.value = '';
+    flashMsg.value = false;
   }, 5000);
 }
 </script>
@@ -53,7 +62,6 @@ function loginLocal() {
   <div class="container">
     <h1 class="neonText display-1">Space Pong</h1>
     <div v-if="!loader && !registerForm">
-      <div v-if="flashMsg" style="color: red">{{ flashMsg }}</div>
       <form @submit.prevent.trim.lazy="loginLocal" class="form-signin">
         <label for="inputUsername" class="sr-only">Username</label>
         <input

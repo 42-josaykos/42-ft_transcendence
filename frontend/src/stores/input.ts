@@ -56,5 +56,11 @@ export const useInputStore = defineStore('input', {
         channel_type: 1
       } as Input
     } as InputStore;
+  },
+  actions: {
+    containsSpecialChars(str: string) {
+    const specialChars = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+    return specialChars.test(str);
+  }
   }
 });

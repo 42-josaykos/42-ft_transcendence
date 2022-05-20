@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MatchesService } from './matches.service';
@@ -16,8 +17,10 @@ import Match from './entities/matches.entity';
 import User from '../users/entities/user.entity';
 import { UpdateMatchDTO } from './dto/update-match.dto';
 import { FilterMatchDTO } from './dto/filter-match.dto';
+import { JwtAccessGuard } from 'src/auth/guards';
 
 @Controller('matches')
+@UseGuards(JwtAccessGuard)
 @ApiTags('matches')
 export class MatchesController {
   constructor(private readonly matchesService: MatchesService) {}
@@ -81,11 +84,6 @@ export class MatchesController {
     return await this.matchesService.getMatchWinner(matchID);
   }
 
-  @Post()
-  async createMatch(@Body() match: CreateMatchDTO): Promise<Match> {
-    return await this.matchesService.createMatch(match);
-  }
-
   @Patch(':matchID')
   async updateMatch(
     @Param('matchID', ParseIntPipe) matchID: number,
@@ -99,5 +97,15 @@ export class MatchesController {
     @Param('matchID', ParseIntPipe) matchID: number,
   ): Promise<void> {
     return await this.matchesService.deleteMatch(matchID);
+  }
+}
+
+@Controller('matches')
+@ApiTags('matches')
+export class PostMatchesController {
+  constructor(private readonly matchesService: MatchesService) {}
+  @Post()
+  async createMatch(@Body() match: CreateMatchDTO): Promise<Match> {
+    return await this.matchesService.createMatch(match);
   }
 }
