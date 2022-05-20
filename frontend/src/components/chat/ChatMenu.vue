@@ -1333,7 +1333,7 @@ const seePassword = (stringId: string) => {
 
 .scrollspy-example2 {
   position: relative;
-  max-height: 20vh;
+  max-height: 300px;
   margin-top: 0.5rem;
   overflow: auto;
 }

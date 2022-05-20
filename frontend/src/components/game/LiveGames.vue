@@ -109,28 +109,36 @@ const acceptInviteToGame = (inviteUser: any) => {
       </h2>
       <div v-if="gameInvites && gameInvites.length > 0">
         <div class="scrollspy-example2 card-choose-users">
-          <div
-            class="separator-list"
-            v-for="invite in gameInvites"
-            :key="invite.sender.user.id"
-          >
-            <div class="d-flex ms-auto my-2" style="align-items: center">
-              <UserCard class="ms-2" :user="invite.sender.user" :dashboard="true" :profile="false"/>
-              <div class="ms-auto">
-                <button
-                  @click="if (!userStore.valueInArray(invite.sender.user.id, usersInGame)) {
-                    modaleAllInvitesGame = false;
-                    acceptInviteToGame(invite.sender.user);
-                  }
-                  "
-                  type="button"
-                  class="mod-btn mod-btn-cyan btn-sm"
-                >
-                  {{userStore.valueInArray(invite.sender.user.id, usersInGame) ? 'Already in game' : 'Play'}}
-                </button>
-              </div>
-            </div>
-          </div>
+          <table>
+            <tr class="separator-list"
+              v-for="invite in gameInvites"
+              :key="invite.sender.user.id">
+              <td>
+                <UserCard class="ms-2" :user="invite.sender.user" :dashboard="true" :profile="false"/>
+              </td>
+              <td>
+                <div>
+                  <span class="title-option">Paddle size : <span class="value-option">{{invite.gameOptions.paddleSize}}</span></span> <br/>
+                  <span class="title-option">Ball speed : <span class="value-option">{{invite.gameOptions.ballSpeed}}</span></span>
+                </div>
+              </td>
+              <td>
+                <div class="ms-auto">
+                  <button
+                    @click="if (!userStore.valueInArray(invite.sender.user.id, usersInGame)) {
+                      modaleAllInvitesGame = false;
+                      acceptInviteToGame(invite.sender.user);
+                    }
+                    "
+                    type="button"
+                    class="mod-btn mod-btn-cyan btn-sm"
+                  >
+                    {{userStore.valueInArray(invite.sender.user.id, usersInGame) ? 'Already in game' : 'Play'}}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </table>
         </div>
       </div>
       <div v-else>
@@ -141,6 +149,14 @@ const acceptInviteToGame = (inviteUser: any) => {
 </template>
 
 <style scoped>
+
+.title-option {
+  color: white;
+  font-weight: bold;
+}
+.value-option {
+  color: #24b400;
+}
 
 .invit_pod{
   display: flex;
