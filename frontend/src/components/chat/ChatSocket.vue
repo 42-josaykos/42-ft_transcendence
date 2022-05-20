@@ -23,7 +23,7 @@ const { channel, channelJoin, usersMembers, usersInvite } =
 
 if (isAuthenticated.value) {
   if (socketChat.value == undefined) {
-    socketChat.value = io(`http://localhost:${API_PORT}/chat`, {
+    socketChat.value = io(`http://${HOST}:${API_PORT}/chat`, {
       withCredentials: true,
     });
   }

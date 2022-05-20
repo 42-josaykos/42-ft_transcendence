@@ -114,7 +114,7 @@ export class AuthService implements AuthenticationProvider {
       secret: this.configService.get('JWT_ACCESS_SECRET'),
       expiresIn: `${this.configService.get('JWT_ACCESS_EXPIRATION_TIME')}s`,
     });
-    return `Authentication=${token}; Secure; Path=/; Max-Age=${this.configService.get(
+    return `Authentication=${token}; Path=/; Max-Age=${this.configService.get(
       'JWT_ACCESS_EXPIRATION_TIME',
     )}`;
   }
@@ -125,7 +125,7 @@ export class AuthService implements AuthenticationProvider {
       secret: this.configService.get('JWT_REFRESH_SECRET'),
       expiresIn: `${this.configService.get('JWT_REFRESH_EXPIRATION_TIME')}s`,
     });
-    const cookie = `Refresh=${token}; HttpOnly; Path=/auth/refresh; Max-Age=${this.configService.get(
+    const cookie = `Refresh=${token}; Path=/auth/refresh; Max-Age=${this.configService.get(
       'JWT_REFRESH_EXPIRATION_TIME',
     )}`;
     return {
@@ -141,7 +141,7 @@ export class AuthService implements AuthenticationProvider {
 
   public getCookieForLogout() {
     return [
-      'Authentication=; HttpOnly; Path=/; Max-Age=0',
+      'Authentication=; Path=/; Max-Age=0',
       'Refresh=; HttpOnly; Path=/; Max-Age=0',
     ];
   }

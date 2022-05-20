@@ -21,7 +21,8 @@ import { Game, Player, Invites, GameOptions } from 'src/game/game.class';
 @WebSocketGateway({
   namespace: 'game',
   cors: {
-    origin: `http://localhost:${process.env.FRONTEND_PORT}`,
+    // origin: `http://localhost:${process.env.FRONTEND_PORT}`,
+    origin: `http://${process.env.HOST}:${process.env.FRONTEND_PORT}`,
     credentials: true,
   },
 })
