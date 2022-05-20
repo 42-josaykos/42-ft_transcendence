@@ -56,10 +56,7 @@ const isOnline = computed(() => {
     </div>
     <div class="infos" v-bind:class="{ infosChat: !props.dashboard, 'col-md-7': !props.profile }">
       <div class="text-truncate">
-        <div
-          class="info"
-          v-bind:class="{'home_username' : props.profile}"
-        >
+        <div class="info">
           {{ props.user?.username }}
         </div>
         <div class="info">
@@ -79,12 +76,6 @@ const isOnline = computed(() => {
 </template>
 
 <style>
-
-.home_username {
-  font-size: xx-large;
-  color: white;
-  font-weight: bold;
-}
 
 .infos {
   display: flex;
