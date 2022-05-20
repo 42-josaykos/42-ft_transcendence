@@ -127,8 +127,8 @@ li .row:hover {
   padding-right: 0px !important;
 }
 .set-btn-nav {
-  background-color: white;
-  color: #66645f;
+  background-color: transparent;
+  color: white;
   box-shadow: 0px 0px 10px 2px white;
   font-weight: bold;
   text-decoration: none;
@@ -141,6 +141,9 @@ li .row:hover {
   margin-right: auto;
   margin-left: auto;
   width: 115px;
+  padding: 0.25rem 0.5rem;
+  font-size: .875rem;
+  border-radius: 0.2rem;
 }
 .btn-navbar {
   justify-content: space-around;
