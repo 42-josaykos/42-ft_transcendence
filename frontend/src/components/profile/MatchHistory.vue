@@ -33,7 +33,6 @@ onMounted(() => {
     <table style="table-layout: fixed;">
       <thead style="border-bottom: 10px solid rgba(0, 0, 0, 0);">
         <tr>
-          <!-- <th scope="col">#</th> -->
           <th class="table_title" scope="col">Player 1</th>
           <th class="table_title" scope="col">Player 2</th>
           <th class="table_title" scope="col">Score</th>
@@ -53,7 +52,6 @@ onMounted(() => {
                 "
                 >{{ match.players[0].username }}</a
               >
-              <!-- <div class="item player">{{ match.players[0].username }}</div> -->
             </div>
           </td>
           <td v-bind:class="{'mePlayer' : loggedUser?.id === match.players[1].id}" class="player">
@@ -68,14 +66,13 @@ onMounted(() => {
                 "
                 >{{ match.players[1].username }}</a
               >
-              <!-- <div class="item player">{{ match.players[1].username }}</div> -->
             </div>
           </td>
           <td>
             <div class="box">
-              <div class="item" v-bind:style= "match.score[0] === 10 ? 'color: #1e9c61;' :'' ">{{ match.score[0] }} </div>
+              <div class="item" v-bind:style= "match.score[0] > match.score[1] ? 'color: #1e9c61;' :'' ">{{ match.score[0] }} </div>
               <div class="item">-</div>
-              <div class="item" v-bind:style= "match.score[1] === 10 ? 'color: #1e9c61;' :'' ">{{ match.score[1] }} </div>
+              <div class="item" v-bind:style= "match.score[1] > match.score[0] ? 'color: #1e9c61;' :'' ">{{ match.score[1] }} </div>
             </div>
           </td>
         </tr>

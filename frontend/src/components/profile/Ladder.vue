@@ -58,11 +58,14 @@ getPlayersStats();
       </div>
       <hr />
       <br />
-      <table style="width: 90%; table-layout: fixed; margin-left: 5%">
+      <table style="width: 98%; table-layout: fixed; margin-left: 5px">
         <thead style="border-bottom: 20px solid rgba(0, 0, 0, 0)">
-          <tr>
+           <tr>
             <th class="table_title" scope="col">Rank</th>
-            <th class="table_title" scope="col">UserName</th>
+            <th class="table_title" scope="col">Player</th>
+            <th class="table_title" scope="col">Win</th>
+            <th class="table_title" scope="col">Lose</th>
+            <th class="table_title" scope="col">Played</th>
             <th class="table_title" scope="col">Winrate</th>
           </tr>
         </thead>
@@ -78,18 +81,22 @@ getPlayersStats();
             >
               {{ index + 1 }}
             </th>
-            <td>
+            <td class="box">
+              <div class="item"><img class="circular--square" style="width: 25px" v-bind:src="player?.user?.avatar" /></div>
               <button
-                class="user_btn"
+                class="item player user_btn"
                 @click="
                   userClick = player.user;
                   setting_open = true;
                 "
               >
-                {{ player.user.username }}
+                {{ player?.user?.username }}
               </button>
             </td>
-            <td>{{ (player.ratio * 100).toFixed(2) }} %</td>
+            <td>{{ player?.win }}</td>
+            <td>{{ player?.lose }}</td>
+            <td>{{ player.played }}</td>
+            <td>{{ (player?.ratio * 100).toFixed(2) }} %</td>
           </tr>
         </tbody>
       </table>
@@ -98,6 +105,29 @@ getPlayersStats();
 </template>
 
 <style scoped>
+.box{
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  justify-content: center;
+}
+.box .item{
+  width: 20px;
+}
+.item.player{
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100px;
+  text-align: start;
+  margin-left: 5px;
+}
+.item.player:hover{
+  overflow: visible;
+  white-space: normal;
+  width: 100px;
+  text-decoration: underline;
+}
 .user_btn {
   border: none;
   background-color: rgba(0, 0, 0, 0);

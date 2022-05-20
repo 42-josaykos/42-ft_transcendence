@@ -73,16 +73,16 @@ const checkifStartGame = (userInvite: any) => {
         >
           Live Game
         </div>
-        <div
+        <button
           @click="modaleAllInvitesGame = true"
           type="button"
           class="hovertext hovertextC invit_pod"
           data-hover="See all invitations to play"
         >
           <div class="invit_info">
-            {{ gameInvites.length }}
+            Game invites - {{ gameInvites.length }}
           </div>
-        </div>
+        </button>
       </div>
       <hr />
       <br />
@@ -92,7 +92,7 @@ const checkifStartGame = (userInvite: any) => {
           <td class="neon-typo versus">VS</td>
           <th class="watch_player">{{ game.playerTwo.username }}</th>
           <td>
-            <a href="#" @click="spectate(game.id)" class="hovertext hovertextL" data-hover="See the game"
+            <a href="javascript:void();" @click="spectate(game.id)" class="hovertext hovertextL" data-hover="See the game"
               ><i class="fa-solid fa-eye fa-xl action_icon"></i
             ></a>
           </td>
@@ -167,9 +167,8 @@ const checkifStartGame = (userInvite: any) => {
   box-shadow: 0px 0px 10px 2px #daba64;
   margin-left: 2rem;
   margin-top: 2rem;
-  width: 30px;
   height: 30px;
-  border-radius: 50%;
+  border-radius: 0.25rem;
   transition: 0.4s;
   text-align: center;
 }
@@ -239,6 +238,7 @@ p {
 }
 
 .neon-typo {
+  text-align:inherit;
   color: #ffffff;
   text-shadow: 0px 4px 15px white, 0px 0px 10px white;
 }
@@ -304,5 +304,15 @@ th {
 
 .hovertextL:before {
   left: -120px;
+}
+
+.vertical {
+  width:3px;
+  height:100%;
+  /* position:absolute; */
+  background-color:#cb0a40;
+  margin:0;
+  padding:0;
+  left:260px;
 }
 </style>
