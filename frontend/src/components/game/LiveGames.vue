@@ -47,6 +47,16 @@ const spectate = (gameID: number) => {
 const acceptInviteToGame = (inviteUser: any) => {
   gameSocket.value?.emit("acceptInviteToGame", inviteUser, loggedUser.value);
 };
+
+const checkifStartGame = (userInvite: any) => {
+  if (userStore.valueInArray(loggedUser.value?.id, usersInGame.value))
+    //TO DO: DISPLAY NOTIFICATION
+    console.log("Message error already in game => ", "You are already in game")
+  else if (!userStore.valueInArray(userInvite.id, usersInGame.value)) {
+    modaleAllInvitesGame.value = false;
+    acceptInviteToGame(userInvite);
+  }
+}
 </script>
 
 <template>
@@ -59,17 +69,6 @@ const acceptInviteToGame = (inviteUser: any) => {
         >
           Live Game
         </div>
-
-        <!-- <button
-          @click="modaleAllInvitesGame = true"
-          type="button"
-          class="rounded btn-channel wrapper-icon-leave hovertext hovertextC pt-4 btn-badge"
-          data-hover="See all invitations to play"
-        >
-          <span class="position-badge-game translate-middle rounded-pill">
-            {{ gameInvites.length }}
-          </span>
-        </button> -->
         <div
           @click="modaleAllInvitesGame = true"
           type="button"
@@ -125,10 +124,7 @@ const acceptInviteToGame = (inviteUser: any) => {
               <td>
                 <div class="ms-auto">
                   <button
-                    @click="if (!userStore.valueInArray(invite.sender.user.id, usersInGame)) {
-                      modaleAllInvitesGame = false;
-                      acceptInviteToGame(invite.sender.user);
-                    }
+                    @click="checkifStartGame(invite.sender.user)
                     "
                     type="button"
                     class="mod-btn mod-btn-cyan btn-sm"
