@@ -72,6 +72,8 @@ services:
       - FRONTEND_PORT=${FRONTEND_PORT}
       - BACKEND_HOST=${BACKEND_HOST}
       - API_PORT=${API_PORT}
+      - STATUS_PORT=${STATUS_PORT}
+      - GAME_PORT=${GAME_PORT}
       - UPLOAD_PORT=${UPLOAD_PORT}
     command: npm run dev
     depends_on:

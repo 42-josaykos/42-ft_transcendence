@@ -26,7 +26,7 @@ console.log("[StatusStore] isAuthenticated: ", isAuthenticated.value);
 
 if (isAuthenticated.value) {
   // console.log("[StatusStore] loggedUser: ", loggedUser.value);
-  statusSocket.value = io("http://localhost:3615/status", {
+  statusSocket.value = io(`http://localhost:${STATUS_PORT}/status`, {
     withCredentials: true,
   });
 

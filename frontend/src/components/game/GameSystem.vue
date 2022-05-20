@@ -24,7 +24,7 @@ const {
 const router = useRouter();
 
 if (isAuthenticated.value) {
-  gameSocket.value = io(`http://localhost:6060/game`, {
+  gameSocket.value = io(`http://localhost:${GAME_PORT}/game`, {
     withCredentials: true,
   });
 
