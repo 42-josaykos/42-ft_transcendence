@@ -52,8 +52,7 @@ export class UploadController {
   @Post()
   @UseInterceptors(FileInterceptor('avatarUpload', avatarMulterOptions))
   uploadFile(@UploadedFile() file: Express.Multer.File) {
-    console.log('[UploadModule] Avatar uploaded:');
-    console.log(file);
+    return file;
   }
 }
 

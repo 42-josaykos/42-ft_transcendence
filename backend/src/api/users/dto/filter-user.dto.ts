@@ -123,4 +123,19 @@ export class FilterUserDTO {
   @IsEmpty()
   @IsOptional()
   readonly inviteChannels?: boolean;
+
+  @ApiProperty({ required: false })
+  @IsEmpty()
+  @IsOptional()
+  readonly refreshToken?: boolean;
+
+  @ApiProperty({ required: false })
+  @IsEmpty()
+  @IsOptional()
+  readonly twoFactorAuthenticationSecret?: boolean;
+
+  @ApiProperty({ required: false })
+  @IsEmpty()
+  @IsOptional()
+  readonly isTwoFactorAuthenticationEnabled?: boolean;
 }

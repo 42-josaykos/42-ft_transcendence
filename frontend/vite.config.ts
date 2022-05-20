@@ -5,33 +5,40 @@ import vue from "@vitejs/plugin-vue";
 
 // https://vitejs.dev/config/
 export default ({ mode }: any) => {
-  process.env = { ...process.env, ...loadEnv(mode, process.cwd(), "") };
+  const env = loadEnv(mode, process.cwd(), "");
   return defineConfig({
     envDir: "../",
+    define: {
+      BACKEND_HOST: JSON.stringify(env.BACKEND_HOST),
+      API_PORT: env.API_PORT,
+      STATUS_PORT: env.STATUS_PORT,
+      GAME_PORT: env.GAME_PORT,
+      UPLOAD_PORT: env.UPLOAD_PORT,
+    },
     server: {
       host: true,
-      port: Number(process.env.FRONTEND_PORT),
+      port: Number(env.FRONTEND_PORT),
       proxy: {
         "/users": {
-          target: `http://${process.env.BACKEND_HOST}:${process.env.API_PORT}`,
+          target: `http://${env.BACKEND_HOST}:${env.API_PORT}`,
         },
         "/matches": {
-          target: `http://${process.env.BACKEND_HOST}:${process.env.API_PORT}`,
+          target: `http://${env.BACKEND_HOST}:${env.API_PORT}`,
         },
         "/auth": {
-          target: `http://${process.env.BACKEND_HOST}:${process.env.API_PORT}`,
+          target: `http://${env.BACKEND_HOST}:${env.API_PORT}`,
         },
         "/channels": {
-          target: `http://${process.env.BACKEND_HOST}:${process.env.API_PORT}`,
+          target: `http://${env.BACKEND_HOST}:${env.API_PORT}`,
         },
         "/messages": {
-          target: `http://${process.env.BACKEND_HOST}:${process.env.API_PORT}`,
+          target: `http://${env.BACKEND_HOST}:${env.API_PORT}`,
         },
         "/assets": {
-          target: `http://${process.env.BACKEND_HOST}:${process.env.UPLOAD_PORT}`,
+          target: `http://${env.BACKEND_HOST}:${env.UPLOAD_PORT}`,
         },
         "/upload": {
-          target: `http://${process.env.BACKEND_HOST}:${process.env.UPLOAD_PORT}`,
+          target: `http://${env.BACKEND_HOST}:${env.UPLOAD_PORT}`,
         },
       },
     },

@@ -93,6 +93,15 @@ class User {
 
   @ManyToMany((type) => Channel, (channel) => channel.invites)
   public inviteChannels: Channel[];
+
+  @Column({ nullable: true, select: false })
+  public refreshToken?: string;
+
+  @Column({ nullable: true, select: false })
+  public twoFactorAuthenticationSecret?: string;
+
+  @Column({ default: false })
+  public isTwoFactorAuthenticationEnabled: boolean;
 }
 
 export default User;

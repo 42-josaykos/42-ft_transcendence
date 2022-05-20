@@ -32,13 +32,18 @@ export class LocalAuthGuard extends AuthGuard('local') {
 }
 
 @Injectable()
-export default class JwtAuthGuard extends AuthGuard('jwt') {}
+export class JwtAccessGuard extends AuthGuard('jwt-access') {}
+
+@Injectable()
+export class JwtTwoFactorGuard extends AuthGuard('jwt-two-factor') {}
+
+@Injectable()
+export class JwtRefreshGuard extends AuthGuard('jwt-refresh') {}
 
 @Injectable()
 export class AuthenticatedGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
-    // console.log('isAuthenticated:', req.isAuthenticated());
     return req.isAuthenticated();
   }
 }

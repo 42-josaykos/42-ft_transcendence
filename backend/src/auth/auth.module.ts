@@ -13,7 +13,11 @@ import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './strategies/local.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './strategies/jwt.strategy';
+import {
+  JwtAccessStrategy,
+  JwtRefreshStrategy,
+  JwtTwoFactorStrategy,
+} from './strategies/jwt.strategy';
 
 @Module({
   imports: [
@@ -25,7 +29,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get('JWT_SECRET'),
+        secret: configService.get('JWT_ACCESS_SECRET'),
         signOptions: {
           expiresIn: `${Number(configService.get('JWT_EXPIRATION_TIME'))}`,
         },
@@ -41,6 +45,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
       provide: 'USERS_SERVICE',
       useClass: UsersService,
     },
+    JwtModule,
   ],
   controllers: [AuthController],
   providers: [
@@ -50,7 +55,9 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     GithubStrategy,
     LocalStrategy,
     SessionSerializer,
-    JwtStrategy,
+    JwtAccessStrategy,
+    JwtTwoFactorStrategy,
+    JwtRefreshStrategy,
     {
       provide: 'AUTH_SERVICE',
       useClass: AuthService,

@@ -1,6 +1,6 @@
 import { CreateUserDTO } from 'src/api/users/dto/create-user.dto';
 import User from 'src/api/users/entities/user.entity';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 
 export interface AuthenticationProvider {
   validateUser(details: CreateUserDTO);
@@ -8,14 +8,28 @@ export interface AuthenticationProvider {
   validateUserLocal(username: string, plainPassword: string);
   createUser(details: CreateUserDTO);
   findUser(id: number): Promise<User | undefined>;
-  getCookieWithJwtToken(userId: number): string;
+  getCookieWithJwtAccessToken(
+    userID: number,
+    isSecondFactorAuthenticated?: boolean,
+  ): string;
+  getCookieWithJwtRefreshToken(userId: number);
+  setCurrentRefreshToken(refreshToken: string, userId: number);
   getCookieForLogout();
+  removeRefreshToken(userId: number);
+  generateTwoFactorAuthenticationSecret(user: User);
+  pipeQrCodeStream(stream: Response, otpauthUrl: string);
+  isTwoFactorAuthenticationCodeValid(
+    twoFactorAuthenticationCode: string,
+    userId: number,
+  );
+  turnOnTwoFactorAuthentication(user: User);
 }
 
 export type Done = (err: Error, user: User) => void;
 
 export interface TokenPayload {
-  userId: number;
+  userID: number;
+  isSecondFactorAuthenticated?: boolean;
 }
 
 export interface RequestWithUser extends Request {

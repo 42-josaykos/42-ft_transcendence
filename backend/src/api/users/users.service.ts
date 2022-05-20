@@ -147,6 +147,9 @@ export class UsersService {
         .leftJoinAndSelect('banChannels.channel', 'ban_channel');
     if ('inviteChannels' in filter)
       query.leftJoinAndSelect('users.inviteChannels', 'inviteChannels');
+    if ('refreshToken' in filter) query.addSelect('users.refreshToken');
+    if ('twoFactorAuthenticationSecret' in filter)
+      query.addSelect('users.twoFactorAuthenticationSecret');
 
     const users = await query.getMany();
     if (!users.length)
@@ -169,22 +172,24 @@ export class UsersService {
     const count = await this.usersRepository.count({
       where: { username: user.username },
     });
-    if (count > 0)
-      throw new ForbiddenException(
-        "Can't create new User (username must be unique)",
-      );
+    const userData = { ...user };
+    if (count > 0) {
+      // Concatenate random numbers to username
+      userData.username =
+        user.username +
+        Math.floor(Math.random() * 100)
+          .toString()
+          .padStart(2, '0');
+    }
 
     // Hashing password
-    const userData = { ...user };
     if (userData.password) {
       const hash = await bcrypt.hash(user.password, 10);
       userData.password = hash;
     }
 
     // Avatar
-    userData.avatar = `https://avatars.dicebear.com/api/gridy/${
-      userData.username + Math.floor(Math.random() * 100)
-    }.svg`;
+    userData.avatar = `https://avatars.dicebear.com/api/gridy/${userData.username}.svg`;
 
     // Creating a new user and it's stats
     const newUser = this.usersRepository.create(userData);
@@ -194,7 +199,8 @@ export class UsersService {
 
     delete newUser.socketID;
     delete newUser.password;
-    console.log('New user created: ', newUser);
+    delete newUser.refreshToken;
+    delete newUser.twoFactorAuthenticationSecret;
     return newUser;
   }
 
@@ -218,6 +224,11 @@ export class UsersService {
           updatedUser.removeFriends,
           user.friends,
         );
+      if (updatedUser.refreshToken)
+        user.refreshToken = updatedUser.refreshToken;
+      if (updatedUser.twoFactorAuthenticationSecret)
+        user.twoFactorAuthenticationSecret =
+          updatedUser.twoFactorAuthenticationSecret;
       if ('blockedUsers' in updatedUser)
         user.blockedUsers = updatedUser.blockedUsers;
       if ('addBlockedUsers' in updatedUser)
@@ -227,7 +238,7 @@ export class UsersService {
         );
       if ('removeBlockedUsers' in updatedUser)
         user.blockedUsers = await this.removeUsersFromArray(
-          updatedUser.blockedUsers,
+          updatedUser.removeBlockedUsers,
           user.blockedUsers,
         );
 
@@ -370,7 +381,20 @@ export class UsersService {
     );
     return array;
   }
+
   async validateUser(user: UpdateUserDTO): Promise<void> {
+    // Checking if username already exist
+    if ('username' in user) {
+      if (
+        await this.usersRepository.findOne({
+          where: { username: user.username },
+        })
+      )
+        throw new ForbiddenException(
+          "Can't update username (username already exists)",
+        );
+    }
+
     // Checking if all friends exist
     if ('friends' in user) {
       for (const friend of user.friends) {
@@ -424,5 +448,45 @@ export class UsersService {
           );
       }
     }
+  }
+
+  async getUserIfRefreshToken(refreshToken: string, userID: number) {
+    const [user] = await this.getUsersByFilter({
+      id: userID,
+      refreshToken: true,
+    });
+    if (user && user.refreshToken) {
+      const isRefreshTokenMatching = await bcrypt.compare(
+        refreshToken,
+        user.refreshToken,
+      );
+      if (isRefreshTokenMatching) {
+        return user;
+      }
+    }
+  }
+
+  async removeRefreshToken(userID: number) {
+    return this.usersRepository.update(userID, {
+      refreshToken: null,
+    });
+  }
+
+  async setTwoFactorAuthenticationSecret(secret: string, userId: number) {
+    return this.usersRepository.update(userId, {
+      twoFactorAuthenticationSecret: secret,
+    });
+  }
+
+  async turnOnTwoFactorAuthentication(user: User) {
+    if (user.isTwoFactorAuthenticationEnabled == true) {
+      return this.usersRepository.update(user.id, {
+        twoFactorAuthenticationSecret: '',
+        isTwoFactorAuthenticationEnabled: false,
+      });
+    }
+    return this.usersRepository.update(user.id, {
+      isTwoFactorAuthenticationEnabled: true,
+    });
   }
 }

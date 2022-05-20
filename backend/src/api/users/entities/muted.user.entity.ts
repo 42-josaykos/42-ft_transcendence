@@ -11,8 +11,10 @@ import User from './user.entity';
 
 @Entity()
 class MutedUser {
+  @PrimaryGeneratedColumn()
+  public id: number;
+
   @ManyToOne((type) => User, (user) => user.muteChannels, {
-    primary: true,
     onDelete: 'CASCADE',
   })
   public user: User;

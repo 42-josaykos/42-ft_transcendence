@@ -1,23 +1,31 @@
 import {
+  Body,
   Controller,
   Get,
   Post,
   Redirect,
   Req,
   Res,
+  UnauthorizedException,
+  UseFilters,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { RequestWithUser } from './auth.interface';
-import JwtAuthGuard, {
+import {
+  JwtAccessGuard,
   AuthenticatedGuard,
   FortyTwoAuthGuard,
   GithubGuard,
+  JwtRefreshGuard,
   LocalAuthGuard,
+  JwtTwoFactorGuard,
 } from './guards';
 import { AuthenticationProvider } from './auth.interface';
 import { Inject } from '@nestjs/common';
+import { twoFactorAuthenticationCodeDTO } from './dto/twoFactorAuthenticationCode.dto';
+import { ViewAuthFilter } from './auth.filter';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -44,11 +52,19 @@ export class AuthController {
 
   @Post('login/local')
   @UseGuards(LocalAuthGuard)
-  loginLocal(@Req() req: RequestWithUser, @Res() res: Response) {
+  async loginLocal(@Req() req: RequestWithUser, @Res() res: Response) {
     const { user } = req;
-    const cookie = this.authService.getCookieWithJwtToken(user.id);
-    res.setHeader('Set-Cookie', cookie);
-    user.password = undefined;
+    if (user.isTwoFactorAuthenticationEnabled) {
+      console.log('2FA enabled');
+      // return { statusCode: 303, url: '/twofactorauth' };
+      return res.setHeader('url', '/twofactorauth').status(303).end();
+    }
+    const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
+      user.id,
+    );
+    const refreshToken = this.authService.getCookieWithJwtRefreshToken(user.id);
+    await this.authService.setCurrentRefreshToken(refreshToken.token, user.id);
+    res.setHeader('Set-Cookie', [accessTokenCookie, refreshToken.cookie]);
     return res.send(user);
   }
 
@@ -57,25 +73,41 @@ export class AuthController {
    * This is the redirect URL the OAuth2 provider will call
    */
   @Get('redirect')
-  @Redirect('/')
+  @Redirect()
   @UseGuards(FortyTwoAuthGuard)
+  @UseFilters(ViewAuthFilter)
   async redirect(@Req() req: RequestWithUser, @Res() res: Response) {
     const { user } = req;
-    const cookie = this.authService.getCookieWithJwtToken(user.id);
-    res.setHeader('Set-Cookie', cookie);
-    user.password = undefined;
-    return;
+    if (user.isTwoFactorAuthenticationEnabled) {
+      console.log('2FA enabled');
+      return { statusCode: 303, url: '/twofactorauth' };
+    }
+    const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
+      user.id,
+    );
+    const refreshToken = this.authService.getCookieWithJwtRefreshToken(user.id);
+    await this.authService.setCurrentRefreshToken(refreshToken.token, user.id);
+    res.setHeader('Set-Cookie', [accessTokenCookie, refreshToken.cookie]);
+    return { url: '/' };
   }
 
   @Get('redirect/github')
   @Redirect('/')
   @UseGuards(GithubGuard)
+  @UseFilters(ViewAuthFilter)
   async redirectGithub(@Req() req: RequestWithUser, @Res() res: Response) {
     const { user } = req;
-    const cookie = this.authService.getCookieWithJwtToken(user.id);
-    res.setHeader('Set-Cookie', cookie);
-    user.password = undefined;
-    return;
+    if (user.isTwoFactorAuthenticationEnabled) {
+      console.log('2FA enabled');
+      return { statusCode: 303, url: '/twofactorauth' };
+    }
+    const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
+      user.id,
+    );
+    const refreshToken = this.authService.getCookieWithJwtRefreshToken(user.id);
+    await this.authService.setCurrentRefreshToken(refreshToken.token, user.id);
+    res.setHeader('Set-Cookie', [accessTokenCookie, refreshToken.cookie]);
+    return { url: '/' };
   }
 
   /**
@@ -89,10 +121,72 @@ export class AuthController {
   }
 
   @Get('jwt-status')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAccessGuard)
   jwtStatus(@Req() req: RequestWithUser) {
-    const { id, username, socketID, avatar } = req.user;
-    return { id, username, socketID, avatar };
+    const { id, username, avatar, isTwoFactorAuthenticationEnabled } = req.user;
+    return { id, username, avatar, isTwoFactorAuthenticationEnabled };
+  }
+
+  @Get('refresh')
+  @UseGuards(JwtRefreshGuard)
+  jwtRefresh(@Req() req: RequestWithUser, @Res() res) {
+    const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
+      req.user.id,
+    );
+    res.setHeader('Set-Cookie', accessTokenCookie);
+    const { id, username, avatar } = req.user;
+    return res.send({ id, username, avatar });
+  }
+
+  @Post('generate-2fa')
+  @UseGuards(JwtTwoFactorGuard)
+  async register(@Res() response: Response, @Req() request: RequestWithUser) {
+    const { otpauthUrl } =
+      await this.authService.generateTwoFactorAuthenticationSecret(
+        request.user,
+      );
+    return this.authService.pipeQrCodeStream(response, otpauthUrl);
+  }
+
+  @Post('turn-2fa-on')
+  @UseGuards(JwtAccessGuard)
+  async turnOnTwoFactorAuthentication(
+    @Req() request: RequestWithUser,
+    @Body() { twoFactorAuthenticationCode }: twoFactorAuthenticationCodeDTO,
+  ) {
+    const { user } = request;
+    console.log(user);
+
+    const isCodeValid =
+      await this.authService.isTwoFactorAuthenticationCodeValid(
+        twoFactorAuthenticationCode,
+        request.user.id,
+      );
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Wrong authentication code');
+    }
+    return await this.authService.turnOnTwoFactorAuthentication(request.user);
+  }
+
+  @Post('authenticate-2fa')
+  async authenticateWith2FA(
+    @Req() request: RequestWithUser,
+    @Body() { twoFactorAuthenticationCode }: twoFactorAuthenticationCodeDTO,
+  ) {
+    const isCodeValid =
+      await this.authService.isTwoFactorAuthenticationCodeValid(
+        twoFactorAuthenticationCode,
+        request.user.id,
+      );
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Wrong authentication code');
+    }
+    const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
+      request.user.id,
+      true,
+    );
+    request.res.setHeader('Set-Cookie', [accessTokenCookie]);
+    return request.user;
   }
 
   /**
@@ -100,8 +194,10 @@ export class AuthController {
    * Logging the user out
    */
   @Get('logout')
-  @Redirect('/')
+  @Redirect('/login')
+  @UseGuards(JwtAccessGuard)
   async logout(@Req() req, @Res() res: Response) {
+    await this.authService.removeRefreshToken(req.user.id);
     res.setHeader('Set-Cookie', this.authService.getCookieForLogout());
     req.logOut();
   }
