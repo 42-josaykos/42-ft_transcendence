@@ -30,27 +30,23 @@ storeToRefs(userStore);
             <br /><br /><br />
 
             <div class="container-fluid p-0">
-              <div class="row">
-                <div
-                  class="col-lg-8 watch_player"
-                  style="color: white; text-align: start"
-                >
-                  Pong is a table tennis–themed twitch arcade sports video game.
-                  manufactured by Atari and originally released in 1972. It was
-                  one of the earliest arcade video games.
-                  <br /><br />
-                  It was created by Allan Alcorn as a training exercise assigned
-                  to him by Atari co-founder Nolan Bushnell, but Bushnell and
-                  Atari co-founder Ted Dabney were surprised by the quality of
-                  Alcorn's work and decided to manufacture the game.
-                </div>
-                <div class="col-lg-4 d-flex align-items-center">
+              <div class="watch_player"
+                  style="color: white; text-align: justify">
+                <div class="d-flex align-items-center ps-3" style="float: right;">
                   <img
                     src="../assets/home/pong_gameplay.gif"
                     alt="PongGameplay"
                     style="width: 100%"
                   />
                 </div>
+                Pong is a table tennis–themed twitch arcade sports video game.
+                manufactured by Atari and originally released in 1972. It was
+                one of the earliest arcade video games.
+                <br /><br />
+                It was created by Allan Alcorn as a training exercise assigned
+                to him by Atari co-founder Nolan Bushnell, but Bushnell and
+                Atari co-founder Ted Dabney were surprised by the quality of
+                Alcorn's work and decided to manufacture the game.
               </div>
             </div>
             <br /><br /><br />
