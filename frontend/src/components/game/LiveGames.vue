@@ -12,7 +12,7 @@ const userStore = useUserStore();
 const { loggedUser } = storeToRefs(userStore);
 
 const gameStore = useGameStore();
-const { gameSocket, usersInGame } = storeToRefs(gameStore);
+const { gameSocket, usersInGame, inGame } = storeToRefs(gameStore);
 
 const router = useRouter();
 
@@ -41,7 +41,11 @@ if (gameSocket.value) {
 
 // Spectate
 const spectate = (gameID: number) => {
-  gameSocket.value?.emit("addSpectator", gameID);
+  if (inGame)
+    //TO DO: DISPLAY NOTIFICATION
+    console.log("Message error spectate / already in game => ", "You don't spectate, you are already in game")
+  else
+    gameSocket.value?.emit("addSpectator", gameID);
 };
 
 const acceptInviteToGame = (inviteUser: any) => {

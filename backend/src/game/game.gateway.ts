@@ -241,6 +241,14 @@ export class GameGateway
         this.server.to(socketID).socketsJoin(roomName);
   }
 
+  @SubscribeMessage('leaveRoom')
+  handleLeaveRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() roomName: string,
+  ) {
+    this.server.to(client.id).socketsLeave(roomName)
+  }
+
   leaveRoom(roomName: string, socketIDs: string[]) {
     for (const socketID of socketIDs)
       this.server.to(socketID).socketsLeave(roomName);
@@ -284,6 +292,7 @@ export class GameGateway
       },
       ball: { x: game.ball.x, y: game.ball.y, size: game.ball.size },
       options: game.options,
+      roomName: game.socketRoom,
       events: game.events,
     };
 

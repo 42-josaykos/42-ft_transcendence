@@ -23,6 +23,7 @@ export default {
       player_L: {},
       player_R: {},
       ball: {},
+      roomName: '',
 
       sounds: {},
 
@@ -117,6 +118,7 @@ export default {
   },
   unmounted() {
     clearInterval(this.intervalID);
+    this.gameSocket.emit("leaveRoom", this.roomName)
     return;
   },
   destroyed() {
@@ -154,6 +156,7 @@ export default {
       this.ball.size = data.ball.size;
       this.paddleSize = data.options.paddleSize;
       this.ballSpeed = data.options.ballSpeed;
+      this.roomName = data.roomName;
 
       // Playing sound events
       for (const field in data.events.sounds) {
