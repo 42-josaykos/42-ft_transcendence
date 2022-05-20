@@ -9,7 +9,7 @@ export default ({ mode }: any) => {
   return defineConfig({
     envDir: "../",
     define: {
-		HOST: JSON.stringify(env.HOST),
+		  HOST: JSON.stringify(env.HOST),
       BACKEND_HOST: JSON.stringify(env.BACKEND_HOST),
       API_PORT: env.API_PORT,
       STATUS_PORT: env.STATUS_PORT,
