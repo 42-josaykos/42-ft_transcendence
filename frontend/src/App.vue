@@ -15,7 +15,7 @@ const { loggedUser, isAuthenticated } = storeToRefs(userStore);
 
 // Verify if user is already logged
 onMounted(() => {
-  Get(`http://${HOST}:${API_PORT}/auth/jwt-status`)
+  Get(`/auth/jwt-status`)
     .then((res) => {
       if (res.status == 403) {
         console.log("[App] isAuthenticated: ", false);
