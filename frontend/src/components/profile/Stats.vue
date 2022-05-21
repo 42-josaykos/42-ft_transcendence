@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { Get } from '@/services/requests';
-import { useUserStore } from '@/stores/user';
-import { storeToRefs } from 'pinia';
-import { onMounted } from 'vue';
+import { ref } from "vue";
+import { Get } from "@/services/requests";
+import { useUserStore } from "@/stores/user";
+import { storeToRefs } from "pinia";
+import { onMounted } from "vue";
 
 const { userClick } = storeToRefs(useUserStore());
 const stats = ref([7, 7, 7, 7]);
@@ -11,7 +11,9 @@ const stats = ref([7, 7, 7, 7]);
 async function getSingleStats() {
   let response;
   try {
-    response = await Get(`/users/${userClick.value?.id}/stats`);
+    response = await Get(
+      `http://${HOST}:${API_PORT}/users/${userClick.value?.id}/stats`
+    );
     if (response.status === 200) {
       stats.value[0] = response.data.played;
       stats.value[1] = response.data.win;
