@@ -4,11 +4,15 @@ import { storeToRefs } from "pinia";
 import { useChannelStore } from "@/stores/channel";
 import { useMessageStore } from "@/stores/message";
 import { useUserStore } from "@/stores/user";
+import { useInputStore } from '@/stores/input';
 
 import type { Channel } from "@/models/channel.model";
 import type { User } from "@/models/user.model";
 import { Get } from "@/services/requests";
 import { ref } from "vue";
+import { notify } from "@kyvg/vue3-notification";
+
+const inputStore = useInputStore();
 
 const messageStore = useMessageStore();
 const { messages } = storeToRefs(messageStore);
@@ -26,7 +30,6 @@ const modalUpdateChannel = ref<boolean>(false);
 const modalValidate = ref<boolean>(false);
 const modalAcceptJoinChannel = ref<boolean>(false);
 const modalRefuseJoinChannel = ref<boolean>(false);
-const errorBool = ref<boolean>(false);
 
 const channelStore = useChannelStore();
 
@@ -60,19 +63,43 @@ const displayMessages = (channel_item: Channel) => {
         usersMembers.value = res.data[0].members;
       }
     });
-};
+};    
 
 // Créer un nouveau channel
 const createChannel = () => {
   if (socketChat.value != undefined) {
-    if (channelName.value !== "") {
+    if (channelName.value.trim() == '' || isNum(channelName.value .trim()[0])) {
+      notify({
+        type: 'error',
+        title: "New channel",
+        text: `- Please, enter a name for the channel<br/>- Must not start with a number (0-9)`,
+      });
+      return;
+    }
+    else if (inputStore.containsSpecialChars(channelName.value)) {
+      notify({
+        type: 'error',
+        title: "New channel",
+        text: 'Channel name must not contains whitespace or special characters',
+      });
+      return;
+    }
+    else {
       if (channelType.value == 3) {
-        if(inputPassword.value != inputPassword2.value) {
-          alert("Password doesn't matched");
+        if (inputPassword.value != inputPassword2.value) {
+          notify({
+            type: 'error',
+            title: "Password",
+            text: "Password doesn't match",
+          });
           return;
         }
         else if(inputPassword.value.trim() == ""){
-          alert("Password must contain at least one letter");
+          notify({
+            type: 'error',
+            title: "Password",
+            text: "Password must contain at least one letter",
+          });
           return;
         }
       }
@@ -93,6 +120,11 @@ const createChannel = () => {
         invites: channelType.value == 2 ? usersArray : [],
       };
       socketChat.value.emit("newChannel", newChannel, null, loggedUser.value);
+      notify({
+        type: 'success',
+        title: "New Channel",
+        text: "Channel created !",
+      });
     }
   }
   modalNewChannel.value = false;
@@ -304,32 +336,63 @@ const leaveChannel = () => {
 const updateChannel = () => {
   if (socketChat.value != undefined) {
     if (channelUpdate.value !== undefined) {
-      if (channelType.value == 3) {
-        if(inputPassword.value != inputPassword2.value) {
-          alert("Password doesn't matched");
-          return;
-        }
-        else if(inputPassword.value.trim() == ""){
-          alert("Password must contain at least one letter");
-          return;
-        }
+      if (channelName.value.trim() == '' || isNum(channelName.value .trim()[0])) {
+        notify({
+          type: 'error',
+          title: "Change channel name",
+          text: `- Please, enter a name for the channel<br/>- Must not start with a number (0-9)`,
+        });
+        return;
       }
-      let obj: any = {};
-      let usersArray: any = [];
-      usersInvite.value.forEach((value) => {
-        obj = { id: value.id };
-        usersArray.push(obj);
-      });
-      const updateChannel = {
-        name: channelName.value,
-        isPrivate: channelType.value == 2 ? true : false,
-        password: channelType.value == 3 ? inputPassword.value : null,
-        isProtected: channelType.value == 3 ? true : false,
-        addInvites: channelType.value == 2 ? usersArray : [],
-        removeInvites:
-          channelType.value != 2 ? channelUpdate.value.invites : [],
-      };
-      socketChat.value.emit("updateChannel", channelUpdate.value.id, updateChannel);
+      else if (inputStore.containsSpecialChars(channelName.value)) {
+        notify({
+          type: 'error',
+          title: "Change channel name",
+          text: 'Channel name must not contains whitespace or special characters',
+        });
+        return;
+      }
+      else {
+        if (channelType.value == 3) {
+          if (inputPassword.value != inputPassword2.value) {
+            notify({
+              type: 'error',
+              title: "Password",
+              text: "Password doesn't match",
+            });
+            return;
+          }
+          else if(inputPassword.value.trim() == ""){
+            notify({
+              type: 'error',
+              title: "Password",
+              text: "Password must contain at least one letter",
+            });
+            return;
+          }
+        }
+        let obj: any = {};
+        let usersArray: any = [];
+        usersInvite.value.forEach((value) => {
+          obj = { id: value.id };
+          usersArray.push(obj);
+        });
+        const updateChannel = {
+          name: channelName.value,
+          isPrivate: channelType.value == 2 ? true : false,
+          password: channelType.value == 3 ? inputPassword.value : null,
+          isProtected: channelType.value == 3 ? true : false,
+          addInvites: channelType.value == 2 ? usersArray : [],
+          removeInvites:
+            channelType.value != 2 ? channelUpdate.value.invites : [],
+        };
+        socketChat.value.emit("updateChannel", channelUpdate.value.id, updateChannel);
+        notify({
+          type: 'success',
+          title: "Update Channel",
+          text: "Channel updated !",
+        });
+      }
     }
   }
   modalUpdateChannel.value = false;
@@ -679,7 +742,6 @@ const seePassword = (stringId: string) => {
       inputPassword = '';
       inputPassword2 = '';
       channelType = 0;
-      errorBool = false;
     "
   >
     <template v-slot:header>
@@ -697,10 +759,6 @@ const seePassword = (stringId: string) => {
           required
           autofocus
         />
-      </div>
-      <div v-if="errorBool" class="mb-3" style="color: red; text-align: start;">
-        - Please, enter a name for the channel <br>
-        - Must not start with a number (0-9)
       </div>
       <div class="form-check form-check-inline">
         <input
@@ -795,14 +853,7 @@ const seePassword = (stringId: string) => {
     </template>
     <template v-slot:footer>
       <button
-        @click="if (channelName.trim() != '' && !isNum(channelName.trim()[0])) {
-          createChannel();
-          errorBool = false;
-        } else {
-          errorBool = true;
-        }
-
-        "
+        @click="createChannel() "
         type="submit"
         class="mod-btn mod-btn-blue"
         style="width: 75%;  margin-right: auto; margin-left: auto;"
@@ -817,7 +868,6 @@ const seePassword = (stringId: string) => {
           inputPassword = '';
           inputPassword2 = '';
           channelType = 0;
-          errorBool = false;
         "
         type="button"
         class="mod-btn mod-btn-yellow"
@@ -837,7 +887,6 @@ const seePassword = (stringId: string) => {
       inputPassword = '';
       inputPassword2 = '';
       channelType = 0;
-      errorBool = false;
     "
   >
     <template v-slot:header>
@@ -857,10 +906,6 @@ const seePassword = (stringId: string) => {
           required
           autofocus
         />
-      </div>
-      <div v-if="errorBool" class="mb-3" style="color: red; text-align: start;">
-        - Please, enter a name for the channel <br>
-        - Must not start with a number (0-9)
       </div>
       <div class="form-check form-check-inline">
         <input
@@ -958,13 +1003,7 @@ const seePassword = (stringId: string) => {
     </template>
     <template v-slot:footer>
       <button
-        @click="if (channelName.trim() != '' && !isNum(channelName.trim()[0])) {
-          updateChannel();
-          errorBool = false;
-        } else {
-          errorBool = true;
-        }
-        "
+        @click="updateChannel()"
         type="submit"
         class="mod-btn mod-btn-blue"
         style="width: 75%; margin-right: auto; margin-left: auto;"
@@ -979,7 +1018,6 @@ const seePassword = (stringId: string) => {
           inputPassword = '';
           inputPassword2 = '';
           channelType = 0;
-          errorBool = false;
         "
         type="button"
         class="mod-btn mod-btn-yellow"
