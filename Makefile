@@ -13,7 +13,7 @@ backend:
 	-cd backend && npm run dev
 
 database:
-	-docker-compose up -d postgres
+	-docker compose up -d postgres
 
 
 ### Prod environment ###

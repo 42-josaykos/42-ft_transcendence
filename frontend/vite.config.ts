@@ -21,7 +21,7 @@ export default ({ mode }: any) => {
       port: Number(env.FRONTEND_PORT),
       proxy: {
         "/auth": {
-          target: `http://${env.BACKEND_HOST}:${env.API_PORT}`,
+          target: `http://${env.HOST}:${env.API_PORT}`,
         },
       },
     },
