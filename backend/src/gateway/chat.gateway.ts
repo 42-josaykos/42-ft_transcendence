@@ -31,7 +31,6 @@ class Connections {
 @WebSocketGateway({
   namespace: 'chat',
   cors: {
-    // origin: `http://localhost:${process.env.FRONTEND_PORT}`,
     origin: `http://${process.env.HOST}:${process.env.FRONTEND_PORT}`,
     credentials: true,
   },
