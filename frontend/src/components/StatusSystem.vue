@@ -68,7 +68,7 @@ if (isAuthenticated.value) {
         matches.value = response.data.reverse();
       }
     }
-    const response = await Get("/stats");
+    const response = await Get(`http://${HOST}:${API_PORT}/stats`);
     if (response.status === 200) {
       leaderboard.value = response.data;
     }
@@ -88,7 +88,7 @@ if (isAuthenticated.value) {
       });
     }
     if (users.value) {
-      await Get("/users/search").then((res) => {
+      await Get(`http://${HOST}:${API_PORT}/users/search`).then((res) => {
         if (res.status == 200) {
           users.value = res.data;
         }
