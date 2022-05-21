@@ -100,7 +100,7 @@ function toggleTwoFactorAuthentication() {
 // Update username
 function updateUsername() {
   if (usernameInput.value && usernameInput.value.length < 15) {
-    Patch(`/users/${loggedUser.value?.id}`, {
+    Patch(`http://${HOST}:${API_PORT}/users/${loggedUser.value?.id}`, {
       username: usernameInput.value,
     }).then((res) => {
       if (res.status === 200) {
@@ -144,7 +144,7 @@ async function updateAvatar(event: any) {
           }
         );
         if (response.status === 201) {
-          Patch(`/users/${loggedUser.value?.id}`, {
+          Patch(`http://${HOST}:${API_PORT}/users/${loggedUser.value?.id}`, {
             avatar: response.data.path,
           }).then((res) => {
             if (res.status === 200) {
