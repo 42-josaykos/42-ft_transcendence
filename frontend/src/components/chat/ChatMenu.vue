@@ -46,7 +46,7 @@ const {
 
 const displayMessages = (channel_item: Channel) => {
   Get(
-    `/http://${HOST}:${API_PORT}channels/search?id=${channel_item.id.toString()}&messages&owner&admins&members&mutes&bans`
+    `http://${HOST}:${API_PORT}/channels/search?id=${channel_item.id}&messages&owner&admins&members&mutes&bans`
   ).then((res) => {
     if (res.status == 200) {
       channel.value = res.data[0];
@@ -378,7 +378,7 @@ const seePassword = (stringId: string) => {
   }
 };
 
-const newChannel = () => {
+const newChannelTemplate = () => {
   Get(`http://${HOST}:${API_PORT}/users/search`).then((res) => {
     if (res.status == 200) {
       users.value = res.data;
@@ -388,12 +388,66 @@ const newChannel = () => {
     }
   });
 };
+
+const updateChannelTemplate = (item: any) => {
+  Get(`http://${HOST}:${API_PORT}/users/search`).then((res) => {
+    if (res.status == 200) {
+      users.value = res.data;
+    }
+  });
+  Get(
+    `http://${HOST}:${API_PORT}/channels/search?id=${item.id}&admins&mutes&members&invites&bans`
+  ).then((res) => {
+    if (res.status == 200) {
+      [channelUpdate.value] = res.data;
+      channelName.value = res.data[0].name;
+      usersInvite.value = [];
+      modalUpdateChannel.value = true;
+      channelType.value = 0;
+    }
+  });
+};
+
+const leaveChannelTemplate = (item: any) => {
+  Get(
+    `http://${HOST}:${API_PORT}/channels/search?id=${item.id}&admins&mutes&members&bans&owner`
+  ).then((res) => {
+    if (res.status == 200) {
+      [channelLeave.value] = res.data;
+      item.isOwner
+        ? (modalDelChannel.value = true)
+        : (modalValidate.value = true);
+    }
+  });
+};
+
+const joinChannelTemplate = (item: any) => {
+  modalJoinChannel.value = true;
+  Get(`http://${HOST}:${API_PORT}/channels/search?id=${item.id}&messages`).then(
+    (res) => {
+      if (res.status == 200) {
+        [channelJoin.value] = res.data;
+      }
+    }
+  );
+};
+
+const refuseInviteTemplate = (item: any) => {
+  modalRefuseJoinChannel.value = true;
+  Get(`http://${HOST}:${API_PORT}/channels/search?id=${item.id}&messages`).then(
+    (res) => {
+      if (res.status == 200) {
+        [channelJoin.value] = res.data;
+      }
+    }
+  );
+};
 </script>
 
 <template>
   <div>
     <button
-      @click="newChannel()"
+      @click="newChannelTemplate()"
       type="button"
       class="rounded btn-channel wrapper-icon-leave ms-auto hovertext hovertextC"
       data-hover="New Channel"
@@ -450,24 +504,7 @@ const newChannel = () => {
               <div class="ms-auto d-flex">
                 <button
                   v-if="item.isOwner"
-                  @click="
-                    Get('/users/search').then((res) => {
-                      if (res.status == 200) {
-                        users = res.data;
-                      }
-                    });
-                    Get(
-                      `channels/search?id=${item.id.toString()}&admins&mutes&members&invites&bans`
-                    ).then((res) => {
-                      if (res.status == 200) {
-                        [channelUpdate] = res.data;
-                        channelName = res.data[0].name;
-                        usersInvite = [];
-                        modalUpdateChannel = true;
-                        channelType = 0;
-                      }
-                    });
-                  "
+                  @click="updateChannelTemplate(item)"
                   type="button"
                   class="rounded btn-channel wrapper-icon-leave ms-auto hovertext hovertextL"
                   data-hover="Update Channel"
@@ -475,18 +512,7 @@ const newChannel = () => {
                   <i class="fa-solid fa-pen"></i>
                 </button>
                 <button
-                  @click="
-                    Get(
-                      `channels/search?id=${item.id.toString()}&admins&mutes&members&bans&owner`
-                    ).then((res) => {
-                      if (res.status == 200) {
-                        [channelLeave] = res.data;
-                        item.isOwner
-                          ? (modalDelChannel = true)
-                          : (modalValidate = true);
-                      }
-                    })
-                  "
+                  @click="leaveChannelTemplate(item)"
                   type="button"
                   class="rounded btn-channel wrapper-icon-leave ms-auto hovertext hovertextL"
                   data-hover="Leave Channel"
@@ -541,16 +567,7 @@ const newChannel = () => {
               </div>
               <div class="ms-auto">
                 <button
-                  @click="
-                    modalJoinChannel = true;
-                    Get(
-                      `channels/search?id=${item.id.toString()}&messages`
-                    ).then((res) => {
-                      if (res.status == 200) {
-                        [channelJoin] = res.data;
-                      }
-                    });
-                  "
+                  @click="joinChannelTemplate(item)"
                   type="button"
                   class="rounded btn-channel wrapper-icon-leave ms-auto hovertext hovertextL"
                   data-hover="Join Channel"
@@ -670,16 +687,7 @@ const newChannel = () => {
                   <i class="fa-solid fa-check"></i>
                 </button>
                 <button
-                  @click="
-                    modalRefuseJoinChannel = true;
-                    Get(
-                      `channels/search?id=${item.id.toString()}&messages`
-                    ).then((res) => {
-                      if (res.status == 200) {
-                        [channelJoin] = res.data;
-                      }
-                    });
-                  "
+                  @click="refuseInviteTemplate(item)"
                   type="button"
                   class="rounded btn-channel wrapper-icon-leave ms-auto hovertext hovertextL"
                   data-hover="Refuse Invite"

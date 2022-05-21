@@ -9,7 +9,7 @@ import { Get } from "@/services/requests";
 import ModalMessage from "./chat/ModalMessage.vue";
 import { useMessageStore } from "@/stores/message";
 import Queue from "./game/Queue.vue";
-import BtnUserCard from './BtnUserCard.vue';
+import BtnUserCard from "./BtnUserCard.vue";
 import GameOptionModal from "./game/options/GameOptionModal.vue";
 
 const {
@@ -28,13 +28,13 @@ defineProps<{
 
 onMounted(async () => {
   if (loggedUser.value != undefined) {
-    await Get(`/users/search?id=${loggedUser.value?.id}&friends`).then(
-      (res: any) => {
-        if (res.status == 200) {
-          usersFriends.value = res.data[0].friends;
-        }
+    await Get(
+      `http://${HOST}:${API_PORT}/users/search?id=${loggedUser.value?.id}&friends`
+    ).then((res: any) => {
+      if (res.status == 200) {
+        usersFriends.value = res.data[0].friends;
       }
-    );
+    });
   }
 });
 </script>
@@ -42,9 +42,16 @@ onMounted(async () => {
 <template>
   <div class="container pt-2">
     <div v-if="loggedUser" class="d-flex pb-4 my-navbar">
-      <BtnUserCard :user="loggedUser" :profile="true" @open="userClick = loggedUser; setting_open = !setting_open;"/>
+      <BtnUserCard
+        :user="loggedUser"
+        :profile="true"
+        @open="
+          userClick = loggedUser;
+          setting_open = !setting_open;
+        "
+      />
       <div>
-        <span class="neonText display-1 size-title" >
+        <span class="neonText display-1 size-title">
           <b>Space Pong</b>
         </span>
       </div>
@@ -175,6 +182,5 @@ li .row:hover {
     width: 12vw;
     height: 12vw;
   }
-
 }
 </style>
