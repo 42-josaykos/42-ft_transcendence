@@ -9,6 +9,7 @@ import type { Channel } from "@/models/channel.model";
 import type { User } from "@/models/user.model";
 import { Get } from "@/services/requests";
 import { ref } from "vue";
+import axios from "axios";
 
 const messageStore = useMessageStore();
 const { messages } = storeToRefs(messageStore);
@@ -40,26 +41,26 @@ const {
   newOwner,
   usersMembers,
   usersInvite,
-  channelType
+  channelType,
 } = storeToRefs(channelStore);
 
 const displayMessages = (channel_item: Channel) => {
-  Get(`/channels/search?id=${channel_item.id.toString()}&messages&owner&admins&members&mutes&bans`)
-    .then((res) => {
-      if (res.status == 200) {
-        channel.value = res.data[0];
-        if (channel.value != undefined && loggedUser.value != null) {
-          if (channelStore.isBan(channel.value, loggedUser.value?.id)) {
-            channelStore.handleBanMute({...channel.value}, true)
-          }
-          else if (channelStore.isMute(channel.value, loggedUser.value?.id)) {
-            channelStore.handleBanMute({...channel.value}, false)
-          }
+  Get(
+    `/http://${HOST}:${API_PORT}channels/search?id=${channel_item.id.toString()}&messages&owner&admins&members&mutes&bans`
+  ).then((res) => {
+    if (res.status == 200) {
+      channel.value = res.data[0];
+      if (channel.value != undefined && loggedUser.value != null) {
+        if (channelStore.isBan(channel.value, loggedUser.value?.id)) {
+          channelStore.handleBanMute({ ...channel.value }, true);
+        } else if (channelStore.isMute(channel.value, loggedUser.value?.id)) {
+          channelStore.handleBanMute({ ...channel.value }, false);
         }
-        messageStore.sortMessages(res.data[0].messages);
-        usersMembers.value = res.data[0].members;
       }
-    });
+      messageStore.sortMessages(res.data[0].messages);
+      usersMembers.value = res.data[0].members;
+    }
+  });
 };
 
 // Créer un nouveau channel
@@ -67,11 +68,10 @@ const createChannel = () => {
   if (socketChat.value != undefined) {
     if (channelName.value !== "") {
       if (channelType.value == 3) {
-        if(inputPassword.value != inputPassword2.value) {
+        if (inputPassword.value != inputPassword2.value) {
           alert("Password doesn't matched");
           return;
-        }
-        else if(inputPassword.value.trim() == ""){
+        } else if (inputPassword.value.trim() == "") {
           alert("Password must contain at least one letter");
           return;
         }
@@ -135,7 +135,12 @@ const acceptInviteChannel = () => {
           },
           loggedUser.value
         );
-        socketChat.value.emit('updateInvite', channelJoin.value, true, loggedUser.value.id)
+        socketChat.value.emit(
+          "updateInvite",
+          channelJoin.value,
+          true,
+          loggedUser.value.id
+        );
       }
     }
   }
@@ -152,7 +157,12 @@ const refuseInviteChannel = () => {
         null,
         loggedUser.value
       );
-      socketChat.value.emit('updateInvite', channelJoin.value, false, loggedUser.value?.id)
+      socketChat.value.emit(
+        "updateInvite",
+        channelJoin.value,
+        false,
+        loggedUser.value?.id
+      );
     }
   }
   //inputStore.$reset();
@@ -170,23 +180,18 @@ const leaveChannel = () => {
   if (loggedUser.value != undefined && socketChat.value != undefined) {
     if (channelLeave.value !== undefined) {
       const msg = {
-                    author: loggedUser.value.id,
-                    channel: { id: channelLeave.value?.id },
-                    data: `${loggedUser.value.username} has leaved the channel.`,
-                  }
+        author: loggedUser.value.id,
+        channel: { id: channelLeave.value?.id },
+        data: `${loggedUser.value.username} has leaved the channel.`,
+      };
       const msgOwner = {
-                          author: loggedUser.value.id,
-                          channel: { id: channelLeave.value.id },
-                          data: `${loggedUser.value.username} the channel owner has left the channel - - ${newOwner.value?.username} becomes the owner.`,
-                        }
+        author: loggedUser.value.id,
+        channel: { id: channelLeave.value.id },
+        data: `${loggedUser.value.username} the channel owner has left the channel - - ${newOwner.value?.username} becomes the owner.`,
+      };
       if (!channelLeave.value.isDirectChannel) {
-        if (
-          channelStore.isOwner(channelLeave.value, loggedUser.value.id)
-        ) {
-          if (
-            channelStore.isAdmin(channelLeave.value, newOwner.value?.id
-            )
-          ) {
+        if (channelStore.isOwner(channelLeave.value, loggedUser.value.id)) {
+          if (channelStore.isAdmin(channelLeave.value, newOwner.value?.id)) {
             socketChat.value.emit(
               "updateMember",
               channelLeave.value.id,
@@ -200,7 +205,8 @@ const leaveChannel = () => {
             );
           } else {
             if (
-              channelStore.isBan(channelLeave.value, newOwner.value?.id) && !channelStore.isMute(channelLeave.value, newOwner.value?.id)
+              channelStore.isBan(channelLeave.value, newOwner.value?.id) &&
+              !channelStore.isMute(channelLeave.value, newOwner.value?.id)
             ) {
               socketChat.value.emit(
                 "updateMember",
@@ -208,23 +214,7 @@ const leaveChannel = () => {
                 {
                   owner: { id: newOwner.value?.id },
                   addAdmins: [{ id: newOwner.value?.id }],
-                  removeBans: [{user: {id: newOwner.value?.id}}],
-                  removeAdmins: [{ id: loggedUser.value.id}],
-                  removeMembers: [{ id: loggedUser.value.id }],
-                },
-                msgOwner,
-                loggedUser.value
-              );
-            } else if (
-              channelStore.isMute(channelLeave.value, newOwner.value?.id) && !channelStore.isBan(channelLeave.value, newOwner.value?.id)
-            ) {
-              socketChat.value.emit(
-                "updateMember",
-                channelLeave.value?.id,
-                {
-                  owner: { id: newOwner.value?.id },
-                  addAdmins: [{ id: newOwner.value?.id }],
-                  removeMutes: [{user: {id: newOwner.value?.id}}],
+                  removeBans: [{ user: { id: newOwner.value?.id } }],
                   removeAdmins: [{ id: loggedUser.value.id }],
                   removeMembers: [{ id: loggedUser.value.id }],
                 },
@@ -232,7 +222,8 @@ const leaveChannel = () => {
                 loggedUser.value
               );
             } else if (
-              channelStore.isMute(channelLeave.value, newOwner.value?.id) && channelStore.isBan(channelLeave.value, newOwner.value?.id)
+              channelStore.isMute(channelLeave.value, newOwner.value?.id) &&
+              !channelStore.isBan(channelLeave.value, newOwner.value?.id)
             ) {
               socketChat.value.emit(
                 "updateMember",
@@ -240,8 +231,25 @@ const leaveChannel = () => {
                 {
                   owner: { id: newOwner.value?.id },
                   addAdmins: [{ id: newOwner.value?.id }],
-                  removeBans: [{user: {id: newOwner.value?.id}}],
-                  removeMutes: [{user: {id: newOwner.value?.id}}],
+                  removeMutes: [{ user: { id: newOwner.value?.id } }],
+                  removeAdmins: [{ id: loggedUser.value.id }],
+                  removeMembers: [{ id: loggedUser.value.id }],
+                },
+                msgOwner,
+                loggedUser.value
+              );
+            } else if (
+              channelStore.isMute(channelLeave.value, newOwner.value?.id) &&
+              channelStore.isBan(channelLeave.value, newOwner.value?.id)
+            ) {
+              socketChat.value.emit(
+                "updateMember",
+                channelLeave.value?.id,
+                {
+                  owner: { id: newOwner.value?.id },
+                  addAdmins: [{ id: newOwner.value?.id }],
+                  removeBans: [{ user: { id: newOwner.value?.id } }],
+                  removeMutes: [{ user: { id: newOwner.value?.id } }],
                   removeAdmins: [{ id: loggedUser.value.id }],
                   removeMembers: [{ id: loggedUser.value.id }],
                 },
@@ -264,9 +272,7 @@ const leaveChannel = () => {
             }
           }
         } else {
-          if (
-            channelStore.isAdmin(channelLeave.value, loggedUser.value.id)
-          ) {
+          if (channelStore.isAdmin(channelLeave.value, loggedUser.value.id)) {
             socketChat.value.emit(
               "updateMember",
               channelLeave.value?.id,
@@ -278,13 +284,13 @@ const leaveChannel = () => {
               loggedUser.value
             );
           } else {
-              socketChat.value.emit(
-                "updateMember",
-                channelLeave.value?.id,
-                { removeMembers: [{ id: loggedUser.value.id }] },
-                msg,
-                loggedUser.value
-              );
+            socketChat.value.emit(
+              "updateMember",
+              channelLeave.value?.id,
+              { removeMembers: [{ id: loggedUser.value.id }] },
+              msg,
+              loggedUser.value
+            );
           }
         }
 
@@ -305,11 +311,10 @@ const updateChannel = () => {
   if (socketChat.value != undefined) {
     if (channelUpdate.value !== undefined) {
       if (channelType.value == 3) {
-        if(inputPassword.value != inputPassword2.value) {
+        if (inputPassword.value != inputPassword2.value) {
           alert("Password doesn't matched");
           return;
-        }
-        else if(inputPassword.value.trim() == ""){
+        } else if (inputPassword.value.trim() == "") {
           alert("Password must contain at least one letter");
           return;
         }
@@ -329,7 +334,11 @@ const updateChannel = () => {
         removeInvites:
           channelType.value != 2 ? channelUpdate.value.invites : [],
       };
-      socketChat.value.emit("updateChannel", channelUpdate.value.id, updateChannel);
+      socketChat.value.emit(
+        "updateChannel",
+        channelUpdate.value.id,
+        updateChannel
+      );
     }
   }
   modalUpdateChannel.value = false;
@@ -358,34 +367,33 @@ const isNum = (char: any) => {
     }
   }
   return false;
-}
+};
 
 const seePassword = (stringId: string) => {
   let pass = document.getElementById(stringId);
-  if (pass?.getAttribute('type') === 'password') {
-      pass?.setAttribute('type', 'text')
+  if (pass?.getAttribute("type") === "password") {
+    pass?.setAttribute("type", "text");
+  } else {
+    pass?.setAttribute("type", "password");
   }
-  else {
-    pass?.setAttribute('type', 'password')
-  }
-}
+};
 
+const newChannel = () => {
+  Get(`http://${HOST}:${API_PORT}/users/search`).then((res) => {
+    if (res.status == 200) {
+      users.value = res.data;
+      usersInvite.value = [];
+      modalNewChannel.value = true;
+      channelType.value = 1;
+    }
+  });
+};
 </script>
 
 <template>
-
   <div>
     <button
-      @click="
-        Get('/users/search').then((res) => {
-          if (res.status == 200) {
-            users = res.data;
-            usersInvite = [];
-            modalNewChannel = true;
-            channelType = 1;
-          }
-        })
-      "
+      @click="newChannel()"
       type="button"
       class="rounded btn-channel wrapper-icon-leave ms-auto hovertext hovertextC"
       data-hover="New Channel"
@@ -443,17 +451,22 @@ const seePassword = (stringId: string) => {
                 <button
                   v-if="item.isOwner"
                   @click="
-                    Get('/users/search').then((res) => {if (res.status == 200) {users = res.data}});
-                    Get(`channels/search?id=${item.id.toString()}&admins&mutes&members&invites&bans`)
-                      .then((res) => {
-                        if (res.status == 200) {
-                          [channelUpdate] = res.data;
-                          channelName = res.data[0].name;
-                          usersInvite = [];
-                          modalUpdateChannel = true;
-                          channelType = 0;
-                        }
-                      });
+                    Get('/users/search').then((res) => {
+                      if (res.status == 200) {
+                        users = res.data;
+                      }
+                    });
+                    Get(
+                      `channels/search?id=${item.id.toString()}&admins&mutes&members&invites&bans`
+                    ).then((res) => {
+                      if (res.status == 200) {
+                        [channelUpdate] = res.data;
+                        channelName = res.data[0].name;
+                        usersInvite = [];
+                        modalUpdateChannel = true;
+                        channelType = 0;
+                      }
+                    });
                   "
                   type="button"
                   class="rounded btn-channel wrapper-icon-leave ms-auto hovertext hovertextL"
@@ -463,15 +476,16 @@ const seePassword = (stringId: string) => {
                 </button>
                 <button
                   @click="
-                    Get(`channels/search?id=${item.id.toString()}&admins&mutes&members&bans&owner`)
-                      .then((res) => {
-                        if (res.status == 200) {
-                          [channelLeave] = res.data;
-                          item.isOwner
-                            ? (modalDelChannel = true)
-                            : (modalValidate = true);
-                        }
-                      })
+                    Get(
+                      `channels/search?id=${item.id.toString()}&admins&mutes&members&bans&owner`
+                    ).then((res) => {
+                      if (res.status == 200) {
+                        [channelLeave] = res.data;
+                        item.isOwner
+                          ? (modalDelChannel = true)
+                          : (modalValidate = true);
+                      }
+                    })
                   "
                   type="button"
                   class="rounded btn-channel wrapper-icon-leave ms-auto hovertext hovertextL"
@@ -529,8 +543,13 @@ const seePassword = (stringId: string) => {
                 <button
                   @click="
                     modalJoinChannel = true;
-                    Get(`channels/search?id=${item.id.toString()}&messages`)
-                      .then((res) => {if (res.status == 200) {[channelJoin] = res.data}});
+                    Get(
+                      `channels/search?id=${item.id.toString()}&messages`
+                    ).then((res) => {
+                      if (res.status == 200) {
+                        [channelJoin] = res.data;
+                      }
+                    });
                   "
                   type="button"
                   class="rounded btn-channel wrapper-icon-leave ms-auto hovertext hovertextL"
@@ -653,8 +672,13 @@ const seePassword = (stringId: string) => {
                 <button
                   @click="
                     modalRefuseJoinChannel = true;
-                    Get(`channels/search?id=${item.id.toString()}&messages`)
-                      .then((res) => {if (res.status == 200) {[channelJoin] = res.data}});
+                    Get(
+                      `channels/search?id=${item.id.toString()}&messages`
+                    ).then((res) => {
+                      if (res.status == 200) {
+                        [channelJoin] = res.data;
+                      }
+                    });
                   "
                   type="button"
                   class="rounded btn-channel wrapper-icon-leave ms-auto hovertext hovertextL"
@@ -698,8 +722,8 @@ const seePassword = (stringId: string) => {
           autofocus
         />
       </div>
-      <div v-if="errorBool" class="mb-3" style="color: red; text-align: start;">
-        - Please, enter a name for the channel <br>
+      <div v-if="errorBool" class="mb-3" style="color: red; text-align: start">
+        - Please, enter a name for the channel <br />
         - Must not start with a number (0-9)
       </div>
       <div class="form-check form-check-inline">
@@ -737,7 +761,12 @@ const seePassword = (stringId: string) => {
         <div class="form-signin pt-3">
           <div class="input-group mb-3">
             <label for="inputPasswordChannel1" class="sr-only">Password</label>
-            <span @click="seePassword('inputPasswordChannel1')" class="input-group-text" id="basic-addon1"><i class="fa-regular fa-eye"></i></span>
+            <span
+              @click="seePassword('inputPasswordChannel1')"
+              class="input-group-text"
+              id="basic-addon1"
+              ><i class="fa-regular fa-eye"></i
+            ></span>
             <input
               type="password"
               id="inputPasswordChannel1"
@@ -748,8 +777,15 @@ const seePassword = (stringId: string) => {
             />
           </div>
           <div class="input-group mb-3">
-            <label for="inputPasswordChannel2" class="sr-only">Confirm Password</label>
-            <span @click="seePassword('inputPasswordChannel2')" class="input-group-text" id="basic-addon1"><i class="fa-regular fa-eye"></i></span>
+            <label for="inputPasswordChannel2" class="sr-only"
+              >Confirm Password</label
+            >
+            <span
+              @click="seePassword('inputPasswordChannel2')"
+              class="input-group-text"
+              id="basic-addon1"
+              ><i class="fa-regular fa-eye"></i
+            ></span>
             <input
               type="password"
               id="inputPasswordChannel2"
@@ -765,11 +801,7 @@ const seePassword = (stringId: string) => {
         <div v-if="users.length != 1">
           <h5 class="pt-3" style="text-align: start"><u>Choose users :</u></h5>
           <div class="scrollspy-example2 card-choose-users">
-            <div
-              class="separator-list"
-              v-for="user in users"
-              :key="user.id"
-            >
+            <div class="separator-list" v-for="user in users" :key="user.id">
               <div
                 v-if="user.id != loggedUser?.id"
                 class="d-flex ms-auto"
@@ -795,17 +827,17 @@ const seePassword = (stringId: string) => {
     </template>
     <template v-slot:footer>
       <button
-        @click="if (channelName.trim() != '' && !isNum(channelName.trim()[0])) {
-          createChannel();
-          errorBool = false;
-        } else {
-          errorBool = true;
-        }
-
+        @click="
+          if (channelName.trim() != '' && !isNum(channelName.trim()[0])) {
+            createChannel();
+            errorBool = false;
+          } else {
+            errorBool = true;
+          }
         "
         type="submit"
         class="mod-btn mod-btn-blue"
-        style="width: 75%;  margin-right: auto; margin-left: auto;"
+        style="width: 75%; margin-right: auto; margin-left: auto"
       >
         Create
       </button>
@@ -821,7 +853,7 @@ const seePassword = (stringId: string) => {
         "
         type="button"
         class="mod-btn mod-btn-yellow"
-        style="width: 75%;  margin-right: auto; margin-left: auto;"
+        style="width: 75%; margin-right: auto; margin-left: auto"
       >
         Cancel
       </button>
@@ -841,9 +873,7 @@ const seePassword = (stringId: string) => {
     "
   >
     <template v-slot:header>
-      <h2 class="pt-4">
-        <u>Update channel :</u> {{ channelUpdate?.name }}
-      </h2>
+      <h2 class="pt-4"><u>Update channel :</u> {{ channelUpdate?.name }}</h2>
     </template>
     <template v-slot:body>
       <div class="form-signin pb-3">
@@ -858,8 +888,8 @@ const seePassword = (stringId: string) => {
           autofocus
         />
       </div>
-      <div v-if="errorBool" class="mb-3" style="color: red; text-align: start;">
-        - Please, enter a name for the channel <br>
+      <div v-if="errorBool" class="mb-3" style="color: red; text-align: start">
+        - Please, enter a name for the channel <br />
         - Must not start with a number (0-9)
       </div>
       <div class="form-check form-check-inline">
@@ -895,8 +925,15 @@ const seePassword = (stringId: string) => {
       <div v-if="channelType == 3">
         <div class="form-signin pt-3">
           <div class="input-group mb-3">
-            <label for="inputPasswordChannelUp1" class="sr-only">Password</label>
-            <span @click="seePassword('inputPasswordChannelUp1')" class="input-group-text" id="basic-addon1"><i class="fa-regular fa-eye"></i></span>
+            <label for="inputPasswordChannelUp1" class="sr-only"
+              >Password</label
+            >
+            <span
+              @click="seePassword('inputPasswordChannelUp1')"
+              class="input-group-text"
+              id="basic-addon1"
+              ><i class="fa-regular fa-eye"></i
+            ></span>
             <input
               type="password"
               id="inputPasswordChannelUp1"
@@ -907,8 +944,15 @@ const seePassword = (stringId: string) => {
             />
           </div>
           <div class="input-group mb-3">
-            <label for="inputPasswordChannelUp2" class="sr-only">Confirm Password</label>
-            <span @click="seePassword('inputPasswordChannelUp2')" class="input-group-text" id="basic-addon1"><i class="fa-regular fa-eye"></i></span>
+            <label for="inputPasswordChannelUp2" class="sr-only"
+              >Confirm Password</label
+            >
+            <span
+              @click="seePassword('inputPasswordChannelUp2')"
+              class="input-group-text"
+              id="basic-addon1"
+              ><i class="fa-regular fa-eye"></i
+            ></span>
             <input
               type="password"
               id="inputPasswordChannelUp2"
@@ -921,14 +965,12 @@ const seePassword = (stringId: string) => {
         </div>
       </div>
       <div v-else-if="channelType == 2">
-        <div v-if="users.length != 1 && !channelStore.checkIfUserInTheChannel()">
+        <div
+          v-if="users.length != 1 && !channelStore.checkIfUserInTheChannel()"
+        >
           <h5 class="pt-3" style="text-align: start"><u>Choose users :</u></h5>
           <div class="scrollspy-example2 card-choose-users">
-            <div
-              class="separator-list"
-              v-for="user in users"
-              :key="user.id"
-            >
+            <div class="separator-list" v-for="user in users" :key="user.id">
               <div
                 v-if="
                   user.id != loggedUser?.id &&
@@ -958,16 +1000,17 @@ const seePassword = (stringId: string) => {
     </template>
     <template v-slot:footer>
       <button
-        @click="if (channelName.trim() != '' && !isNum(channelName.trim()[0])) {
-          updateChannel();
-          errorBool = false;
-        } else {
-          errorBool = true;
-        }
+        @click="
+          if (channelName.trim() != '' && !isNum(channelName.trim()[0])) {
+            updateChannel();
+            errorBool = false;
+          } else {
+            errorBool = true;
+          }
         "
         type="submit"
         class="mod-btn mod-btn-blue"
-        style="width: 75%; margin-right: auto; margin-left: auto;"
+        style="width: 75%; margin-right: auto; margin-left: auto"
       >
         Update
       </button>
@@ -983,7 +1026,7 @@ const seePassword = (stringId: string) => {
         "
         type="button"
         class="mod-btn mod-btn-yellow"
-        style="width: 75%;  margin-right: auto; margin-left: auto;"
+        style="width: 75%; margin-right: auto; margin-left: auto"
       >
         Cancel
       </button>
@@ -998,9 +1041,7 @@ const seePassword = (stringId: string) => {
     "
   >
     <template v-slot:header>
-      <h2 class="pt-4">
-        <u>Leave channel :</u> {{ channelLeave?.name }}
-      </h2>
+      <h2 class="pt-4"><u>Leave channel :</u> {{ channelLeave?.name }}</h2>
     </template>
     <template v-slot:body>
       <h5 class="pt-3" style="text-align: start">
@@ -1014,7 +1055,7 @@ const seePassword = (stringId: string) => {
           "
           type="button"
           class="mod-btn mod-btn-red"
-          style="width: 75%;  margin-right: auto; margin-left: auto;"
+          style="width: 75%; margin-right: auto; margin-left: auto"
         >
           Delete
         </button>
@@ -1067,7 +1108,7 @@ const seePassword = (stringId: string) => {
         "
         type="button"
         class="mod-btn mod-btn-yellow"
-        style="width: 75%;  margin-right: auto; margin-left: auto;"
+        style="width: 75%; margin-right: auto; margin-left: auto"
       >
         Cancel
       </button>
@@ -1092,7 +1133,7 @@ const seePassword = (stringId: string) => {
         "
         type="button"
         class="mod-btn mod-btn-blue"
-        style="width: 75%;  margin-right: auto; margin-left: auto;"
+        style="width: 75%; margin-right: auto; margin-left: auto"
       >
         Yes
       </button>
@@ -1106,14 +1147,20 @@ const seePassword = (stringId: string) => {
         "
         type="button"
         class="mod-btn mod-btn-yellow"
-        style="width: 75%;  margin-right: auto; margin-left: auto;"
+        style="width: 75%; margin-right: auto; margin-left: auto"
       >
         No
       </button>
     </template>
   </ModalChat>
 
-  <ModalChat v-if="modalJoinChannel" @close="modalJoinChannel = false; inputPassword = ''">
+  <ModalChat
+    v-if="modalJoinChannel"
+    @close="
+      modalJoinChannel = false;
+      inputPassword = '';
+    "
+  >
     <template v-slot:header>
       <h2 style="padding-top: 10px"><u>Join :</u> {{ channelJoin?.name }}</h2>
     </template>
@@ -1124,8 +1171,15 @@ const seePassword = (stringId: string) => {
         </h5>
         <div class="form-signin pt-3">
           <div class="input-group mb-3">
-            <label for="inputPasswordChannelJoin1" class="sr-only">Password</label>
-            <span @click="seePassword('inputPasswordChannelJoin1')" class="input-group-text" id="basic-addon1"><i class="fa-regular fa-eye"></i></span>
+            <label for="inputPasswordChannelJoin1" class="sr-only"
+              >Password</label
+            >
+            <span
+              @click="seePassword('inputPasswordChannelJoin1')"
+              class="input-group-text"
+              id="basic-addon1"
+              ><i class="fa-regular fa-eye"></i
+            ></span>
             <input
               type="password"
               id="inputPasswordChannelJoin1"
@@ -1146,15 +1200,18 @@ const seePassword = (stringId: string) => {
         "
         type="submit"
         class="mod-btn mod-btn-blue"
-        style="width: 75%;  margin-right: auto; margin-left: auto;"
+        style="width: 75%; margin-right: auto; margin-left: auto"
       >
         Join
       </button>
       <button
-        @click="modalJoinChannel = false; inputPassword = ''"
+        @click="
+          modalJoinChannel = false;
+          inputPassword = '';
+        "
         type="button"
         class="mod-btn mod-btn-yellow"
-        style="width: 75%;  margin-right: auto; margin-left: auto;"
+        style="width: 75%; margin-right: auto; margin-left: auto"
       >
         Cancel
       </button>
@@ -1178,7 +1235,7 @@ const seePassword = (stringId: string) => {
         "
         type="button"
         class="mod-btn mod-btn-blue"
-        style="width: 75%;  margin-right: auto; margin-left: auto;"
+        style="width: 75%; margin-right: auto; margin-left: auto"
       >
         Yes
       </button>
@@ -1186,7 +1243,7 @@ const seePassword = (stringId: string) => {
         @click="modalAcceptJoinChannel = false"
         type="button"
         class="mod-btn mod-btn-yellow"
-        style="width: 75%;  margin-right: auto; margin-left: auto;"
+        style="width: 75%; margin-right: auto; margin-left: auto"
       >
         No
       </button>
@@ -1210,7 +1267,7 @@ const seePassword = (stringId: string) => {
         "
         type="button"
         class="mod-btn mod-btn-blue"
-        style="width: 75%;  margin-right: auto; margin-left: auto;"
+        style="width: 75%; margin-right: auto; margin-left: auto"
       >
         Yes
       </button>
@@ -1218,7 +1275,7 @@ const seePassword = (stringId: string) => {
         @click="modalRefuseJoinChannel = false"
         type="button"
         class="mod-btn mod-btn-yellow"
-        style="width: 75%;  margin-right: auto; margin-left: auto;"
+        style="width: 75%; margin-right: auto; margin-left: auto"
       >
         No
       </button>
@@ -1231,7 +1288,7 @@ const seePassword = (stringId: string) => {
   left: 90% !important;
   top: 50% !important;
   display: inline-block;
-  padding: 0.30em 0.50em;
+  padding: 0.3em 0.5em;
   font-size: 0.75em;
   font-weight: 700;
   line-height: 1;
@@ -1320,7 +1377,7 @@ const seePassword = (stringId: string) => {
   border-color: transparent !important;
   color: #c4c4c4;
   font-size: initial;
-  font-weight:bolder;
+  font-weight: bolder;
 }
 
 .btn-channel:hover {
@@ -1359,7 +1416,8 @@ const seePassword = (stringId: string) => {
 .separator-list {
   border-bottom: 1px solid #0202aa;
 }
-span.input-group-text, input#inputUsername {
+span.input-group-text,
+input#inputUsername {
   border-top-left-radius: 0.25rem !important;
   border-bottom-left-radius: 0.25rem !important;
 }
@@ -1413,5 +1471,4 @@ input.input-pass-channel:focus {
   opacity: 1;
   visibility: visible;
 }
-
 </style>
