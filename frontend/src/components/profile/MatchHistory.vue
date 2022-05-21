@@ -38,51 +38,73 @@ onMounted(() => {
           <th class="table_title" scope="col">Score</th>
         </tr>
       </thead>
-      <tbody>
-        <tr v-for="(match, index) in matches" :key="match.id">
-          <td style="" v-bind:class="{'mePlayer' : loggedUser?.id === match.players[0].id }" class="player">
-            <div class="box" style="gap: 5px;">
-              <div class="item"><img class="circular--square" style="width: 25px" v-bind:src="match.players[0].avatar" /></div>
-              <a
-                class="item player"
-                href="#"
-                @click="
-                  userClick = match.players[0];
-                  getMatchHistory();
-                "
-                >{{ match.players[0].username }}</a
-              >
-            </div>
-          </td>
-          <td v-bind:class="{'mePlayer' : loggedUser?.id === match.players[1].id}" class="player">
-            <div class="box" style="gap: 5px;">
-              <div class="item"><img class="circular--square" style="width: 25px" v-bind:src="match.players[1].avatar" /></div>
-              <a
-                class="item player"
-                href="#"
-                @click="
-                  userClick = match.players[1];
-                  getMatchHistory();
-                "
-                >{{ match.players[1].username }}</a
-              >
-            </div>
-          </td>
-          <td>
-            <div class="box">
-              <div class="item" v-bind:style= "match.score[0] > match.score[1] ? 'color: #1e9c61;' :'' ">{{ match.score[0] }} </div>
-              <div class="item">-</div>
-              <div class="item" v-bind:style= "match.score[1] > match.score[0] ? 'color: #1e9c61;' :'' ">{{ match.score[1] }} </div>
-            </div>
-          </td>
-        </tr>
-      </tbody>
     </table>
+    <div class="scrollspy-example3">
+      <table style="table-layout: fixed; margin-left: 10px;">
+        <thead>
+          <tr v-for="(match, index) in matches" :key="match.id">
+            <td style="" v-bind:class="{'mePlayer' : loggedUser?.id === match.players[0].id }" class="player">
+              <div class="box" style="gap: 5px;">
+                <div class="item"><img class="circular--square" style="width: 25px" v-bind:src="match.players[0].avatar" /></div>
+                <a
+                  class="item player"
+                  href="#"
+                  @click="
+                    userClick = match.players[0];
+                    getMatchHistory();
+                  "
+                  >{{ match.players[0].username }}</a
+                >
+              </div>
+            </td>
+            <td v-bind:class="{'mePlayer' : loggedUser?.id === match.players[1].id}" class="player">
+              <div class="box" style="gap: 5px;">
+                <div class="item"><img class="circular--square" style="width: 25px" v-bind:src="match.players[1].avatar" /></div>
+                <a
+                  class="item player"
+                  href="#"
+                  @click="
+                    userClick = match.players[1];
+                    getMatchHistory();
+                  "
+                  >{{ match.players[1].username }}</a
+                >
+              </div>
+            </td>
+            <td>
+              <div class="box">
+                <div class="item" v-bind:style= "match.score[0] > match.score[1] ? 'color: #1e9c61;' :'' ">{{ match.score[0] }} </div>
+                <div class="item">-</div>
+                <div class="item" v-bind:style= "match.score[1] > match.score[0] ? 'color: #1e9c61;' :'' ">{{ match.score[1] }} </div>
+              </div>
+            </td>
+          </tr>
+        </thead>
+      </table>
+    </div>
   </div>
 </template>
 
 <style scoped>
+.scrollspy-example3 {
+  position: relative;
+  max-height: 240px;
+  margin-top: 0.5rem;
+  overflow: auto;
+  scrollbar-width: none;
+}
 
+.scrollspy-example3::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollspy-example3::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollspy-example3::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
 .box{
   display: flex;
   align-items: center;

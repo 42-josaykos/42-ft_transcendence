@@ -46,8 +46,7 @@ const numberUsers = computed(() => {
 </script>
 
 <template>
-  <br />
-  <span class="d-flex mb-3">
+  <span class="d-flex mb-3 mt-2">
     <span class="horizontal-line-center"></span>
       {{isOffLine ? 'Offline' : 'Online'}} - {{numberUsers}}
     <span class="horizontal-line-center"></span>

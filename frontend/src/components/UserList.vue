@@ -60,16 +60,18 @@ const userListOffline = computed(() => {
 
 <template>
   <div class="infoGame" style="overflow-y:hidden">
-    <div
-      class="neon-typo pt-4"
-      style="font-size: xx-large; font-weight: bold"
-    >
-      Players List
-    </div>
-    <hr />
-    <div class="scrollspy-example3">
-      <BtnUserList v-if="userListOnline.length > 0" :usersList="userListOnline" :isOffLine="false"/>
-      <BtnUserList v-if="userListOffline.length > 0" :usersList="userListOffline" :isOffLine="true"/>
+    <div class="cont">
+      <div
+        class="neon-typo pt-4"
+        style="font-size: xx-large; font-weight: bold"
+      >
+        Players List
+      </div>
+      <hr style="margin-bottom: 20px;"/>
+      <div class="scrollspy-example3">
+        <BtnUserList v-if="userListOnline.length > 0" :usersList="userListOnline" :isOffLine="false"/>
+        <BtnUserList v-if="userListOffline.length > 0" :usersList="userListOffline" :isOffLine="true"/>
+      </div>
     </div>
   </div>
 </template>
@@ -78,13 +80,14 @@ const userListOffline = computed(() => {
 
 .scrollspy-example3 {
   position: relative;
-  max-height: 300px;
+  max-height: 260px;
   margin-top: 0.5rem;
   overflow: auto;
+  scrollbar-width: none;
 }
 
 .scrollspy-example3::-webkit-scrollbar {
-  width: 8px;
+  display: none;
 }
 
 .scrollspy-example3::-webkit-scrollbar-track {
@@ -138,5 +141,13 @@ th {
 
 th {
   padding: 5px;
+}
+
+.cont {
+  grid-area: 1 / 1;
+}
+
+.cont {
+  z-index: 1;
 }
 </style>

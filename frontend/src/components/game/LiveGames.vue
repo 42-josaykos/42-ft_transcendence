@@ -64,7 +64,7 @@ const checkifStartGame = (userInvite: any) => {
 </script>
 
 <template>
-  <div class="infoGame scrollBar_invisible mb-5">
+  <div class="infoGame mb-5" style="overflow-y:hidden">
     <div class="cont">
       <div class="d-flex" style="justify-content: center">
         <div
@@ -86,18 +86,20 @@ const checkifStartGame = (userInvite: any) => {
       </div>
       <hr />
       <br />
-      <table style="width: 90%; table-layout: fixed; margin-left: 5%">
-        <tr v-for="game in liveGames" :key="game.id">
-          <th class="watch_player">{{ game.playerOne.username }}</th>
-          <td class="neon-typo versus">VS</td>
-          <th class="watch_player">{{ game.playerTwo.username }}</th>
-          <td>
-            <a href="javascript:void();" @click="spectate(game.id)" class="hovertext hovertextL" data-hover="See the game"
-              ><i class="fa-solid fa-eye fa-xl action_icon"></i
-            ></a>
-          </td>
-        </tr>
-      </table>
+      <div class="scrollspy-example3">
+        <table style="width: 90%; table-layout: fixed; margin-left: 5%">
+          <tr v-for="game in liveGames" :key="game.id">
+            <th class="watch_player">{{ game.playerOne.username }}</th>
+            <td class="neon-typo versus">VS</td>
+            <th class="watch_player">{{ game.playerTwo.username }}</th>
+            <td>
+              <a href="javascript:void();" @click="spectate(game.id)" class="hovertext hovertextL" data-hover="See the game"
+                ><i class="fa-solid fa-eye fa-xl action_icon"></i
+              ></a>
+            </td>
+          </tr>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -149,7 +151,25 @@ const checkifStartGame = (userInvite: any) => {
 </template>
 
 <style scoped>
+.scrollspy-example3 {
+  position: relative;
+  max-height: 260px;
+  margin-top: 0.5rem;
+  overflow: auto;
+  scrollbar-width: none;
+}
 
+.scrollspy-example3::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollspy-example3::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollspy-example3::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
 .title-option {
   color: white;
   font-weight: bold;

@@ -48,19 +48,19 @@ getPlayersStats();
 </script>
 
 <template>
-  <div class="leaderBoard scrollBar_invisible mb-5">
+  <div class="leaderBoard" style="overflow-y:hidden">
     <div class="cont">
       <div
         class="neon-typo pt-4"
         style="font-size: xx-large; font-weight: bold"
       >
-        LeaderBoard
+        Players List
       </div>
       <hr />
       <br />
-      <table style="width: 98%; table-layout: fixed; margin-left: 5px">
+      <table style="width: 98%; table-layout: fixed; margin-top: 15px;">
         <thead style="border-bottom: 20px solid rgba(0, 0, 0, 0)">
-           <tr>
+            <tr>
             <th class="table_title" scope="col">Rank</th>
             <th class="table_title" scope="col">Player</th>
             <th class="table_title" scope="col">Win</th>
@@ -69,50 +69,61 @@ getPlayersStats();
             <th class="table_title" scope="col">Winrate</th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-for="(player, index) in leaderboard?.slice(0, 20)">
-            <!-- Print top 20 of the leaderboard -->
-            <th
-              v-bind:class="{
-                first: index + 1 === 1,
-                second: index + 1 === 2,
-                third: index + 1 === 3,
-              }"
-            >
-              {{ index + 1 }}
-            </th>
-            <td class="box">
-              <div class="item"><img class="circular--square" style="width: 25px" v-bind:src="player?.user?.avatar" /></div>
-              <button
-                class="item player user_btn"
-                @click="
-                  userClick = player.user;
-                  setting_open = true;
-                "
-              >
-                {{ player?.user?.username }}
-              </button>
-            </td>
-            <td>{{ player?.win }}</td>
-            <td>{{ player?.lose }}</td>
-            <td>{{ player.played }}</td>
-            <td>{{ (player?.ratio * 100).toFixed(2) }} %</td>
-          </tr>
-        </tbody>
       </table>
+      <div  class="scrollspy-example4">
+      <table style="width: 98%; table-layout: fixed;">
+        <thead style="border-bottom: 20px solid rgba(0, 0, 0, 0)">
+            <tr v-for="(player, index) in leaderboard?.slice(0, 20)">
+              <th
+                v-bind:class="{
+                  first: index + 1 === 1,
+                  second: index + 1 === 2,
+                  third: index + 1 === 3,
+                }"
+              >
+                {{ index + 1 }}
+              </th>
+              <th class="" scope="col">
+                <span class="item">
+                  <img class="circular--square" style="width: 25px" v-bind:src="player?.user?.avatar" />
+                </span>
+                <button
+                  class="item player user_btn"
+                  @click="
+                    userClick = player.user;
+                    setting_open = true;
+                  "
+                >
+                  {{ player?.user?.username }}
+                </button>
+              </th>
+              <th class="" scope="col">{{ player?.win }}</th>
+              <th class="" scope="col">{{ player?.lose }}</th>
+              <th class="" scope="col">{{ player?.played }}</th>
+              <th class="" scope="col">{{ (player?.ratio * 100).toFixed(2) }} %</th>
+            </tr>
+          </thead>
+        </table>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.box{
-  display: flex;
-  align-items: center;
-  flex-wrap: nowrap;
-  justify-content: center;
+.scrollspy-example4 {
+  position: relative;
+  max-height: 200px;
+  overflow: auto;
+  scrollbar-width: none;
 }
-.box .item{
-  width: 20px;
+.scrollspy-example4::-webkit-scrollbar {
+  display: none;
+}
+.scrollspy-example4::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollspy-example4::-webkit-scrollbar-thumb {
+  background-color: transparent;
 }
 .item.player{
   text-overflow: ellipsis;
@@ -120,7 +131,6 @@ getPlayersStats();
   white-space: nowrap;
   width: 100px;
   text-align: start;
-  margin-left: 5px;
 }
 .item.player:hover{
   overflow: visible;
@@ -194,11 +204,6 @@ getPlayersStats();
   color: #ffffff;
   text-shadow: 0px 4px 15px white, 0px 0px 10px white;
 }
-
-.cont {
-  z-index: 1;
-}
-
 .leaderBoard {
   display: grid;
 
@@ -223,16 +228,16 @@ getPlayersStats();
   margin-top: 10px;
 }
 
-.scrollBar_invisible {
-  scrollbar-width: none;
-}
-
-.scrollBar_invisible::-webkit-scrollbar {
-  display: none;
-}
-
 th {
   white-space: nowrap;
   width: 40%;
+}
+
+.cont {
+  grid-area: 1 / 1;
+}
+
+.cont {
+  z-index: 1;
 }
 </style>
