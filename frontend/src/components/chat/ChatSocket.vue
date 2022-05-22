@@ -5,6 +5,7 @@ import { useUserStore } from "@/stores/user";
 import { useMessageStore } from "@/stores/message";
 import { useChannelStore } from "@/stores/channel";
 import { Get } from "@/services/requests";
+import { notify } from "@kyvg/vue3-notification";
 
 import type { Channel } from "@/models/channel.model";
 import type { Message } from "@/models/message.model";
@@ -37,6 +38,22 @@ if (isAuthenticated.value) {
   // socketChat.value.on("disconnect", (reason) => {
   //   console.log("Chat socket disconnection reason: ", reason);
   // });
+
+  socketChat.value.on('error', data => {
+    notify({
+      type: 'error',
+      title: data.title,
+      text: data.message,
+    });
+  });
+
+  socketChat.value.on('success', data => {
+    notify({
+      type: 'success',
+      title: data.title,
+      text: data.message,
+    });
+  });
 
   socketChat.value.on("askInfo", () => {
     socketChat.value?.emit("sendInfo", loggedUser.value);

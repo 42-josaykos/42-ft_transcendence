@@ -120,11 +120,6 @@ const createChannel = () => {
         invites: channelType.value == 2 ? usersArray : [],
       };
       socketChat.value.emit("newChannel", newChannel, null, loggedUser.value);
-      notify({
-        type: 'success',
-        title: "New Channel",
-        text: "Channel created !",
-      });
     }
   }
   modalNewChannel.value = false;
@@ -1282,9 +1277,6 @@ const seePassword = (stringId: string) => {
 }
 
 .title-btn {
-  /*display: block;
-    text-overflow: ellipsis;
-    overflow: hidden;*/
   white-space: nowrap;
 }
 

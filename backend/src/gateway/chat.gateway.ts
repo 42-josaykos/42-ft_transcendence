@@ -174,11 +174,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           const socketIds = this.connectedClients[index].socketID;
           for (const socketId of socketIds) {
             this.server.to(socketId).emit('newMessage', newMessage);
+            if (this.connectedClients[index].userID != user.id)
+              this.server.to(socketId).emit('success', { title: `${channel.name}`, message: `Received new message from ${newMessage.author.username}`});
           }
         }
       }
     } catch (error) {
-      this.server.to(client.id).emit('error', { message: error.message });
+      this.server.to(client.id).emit('error', { title: 'New message', message: "The message couldn't be sent" });
     }
   }
 
@@ -213,8 +215,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         id: userID.id,
       });
       this.server.emit('newChannel', { newChannel, message, user });
+      this.server.to(client.id).emit('success', { title: 'New channel', message: `${newChannel.name} : channel created` });
     } catch (error) {
-      this.server.to(client.id).emit('error', { message: error.message });
+      this.server.to(client.id).emit('error', { title: 'New channel', message: "The channel couldn't be created"  });
     }
   }
 
@@ -243,14 +246,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             channelItem.password,
           );
           if (!isPasswordMatching) {
-            this.server.to(client.id).emit('error', {
-              message: 'Channel protected by a password => wrong password',
+            this.server.to(client.id).emit('error', { title: 'Join channel',
+              message: "The channel couldn't be reached, wrong password",
             });
             return;
           }
         } else {
-          this.server.to(client.id).emit('error', {
-            message: 'Channel protected by a password => wrong password',
+          this.server.to(client.id).emit('error', { title: 'Join channel',
+            message: "The channel couldn't be reached, missing password",
           });
           return;
         }
@@ -267,10 +270,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         });
         for (const socketId of socketIds) {
           this.server.to(socketId).emit('joinChannel', channelJoin);
+          this.server.to(socketId).emit('success', { title: "Join channel", message: `You have joined the channel : ${channel.name}`});
         }
       }
     } catch (error) {
-      this.server.to(client.id).emit('error', { message: error.message });
+      this.server.to(client.id).emit('error', { title: 'Join channel', message: "Channel not found" });
     }
   }
 
@@ -286,6 +290,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       let [channel] = await this.channelsService.getChannelsByFilter({
         id: channelID,
         invites: true,
+        members: true,
+        mutes: true,
+        bans: true,
       });
 
       if (channel.invites != []) {
@@ -304,8 +311,22 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       await this.channelsService.deleteChannel(channelID);
       this.server.emit('deleteChannel', channelID);
+
+      if (channel.members != []) {
+        for (const member of channel.members) {
+          const index = this.connectedClients.findIndex(
+            (el) => el.userID === member.id,
+          );
+          if (index != -1) {
+            const socketIds = this.connectedClients[index].socketID;
+            for (const socketId of socketIds) {
+              this.server.to(socketId).emit('error', { title: 'Delete channel', message: `The ${channel.name} channel has been deleted` });
+            }
+          }
+        }
+      }
     } catch (error) {
-      this.server.to(client.id).emit('error', { message: error.message });
+      this.server.to(client.id).emit('error', { title: 'Delete channel', message: "The channel couldn't be destroyed" });
     }
   }
 
@@ -329,6 +350,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           const socketIds = this.connectedClients[index].socketID;
           for (const socketId of socketIds) {
             this.server.to(socketId).emit('inviteChannel', channel);
+            this.server.to(socketId).emit('success', { title: 'Invitation', message: `You have received an invitation to join the channel : ${channel.name}` });
           }
         }
       }
@@ -357,6 +379,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           this.server
             .to(socketId)
             .emit('updateInvite', { inviteChannel, inviteBool });
+          if (inviteBool)
+            this.server.to(socketId).emit('success', { title: 'Accept invite', message: `You have accepted the invitation to join the channel : ${inviteChannel.name}` });
+          else
+            this.server.to(socketId).emit('error', { title: 'Refuse invite', message: `You refused the invitation to join the channel : ${inviteChannel.name}` });
         }
       }
     }
@@ -465,7 +491,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.newMessage(client, [message, user]);
       }
     } catch (error) {
-      this.server.to(client.id).emit('error', { message: error.message });
+      this.server.to(client.id).emit('error', { title: "Update channel member", message: "Problem encountered when updating channel members" });
     }
   }
 
@@ -501,7 +527,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       this.server.emit('updateMember', newChannel);
     } catch (error) {
-      this.server.to(client.id).emit('error', { message: error.message });
+      this.server.to(client.id).emit('error', { title: "Update channel", message: "Problem encountered when updating channel" });
     }
   }
 
@@ -526,7 +552,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       }
     } catch (error) {
-      this.server.to(client.id).emit('error', { message: error.message });
+      this.server.to(client.id).emit('error', { title: "User blocked", message: "Problem encountered when trying to block a user" });
     }
   }
 
@@ -551,7 +577,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       }
     } catch (error) {
-      this.server.to(client.id).emit('error', { message: error.message });
+      this.server.to(client.id).emit('error', { title: "User unlocked", message: "Problem encountered when trying to unlock a user" });
     }
   }
 
@@ -576,7 +602,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       }
     } catch (error) {
-      this.server.to(client.id).emit('error', { message: error.message });
+      this.server.to(client.id).emit('error', { title: "Add friend", message: "Problem encountered when trying to add a friend" });
     }
   }
 
@@ -601,7 +627,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       }
     } catch (error) {
-      this.server.to(client.id).emit('error', { message: error.message });
+      this.server.to(client.id).emit('error', { title: "Remove friend", message: "Problem encountered when trying to remove a friend" });
     }
   }
 

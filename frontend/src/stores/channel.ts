@@ -34,6 +34,11 @@ export const useChannelStore = defineStore('channel', () => {
       allChannels.value.push(newChannel);
     }
 
+    const getChannelName = (channelID: number) => {
+      const name = allChannels.value.find((channel) => channel.id === channelID)?.name
+      return name;
+    }
+
     const updateMember = (userID: number | undefined) => {
       if (userID != undefined) {
         for (const chan of allChannels.value) {
@@ -436,6 +441,7 @@ export const useChannelStore = defineStore('channel', () => {
         timerIntervalBan,
         timerIntervalMute,
         createChannel,
+        getChannelName,
         updateMember,
         updateOwner,
         updateInvite,
