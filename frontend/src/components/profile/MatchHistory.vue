@@ -48,7 +48,6 @@ onMounted(() => {
                 <div class="item"><img class="circular--square" style="width: 25px" v-bind:src="match.players[0].avatar" /></div>
                 <a
                   class="item player"
-                  href="javascript:void();"
                   @click="
                     userClick = match.players[0];
                     getMatchHistory();
@@ -62,7 +61,6 @@ onMounted(() => {
                 <div class="item"><img class="circular--square" style="width: 25px" v-bind:src="match.players[1].avatar" /></div>
                 <a
                   class="item player"
-                  href="javascript:void();"
                   @click="
                     userClick = match.players[1];
                     getMatchHistory();

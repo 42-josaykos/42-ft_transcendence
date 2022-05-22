@@ -63,7 +63,6 @@ const numberUsers = computed(() => {
         <a v-if="player.id != loggedUser?.id"
           class="hovertext hovertextC"
           data-hover="Profile"
-          href="javascript:void();"
           @click="
             setting_open = true;
             userClick = player;
@@ -78,7 +77,6 @@ const numberUsers = computed(() => {
         <a v-if="player.id != loggedUser?.id"
           class="hovertext hovertextC"
           data-hover="Send message"
-          href="javascript:void();"
           @click="
             modalSendMessage = true;
             userClick = player;
@@ -92,7 +90,6 @@ const numberUsers = computed(() => {
         <a v-if="props.isOffLine == false && player.id != loggedUser?.id"
           class="hovertext hovertextC"
           data-hover="Invite to game"
-          href="javascript:void();"
           @click="
             modaleOpenInviteGame = true;
             userClick = player;
@@ -106,7 +103,6 @@ const numberUsers = computed(() => {
         <a v-if="player.id != loggedUser?.id"
           class="hovertext hovertextL"
           data-hover="Add friend"
-          href="javascript:void();"
           @click="
             socketChat?.emit('updateFriends', {
               id: loggedUser?.id,
@@ -122,7 +118,6 @@ const numberUsers = computed(() => {
         <a v-if="player.id != loggedUser?.id"
           class="hovertext hovertextL"
           data-hover="Remove friend"
-          href="javascript:void();"
           @click="
             socketChat?.emit('updateFriends', {
               id: loggedUser?.id,

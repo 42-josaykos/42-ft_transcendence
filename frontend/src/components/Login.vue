@@ -109,7 +109,7 @@ function loginLocal() {
       </div>
       <div v-if="!isAuthenticated">
         Don't have an account ?
-        <a href="javascript:void();" @click="registerForm = true"> Register </a>
+        <a @click="registerForm = true"> Register </a>
       </div>
     </div>
     <div v-else-if="loader" class="loader"></div>

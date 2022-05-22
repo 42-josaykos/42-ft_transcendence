@@ -198,7 +198,8 @@ export const useChannelStore = defineStore('channel', () => {
     }
 
     const addChannelInvite = (channel: Channel) => {
-      channelsInvite.value.push(channel);
+      if (channelsInvite.value.findIndex((invite) => invite.id == channel.id) == -1)
+        channelsInvite.value.push(channel);
     }
 
     const deleteChannelInvite = (channel: Channel) => {

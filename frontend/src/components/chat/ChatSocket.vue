@@ -209,7 +209,6 @@ if (isAuthenticated.value) {
 
   socketChat.value.on("userRemoveBan", (updateChannel: Channel) => {
     if (loggedUser.value != null) {
-      console.log("ICI channel => ", updateChannel);
       channelStore.stopTimer({ ...updateChannel }, true);
       if (channel.value != undefined && channel.value.id == updateChannel.id) {
         channel.value = updateChannel;
