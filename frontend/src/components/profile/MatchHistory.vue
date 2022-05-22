@@ -82,6 +82,9 @@ onMounted(() => {
 </template>
 
 <style scoped>
+a:hover {
+  cursor: pointer;
+}
 .box{
   display: flex;
 }
@@ -110,7 +113,7 @@ a.item.player{
 
 .match_history {
   display: grid;
-  min-width: 400px;
+  min-width: 220px;
 }
 
 .scrollspy-example4 {

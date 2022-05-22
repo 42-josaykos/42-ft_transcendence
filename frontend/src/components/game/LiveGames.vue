@@ -194,7 +194,7 @@ const checkifStartGame = (userInvite: any) => {
   box-shadow: 0px 0px 10px 2px #daba64;
   margin-left: 2rem;
   margin-top: 2rem;
-  height: 30px;
+  max-height: 40px;
   border-radius: 0.25rem;
   transition: 0.4s;
   text-align: center;
@@ -281,7 +281,12 @@ th {
 }
 .watch_player {
   font-size: large;
-  overflow-x: hidden;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  width: -webkit-fill-available;
+  width: -moz-available;
+  text-align: start;
 }
 
 .action_icon {

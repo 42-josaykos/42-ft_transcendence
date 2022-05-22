@@ -39,14 +39,15 @@ storeToRefs(userStore);
                     style="width: 100%"
                   />
                 </div>
-                Pong is a table tennis–themed twitch arcade sports video game.
-                manufactured by Atari and originally released in 1972. It was
-                one of the earliest arcade video games.
+                <strong>Each player gets a side:</strong> the one who initiates the game or is first in queue, gets the left.
                 <br /><br />
-                It was created by Allan Alcorn as a training exercise assigned
-                to him by Atari co-founder Nolan Bushnell, but Bushnell and
-                Atari co-founder Ted Dabney were surprised by the quality of
-                Alcorn's work and decided to manufacture the game.
+                When the game begins, and each time someone scores, <strong>the ball is sent randomly from the middle.</strong>
+                <br /><br />
+                <strong>To score</strong>, you have to make <strong>the ball pass behind your opponent's paddle and touch the other                       side</strong>. 
+                <br /><br />
+                Be careful: <strong> not forget to defend your own side</strong> from your opponent while trying to score.
+                <br /><br />
+                The goal is to <strong>reach a total of 5 points</strong> in order to <strong>win</strong>.
               </div>
             </div>
             <br /><br /><br />

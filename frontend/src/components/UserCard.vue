@@ -91,13 +91,19 @@ const isOnline = computed(() => {
   align-items: center;
   padding-left: 10px !important;
   padding-top: 4px;
+  overflow: auto;
 }
 .infosChat {
   margin-left: 10px;
 }
 
 .info {
-  text-align: left;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  width: -webkit-fill-available;
+  width: -moz-available;
+  text-align: start;
 }
 
 .cercle-user-card {

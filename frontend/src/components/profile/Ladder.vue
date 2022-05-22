@@ -54,13 +54,13 @@ getPlayersStats();
         class="neon-typo pt-4"
         style="font-size: xx-large; font-weight: bold"
       >
-        Players List
+        LeaderBoard
       </div>
       <hr />
       <br />
       <table style="width: 98%; table-layout: fixed; margin-top: 15px;">
         <thead style="border-bottom: 20px solid rgba(0, 0, 0, 0)">
-            <tr>
+          <tr>
             <th class="table_title" scope="col">Rank</th>
             <th class="table_title" scope="col">Player</th>
             <th class="table_title" scope="col">Win</th>
@@ -71,8 +71,8 @@ getPlayersStats();
         </thead>
       </table>
       <div  class="scrollspy-example4">
-      <table style="width: 98%; table-layout: fixed;">
-        <thead style="border-bottom: 20px solid rgba(0, 0, 0, 0)">
+        <table style="width: 98%; table-layout: fixed;">
+          <thead style="border-bottom: 20px solid rgba(0, 0, 0, 0)">
             <tr v-for="(player, index) in leaderboard?.slice(0, 20)">
               <th
                 v-bind:class="{
@@ -129,7 +129,8 @@ getPlayersStats();
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  width: 100px;
+  width: -webkit-fill-available;
+  width: -moz-available;
   text-align: start;
 }
 .item.player:hover{
@@ -152,6 +153,11 @@ getPlayersStats();
 }
 .table_title {
   font-size: large;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  width: -webkit-fill-available;
+  width: -moz-available;
 }
 .first {
   /* color: #D5AD6D; */
