@@ -30,25 +30,25 @@ onMounted(() => {
     <b><u>Match history</u></b>
   </h4>
   <div class="match_history">
-    <table style="table-layout: fixed;">
-      <thead style="border-bottom: 10px solid rgba(0, 0, 0, 0);">
-        <tr>
-          <th class="table_title" scope="col">Player 1</th>
-          <th class="table_title" scope="col">Player 2</th>
-          <th class="table_title" scope="col">Score</th>
+    <table style="width: 90%; table-layout: fixed; margin-top: 15px; margin-left: auto; margin-right: auto;">
+      <thead style="border-bottom: 20px solid rgba(0, 0, 0, 0)">
+          <tr>
+        <th class="table_title" scope="col">Player 1</th>
+        <th class="table_title" scope="col">Player 2</th>
+        <th class="table_title" scope="col">Score</th>
         </tr>
       </thead>
     </table>
-    <div class="scrollspy-example3">
-      <table style="table-layout: fixed; margin-left: 10px;">
-        <thead>
+    <div  class="scrollspy-example4">
+      <table style="width: 90%; table-layout: fixed; margin-left: auto; margin-right: auto;">
+        <thead style="border-bottom: 20px solid rgba(0, 0, 0, 0)">
           <tr v-for="(match, index) in matches" :key="match.id">
-            <td style="" v-bind:class="{'mePlayer' : loggedUser?.id === match.players[0].id }" class="player">
-              <div class="box" style="gap: 5px;">
+            <th v-bind:class="{'mePlayer' : loggedUser?.id === match.players[0].id}" class="player">
+              <div class="box" style="gap: 5px; padding-left: 1vw;">
                 <div class="item"><img class="circular--square" style="width: 25px" v-bind:src="match.players[0].avatar" /></div>
                 <a
                   class="item player"
-                  href="#"
+                  href="javascript:void();"
                   @click="
                     userClick = match.players[0];
                     getMatchHistory();
@@ -56,13 +56,13 @@ onMounted(() => {
                   >{{ match.players[0].username }}</a
                 >
               </div>
-            </td>
-            <td v-bind:class="{'mePlayer' : loggedUser?.id === match.players[1].id}" class="player">
-              <div class="box" style="gap: 5px;">
+            </th>
+            <th v-bind:class="{'mePlayer' : loggedUser?.id === match.players[1].id}" class="player">
+              <div class="box" style="gap: 5px; margin-left: -10px;">
                 <div class="item"><img class="circular--square" style="width: 25px" v-bind:src="match.players[1].avatar" /></div>
                 <a
                   class="item player"
-                  href="#"
+                  href="javascript:void();"
                   @click="
                     userClick = match.players[1];
                     getMatchHistory();
@@ -70,14 +70,12 @@ onMounted(() => {
                   >{{ match.players[1].username }}</a
                 >
               </div>
-            </td>
-            <td>
-              <div class="box">
-                <div class="item" v-bind:style= "match.score[0] > match.score[1] ? 'color: #1e9c61;' :'' ">{{ match.score[0] }} </div>
-                <div class="item">-</div>
-                <div class="item" v-bind:style= "match.score[1] > match.score[0] ? 'color: #1e9c61;' :'' ">{{ match.score[1] }} </div>
-              </div>
-            </td>
+            </th>
+            <th class="d-flex" scope="col">
+              <div class="item" v-bind:style= "match.score[0] === 5 ? 'color: #1e9c61;' :'' ">{{ match.score[0] }}</div>
+              <div class="item"> - </div>
+              <div class="item" v-bind:style= "match.score[1] === 5 ? 'color: #1e9c61;' :'' ">{{ match.score[1] }}</div>
+            </th>
           </tr>
         </thead>
       </table>
@@ -86,37 +84,8 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.scrollspy-example3 {
-  position: relative;
-  max-height: 240px;
-  margin-top: 0.5rem;
-  overflow: auto;
-  scrollbar-width: none;
-}
-
-.scrollspy-example3::-webkit-scrollbar {
-  display: none;
-}
-
-.scrollspy-example3::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scrollspy-example3::-webkit-scrollbar-thumb {
-  background-color: transparent;
-}
 .box{
   display: flex;
-  align-items: center;
-  flex-wrap: nowrap;
-  justify-content: center;
-}
-
-.box .item{
-  width: 20px;
-}
-.winScore{
-  color: #1e9c61;
 }
 
 a.item.player{
@@ -124,7 +93,7 @@ a.item.player{
   color: inherit;
 }
 
-.item.player{
+ .item.player{
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
@@ -136,16 +105,50 @@ a.item.player{
   white-space: normal;
   width: 100px;
   text-decoration: underline;
-}
+} 
 .mePlayer{
   color: #1e579c !important;
 }
 
 .match_history {
   display: grid;
+  min-width: 400px;
 }
 
-.table_title{
+.scrollspy-example4 {
+  position: relative;
+  max-height: 200px;
+  overflow: auto;
+  scrollbar-width: none;
+}
+.scrollspy-example4::-webkit-scrollbar {
+  display: none;
+}
+.scrollspy-example4::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollspy-example4::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+.item.player{
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100px;
+  text-align: start;
+}
+.item.player:hover{
+  overflow: visible;
+  white-space: normal;
+  width: 100px;
+  text-decoration: underline;
+}
+.table_title {
   font-size: large;
+}
+
+th {
+  white-space: nowrap;
+  width: 40%;
 }
 </style>

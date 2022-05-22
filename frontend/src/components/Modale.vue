@@ -53,12 +53,11 @@ export const register_open = ref(false);
   overflow: auto;
 
   overflow-y: scroll;
-  scrollbar-color: rgb(32, 31, 31) transparent;
-  scrollbar-width: thin !important;
+  scrollbar-width: none;
 }
 
 .scrollspy-profil::-webkit-scrollbar {
-  width: 8px;
+    display: none;
 }
 
 .scrollspy-profil::-webkit-scrollbar-track {
@@ -66,12 +65,6 @@ export const register_open = ref(false);
 }
 
 .scrollspy-profil::-webkit-scrollbar-thumb {
-  background-color: rgb(32, 31, 31);
-  border-radius: 20px;
-}
-
-.scrollspy-profil:hover {
-  scrollbar-color: rgb(32, 31, 31) transparent;
-  scrollbar-width: thin !important;
+  background: transparent;
 }
 </style>
