@@ -23,6 +23,9 @@ export default ({ mode }: any) => {
         "/auth": {
           target: `http://${env.HOST}:${env.API_PORT}`,
         },
+        "/matches": {
+          target: `http://${env.HOST}:${env.API_PORT}`,
+        },
       },
     },
     plugins: [vue()],
