@@ -460,7 +460,7 @@ export class GameGateway
       this.removeGameInvite(userInvite, userGuest);
     }
     else {
-      this.server.to(client.id).emit('userInviteDisconnect', `${players[0].username} is disconnect, the game can't be started`)
+      this.server.to(client.id).emit('error', { title: 'Game', message: `${players[0].username} is disconnect, the game can't be started` })
     }
   }
 

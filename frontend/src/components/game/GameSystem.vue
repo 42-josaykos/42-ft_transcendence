@@ -5,6 +5,7 @@ import { useUserStore } from "@/stores/user";
 import { useGameStore } from "@/stores/game";
 import type { User } from "@/models/user.model";
 import { useRouter } from "vue-router";
+import { notify } from "@kyvg/vue3-notification";
 
 const userStore = useUserStore();
 const { loggedUser, isAuthenticated } = storeToRefs(userStore);
@@ -26,6 +27,14 @@ const router = useRouter();
 if (isAuthenticated.value) {
   gameSocket.value = io("ws://localhost:6060/game", {
     withCredentials: true,
+  });
+
+  gameSocket.value.on('error', data => {
+    notify({
+      type: 'error',
+      title: data.title,
+      text: data.message,
+    });
   });
 
   // After socket connection, the server needs the logged user id
@@ -89,11 +98,6 @@ if (isAuthenticated.value) {
       router.push("/game");
     }, startTime);
   });
-
-  gameSocket.value.on('userInviteDisconnect', (message: String) => {
-    //TO DO: DISPLAY NOTIFICATION
-    console.log("Message error disconnect => ", message)
-  })
 }
 </script>
 

@@ -3,6 +3,7 @@ import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
+import { notify } from "@kyvg/vue3-notification";
 // import Modale from "../Modale.vue";
 import UserCard from "../UserCard.vue";
 import { useGameStore } from "@/stores/game";
@@ -42,8 +43,11 @@ if (gameSocket.value) {
 // Spectate
 const spectate = (gameID: number) => {
   if (inGame)
-    //TO DO: DISPLAY NOTIFICATION
-    console.log("Message error spectate / already in game => ", "You don't spectate, you are already in game")
+    notify({
+    type: 'error',
+    title: "Game",
+    text: "You don't spectate, you are already in game",
+  });
   else
     gameSocket.value?.emit("addSpectator", gameID);
 };
@@ -54,8 +58,11 @@ const acceptInviteToGame = (inviteUser: any) => {
 
 const checkifStartGame = (userInvite: any) => {
   if (userStore.valueInArray(loggedUser.value?.id, usersInGame.value))
-    //TO DO: DISPLAY NOTIFICATION
-    console.log("Message error already in game => ", "You are already in game")
+    notify({
+    type: 'error',
+    title: "Game",
+    text: "You are already in game",
+  });
   else if (!userStore.valueInArray(userInvite.id, usersInGame.value)) {
     modaleAllInvitesGame.value = false;
     acceptInviteToGame(userInvite);
