@@ -97,10 +97,12 @@ export class StatusGateway
 
     // Move to login page
     this.server.to(this.connectedClients[userIndex].socketID).emit('logout');
-    // Disconnect all sockets
-    this.server
-      .to(this.connectedClients[userIndex].socketID)
-      .disconnectSockets(true);
+    if ('socketID' in this.connectedClients[userIndex]) {
+      // Disconnect all sockets
+      this.server
+        .to(this.connectedClients[userIndex].socketID)
+        .disconnectSockets(true);
+    }
     // Delete user and it's sockets from connectedClients
     this.connectedClients.splice(userIndex, 1);
   }
