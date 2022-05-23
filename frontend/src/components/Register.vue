@@ -25,6 +25,7 @@ const isInvalid = computed(() => {
 function register() {
   isRegister.value = true
   if (username.value.length > 15) {
+    isRegister.value = false;
     flashMsg.value = true
     notify({
       type: 'error',
@@ -50,6 +51,7 @@ function register() {
         });
       }
     }).catch((error: any) => {
+      isRegister.value = false;
       flashMsg.value = true;
       notify({
         type: 'error',
@@ -58,6 +60,7 @@ function register() {
       });
     })
   } else {
+    isRegister.value = false;
     flashMsg.value = true;
     notify({
       type: 'error',
