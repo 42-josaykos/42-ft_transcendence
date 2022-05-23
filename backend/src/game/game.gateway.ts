@@ -180,7 +180,8 @@ export class GameGateway
     });
 
     // Start the game is the backend
-    this.gameService.createGame(playerOne, playerTwo, gameOptions);
+    const isCustomGame = gameMode === 'matchmaking' ? false : true;
+    this.gameService.createGame(playerOne, playerTwo, gameOptions, isCustomGame);
     // Emit live games to clients
     this.server.emit('liveGames', this.getOngoingGames());
   }
@@ -228,10 +229,12 @@ export class GameGateway
     // console.log('Spectated game: ', spectatedGame);
 
     // Add the spectator socket to the game room
-    if (spectatedGame) {
+    if (spectatedGame && !spectatedGame.finished) {
       this.server.to(client.id).socketsJoin(spectatedGame.socketRoom);
       this.server.to(client.id).emit('spectateGame');
     }
+    else
+      this.server.to(client.id).emit('error', {title: 'Game finished', message: "Can't spectate : game is finishing"})
   }
 
   // SocketIO room managment
@@ -302,31 +305,35 @@ export class GameGateway
 
   async broadcastEndGame(game: Game) {
     try {
-      // POST match data in the database through the API
-      const body = {
-        players: [
-          { id: game.players[0].player.user.id },
-          { id: game.players[1].player.user.id },
-        ],
-        score: [game.players[0].score, game.players[1].score],
-      };
-      const match = await axios({
-        url: 'http://localhost:4000/matches',
-        method: 'POST',
-        data: body,
-      });
-      // console.log('Match Result: ', match.data);
+      if (!game.isCustomGame) {
+        // POST match data in the database through the API
+        const body = {
+          players: [
+            { id: game.players[0].player.user.id },
+            { id: game.players[1].player.user.id },
+          ],
+          score: [game.players[0].score, game.players[1].score],
+        };
+        const match = await axios({
+          url: 'http://localhost:4000/matches',
+          method: 'POST',
+          data: body,
+        });
+        // console.log('Match Result: ', match.data);
+        this.server.emit('askStatsUpdate');
+      }
 
       this.server.to(game.socketRoom).emit('endGame');
-      this.server.emit('liveGames', this.getOngoingGames());
-      this.server.emit('askStatsUpdate');
-      this.sendInGameUsers();
 
       // Make the players / spectators leave the room
       this.server.to(game.socketRoom).socketsLeave(game.socketRoom);
     } catch (error) {
       throw error;
     }
+  }
+
+  sendLiveGames() {
+    this.server.emit('liveGames', this.getOngoingGames());
   }
 
   // Player Handling

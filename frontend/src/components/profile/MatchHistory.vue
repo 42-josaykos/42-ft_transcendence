@@ -26,9 +26,6 @@ onMounted(() => {
 </script>
 
 <template>
-  <h4>
-    <b><u>Match history</u></b>
-  </h4>
   <div class="match_history">
     <table style="width: 90%; table-layout: fixed; margin-top: 15px; margin-left: auto; margin-right: auto;">
       <thead style="border-bottom: 20px solid rgba(0, 0, 0, 0)">

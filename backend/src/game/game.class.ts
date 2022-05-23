@@ -11,6 +11,7 @@ export class Game {
   winner?: Player;
   intervalID?: NodeJS.Timer;
   socketRoom: string;
+  isCustomGame: boolean;
 }
 
 export class Player {

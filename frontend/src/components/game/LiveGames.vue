@@ -42,7 +42,7 @@ if (gameSocket.value) {
 
 // Spectate
 const spectate = (gameID: number) => {
-  if (inGame)
+  if (inGame.value)
     notify({
     type: 'error',
     title: "Game",
@@ -78,7 +78,7 @@ const checkifStartGame = (userInvite: any) => {
           class="neon-typo pt-4"
           style="font-size: xx-large; font-weight: bold"
         >
-          Live Game
+          Live Games
         </div>
         <button
           @click="modaleAllInvitesGame = true"
@@ -161,6 +161,7 @@ const checkifStartGame = (userInvite: any) => {
 .scrollspy-example3 {
   position: relative;
   max-height: 260px;
+  min-height: 260px;
   margin-top: 0.5rem;
   overflow: auto;
   scrollbar-width: none;

@@ -113,6 +113,7 @@ getPlayersStats();
 .scrollspy-example4 {
   position: relative;
   max-height: 200px;
+  min-height: 200px;
   overflow: auto;
   scrollbar-width: none;
 }

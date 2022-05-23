@@ -54,7 +54,7 @@ export class GameService implements OnModuleInit {
   }
 
   // Main game code
-  createGame(playerOne: Player, playerTwo: Player, gameOptions: GameOptions) {
+  createGame(playerOne: Player, playerTwo: Player, gameOptions: GameOptions, isCustomGame: boolean) {
     const inGameUsers = this.inGameUsers()
     if (inGameUsers.find((user) => user.id === playerOne.player.user.id) || inGameUsers.find((user) => user.id === playerTwo.player.user.id))
       return
@@ -75,6 +75,7 @@ export class GameService implements OnModuleInit {
       finished: false,
       winner: null,
       socketRoom: roomName,
+      isCustomGame: isCustomGame,
     };
 
     this.games.push(game);
@@ -170,8 +171,12 @@ export class GameService implements OnModuleInit {
 
     // Remove game from games array
     const gameIndex = this.games.indexOf(game);
-    this.games.splice(gameIndex, 1);
-
+    setTimeout(() => {
+      this.games.splice(gameIndex, 1);
+      this.gateway.sendLiveGames();
+      this.gateway.sendInGameUsers();
+    }, 5000)
+  
     this.gateway.broadcastEndGame(game);
   }
 

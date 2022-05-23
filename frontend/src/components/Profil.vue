@@ -110,7 +110,7 @@ const disconnectSockets = () => {
                 v-bind:class="{ selected: mh_open }"
                 class="btn-block set-btn set-btn-yellow selector"
               >
-                Historical
+                Match History
               </button>
             </div>
             <div

@@ -81,6 +81,7 @@ const userListOffline = computed(() => {
 .scrollspy-example3 {
   position: relative;
   max-height: 260px;
+  min-height: 260px;
   margin-top: 0.5rem;
   overflow: auto;
   scrollbar-width: none;
