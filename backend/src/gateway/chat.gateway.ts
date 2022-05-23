@@ -676,6 +676,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         'receiveFriends',
         (await this.usersService.updateUser(data.id, data.updateDTO)).friends,
       );
+      if ('addFriends' in data.updateDTO)
+        this.server.to(client.id).emit('success', { title: 'Add friend', message: `Friend has been added` });
+      if ('removeFriends' in data.updateDTO)
+        this.server.to(client.id).emit('success', { title: 'Remove friend', message: `Friend has been removed` });
   }
 
   @SubscribeMessage('getStats')
