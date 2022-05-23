@@ -2,6 +2,7 @@ import { Connection } from 'src/status/status.class';
 
 export class Game {
   id: number;
+  options: GameOptions;
   players: Player[];
   // spectators?: Spectator[];
   ball: Ball;
@@ -10,6 +11,7 @@ export class Game {
   winner?: Player;
   intervalID?: NodeJS.Timer;
   socketRoom: string;
+  isRankedMatch: boolean;
 }
 
 export class Player {
@@ -74,5 +76,10 @@ export class Sound {
 
 export class Invites {
   user: Connection;
-  invitesReceived: Connection[];
+  invitesReceived: GameInvite[];
+}
+
+export class GameInvite {
+  sender: Connection;
+  gameOptions: GameOptions;
 }

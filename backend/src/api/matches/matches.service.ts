@@ -155,32 +155,34 @@ export class MatchesService {
 
       await this.matchesRepository.save(newMatch);
 
-      // Updating player stats
-      const statsPlayerOne = await this.statsRepository.findOne({
-        where: { user: { id: newMatch.players[0].id } },
-        relations: ['user'],
-      });
-      const statsPlayerTwo = await this.statsRepository.findOne({
-        where: { user: { id: newMatch.players[1].id } },
-        relations: ['user'],
-      });
+      if (match.isRankedMatch) {
+        // Updating player stats
+        const statsPlayerOne = await this.statsRepository.findOne({
+          where: { user: { id: newMatch.players[0].id } },
+          relations: ['user'],
+        });
+        const statsPlayerTwo = await this.statsRepository.findOne({
+          where: { user: { id: newMatch.players[1].id } },
+          relations: ['user'],
+        });
 
-      ++statsPlayerOne.played;
-      ++statsPlayerTwo.played;
+        ++statsPlayerOne.played;
+        ++statsPlayerTwo.played;
 
-      if (statsPlayerOne.user.id === newMatch.winner.id) {
-        ++statsPlayerOne.win;
-        ++statsPlayerTwo.lose;
-      } else {
-        ++statsPlayerOne.lose;
-        ++statsPlayerTwo.win;
+        if (statsPlayerOne.user.id === newMatch.winner.id) {
+          ++statsPlayerOne.win;
+          ++statsPlayerTwo.lose;
+        } else {
+          ++statsPlayerOne.lose;
+          ++statsPlayerTwo.win;
+        }
+
+        statsPlayerOne.ratio = statsPlayerOne.win / statsPlayerOne.played;
+        statsPlayerTwo.ratio = statsPlayerTwo.win / statsPlayerTwo.played;
+
+        await this.statsRepository.save(statsPlayerOne);
+        await this.statsRepository.save(statsPlayerTwo);
       }
-
-      statsPlayerOne.ratio = statsPlayerOne.win / statsPlayerOne.played;
-      statsPlayerTwo.ratio = statsPlayerTwo.win / statsPlayerTwo.played;
-
-      await this.statsRepository.save(statsPlayerOne);
-      await this.statsRepository.save(statsPlayerTwo);
 
       return this.getMatchByID(newMatch.id);
     } catch (error) {

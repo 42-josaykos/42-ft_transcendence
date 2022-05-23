@@ -8,17 +8,19 @@ import type { User } from "@/models/user.model";
 import { useMessageStore } from "@/stores/message";
 import UserCard from "./UserCard.vue";
 import { computed } from "@vue/reactivity";
+import BtnUserList from "./BtnUserList.vue";
 
 // Stores
 const userStore = useUserStore();
 const {
-  gameSocket,
   socketChat,
   setting_open,
   userClick,
   loggedUser,
   usersFriends,
   modaleOpenInviteGame,
+  usersOnline,
+  usersList,
 } = storeToRefs(userStore);
 
 const messageStore = useMessageStore();
@@ -26,36 +28,38 @@ const { modalSendMessage } = storeToRefs(messageStore);
 
 const router = useRouter();
 
-// Get all users at page startup
-const users = ref<User[]>([]);
-socketChat.value?.emit("getUsersByFilter", {});
-socketChat.value?.on(
-  "receiveFilteredUsers",
-  (userList) => (users.value = userList)
-);
+if (socketChat.value) {
+  // Get all users at page startup
+  socketChat.value.emit("getUsersByFilter", {});
+  socketChat.value.emit("getUserFriends", loggedUser.value);
+}
 
-// Get user friends
-socketChat.value?.on("receiveFriends", (friendsList: User[]) => {
-  usersFriends.value = friendsList;
+// User list online without logged user
+const userListOnline = computed(() => {
+  return usersList.value
+    .filter(
+      (value) => usersOnline.value.findIndex((id) => id == value.id) != -1
+    )
+    .sort((a, b) =>
+      a.username.toLowerCase() > b.username.toLowerCase() ? 1 : -1
+    );
 });
-socketChat.value?.emit("getUserFriends", loggedUser.value);
-
-const isFriend = (user: User): boolean => {
-  const friendIndex = usersFriends.value.findIndex(
-    (friend) => friend.id === user.id
-  );
-  if (friendIndex === -1) return false;
-  else return true;
-};
 
 // User list without logged user
-const userList = computed(() => {
-  return users.value.filter((value) => value.id !== loggedUser.value?.id);
+const userListOffline = computed(() => {
+  return usersList.value
+    .filter(
+      (value) => usersOnline.value.findIndex((id) => id == value.id) == -1
+    )
+    .sort((a, b) =>
+      a.username.toLowerCase() > b.username.toLowerCase() ? 1 : -1
+    );
 });
+
 </script>
 
 <template>
-  <div class="infoGame">
+  <div class="infoGame" style="overflow-y:hidden">
     <div class="cont">
       <div
         class="neon-typo pt-4"
@@ -63,121 +67,36 @@ const userList = computed(() => {
       >
         Players List
       </div>
-      <hr />
-      <br />
-      <table style="width: 90%; table-layout: fixed; margin-left: 5%">
-        <tr v-for="player in userList" :key="player.id">
-          <!-- User -->
-          <td style="width: 50%">
-            <UserCard :user="player" :dashboard="true" />
-          </td>
-          <!-- Profile -->
-          <td>
-            <a
-              class="hovertext"
-              data-hover="Profile"
-              href="#"
-              @click="
-                setting_open = true;
-                userClick = player;
-              "
-            >
-              <i class="fa-solid fa-user action_icon"></i
-            ></a>
-          </td>
-          <!-- Send message -->
-          <td>
-            <a
-              class="hovertext"
-              data-hover="Send message"
-              href="#"
-              @click="
-                modalSendMessage = true;
-                userClick = player;
-              "
-            >
-              <i class="fa-solid fa-comment-dots fa-xl action_icon"></i
-            ></a>
-          </td>
-          <!-- Invite to a game -->
-          <td>
-            <a
-              class="hovertext"
-              data-hover="Invite to game"
-              href="#"
-              @click="
-                modaleOpenInviteGame = true;
-                userClick = player;
-              "
-            >
-              <i class="fa-solid fa-gamepad fa-xl action_icon"></i>
-            </a>
-          </td>
-          <!-- Add friend -->
-          <td v-if="!isFriend(player)">
-            <a
-              class="hovertext"
-              data-hover="Add friend"
-              href="#"
-              @click="
-                socketChat?.emit('updateFriends', {
-                  id: loggedUser?.id,
-                  updateDTO: { addFriends: [{ id: player.id }] },
-                })
-              "
-            >
-              <i class="fa-solid fa-user-plus action_icon"></i
-            ></a>
-          </td>
-          <!-- Remove friend -->
-          <td v-else>
-            <a
-              class="hovertext"
-              data-hover="Remove friend"
-              href="#"
-              @click="
-                socketChat?.emit('updateFriends', {
-                  id: loggedUser?.id,
-                  updateDTO: { removeFriends: [{ id: player.id }] },
-                })
-              "
-            >
-              <i class="fa-solid fa-user-minus action_icon"></i
-            ></a>
-          </td>
-        </tr>
-      </table>
+      <hr style="margin-bottom: 20px;"/>
+      <div class="scrollspy-example3">
+        <BtnUserList v-if="userListOnline.length > 0" :usersList="userListOnline" :isOffLine="false"/>
+        <BtnUserList v-if="userListOffline.length > 0" :usersList="userListOffline" :isOffLine="true"/>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.hovertext {
+
+.scrollspy-example3 {
   position: relative;
-  border-bottom: 1px dotted black;
+  max-height: 260px;
+  min-height: 260px;
+  margin-top: 0.5rem;
+  overflow: auto;
+  scrollbar-width: none;
 }
 
-.hovertext:before {
-  content: attr(data-hover);
-  visibility: hidden;
-  opacity: 0;
-  width: 140px;
-  background-color: black;
-  color: #fff;
-  text-align: center;
-  border-radius: 5px;
-  padding: 5px 0;
-  transition: opacity 1s ease-in-out;
-
-  position: absolute;
-  z-index: 1;
-  left: 0;
-  top: 110%;
+.scrollspy-example3::-webkit-scrollbar {
+  display: none;
 }
 
-.hovertext:hover:before {
-  opacity: 1;
-  visibility: visible;
+.scrollspy-example3::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollspy-example3::-webkit-scrollbar-thumb {
+  background-color: transparent;
 }
 
 .infoGame {
@@ -188,16 +107,21 @@ const userList = computed(() => {
   min-height: 400px;
   max-height: 400px;
   overflow-y: scroll;
+  overflow-x: hidden;
   border-radius: 30px;
   box-shadow: 0px 0px 10px 2px white, inset 0px 0px 4px 2px white;
 }
 
-.cont {
-  grid-area: 1 / 1;
-}
-
-.cont {
-  z-index: 1;
+.infoGame hr {
+  display: block;
+  position: relative;
+  height: 2px;
+  box-shadow: 0px 0px 10px white, 0px 0px 15px 5px white;
+  opacity: 1;
+  width: 90%;
+  color: #fffed9;
+  margin: auto;
+  margin-top: 10px;
 }
 
 p {
@@ -211,43 +135,20 @@ p {
   text-shadow: 0px 4px 15px white, 0px 0px 10px white;
 }
 
-.infoGame {
-  overflow: hidden;
-}
-
-.infoGame hr {
-  display: block;
-  position: relative;
-  height: 2px;
-  box-shadow: 0px 0px 10px white, 0px 0px 15px 5px white;
-  opacity: 1;
-  width: 90%;
-  color: #fffed9;
-  margin: auto;
-  margin-top: 2vh;
-}
-
 th {
   white-space: nowrap;
   width: 40%;
 }
 
-.watch_player {
-  font-size: large;
-  overflow-x: hidden;
-}
-
-.action_icon {
-  color: var(--sidebar-icon-color);
-}
-
-.action_icon:hover {
-  transform: scale(1.5);
-  transition: 0.4s;
-  cursor: pointer;
-}
-
 th {
   padding: 5px;
+}
+
+.cont {
+  grid-area: 1 / 1;
+}
+
+.cont {
+  z-index: 1;
 }
 </style>

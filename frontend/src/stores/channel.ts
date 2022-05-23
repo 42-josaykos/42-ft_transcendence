@@ -34,6 +34,11 @@ export const useChannelStore = defineStore('channel', () => {
       allChannels.value.push(newChannel);
     }
 
+    const getChannelName = (channelID: number) => {
+      const name = allChannels.value.find((channel) => channel.id === channelID)?.name
+      return name;
+    }
+
     const updateMember = (userID: number | undefined) => {
       if (userID != undefined) {
         for (const chan of allChannels.value) {
@@ -193,7 +198,8 @@ export const useChannelStore = defineStore('channel', () => {
     }
 
     const addChannelInvite = (channel: Channel) => {
-      channelsInvite.value.push(channel);
+      if (channelsInvite.value.findIndex((invite) => invite.id == channel.id) == -1)
+        channelsInvite.value.push(channel);
     }
 
     const deleteChannelInvite = (channel: Channel) => {
@@ -436,6 +442,7 @@ export const useChannelStore = defineStore('channel', () => {
         timerIntervalBan,
         timerIntervalMute,
         createChannel,
+        getChannelName,
         updateMember,
         updateOwner,
         updateInvite,

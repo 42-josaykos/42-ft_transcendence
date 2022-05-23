@@ -34,7 +34,7 @@ const envSchema = Joi.object({
     UploadModule,
     GameModule,
   ],
-  controllers: [UploadController],
+  controllers: [],
   providers: [ChatGateway],
 })
 export class AppModule {}

@@ -7,6 +7,7 @@ import {
   Req,
   Res,
   UnauthorizedException,
+  UseFilters,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -24,6 +25,7 @@ import {
 import { AuthenticationProvider } from './auth.interface';
 import { Inject } from '@nestjs/common';
 import { twoFactorAuthenticationCodeDTO } from './dto/twoFactorAuthenticationCode.dto';
+import { ViewAuthFilter } from './auth.filter';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -53,7 +55,7 @@ export class AuthController {
   async loginLocal(@Req() req: RequestWithUser, @Res() res: Response) {
     const { user } = req;
     if (user.isTwoFactorAuthenticationEnabled) {
-      console.log('2FA enabled');
+      // console.log('2FA enabled');
       // return { statusCode: 303, url: '/twofactorauth' };
       return res.setHeader('url', '/twofactorauth').status(303).end();
     }
@@ -73,10 +75,11 @@ export class AuthController {
   @Get('redirect')
   @Redirect()
   @UseGuards(FortyTwoAuthGuard)
+  @UseFilters(ViewAuthFilter)
   async redirect(@Req() req: RequestWithUser, @Res() res: Response) {
     const { user } = req;
     if (user.isTwoFactorAuthenticationEnabled) {
-      console.log('2FA enabled');
+      // console.log('2FA enabled');
       return { statusCode: 303, url: '/twofactorauth' };
     }
     const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
@@ -91,10 +94,11 @@ export class AuthController {
   @Get('redirect/github')
   @Redirect('/')
   @UseGuards(GithubGuard)
+  @UseFilters(ViewAuthFilter)
   async redirectGithub(@Req() req: RequestWithUser, @Res() res: Response) {
     const { user } = req;
     if (user.isTwoFactorAuthenticationEnabled) {
-      console.log('2FA enabled');
+      // console.log('2FA enabled');
       return { statusCode: 303, url: '/twofactorauth' };
     }
     const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
@@ -151,7 +155,7 @@ export class AuthController {
     @Body() { twoFactorAuthenticationCode }: twoFactorAuthenticationCodeDTO,
   ) {
     const { user } = request;
-    console.log(user);
+    // console.log(user);
 
     const isCodeValid =
       await this.authService.isTwoFactorAuthenticationCodeValid(

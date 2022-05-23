@@ -16,14 +16,14 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 const userStore = useUserStore();
-const { loggedUser, socketChat, usersOnline, userClick, setting_open } = storeToRefs(userStore);
+const { loggedUser, socketChat, usersOnline, userClick, setting_open, modaleOpenInviteGame } = storeToRefs(userStore);
 
 const channelStore = useChannelStore();
 
 const { channel, usersMembers, arrayTime } = storeToRefs(channelStore);
 
 const messageStore = useMessageStore();
-const { stringSendMessage, modalSendMessage } = storeToRefs(messageStore);
+const { modalSendMessage } = storeToRefs(messageStore);
 
 const userClickBool = ref<boolean>(false);
 const modalAdmin = ref<boolean>(false);
@@ -91,16 +91,6 @@ const numberUsersOffline = computed(() => {
   return totalOffline.toString()
 })
 
-const numberUsersBan = computed(() => {
-  let totalBan = 0;
-  for (const user of usersMembers.value) {
-    if (channelStore.isBan(channel.value, user.id)) {
-      totalBan++;
-    }
-  }
-  return totalBan.toString()
-})
-
 const addAdmin = () => {
   if (channelStore.isBan(channel.value, userClick.value?.id) && channelStore.isMute(channel.value, userClick.value?.id)) {
     socketChat.value?.emit('updateMember',
@@ -142,13 +132,11 @@ const addAdmin = () => {
 <template>
   <div v-if="channel != undefined">
     <div class="horizontal-line-bottom d-grid">
-      <div v-if="channelStore.isAdmin(channel, loggedUser?.id)" class="wrapper-btn-friends">
+      <div v-if="channelStore.isAdmin(channel, loggedUser?.id) && !channel.isDirectChannel" class="wrapper-btn-friends">
         <BansMutesButton @removeBan="removeBanMute(true)" @removeMute="removeBanMute(false)"/>
       </div>
     </div>
     <div class="scrollspy-example mb-5 px-2 py-2" style="min-height: 80vh">
-
-      <!-- <div v-if="channel != undefined"> -->
       <div v-if="usersMembers" class="ps-2">
         <span class="d-flex mb-3">
           <span class="horizontal-line-center"></span>
@@ -159,6 +147,7 @@ const addAdmin = () => {
           <div v-if="isOnline(user) && !channelStore.isBan(channel, user.id)" class="list-group">
             <BtnUserCard
               :user="user"
+              :profile="false"
               @open="
                 userClickBool = true;
                 userClick = user;
@@ -175,6 +164,7 @@ const addAdmin = () => {
           <div v-if="!isOnline(user) && !channelStore.isBan(channel, user.id)" class="list-group">
             <BtnUserCard
               :user="user"
+              :profile="false"
               @open="
                 userClickBool = true;
                 userClick = user;
@@ -182,22 +172,6 @@ const addAdmin = () => {
             />
           </div>
         </span>
-        <!-- <span class="d-flex my-3">
-          <span class="horizontal-line-center"></span>
-            Ban - {{numberUsersBan}}
-          <span class="horizontal-line-center"></span>
-        </span>
-        <span v-for="user in usersMembers" :key="user.id">
-          <div v-if="channelStore.isBan(channel, user.id)" class="list-group">
-            <BtnUserCard
-              :user="user"
-              @open="
-                userClickBool = true;
-                userClick = user;
-              "
-            />
-          </div>
-        </span> -->
       </div>
     </div>
   </div>
@@ -213,7 +187,7 @@ const addAdmin = () => {
           type="button"
           class="btn-user-click my-2"
         >
-          PROFIL
+          Profile
         </button>
         <div v-if="loggedUser?.id != userClick?.id" style="display: grid">
           <button
@@ -221,24 +195,24 @@ const addAdmin = () => {
             type="button"
             class="btn-user-click my-2"
           >
-            SEND MESSAGE
+            Send message
           </button>
-            <button
-              @click="userClickBool = false; router.push('/game')"
-              type="button"
-              class="btn-user-click my-2"
-            >
-              INVITE TO PLAY
-            </button>
+          <button v-if="userStore.IDInArray(userClick?.id, usersOnline)"
+            @click="userClickBool = false; modaleOpenInviteGame = true;"
+            type="button"
+            class="btn-user-click my-2"
+          >
+            Invite to play
+          </button>
           <button
             @click="modalFriend = true; userClickBool = false"
             type="button" class="btn-user-click my-2">
-            {{userStore.isFriend(userClick) ? 'REMOVE FRIEND' : 'ADD FRIEND'}}
+            {{userStore.isFriend(userClick) ? 'Remove friend' : 'Add friend'}}
           </button>
           <button
             @click="modalBlock = true; userClickBool = false"
             type="button" class="btn-user-click my-2">
-            {{userStore.isBlocked(userClick) ? 'UNBLOCK' : 'BLOCK'}}
+            {{userStore.isBlocked(userClick) ? 'Unblock' : 'Block'}}
           </button>
           <div
             v-if="channelStore.isAdmin(channel, loggedUser?.id) && !channelStore.isAdmin(channel, userClick?.id)"
@@ -249,14 +223,14 @@ const addAdmin = () => {
               type="button"
               class="btn-user-click my-2"
             >
-              MUTE
+              Mute
             </button>
             <button
               @click="modalBan = true; userClickBool = false"
               type="button"
               class="btn-user-click my-2"
             >
-              BAN
+              Ban
             </button>
           </div>
           <div
@@ -268,7 +242,7 @@ const addAdmin = () => {
               type="button"
               class="btn-user-click my-2"
             >
-              {{ channelStore.isAdmin(channel, userClick?.id) ? 'REMOVE ADMIN' : 'ADD ADMIN'}}
+              {{ channelStore.isAdmin(channel, userClick?.id) ? 'Remove admin' : 'Add admin'}}
             </button>
           </div>
         </div>

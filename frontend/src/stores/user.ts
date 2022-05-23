@@ -1,15 +1,15 @@
-import { defineStore } from "pinia";
-import { ref } from "vue";
-import type { User } from "@/models/user.model";
-import type { Socket } from "socket.io-client";
-import { computed } from "vue";
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
+import type { User } from '@/models/user.model';
+import type { Socket } from 'socket.io-client';
+import { computed } from 'vue';
 
 // Tracks users database
-export const useUserStore = defineStore("user", () => {
+export const useUserStore = defineStore('user', () => {
   const users = ref<User[]>([]);
   const usersOnline = ref<Number[]>([]);
+  const usersList = ref<User[]>([]);
   const loggedUser = ref<User | undefined>();
-  const gameSocket = ref<Socket>();
   const isAuthenticated = ref(false);
   const socketChat = ref<Socket>();
   const statusSocket = ref<Socket>();
@@ -20,8 +20,23 @@ export const useUserStore = defineStore("user", () => {
   const setting_open = ref<boolean>(false);
   const modalFriends = ref<boolean>(false);
   const leaderboard = ref<any>([]);
+  const flashMsg = ref<boolean>(false);
 
   const modaleOpenInviteGame = ref<boolean>(false);
+
+  const IDInArray = (id: any, array: any[]) => {
+    if (!id || !array) return false;
+    const index = array.findIndex((arrayValue: any) => id == arrayValue);
+    if (index === -1) return false;
+    else return true;
+  };
+
+  const valueInArray = (value: any, array: any[]) => {
+    if (!value || !array) return false;
+    const index = array.findIndex((arrayValue: any) => value == arrayValue.id);
+    if (index === -1) return false;
+    else return true;
+  };
 
   const createUser = (newUser: User) => {
     users.value.push(newUser);
@@ -39,7 +54,7 @@ export const useUserStore = defineStore("user", () => {
   const isBlocked = (user: User | undefined) => {
     if (
       user != undefined &&
-      usersBlocked.value.findIndex((el) => el.id === user.id) != -1
+      usersBlocked.value.findIndex(el => el.id === user.id) != -1
     ) {
       return true;
     }
@@ -58,7 +73,7 @@ export const useUserStore = defineStore("user", () => {
   const isFriend = (user: User | undefined) => {
     if (
       user != undefined &&
-      usersFriends.value.findIndex((el) => el.id === user.id) != -1
+      usersFriends.value.findIndex(el => el.id === user.id) != -1
     ) {
       return true;
     }
@@ -91,12 +106,12 @@ export const useUserStore = defineStore("user", () => {
     users,
     loggedUser,
     usersOnline,
+    usersList,
     isAuthenticated,
     socketChat,
     statusSocket,
     usersBlocked,
     usersFriends,
-    gameSocket,
     isTwoFactorAuth,
     userClick,
     setting_open,
@@ -113,6 +128,9 @@ export const useUserStore = defineStore("user", () => {
     addUserFriend,
     removeUserFriend,
     initUserClick,
+    IDInArray,
+    valueInArray,
     isMyProfile,
+    flashMsg
   };
 });

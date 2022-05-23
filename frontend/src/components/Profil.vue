@@ -1,22 +1,39 @@
 <script setup lang="ts">
-// import { setting_open } from './Modale.vue';
-import { useUserStore } from '@/stores/user';
-import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
-import Setting from './Setting.vue';
-import Stats from './profile/Stats.vue';
-import Match_History from './profile/MatchHistory.vue';
+import { useUserStore } from "@/stores/user";
+import { storeToRefs } from "pinia";
+import { ref } from "vue";
+import Setting from "./Setting.vue";
+import Stats from "./profile/Stats.vue";
+import Match_History from "./profile/MatchHistory.vue";
+import { useGameStore } from "@/stores/game";
 
 const userStore = useUserStore();
-const { loggedUser, setting_open, userClick, isMyProfile } =
-  storeToRefs(userStore);
+const {
+  loggedUser,
+  setting_open,
+  userClick,
+  isMyProfile,
+  statusSocket,
+  socketChat,
+} = storeToRefs(userStore);
+
+const gameStore = useGameStore();
+const { gameSocket } = storeToRefs(gameStore);
 
 const stat_open = ref(true);
 const mh_open = ref(false);
 const set_open = ref(false);
 
-const emits = defineEmits(['updateUserProfil']);
+const emits = defineEmits(["updateUserProfil"]);
 
+const disconnectSockets = () => {
+  // console.log("[Logout] Disconnecting sockets");
+  gameSocket.value?.emit("leaveQueue", loggedUser.value)
+  statusSocket.value?.emit("logout");
+  socketChat.value?.emit("logout");
+  gameSocket.value?.emit("logout");
+  window.location.href = "/auth/logout";
+};
 </script>
 
 <template>
@@ -51,7 +68,7 @@ const emits = defineEmits(['updateUserProfil']);
           <div v-if="isMyProfile" class="d-flex justify-content-center">
             <button
               class="mod-btn mod-btn-red d-inline-block"
-              onclick="window.location.href='/auth/logout'"
+              @click="disconnectSockets()"
             >
               Logout
             </button>
@@ -62,26 +79,38 @@ const emits = defineEmits(['updateUserProfil']);
       <div class="col-md-7 p-0">
         <div class="container p-0">
           <div class="row">
-            <div v-bind:class="{'col-sm-4' : isMyProfile, 'col-sm-6' : !isMyProfile}" class="d-flex justify-content-center my-2">
+            <div
+              v-bind:class="{
+                'col-sm-4': isMyProfile,
+                'col-sm-6': !isMyProfile,
+              }"
+              class="d-flex justify-content-center my-2"
+            >
               <button
                 @click="
                   (stat_open = true), (mh_open = false), (set_open = false)
                 "
-                v-bind:class="{'selected' : stat_open}"
+                v-bind:class="{ selected: stat_open }"
                 class="btn-block set-btn set-btn-yellow selector"
               >
                 Stats
               </button>
             </div>
-            <div v-bind:class="{'col-sm-4' : isMyProfile, 'col-sm-6' : !isMyProfile}" class="d-flex justify-content-center my-2">
+            <div
+              v-bind:class="{
+                'col-sm-4': isMyProfile,
+                'col-sm-6': !isMyProfile,
+              }"
+              class="d-flex justify-content-center my-2"
+            >
               <button
                 @click="
                   (stat_open = false), (mh_open = true), (set_open = false)
                 "
-                v-bind:class="{'selected' : mh_open}"
+                v-bind:class="{ selected: mh_open }"
                 class="btn-block set-btn set-btn-yellow selector"
               >
-                Historical
+                Match History
               </button>
             </div>
             <div
@@ -92,7 +121,7 @@ const emits = defineEmits(['updateUserProfil']);
                 @click="
                   (stat_open = false), (mh_open = false), (set_open = true)
                 "
-                v-bind:class="{'selected' : set_open}"
+                v-bind:class="{ selected: set_open }"
                 class="btn-block set-btn set-btn-yellow selector"
               >
                 Settings
@@ -116,7 +145,7 @@ const emits = defineEmits(['updateUserProfil']);
 </template>
 
 <style>
-@import '@vueform/toggle/themes/default.css';
+@import "@vueform/toggle/themes/default.css";
 
 .selected {
   background-color: #b7fbfd !important;
@@ -125,7 +154,7 @@ const emits = defineEmits(['updateUserProfil']);
 }
 .set-btn {
   position: relative;
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
   font-size: 90%;
   border-radius: 10px;
   border: none;

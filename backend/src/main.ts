@@ -67,32 +67,28 @@ async function bootstrap() {
 
   // API Module
   await api.listen(port, '0.0.0.0');
-  console.log(`[APIModule] API is listening on: ${await api.getUrl()}`);
-
-  // Auth Module
-  // const authApp = await NestFactory.create(AuthModule);
-  // await authApp.listen(5000);
+  // console.log(`[APIModule] API is listening on: ${await api.getUrl()}`);
 
   // Status Module
-  const statusSystemPort = 3615;
+  const statusSystemPort = configService.get('STATUS_PORT') || 3615;
   const statusSystem = await NestFactory.create(StatusModule);
   await statusSystem.listen(statusSystemPort, '0.0.0.0');
-  console.log(
-    `[StatusSystem] Status service running on: ${await statusSystem.getUrl()}`,
-  );
+  // console.log(
+  //   `[StatusSystem] Status service running on: ${await statusSystem.getUrl()}`,
+  // );
 
   // Game Module
-  const gameGatewayPort = 6060;
+  const gameGatewayPort = configService.get('GAME_PORT') || 6060;
   const game = await NestFactory.create(GameModule);
   await game.listen(gameGatewayPort, '0.0.0.0');
-  console.log(`[GameModule] Game gateway running on: ${await game.getUrl()}`);
+  // console.log(`[GameModule] Game gateway running on: ${await game.getUrl()}`);
 
   // Upload Module
-  const uploadModulePort = 7002;
+  const uploadModulePort = configService.get('UPLOAD_PORT') || 7000;
   const fileUpload = await NestFactory.create(UploadModule);
   await fileUpload.listen(uploadModulePort, '0.0.0.0');
-  console.log(
-    `[UploadModule] Upload service running on: ${await fileUpload.getUrl()}`,
-  );
+  // console.log(
+  //   `[UploadModule] Upload service running on: ${await fileUpload.getUrl()}`,
+  // );
 }
 bootstrap();

@@ -1,50 +1,84 @@
 <script setup lang="ts">
-import { storeToRefs } from "pinia";
-import { useUserStore } from "@/stores/user";
-import { ref } from "vue";
-import { Post } from "@/services/requests";
-import { useRouter } from "vue-router";
-import { login_open, register_open } from "./Modale.vue";
+import { storeToRefs } from 'pinia';
+import { useUserStore } from '@/stores/user';
+import { ref, computed } from 'vue';
+import { Post } from '@/services/requests';
+import { useRouter } from 'vue-router';
+import { notify } from "@kyvg/vue3-notification";
 
 const userStore = useUserStore();
-const { isAuthenticated, loggedUser } = storeToRefs(userStore);
+const { isAuthenticated, loggedUser, flashMsg } = storeToRefs(userStore);
 const router = useRouter();
 
-const username = ref("");
-const password1 = ref("");
-const password2 = ref("");
+const username = ref('');
+const password1 = ref('');
+const password2 = ref('');
+const isRegister = ref<boolean>(false);
+const isInvalid = computed(() => {
+  if (flashMsg.value) {
+    return 'form-control is-invalid';
+  } else {
+    return 'form-control';
+  }
+});
 
 function register() {
-  if (password1.value == password2.value) {
-    Post("/users", {
+  isRegister.value = true
+  if (username.value.length > 15) {
+    isRegister.value = false;
+    flashMsg.value = true
+    notify({
+      type: 'error',
+      title: "Register",
+      text: 'Username must be less than 15 characters',
+    });
+  } else if (password1.value == password2.value) {
+    Post('/users', {
       username: username.value,
-      password: password1.value,
-    }).then((res) => {
+      password: password1.value
+    }).then(res => {
       if (res.status == 201) {
         userStore.createUser(res.data);
-        Post("/auth/login/local", {
+        Post('/auth/login/local', {
           username: res.data.username,
-          password: password1.value,
-        }).then((res) => {
+          password: password1.value
+        }).then(res => {
           if (res.status == 201) {
             isAuthenticated.value = true;
             loggedUser.value = res.data;
-            router.push("/");
+            router.push('/');
           }
         });
       }
-    });
+    }).catch((error: any) => {
+      isRegister.value = false;
+      flashMsg.value = true;
+      notify({
+        type: 'error',
+        title: "Register",
+        text: error.response.data.message,
+      });
+    })
   } else {
-    alert("Password doesn't matched");
+    isRegister.value = false;
+    flashMsg.value = true;
+    notify({
+      type: 'error',
+      title: "Register",
+      text: "Password doesn't match",
+    });
   }
+  setTimeout(() => {
+    flashMsg.value = false;
+  }, 5000);
 }
 
 const seePassword = (stringId: string) => {
   let pass = document.getElementById(stringId);
-  if (pass?.getAttribute("type") === "password") {
-    pass?.setAttribute("type", "text");
+  if (pass?.getAttribute('type') === 'password') {
+    pass?.setAttribute('type', 'text');
   } else {
-    pass?.setAttribute("type", "password");
+    pass?.setAttribute('type', 'password');
   }
 };
 </script>
@@ -52,16 +86,14 @@ const seePassword = (stringId: string) => {
 <template>
   <div>
     <h2><u>Create a new account</u></h2>
-
-    <div>
-      <form @submit.prevent.trim.lazy="register" class="form-signup">
+      <form v-if="!isRegister" @submit.prevent.trim.lazy="register" class="form-signup">
         <div class="form-signin pt-3">
           <label for="inputUsername" class="sr-only">Username</label>
           <input
             type="text"
             id="inputUsername"
-            class="form-control"
             placeholder="Username"
+            :class="isInvalid"
             v-model="username"
             required
             autofocus
@@ -75,9 +107,9 @@ const seePassword = (stringId: string) => {
               ><i class="fa-regular fa-eye"></i
             ></span>
             <input
+              :class="isInvalid + ' input-pass'"
               type="password"
               id="inputPassword1"
-              class="form-control input-pass"
               placeholder="Password"
               v-model="password1"
               required
@@ -92,9 +124,9 @@ const seePassword = (stringId: string) => {
               ><i class="fa-regular fa-eye"></i
             ></span>
             <input
+              :class="isInvalid + ' input-pass'"
               type="password"
               id="inputPassword2"
-              class="form-control input-pass"
               placeholder="Confirm password"
               v-model="password2"
               required
@@ -110,7 +142,6 @@ const seePassword = (stringId: string) => {
           <br />
         </div>
       </form>
-    </div>
   </div>
 </template>
 

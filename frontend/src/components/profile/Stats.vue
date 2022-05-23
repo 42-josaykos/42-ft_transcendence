@@ -6,7 +6,7 @@ import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
 
 const { userClick } = storeToRefs(useUserStore());
-const stats = ref([7, 7, 7, 7]);
+const stats = ref([0, 0, 0, 0]);
 
 async function getSingleStats() {
   let response;
@@ -45,7 +45,7 @@ onMounted(() => {
     </tr>
     <tr>
       <th>Winrate</th>
-      <td>{{ stats[3] }}%</td>
+      <td>{{ stats[3].toFixed(2) }}%</td>
     </tr>
   </table>
 </template>

@@ -4,14 +4,21 @@ import { ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/user';
 import { useRouter } from 'vue-router';
+import { notify } from "@kyvg/vue3-notification";
+
 const userStore = useUserStore();
-const { isAuthenticated, loggedUser, isTwoFactorAuth } = storeToRefs(userStore);
+const {flashMsg, isAuthenticated, loggedUser } = storeToRefs(userStore);
 const router = useRouter();
 
 const code = ref<string>('');
 function submitTwoFactorAuthCode(e: any) {
   if (code.value === '') {
-    alert('Error: Code field is empty');
+    flashMsg.value = true;
+    notify({
+      type: 'error',
+      title: "Two-Factor Authentication",
+      text: 'Code field is empty',
+    });
   }
   Post('/auth/authenticate-2fa', { twoFactorAuthenticationCode: code.value })
     .then(res => {
@@ -22,8 +29,16 @@ function submitTwoFactorAuthCode(e: any) {
       }
     })
     .catch(error => {
-      alert('Error: Invalid code');
+      flashMsg.value = true;
+      notify({
+        type: 'error',
+        title: "Two-Factor Authentication",
+        text: 'Invalid code',
+      });
     });
+  setTimeout(() => {
+    flashMsg.value = false;
+  }, 5000);
 }
 </script>
 

@@ -20,6 +20,8 @@ const {
   userClick,
   setting_open,
   modalFriends,
+  modaleOpenInviteGame,
+  usersOnline
 } = storeToRefs(userStore);
 
 const messageStore = useMessageStore();
@@ -29,7 +31,7 @@ const { modalSendMessage } = storeToRefs(messageStore);
 <template>
   <div class="d-flex" style="align-items: center">
     <div class="px-3">
-      <UserCard :user="props.user" :dashboard="true" />
+      <UserCard :user="props.user" :dashboard="true" :profile="false"/>
     </div>
     <div class="ms-auto px-2" style="width: 500px">
       <button
@@ -41,7 +43,7 @@ const { modalSendMessage } = storeToRefs(messageStore);
         type="button"
         class="mod-btn-friends mod-btn-green btn-sm"
       >
-        Profil
+        Profile
       </button>
       <button
         @click="
@@ -54,16 +56,18 @@ const { modalSendMessage } = storeToRefs(messageStore);
       >
         Send message
       </button>
-      <button
+      <button v-if="userStore.IDInArray(user.id, usersOnline)"
         @click="
           modalFriends = false;
-          userClick = props.user; /*router.push('/game')*/
+          userClick = props.user;
+          modaleOpenInviteGame = true;
         "
         type="button"
         class="mod-btn-friends mod-btn-yellow btn-sm"
       >
         Invite to play
       </button>
+      <span v-else style="margin-right: 115px;"></span>
       <button
         @click="
           socketChat?.emit(

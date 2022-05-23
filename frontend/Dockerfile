@@ -1,11 +1,15 @@
 FROM node:16-alpine
 
-WORKDIR /usr/app
+# WORKDIR /usr/app
+
+WORKDIR /home/node
 
 COPY package*.json ./
 
 RUN apk add curl && npm install
 
-COPY . .
+# RUN chown -R node.node /usr/app
 
-# CMD [ "npm", "run", "dev"]
+RUN chown -R node.node /root
+
+COPY . .

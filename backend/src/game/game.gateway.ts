@@ -16,13 +16,13 @@ import axios from 'axios';
 import User from 'src/api/users/entities/user.entity';
 import { Connection } from 'src/status/status.class';
 import { GameService } from './game.service';
-import { Game, Player, Invites } from 'src/game/game.class';
-import { use } from 'passport';
+import { Game, Player, Invites, GameOptions } from 'src/game/game.class';
 
 @WebSocketGateway({
   namespace: 'game',
   cors: {
-    origin: `http://localhost:3001`,
+    // origin: `http://localhost:${process.env.FRONTEND_PORT}`,
+    origin: `http://${process.env.HOST}:${process.env.FRONTEND_PORT}`,
     credentials: true,
   },
 })
@@ -39,12 +39,14 @@ export class GameGateway
   private queue: Connection[] = [];
   private invites: Invites[] = [];
 
+  private matchmakingOptions: GameOptions = { paddleSize: 2, ballSpeed: 3 };
+
   afterInit(server: any) {
     this.logger.log('Game gateway is initialized');
   }
 
   handleConnection(@ConnectedSocket() client: Socket) {
-    this.logger.log(`Connection: ${client.id}`);
+    // this.logger.log(`Connection: ${client.id}`);
     this.server.to(client.id).emit('requestGameUserInfo', '');
   }
 
@@ -68,7 +70,7 @@ export class GameGateway
   }
 
   handleDisconnect(@ConnectedSocket() client: Socket) {
-    this.logger.log(`Disconnect: ${client.id}`);
+    // this.logger.log(`Disconnect: ${client.id}`);
     const userIndex = this.connectedClients.findIndex(
       (connection) => connection.socketID.indexOf(client.id) !== -1,
     );
@@ -76,8 +78,9 @@ export class GameGateway
     // Should never append, but prevention is better than cure
     if (userIndex === -1) {
       // console.log('Client: ', client);
-      console.log('Connected Clients: ', this.connectedClients);
-      throw new WsException('Disconnecting user was not found');
+      // console.log('[Game] Connected Clients: ', this.connectedClients);
+      return;
+      // throw new WsException('Disconnecting user was not found');
     }
 
     // Removing socketID from corresponding user
@@ -93,6 +96,36 @@ export class GameGateway
     // console.log('Clients connected: ', this.connectedClients);
   }
 
+  @SubscribeMessage('logout')
+  handleLogout(@ConnectedSocket() client: Socket) {
+    // this.logger.log(`Logout: ${client.id}`);
+    const userIndex = this.connectedClients.findIndex(
+      (connection) => connection.socketID.indexOf(client.id) !== -1,
+    );
+
+    // Should never append, but prevention is better than cure
+    if (userIndex === -1) {
+      // console.log('Client: ', client);
+      // console.log('[Game] Connected Clients: ', this.connectedClients);
+      return;
+      // throw new WsException('Disconnecting user was not found');
+    }
+
+    // console.log(
+    //   'User game sockets: ',
+    //   this.connectedClients[userIndex].socketID,
+    // );
+
+    // Move to login page, but not needed here, already in StatusSystem
+    // this.server.to(this.connectedClients[userIndex].socketID).emit('logout');
+    // Disconnect all sockets
+    this.server
+      .to(this.connectedClients[userIndex].socketID)
+      .disconnectSockets(true);
+    // Delete user and it's sockets from connectedClients
+    this.connectedClients.splice(userIndex, 1);
+  }
+
   // Queue handling
   @SubscribeMessage('queue')
   async handleQueue(
@@ -101,60 +134,57 @@ export class GameGateway
   ) {
     // Adding player to queue
     this.queue.push(this.gameService.getUser(this.connectedClients, data));
+    this.sendInQueueUsers();
     // console.log('queue: ', this.queue);
 
     // Start a game if there is at least 2 players in the queue waiting
     while (this.queue.length >= 2) {
+      const gameOptions = { paddleSize: 2, ballSpeed: 3 };
       // Remove players from queue
       const playerOne: Player = { player: this.queue.shift() };
       const playerTwo: Player = { player: this.queue.shift() };
       // console.log('playerOne: ', playerOne);
       // console.log('playerTwo: ', playerTwo);
 
-      this.setupAndStartGame(
-        { ...playerOne },
-        { ...playerTwo },
-        'startGame',
-        5000,
-      );
+      if (playerOne.player.user.id !== playerTwo.player.user.id) {
+        this.sendInQueueUsers();
+        this.setupAndStartGame(
+          { ...playerOne },
+          { ...playerTwo },
+          this.matchmakingOptions,
+          'matchmaking',
+          'startGame'
+        );
+      }
     }
   }
 
   setupAndStartGame(
     playerOne: Player,
     playerTwo: Player,
+    gameOptions: GameOptions,
+    gameMode: string,
     startGameEvent: string,
-    startTimeout: number,
   ) {
     // Create a socket room, and make ALL player's sockets join
     const roomName = `${playerOne.player.user.id}-${playerTwo.player.user.id}`;
-    this.joinRoom(roomName, [
-      ...this.connectedClients.find(
-        (client) => client.user.id === playerOne.player.user.id,
-      ).socketID,
-      ...this.connectedClients.find(
-        (client) => client.user.id === playerTwo.player.user.id,
-      ).socketID,
-    ]);
+    this.addSocketsToRoom(
+      playerOne.player.user,
+      playerTwo.player.user,
+      roomName,
+    );
 
     // Send startGame event to clients
-    this.server
-      .to(roomName)
-      .emit(startGameEvent, [playerOne.player.user, playerTwo.player.user]);
+    this.server.to(roomName).emit(startGameEvent, {
+      mode: gameMode,
+      players: [playerOne.player.user, playerTwo.player.user],
+    });
 
     // Start the game is the backend
-    setTimeout(
-      (playerOne, playerTwo) => {
-        // Create and start game
-        this.gameService.createGame(playerOne, playerTwo, this.server);
-
-        // Emit live games to clients
-        this.server.emit('liveGames', this.getOngoingGames());
-      },
-      startTimeout,
-      playerOne,
-      playerTwo,
-    );
+    const isRankedMatch = gameMode === 'matchmaking' ? true : false;
+    this.gameService.createGame(playerOne, playerTwo, gameOptions, isRankedMatch);
+    // Emit live games to clients
+    this.server.emit('liveGames', this.getOngoingGames());
   }
 
   @SubscribeMessage('leaveQueue')
@@ -165,6 +195,7 @@ export class GameGateway
     );
 
     if (userIndex !== -1) this.queue.splice(userIndex, 1);
+    this.sendInQueueUsers();
   }
 
   @SubscribeMessage('getOngoingGames')
@@ -199,16 +230,27 @@ export class GameGateway
     // console.log('Spectated game: ', spectatedGame);
 
     // Add the spectator socket to the game room
-    if (spectatedGame) {
+    if (spectatedGame && !spectatedGame.finished) {
       this.server.to(client.id).socketsJoin(spectatedGame.socketRoom);
       this.server.to(client.id).emit('spectateGame');
     }
+    else
+      this.server.to(client.id).emit('error', {title: 'Game finished', message: "Can't spectate : game is finishing"})
   }
 
   // SocketIO room managment
   joinRoom(roomName: string, socketIDs: string[]) {
-    for (const socketID of socketIDs)
-      this.server.to(socketID).socketsJoin(roomName);
+    if (socketIDs)
+      for (const socketID of socketIDs)
+        this.server.to(socketID).socketsJoin(roomName);
+  }
+
+  @SubscribeMessage('leaveRoom')
+  handleLeaveRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() roomName: string,
+  ) {
+    this.server.to(client.id).socketsLeave(roomName)
   }
 
   leaveRoom(roomName: string, socketIDs: string[]) {
@@ -222,19 +264,39 @@ export class GameGateway
     }
   }
 
+  addSocketsToRoom(playerOne: User, playerTwo: User, socketRoom: string) {
+    const playerOneConnection = this.connectedClients.find(
+      (client) => client.user.id === playerOne.id,
+    );
+    const playerTwoConnection = this.connectedClients.find(
+      (client) => client.user.id === playerTwo.id,
+    );
+
+    let playerOneSockets = [];
+    let playerTwoSockets = [];
+    if (playerOneConnection) playerOneSockets = playerOneConnection.socketID;
+    if (playerTwoConnection) playerTwoSockets = playerTwoConnection.socketID;
+
+    this.joinRoom(socketRoom, [...playerOneSockets, ...playerTwoSockets]);
+  }
+
   sendGameUpdate(game: Game) {
     const gameUpdate = {
       playerOne: {
+        user: game.players[0].player.user,
         x: game.players[0].x,
         y: game.players[0].y,
         score: game.players[0].score,
       },
       playerTwo: {
+        user: game.players[1].player.user,
         x: game.players[1].x,
         y: game.players[1].y,
         score: game.players[1].score,
       },
       ball: { x: game.ball.x, y: game.ball.y, size: game.ball.size },
+      options: game.options,
+      roomName: game.socketRoom,
       events: game.events,
     };
 
@@ -251,23 +313,27 @@ export class GameGateway
           { id: game.players[1].player.user.id },
         ],
         score: [game.players[0].score, game.players[1].score],
+        isRankedMatch: game.isRankedMatch,
       };
       const match = await axios({
-        url: 'http://localhost:4000/matches',
+        url: `http://${process.env.FRONTEND_HOST}:${process.env.FRONTEND_PORT}/matches`,
         method: 'POST',
         data: body,
       });
       // console.log('Match Result: ', match.data);
+      this.server.emit('askStatsUpdate');
 
       this.server.to(game.socketRoom).emit('endGame');
-      this.server.emit('liveGames', this.getOngoingGames());
-      this.server.emit('askStatsUpdate');
 
       // Make the players / spectators leave the room
       this.server.to(game.socketRoom).socketsLeave(game.socketRoom);
     } catch (error) {
       throw error;
     }
+  }
+
+  sendLiveGames() {
+    this.server.emit('liveGames', this.getOngoingGames());
   }
 
   // Player Handling
@@ -292,6 +358,7 @@ export class GameGateway
     }
   }
 
+  // Invite handling
   @SubscribeMessage('getInvitesGame')
   getInvites(@ConnectedSocket() client: Socket, @MessageBody() user: User) {
     const indexInvites = this.invites.findIndex(
@@ -306,12 +373,12 @@ export class GameGateway
   }
 
   @SubscribeMessage('addInvite')
-  addInvite(@ConnectedSocket() client: Socket, @MessageBody() players: User[]) {
+  addInvite(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
     const userWhoInvites = this.connectedClients.find(
-      (connection) => connection.user.id === players[0].id,
+      (connection) => connection.user.id === data.playerOne.id,
     );
     const guestUser = this.connectedClients.find(
-      (connection) => connection.user.id === players[1].id,
+      (connection) => connection.user.id === data.playerTwo.id,
     );
 
     if (guestUser) {
@@ -323,11 +390,17 @@ export class GameGateway
         guestIndex =
           this.invites.push({
             user: guestUser,
-            invitesReceived: [userWhoInvites],
+            invitesReceived: [
+              { sender: userWhoInvites, gameOptions: data.options },
+            ],
           }) - 1;
       }
       // If it already exists, push the new invites
-      else this.invites[guestIndex].invitesReceived.push(userWhoInvites);
+      else
+        this.invites[guestIndex].invitesReceived.push({
+          sender: userWhoInvites,
+          gameOptions: data.options,
+        });
 
       // Send updated invites list
       this.emitToSockets(
@@ -341,14 +414,13 @@ export class GameGateway
         (userInvite, userGuest) => {
           this.removeGameInvite(userInvite, userGuest);
         },
-        10000,
+        30000,
         { ...userWhoInvites },
         { ...guestUser },
       );
     }
   }
 
-  // Invite handling
   @SubscribeMessage('acceptInviteToGame')
   async handleInvite(
     @ConnectedSocket() client: Socket,
@@ -363,8 +435,22 @@ export class GameGateway
       players[1],
     );
 
+    //Remove users from queue
+    const userInviteIndex = this.queue.findIndex((user) => user.user.id === userInvite.user.id)
+    const userGuestIndex = this.queue.findIndex((user) => user.user.id === userGuest.user.id)
+    if (userInviteIndex !== -1) this.queue.splice(userInviteIndex, 1)
+    if (userGuestIndex !== -1) this.queue.splice(userGuestIndex, 1)
+
     // If user are still connected
     if (userInvite && userGuest) {
+      // Get game options
+      const inviteGuest = this.invites.find(
+        (invite) => invite.user.user.id === userGuest.user.id,
+      );
+      const options = inviteGuest.invitesReceived.find(
+        (invite) => invite.sender.user.id === userInvite.user.id,
+      ).gameOptions;
+
       const playerOne: Player = { player: userInvite };
       const playerTwo: Player = { player: userGuest };
 
@@ -372,25 +458,28 @@ export class GameGateway
       this.setupAndStartGame(
         { ...playerOne },
         { ...playerTwo },
-        'startGameInvite',
-        10000,
+        options,
+        'invite',
+        'startGame',
       );
 
       // Delete guest's invite
       this.removeGameInvite(userInvite, userGuest);
     }
+    else {
+      this.server.to(client.id).emit('error', { title: 'Game', message: `${players[0].username} is disconnect, the game can't be started` })
+    }
   }
 
   removeGameInvite(userInvite: Connection, userGuest: Connection) {
     // Find guest
-    console.log('invites: ', this.invites);
     const guestIndex = this.invites.findIndex(
       (guest) => guest.user.user.id === userGuest.user.id,
     );
     if (guestIndex != -1) {
       // Find invite
       const indexInvite = this.invites[guestIndex].invitesReceived.findIndex(
-        (invite) => invite.user.id === userInvite.user.id,
+        (invite) => invite.sender.user.id === userInvite.user.id,
       );
       if (indexInvite != -1) {
         // Remove invite
@@ -408,5 +497,37 @@ export class GameGateway
           this.invites.splice(guestIndex, 1);
       }
     }
+  }
+
+  // Determine if user is in queue
+  @SubscribeMessage('inQueueUsers')
+  inQueueUsers(@ConnectedSocket() client: Socket) {
+    const inQueueUsers: User[] = this.queue.map(
+      (connection) => connection.user,
+    );
+
+    this.server.to(client.id).emit('inQueueUsers', inQueueUsers);
+  }
+
+  sendInQueueUsers() {
+    const inQueueUsers: User[] = this.queue.map(
+      (connection) => connection.user,
+    );
+
+    this.server.emit('inQueueUsers', inQueueUsers);
+  }
+
+  // Determine if user is in game
+  @SubscribeMessage('inGameUsers')
+  isInGame(@ConnectedSocket() client: Socket) {
+    const inGameUsers = this.gameService.inGameUsers();
+
+    this.server.to(client.id).emit('inGameUsers', inGameUsers);
+  }
+
+  sendInGameUsers() {
+    const inGameUsers = this.gameService.inGameUsers();
+
+    this.server.emit('inGameUsers', inGameUsers);
   }
 }

@@ -2,38 +2,64 @@
 import { computed, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
+import { useGameStore } from "@/stores/game";
 
 const userStore = useUserStore();
 const { usersOnline } = storeToRefs(userStore);
 
+const gameStore = useGameStore();
+const { usersInQueue, usersInGame } = storeToRefs(gameStore);
+
 const props = defineProps({
   user: Object,
   dashboard: Boolean,
+  profile: Boolean,
 });
 
 const isOnlineBool = ref<boolean>(false);
+const isInQueue = ref<boolean>(false);
+const isInGame = ref<boolean>(false);
 
 const isOnline = computed(() => {
+  let status = "Offline";
+
+  // Online status
   if (usersOnline.value.findIndex((el: Number) => el == props.user?.id) == -1) {
     isOnlineBool.value = false;
-    return "Offline";
+    status = "Offline";
+  } else {
+    isOnlineBool.value = true;
+    status = "Online";
+    // If in Queue
+    if (userStore.valueInArray(props.user?.id, usersInQueue.value)) {
+      isInQueue.value = true;
+      status = "In Queue";
+    } else isInQueue.value = false;
+    // If in Game
+    if (userStore.valueInArray(props.user?.id, usersInGame.value)) {
+      isInGame.value = true;
+      status = "In Game";
+    } else isInGame.value = false;
   }
-  isOnlineBool.value = true;
-  return "Online";
+
+  return status;
 });
 </script>
 
 <template>
-  <div class="row no-gutters d-flex">
-    <div v-if="props.dashboard" class="col-md-4 cercle-user-card-dashboard">
+  <div v-bind:class="{ row : !props.profile}" class="no-gutters d-flex">
+    <div v-if="props.dashboard" v-bind:class="{ 'col-md-4': !props.profile}" class="cercle-user-card-dashboard">
       <img v-bind:src="props.user?.avatar" alt="Avatar" class="card-img" />
     </div>
-    <div v-else class="col-md-4 cercle-user-card">
+    <div v-else v-bind:class="{ 'col-md-4': !props.profile}" class="cercle-user-card">
       <img v-bind:src="props.user?.avatar" alt="Avatar" class="card-img" />
     </div>
-    <div class="col-md-7 infos" v-bind:class="{ infosChat: !props.dashboard }">
+    <div class="infos" v-bind:class="{ infosChat: !props.dashboard, 'col-md-7': !props.profile }">
       <div class="text-truncate">
-        <div class="info">
+        <div
+          class="info"
+          v-bind:class="{'home_username' : props.profile && !props.dashboard}"
+        >
           {{ props.user?.username }}
         </div>
         <div class="info">
@@ -53,18 +79,31 @@ const isOnline = computed(() => {
 </template>
 
 <style>
+
+.home_username {
+  font-size: xx-large;
+  color: white;
+  font-weight: bold;
+}
+
 .infos {
   display: flex;
   align-items: center;
   padding-left: 10px !important;
   padding-top: 4px;
+  overflow: auto;
 }
 .infosChat {
   margin-left: 10px;
 }
 
 .info {
-  text-align: left;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  width: -webkit-fill-available;
+  width: -moz-available;
+  text-align: start;
 }
 
 .cercle-user-card {

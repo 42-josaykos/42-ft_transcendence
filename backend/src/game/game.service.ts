@@ -24,7 +24,6 @@ export class GameService implements OnModuleInit {
 
   private gameID = 0;
   private games: Game[] = [];
-  private options: GameOptions = { paddleSize: 2, ballSpeed: 3 };
   private readonly canvas: Canvas = {
     h: 600,
     w: 1000,
@@ -45,33 +44,57 @@ export class GameService implements OnModuleInit {
     return this.games;
   }
 
+  inGameUsers() {
+    let inGameUsers: User[] = [];
+    for (const game of this.games) {
+      for (const player of game.players) inGameUsers.push(player.player.user);
+    }
+
+    return inGameUsers;
+  }
+
   // Main game code
-  createGame(playerOne: Player, playerTwo: Player, socket: Server) {
+  createGame(playerOne: Player, playerTwo: Player, gameOptions: GameOptions, isRankedMatch: boolean) {
+    const inGameUsers = this.inGameUsers()
+    if (inGameUsers.find((user) => user.id === playerOne.player.user.id) || inGameUsers.find((user) => user.id === playerTwo.player.user.id))
+      return
+
     // Create and start game
-    playerOne = this.initNewPlayerOne(playerOne.player);
-    playerTwo = this.initNewPlayerTwo(playerTwo.player);
-    const newBall = this.initNewBall();
+    playerOne = this.initNewPlayerOne(playerOne.player, gameOptions);
+    playerTwo = this.initNewPlayerTwo(playerTwo.player, gameOptions);
+    const newBall = this.initNewBall(gameOptions);
     const events = this.initEvents();
 
     const roomName = `${playerOne.player.user.id}-${playerTwo.player.user.id}`;
     let game: Game = {
       id: this.gameID++,
+      options: gameOptions,
       players: [playerOne, playerTwo],
       ball: newBall,
       events: events,
       finished: false,
       winner: null,
       socketRoom: roomName,
+      isRankedMatch: isRankedMatch,
     };
 
     this.games.push(game);
+    this.gateway.sendInGameUsers();
     let pause = true;
     setTimeout(() => {
       pause = false;
-    }, 1500);
+    }, 6500);//5sec start time + 1.5sec ball still
 
     // Main game loop
     game.intervalID = setInterval(async () => {
+      // Update game sockets
+      this.gateway.addSocketsToRoom(
+        game.players[0].player.user,
+        game.players[1].player.user,
+        game.socketRoom,
+      );
+
+      //Game loop
       if (!pause) {
         // Updating ball position
         game.ball.x += game.ball.velocityX;
@@ -128,17 +151,17 @@ export class GameService implements OnModuleInit {
     game.events.sounds.score = true;
 
     //  Ends game if one of the two players reached 10.
-    if (game.players[0].score == 10 || game.players[1].score == 10) {
+    if (game.players[0].score == 5 || game.players[1].score == 5) {
       game.finished = true;
       game.winner =
-        game.players[0].score == 10 ? game.players[0] : game.players[1];
+        game.players[0].score == 5 ? game.players[0] : game.players[1];
       // game.events.sounds.win = true;
       // game.events.sounds.loose = true;
       return game;
     }
 
     // Setting new ball direction
-    game.ball = this.initNewBall();
+    game.ball = this.initNewBall(game.options);
     return game;
   }
 
@@ -148,8 +171,12 @@ export class GameService implements OnModuleInit {
 
     // Remove game from games array
     const gameIndex = this.games.indexOf(game);
-    this.games.splice(gameIndex, 1);
-
+    setTimeout(() => {
+      this.games.splice(gameIndex, 1);
+      this.gateway.sendLiveGames();
+      this.gateway.sendInGameUsers();
+    }, 5000)
+  
     this.gateway.broadcastEndGame(game);
   }
 
@@ -264,9 +291,9 @@ export class GameService implements OnModuleInit {
   }
 
   // Game components initialization
-  initNewPaddle(): Paddle {
+  initNewPaddle(gameOptions: GameOptions): Paddle {
     const paddleHeight =
-      (0.2 + (this.options.paddleSize - 1) * 0.05) * this.canvas.h;
+      (0.2 + (gameOptions.paddleSize - 1) * 0.05) * this.canvas.h;
     const paddleWidth = 0.2 * 0.2 * this.canvas.h;
     const paddleSpeed = 0.05 * (this.canvas.h / 2 - paddleHeight / 2);
 
@@ -279,12 +306,12 @@ export class GameService implements OnModuleInit {
     return newPaddle;
   }
 
-  initNewBall(): Ball {
-    const paddle = this.initNewPaddle();
+  initNewBall(gameOptions: GameOptions): Ball {
+    const paddle = this.initNewPaddle(gameOptions);
     const ballX = this.canvas.w / 2;
     const ballY = this.canvas.h / 2;
     const ballSize = paddle.w / 2;
-    const ballSpeed = 5 * (1 + (this.options.ballSpeed * 2) / 10);
+    const ballSpeed = 5 * (1 + (gameOptions.ballSpeed * 2) / 10);
 
     // Giving the new ball a random direction (left / right and angle)
     const randDirectionX = Math.round(Math.random());
@@ -307,8 +334,8 @@ export class GameService implements OnModuleInit {
     return newBall;
   }
 
-  initNewPlayerOne(user: Connection): Player {
-    const paddle = this.initNewPaddle();
+  initNewPlayerOne(user: Connection, gameOptions: GameOptions): Player {
+    const paddle = this.initNewPaddle(gameOptions);
     const playerX = this.canvas.bound;
     const playerY = this.canvas.h / 2 - paddle.h / 2;
 
@@ -324,8 +351,8 @@ export class GameService implements OnModuleInit {
     return playerOne;
   }
 
-  initNewPlayerTwo(user: Connection): Player {
-    const paddle = this.initNewPaddle();
+  initNewPlayerTwo(user: Connection, gameOptions: GameOptions): Player {
+    const paddle = this.initNewPaddle(gameOptions);
     const playerX = this.canvas.w - this.canvas.bound - paddle.w;
     const playerY = this.canvas.h / 2 - paddle.h / 2;
 

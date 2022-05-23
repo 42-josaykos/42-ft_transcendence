@@ -4,7 +4,6 @@ import StatusSystem from "./components/StatusSystem.vue";
 import GameSystem from "./components/game/GameSystem.vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
-import { useStatusStore } from "@/stores/status";
 import { onMounted, ref } from "vue";
 import { Get } from "./services/requests";
 import ChatSocket from "./components/chat/ChatSocket.vue";
@@ -19,14 +18,14 @@ onMounted(() => {
   Get("/auth/jwt-status")
     .then((res) => {
       if (res.status == 403) {
-        console.log("[App] isAuthenticated: ", false);
+        // console.log("[App] isAuthenticated: ", false);
         isAuthenticated.value = false;
         loggedUser.value = undefined;
       } else {
-        console.log("[App] isAuthenticated: ", true);
+        // console.log("[App] isAuthenticated: ", true);
         isAuthenticated.value = true;
         loggedUser.value = res.data;
-        console.log("[App] loggedUser: ", res.data);
+        // console.log("[App] loggedUser: ", res.data);
       }
     })
     .catch((error) => {});
@@ -52,6 +51,7 @@ onMounted(() => {
         <GameSystem />
         <ChatSocket />
       </div>
+      <notifications style="z-index: 9999;"/>
       <div class="routerView"><router-view /></div>
     </div>
   </div>

@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import TeamProfil from "./TeamProfil.vue";
-import { storeToRefs } from "pinia";
-import { useUserStore } from "@/stores/user";
-import Ladder from "./profile/Ladder.vue";
-import Navbar from "./Navbar.vue";
-import LiveGames from "./game/LiveGames.vue";
-import UserList from "./UserList.vue";
+import { ref } from 'vue';
+import TeamProfil from './TeamProfil.vue';
+import { storeToRefs } from 'pinia';
+import { useUserStore } from '@/stores/user';
+import Ladder from './profile/Ladder.vue';
+import Navbar from './Navbar.vue';
+import LiveGames from './game/LiveGames.vue';
+import UserList from './UserList.vue';
 
 const profil_vmoreau = ref(false);
 const profil_mabriand = ref(false);
@@ -15,14 +15,13 @@ const profil_lchapren = ref(false);
 const profil_adupuy = ref(false);
 
 const userStore = useUserStore();
-const { isAuthenticated, loggedUser, setting_open, userClick } =
-  storeToRefs(userStore);
+storeToRefs(userStore);
 </script>
 
 <template>
   <Navbar componentName="Home" />
   <div class="container-flex" style="position: relative">
-    <div id="HomePage" class="full-height">
+    <div id="HomePage">
       <div class="container">
         <div class="row pb-5">
           <div class="col-lg-6">
@@ -31,27 +30,24 @@ const { isAuthenticated, loggedUser, setting_open, userClick } =
             <br /><br /><br />
 
             <div class="container-fluid p-0">
-              <div class="row">
-                <div
-                  class="col-lg-8 watch_player"
-                  style="color: white; text-align: start"
-                >
-                  Pong is a table tennis–themed twitch arcade sports video game.
-                  manufactured by Atari and originally released in 1972. It was
-                  one of the earliest arcade video games.
-                  <br /><br />
-                  It was created by Allan Alcorn as a training exercise assigned
-                  to him by Atari co-founder Nolan Bushnell, but Bushnell and
-                  Atari co-founder Ted Dabney were surprised by the quality of
-                  Alcorn's work and decided to manufacture the game.
-                </div>
-                <div class="col-lg-4 d-flex align-items-center">
+              <div class="watch_player"
+                  style="color: white; text-align: justify">
+                <div class="d-flex align-items-center ps-3" style="float: right;">
                   <img
                     src="../assets/home/pong_gameplay.gif"
                     alt="PongGameplay"
                     style="width: 100%"
                   />
                 </div>
+                <strong>Each player gets a side:</strong> the one who initiates the game or is first in queue, gets the left.
+                <br /><br />
+                When the game begins, and each time someone scores, <strong>the ball is sent randomly from the middle.</strong>
+                <br /><br />
+                <strong>To score</strong>, you have to make <strong>the ball pass behind your opponent's paddle and touch the other                       side</strong>. 
+                <br /><br />
+                Be careful: <strong> not forget to defend your own side</strong> from your opponent while trying to score.
+                <br /><br />
+                The goal is to <strong>reach a total of 5 points</strong> in order to <strong>win</strong>.
               </div>
             </div>
             <br /><br /><br />
@@ -136,37 +132,6 @@ const { isAuthenticated, loggedUser, setting_open, userClick } =
 </template>
 
 <style scoped>
-.infoGame {
-  display: grid;
-
-  background-color: rgba(0, 0, 0, 0.4);
-  padding-bottom: 4vh;
-  min-height: 400px;
-  max-height: 400px;
-  overflow-y: scroll;
-  border-radius: 30px;
-  box-shadow: 0px 0px 10px 2px white, inset 0px 0px 4px 2px white;
-}
-
-.req,
-.cont {
-  grid-area: 1 / 1;
-}
-.req {
-  font-size: xx-large;
-  font-weight: bold;
-  background-color: rgba(0, 0, 0, 0.89);
-  min-height: 400px;
-  text-align: center;
-  align-items: center;
-  z-index: 2;
-  display: grid;
-}
-
-.cont {
-  z-index: 1;
-}
-
 #Footer {
   background-color: rgba(0, 0, 0, 0.65);
 }
@@ -176,7 +141,7 @@ const { isAuthenticated, loggedUser, setting_open, userClick } =
 }
 .team_btn {
   position: relative;
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
   font-size: x-large;
   border-radius: 10px;
   border: none;
@@ -201,49 +166,15 @@ p {
   color: #ffffff;
   text-shadow: 0px 4px 15px white, 0px 0px 10px white;
 }
-.GameName {
-  font-family: "Vibure", cursive;
-  font-style: normal;
-}
-
-.infoGame {
-  overflow: hidden;
-}
-
-.infoGame hr {
-  display: block;
-  position: relative;
-  height: 2px;
-  box-shadow: 0px 0px 10px white, 0px 0px 15px 5px white;
-  opacity: 1;
-  width: 90%;
-  color: #fffed9;
-  margin: auto;
-  margin-top: 2vh;
-}
 
 th {
   white-space: nowrap;
   width: 40%;
 }
 
-.versus {
-  font-size: large;
-  font-weight: bold;
-}
 .watch_player {
   font-size: large;
   overflow-x: hidden;
-}
-
-.action_icon {
-  color: var(--sidebar-icon-color);
-}
-
-.action_icon:hover {
-  transform: scale(1.5);
-  transition: 0.4s;
-  cursor: pointer;
 }
 
 th {

@@ -1,15 +1,18 @@
 <script setup lang="ts">
-// import { setting_open } from './Modale.vue';
 import Toggle from '@vueform/toggle';
 import { useUserStore } from '@/stores/user';
+import { useInputStore } from '@/stores/input';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
-import { Get, Patch, Post } from '@/services/requests';
+import { Patch, Post } from '@/services/requests';
 import ax from '@/services/interceptors';
 import type { User } from '@/models/user.model';
+import { computed } from '@vue/reactivity';
+import { notify } from "@kyvg/vue3-notification";
 
 const userStore = useUserStore();
-const { isTwoFactorAuth, isAuthenticated, loggedUser } = storeToRefs(userStore);
+const inputStore = useInputStore();
+const { isTwoFactorAuth, loggedUser, flashMsg } = storeToRefs(userStore);
 if (loggedUser.value && loggedUser.value.isTwoFactorAuthenticationEnabled) {
   isTwoFactorAuth.value = true;
 } else {
@@ -19,8 +22,14 @@ const qrcode = ref(null);
 const twoFactorInput = ref('');
 const usernameInput = ref('');
 const turnOffForm = ref(false);
-const error = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
+const isInvalid = computed(() => {
+  if (flashMsg.value) {
+    return 'form-control is-invalid';
+  } else {
+    return 'form-control';
+  }
+});
 
 const emit = defineEmits<{
   (e: 'updateUserProfil'): void;
@@ -73,7 +82,11 @@ function validateCode() {
       qrcode.value = null;
       turnOffForm.value = false;
     } else {
-      alert('Invalid 2FA code');
+      notify({
+        type: 'error',
+        title: "Two-Factor Authentication",
+        text: 'Invalid code',
+      });
     }
     twoFactorInput.value = '';
   });
@@ -92,7 +105,15 @@ function toggleTwoFactorAuthentication() {
 
 // Update username
 function updateUsername() {
-  if (usernameInput.value) {
+  if (inputStore.containsSpecialChars(usernameInput.value)) {
+    flashMsg.value = true;
+    notify({
+      type: 'error',
+      title: "Change username",
+      text: 'Username must not contains whitespace or special characters',
+    });
+  }
+  else if (usernameInput.value && usernameInput.value.length < 15) {
     Patch(`/users/${loggedUser.value?.id}`, {
       username: usernameInput.value
     }).then(res => {
@@ -103,15 +124,33 @@ function updateUsername() {
           loggedUser.value = updatedUser;
           usernameInput.value = '';
           emit('updateUserProfil');
+          flashMsg.value = false;
+          notify({
+            type: 'success',
+            title: "Change username",
+            text: 'Username updated !',
+          });
         }
       } else {
-        error.value = true;
-        setTimeout(() => {
-          error.value = false;
-        }, 5000);
+        flashMsg.value = true;
+        notify({
+          type: 'error',
+          title: "Change username",
+          text: 'Username already exists',
+        });
       }
     });
+  } else {
+    flashMsg.value = true;
+    notify({
+      type: 'error',
+      title: "Change username",
+      text: 'Username must not be empty or more than 15 characters',
+    });
   }
+  setTimeout(() => {
+    flashMsg.value = false;
+  }, 5000);
 }
 
 async function updateAvatar(event: any) {
@@ -122,7 +161,7 @@ async function updateAvatar(event: any) {
       formData.append('avatarUpload', file);
       let response;
       try {
-        response = await ax.post('/upload', formData, {
+        response = await ax.post('/upload/' + loggedUser.value?.id, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         if (response.status === 201) {
@@ -132,24 +171,32 @@ async function updateAvatar(event: any) {
             if (res.status === 200) {
               if (loggedUser.value) {
                 loggedUser.value.avatar = res.data.avatar;
-                fileInput.value = null;
                 emit('updateUserProfil');
+                notify({
+                  type: 'success',
+                  title: "Change avatar",
+                  text: 'Avatar updated !',
+                });
               }
             }
           });
         }
       } catch (er: any) {
-        alert(er.response.data.message);
+        notify({
+          type: 'error',
+          title: "Change avatar",
+          text: er.response.data.message,
+        });
       }
     }
+    else {
+      notify({
+        type: 'error',
+        title: "Change avatar",
+        text: 'Invalid file',
+      });
+    }
   }
-}
-
-async function logoutUser() {
-  Get('/auth/logout').then(res => {
-    loggedUser.value = null;
-    isAuthenticated.value = false;
-  });
 }
 </script>
 
@@ -205,11 +252,12 @@ async function logoutUser() {
             <div class="row">
               <div class="col-10 p-0">
                 <input
+                  :class="isInvalid"
                   v-model="usernameInput"
                   name="username"
                   type="text"
                   style="width: 100%"
-                  placeholder="UserName"
+                  placeholder="Username"
                 />
               </div>
               <div class="col-2 p-0">

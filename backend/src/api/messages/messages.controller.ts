@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MessagesService } from './messages.service';
@@ -18,8 +19,10 @@ import Message from './entities/message.entity';
 import User from 'src/api/users/entities/user.entity';
 import Channel from 'src/api/channels/entities/channel.entity';
 import { UpdateMessageDTO } from './dto/update-message.dto';
+import { JwtAccessGuard } from 'src/auth/guards';
 
 @Controller('messages')
+@UseGuards(JwtAccessGuard)
 @ApiTags('messages')
 export class MessagesController {
   constructor(

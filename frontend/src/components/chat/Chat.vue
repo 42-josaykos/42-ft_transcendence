@@ -11,19 +11,14 @@ import { Get } from '@/services/requests';
 import ChatMenu from "./ChatMenu.vue";
 import ChatUsers from "./ChatUsers.vue";
 import ChatMessages from "./ChatMessages.vue";
-import ModalChat from "./ModalChat.vue";
 import Navbar from '../Navbar.vue';
-// import BansMutesButton from './BansMutesButton.vue';
 
 const userStore = useUserStore();
-const { isAuthenticated, loggedUser, socketChat, usersBlocked, usersFriends } =
+const { loggedUser, socketChat, usersBlocked } =
   storeToRefs(userStore);
 
 const channelStore = useChannelStore();
 const { allChannels, newOwner, channelType } = storeToRefs(channelStore);
-
-const modalError = ref<boolean>(false)
-const msgError = ref<string>('')
 
 onBeforeMount(async () => {
   await Get(`/channels/search?&members&invites&bans&mutes`).then((res) => {
@@ -54,23 +49,6 @@ onUnmounted(() => {
   socketChat.value?.off('updateChannel');
   socketChat.value?.off('inviteChannel');
 });
-
-const removeAlert = () => {
-  modalError.value = false;
-  msgError.value = '';
-};
-
-const addAlert = (message: string) => {
-  msgError.value = message;
-  modalError.value = true;
-  setTimeout(removeAlert, 5000);
-};
-
-if (socketChat.value != undefined) {
-  socketChat.value.on('error', data => {
-    addAlert(data.message);
-  });
-}
 </script>
 
 <template>
@@ -88,35 +66,10 @@ if (socketChat.value != undefined) {
         </div>
       </div>
       <div class="col-md-3 col-chat ms-auto">
-
-
-        <!-- <div class="horizontal-line-bottom d-grid">
-          <div class="wrapper-btn-friends">
-            <BansMutesButton />
-          </div>
-        </div> -->
-
-        <!-- <div class="scrollspy-example mb-5 px-2 py-2" style="min-height: 80vh">
-          <ChatUsers />
-        </div> -->
         <ChatUsers />
       </div>
     </div>
   </div>
-
-  <ModalChat v-if="modalError == true" @close="modalError = false">
-    <template v-slot:header>
-      <h2 class="pt-4">
-        <u>ERROR</u>
-      </h2>
-    </template>
-    <template v-slot:body>
-      <div>
-        {{ msgError }}
-      </div>
-    </template>
-  </ModalChat>
-
 </template>
 
 <style>
@@ -164,6 +117,9 @@ if (socketChat.value != undefined) {
 .col-chat {
   min-height: 90vh;
   width: -webkit-fill-available;
+  width: -moz-available;
+  width: fill-available;
+
   justify-content: center;
   text-decoration: none;
   border: white 3px solid;

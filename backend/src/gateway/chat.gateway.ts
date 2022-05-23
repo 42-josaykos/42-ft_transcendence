@@ -31,7 +31,8 @@ class Connections {
 @WebSocketGateway({
   namespace: 'chat',
   cors: {
-    origin: 'http://localhost:3001',
+    // origin: `http://localhost:${process.env.FRONTEND_PORT}`,
+    origin: `http://${process.env.HOST}:${process.env.FRONTEND_PORT}`,
     credentials: true,
   },
 })
@@ -50,7 +51,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     Connection
   */
   async handleConnection(@ConnectedSocket() client: Socket) {
-    this.logger.log(`Client connected: ${client.id}`);
+    // this.logger.log(`Client connected: ${client.id}`);
     this.server.to(client.id).emit('askInfo');
   }
 
@@ -58,7 +59,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     Deconnection
   */
   handleDisconnect(@ConnectedSocket() client: Socket) {
-    this.logger.log(`Client disconnected: ${client.id}`);
+    // this.logger.log(`Client disconnected: ${client.id}`);
 
     const userIndex = this.connectedClients.findIndex(
       (connection) => connection.socketID.indexOf(client.id) !== -1,
@@ -66,9 +67,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     // Should never append, but prevention is better than cure
     if (userIndex === -1) {
-      console.log('Client: ', client);
-      console.log('Connected Clients: ', this.connectedClients);
-      throw new WsException('Disconnecting user was not found');
+      // console.log('Client: ', client);
+      // console.log('[Chat] Connected Clients: ', this.connectedClients);
+      return;
+      // throw new WsException('Disconnecting user was not found');
     }
 
     // Removing socketID from corresponding user
@@ -83,6 +85,36 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  @SubscribeMessage('logout')
+  handleLogout(@ConnectedSocket() client: Socket) {
+    // this.logger.log(`Logout: ${client.id}`);
+    const userIndex = this.connectedClients.findIndex(
+      (connection) => connection.socketID.indexOf(client.id) !== -1,
+    );
+
+    // Should never append, but prevention is better than cure
+    if (userIndex === -1) {
+      // console.log('Client: ', client);
+      // console.log('[Chat] Connected Clients: ', this.connectedClients);
+      return;
+      // throw new WsException('Disconnecting user was not found');
+    }
+
+    // console.log(
+    //   'User chat sockets: ',
+    //   this.connectedClients[userIndex].socketID,
+    // );
+
+    // Move to login page, but not needed here, already in StatusSystem
+    // this.server.to(this.connectedClients[userIndex].socketID).emit('logout');
+    // Disconnect all sockets
+    this.server
+      .to(this.connectedClients[userIndex].socketID)
+      .disconnectSockets(true);
+    // Delete user and it's sockets from connectedClients
+    this.connectedClients.splice(userIndex, 1);
+  }
+
   @SubscribeMessage('sendInfo')
   async sendInfo(@ConnectedSocket() client: Socket, @MessageBody() data: User) {
     const userIndex = this.connectedClients.findIndex(
@@ -90,10 +122,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
     if (userIndex === -1) {
       this.connectedClients.push({ userID: data.id, socketID: [client.id] });
+      this.server
+      .emit('receiveStatsUpdate', await this.statsService.getAllStats());
     } else {
       this.connectedClients[userIndex].socketID.push(client.id);
     }
-
+    try {
+      const users = await this.usersService.getUsersByFilter({});
+      this.server.emit('receiveFilteredUsers', users);
+    } catch (error) {}
     // console.log('Clients connected after connect: ', this.connectedClients);
   }
 
@@ -138,11 +175,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           const socketIds = this.connectedClients[index].socketID;
           for (const socketId of socketIds) {
             this.server.to(socketId).emit('newMessage', newMessage);
+            if (this.connectedClients[index].userID != user.id)
+              this.server.to(socketId).emit('success', { title: `${channel.name}`, message: `Received new message from ${newMessage.author.username}`});
           }
         }
       }
     } catch (error) {
-      this.server.to(client.id).emit('error', { message: error.message });
+      this.server.to(client.id).emit('error', { title: 'New message', message: "The message couldn't be sent" });
     }
   }
 
@@ -177,8 +216,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         id: userID.id,
       });
       this.server.emit('newChannel', { newChannel, message, user });
+      this.server.to(client.id).emit('success', { title: 'New channel', message: `${newChannel.name} : channel created` });
     } catch (error) {
-      this.server.to(client.id).emit('error', { message: error.message });
+      this.server.to(client.id).emit('error', { title: 'New channel', message: "The channel couldn't be created"  });
     }
   }
 
@@ -207,14 +247,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             channelItem.password,
           );
           if (!isPasswordMatching) {
-            this.server.to(client.id).emit('error', {
-              message: 'Channel protected by a password => wrong password',
+            this.server.to(client.id).emit('error', { title: 'Join channel',
+              message: "The channel couldn't be reached, wrong password",
             });
             return;
           }
         } else {
-          this.server.to(client.id).emit('error', {
-            message: 'Channel protected by a password => wrong password',
+          this.server.to(client.id).emit('error', { title: 'Join channel',
+            message: "The channel couldn't be reached, missing password",
           });
           return;
         }
@@ -225,12 +265,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
       if (index != -1) {
         const socketIds = this.connectedClients[index].socketID;
+        let [channelJoin] = await this.channelsService.getChannelsByFilter({
+          id: channel.id,
+          admins: true,
+        });
         for (const socketId of socketIds) {
-          this.server.to(socketId).emit('joinChannel');
+          this.server.to(socketId).emit('joinChannel', channelJoin);
+          this.server.to(socketId).emit('success', { title: "Join channel", message: `You have joined the channel : ${channel.name}`});
         }
       }
     } catch (error) {
-      this.server.to(client.id).emit('error', { message: error.message });
+      this.server.to(client.id).emit('error', { title: 'Join channel', message: "Channel not found" });
     }
   }
 
@@ -246,6 +291,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       let [channel] = await this.channelsService.getChannelsByFilter({
         id: channelID,
         invites: true,
+        members: true,
+        mutes: true,
+        bans: true,
       });
 
       if (channel.invites != []) {
@@ -264,8 +312,22 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       await this.channelsService.deleteChannel(channelID);
       this.server.emit('deleteChannel', channelID);
+
+      if (channel.members != []) {
+        for (const member of channel.members) {
+          const index = this.connectedClients.findIndex(
+            (el) => el.userID === member.id,
+          );
+          if (index != -1) {
+            const socketIds = this.connectedClients[index].socketID;
+            for (const socketId of socketIds) {
+              this.server.to(socketId).emit('error', { title: 'Delete channel', message: `The ${channel.name} channel has been deleted` });
+            }
+          }
+        }
+      }
     } catch (error) {
-      this.server.to(client.id).emit('error', { message: error.message });
+      this.server.to(client.id).emit('error', { title: 'Delete channel', message: "The channel couldn't be destroyed" });
     }
   }
 
@@ -289,6 +351,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           const socketIds = this.connectedClients[index].socketID;
           for (const socketId of socketIds) {
             this.server.to(socketId).emit('inviteChannel', channel);
+            this.server.to(socketId).emit('success', { title: 'Invitation', message: `You have received an invitation to join the channel : ${channel.name}` });
           }
         }
       }
@@ -317,6 +380,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           this.server
             .to(socketId)
             .emit('updateInvite', { inviteChannel, inviteBool });
+          if (inviteBool)
+            this.server.to(socketId).emit('success', { title: 'Accept invite', message: `You have accepted the invitation to join the channel : ${inviteChannel.name}` });
+          else
+            this.server.to(socketId).emit('error', { title: 'Refuse invite', message: `You refused the invitation to join the channel : ${inviteChannel.name}` });
         }
       }
     }
@@ -416,6 +483,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             const socketIds = this.connectedClients[index].socketID;
             for (const socketId of socketIds) {
               this.server.to(socketId).emit('userRemoveMember', newChannel);
+              this.server.to(socketId).emit('success', { title: "Leave channel", message: `You have left the channel : ${newChannel.name}` });
             }
           }
         }
@@ -425,7 +493,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.newMessage(client, [message, user]);
       }
     } catch (error) {
-      this.server.to(client.id).emit('error', { message: error.message });
+      this.server.to(client.id).emit('error', { title: "Update channel member", message: "Problem encountered when updating channel members" });
     }
   }
 
@@ -460,8 +528,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
 
       this.server.emit('updateMember', newChannel);
+      this.server.to(client.id).emit('success', { title: 'Update channel', message: `${newChannel.name} : channel updated` });
     } catch (error) {
-      this.server.to(client.id).emit('error', { message: error.message });
+      this.server.to(client.id).emit('error', { title: "Update channel", message: "Problem encountered when updating channel" });
     }
   }
 
@@ -485,8 +554,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           this.server.to(socketId).emit('addUserBlocked', userBlocked);
         }
       }
+      this.server.to(client.id).emit('success', { title: 'User blocked', message: `${userBlocked.username} : has been blocked` });
     } catch (error) {
-      this.server.to(client.id).emit('error', { message: error.message });
+      this.server.to(client.id).emit('error', { title: "User blocked", message: "Problem encountered when trying to block a user" });
     }
   }
 
@@ -510,8 +580,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           this.server.to(socketId).emit('removeUserBlocked', userBlocked);
         }
       }
+      this.server.to(client.id).emit('success', { title: 'User unlocked', message: `${userBlocked.username} : has been unlocked` });
     } catch (error) {
-      this.server.to(client.id).emit('error', { message: error.message });
+      this.server.to(client.id).emit('error', { title: "User unlocked", message: "Problem encountered when trying to unlock a user" });
     }
   }
 
@@ -535,8 +606,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           this.server.to(socketId).emit('addUserFriend', userFriend);
         }
       }
+      this.server.to(client.id).emit('success', { title: 'Add friend', message: `${userFriend.username} : has been added as a friend` });
     } catch (error) {
-      this.server.to(client.id).emit('error', { message: error.message });
+      this.server.to(client.id).emit('error', { title: "Add friend", message: "Problem encountered when trying to add a friend" });
     }
   }
 
@@ -560,8 +632,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
           this.server.to(socketId).emit('removeUserFriend', userFriend);
         }
       }
+      this.server.to(client.id).emit('success', { title: 'Remove friend', message: `${userFriend.username} : has been removed from the friends` });
     } catch (error) {
-      this.server.to(client.id).emit('error', { message: error.message });
+      this.server.to(client.id).emit('error', { title: "Remove friend", message: "Problem encountered when trying to remove a friend" });
     }
   }
 
@@ -571,12 +644,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() filter: FilterUserDTO,
   ) {
-    this.server
-      .to(client.id)
-      .emit(
-        'receiveFilteredUsers',
-        await this.usersService.getUsersByFilter(filter),
-      );
+    try {
+      const users = await this.usersService.getUsersByFilter(filter);
+      this.server.to(client.id).emit('receiveFilteredUsers', users);
+    } catch (error) {}
   }
 
   @SubscribeMessage('getUserFriends')
@@ -584,13 +655,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() loggedUser: User,
   ) {
-    this.server
-      .to(client.id)
-      .emit(
-        'receiveFriends',
-        (await this.usersService.getUserByID(loggedUser.id, ['friends']))
-          .friends,
-      );
+    try {
+      const friends = (
+        await this.usersService.getUserByID(loggedUser.id, ['friends'])
+      ).friends;
+      this.server.to(client.id).emit('receiveFriends', friends);
+    } catch (error) {}
   }
 
   @SubscribeMessage('updateFriends')
@@ -604,6 +674,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         'receiveFriends',
         (await this.usersService.updateUser(data.id, data.updateDTO)).friends,
       );
+      if ('addFriends' in data.updateDTO)
+        this.server.to(client.id).emit('success', { title: 'Add friend', message: `Friend has been added` });
+      if ('removeFriends' in data.updateDTO)
+        this.server.to(client.id).emit('success', { title: 'Remove friend', message: `Friend has been removed` });
   }
 
   @SubscribeMessage('getStats')
