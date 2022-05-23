@@ -16,6 +16,7 @@ import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer
 import { diskStorage } from 'multer';
 import { createReadStream, existsSync } from 'fs';
 import { join } from 'path';
+import { imageFileFilter } from './upload.utils';
 
 // Path to where store avatars
 const avatarFolder = 'assets/avatars';
@@ -25,9 +26,15 @@ const avatarMulterOptions: MulterOptions = {
   storage: diskStorage({
     destination: avatarFolder,
     filename: (req, file, cb) => {
-      cb(null, generateFilename(file));
+      const extension = file.originalname.split('.').pop();
+      const updatedFile = {
+        ...file,
+        originalname: req.params.id + '.' + extension,
+      };
+      cb(null, generateFilename(updatedFile));
     },
   }),
+  fileFilter: imageFileFilter,
   limits: {
     fileSize: 5000000, // 5MB
   },
@@ -49,7 +56,7 @@ export class UploadController {
   // The HTML upload form MUST have the same 'name' field value as here: 'avatarUpload'
   // That is how NestJS determines which file to intercept
   // Reference: https://docs.nestjs.com/techniques/file-upload
-  @Post()
+  @Post(':id')
   @UseInterceptors(FileInterceptor('avatarUpload', avatarMulterOptions))
   uploadFile(@UploadedFile() file: Express.Multer.File) {
     return file;

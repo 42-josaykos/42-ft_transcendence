@@ -51,6 +51,7 @@ onMounted(() => {
         <GameSystem />
         <ChatSocket />
       </div>
+      <notifications style="z-index: 9999;"/>
       <div class="routerView"><router-view /></div>
     </div>
   </div>

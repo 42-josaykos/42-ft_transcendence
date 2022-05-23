@@ -56,7 +56,10 @@ const isOnline = computed(() => {
     </div>
     <div class="infos" v-bind:class="{ infosChat: !props.dashboard, 'col-md-7': !props.profile }">
       <div class="text-truncate">
-        <div class="info">
+        <div
+          class="info"
+          v-bind:class="{'home_username' : props.profile && !props.dashboard}"
+        >
           {{ props.user?.username }}
         </div>
         <div class="info">
@@ -76,18 +79,31 @@ const isOnline = computed(() => {
 </template>
 
 <style>
+
+.home_username {
+  font-size: xx-large;
+  color: white;
+  font-weight: bold;
+}
+
 .infos {
   display: flex;
   align-items: center;
   padding-left: 10px !important;
   padding-top: 4px;
+  overflow: auto;
 }
 .infosChat {
   margin-left: 10px;
 }
 
 .info {
-  text-align: left;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  width: -webkit-fill-available;
+  width: -moz-available;
+  text-align: start;
 }
 
 .cercle-user-card {

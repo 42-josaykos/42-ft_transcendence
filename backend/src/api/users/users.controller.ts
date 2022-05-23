@@ -20,13 +20,14 @@ import User from './entities/user.entity';
 import Match from 'src/api/matches/entities/matches.entity';
 import Channel from 'src/api/channels/entities/channel.entity';
 import { UpdateUserDTO } from './dto/update-user.dto';
-import { JwtTwoFactorGuard } from 'src/auth/guards';
+import { JwtAccessGuard, JwtTwoFactorGuard } from 'src/auth/guards';
 import { Utils } from 'src/utils/utils.provider';
 import MutedUser from './entities/muted.user.entity';
 import BanedUser from './entities/baned.user.entity';
 
 @Controller('users')
 @ApiTags('users')
+// @UseGuards(JwtAccessGuard)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,

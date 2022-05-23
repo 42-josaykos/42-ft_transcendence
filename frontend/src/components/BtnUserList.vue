@@ -46,8 +46,7 @@ const numberUsers = computed(() => {
 </script>
 
 <template>
-  <br />
-  <span class="d-flex mb-3">
+  <span class="d-flex mb-3 mt-2">
     <span class="horizontal-line-center"></span>
       {{isOffLine ? 'Offline' : 'Online'}} - {{numberUsers}}
     <span class="horizontal-line-center"></span>
@@ -64,7 +63,6 @@ const numberUsers = computed(() => {
         <a v-if="player.id != loggedUser?.id"
           class="hovertext hovertextC"
           data-hover="Profile"
-          href="#"
           @click="
             setting_open = true;
             userClick = player;
@@ -79,7 +77,6 @@ const numberUsers = computed(() => {
         <a v-if="player.id != loggedUser?.id"
           class="hovertext hovertextC"
           data-hover="Send message"
-          href="#"
           @click="
             modalSendMessage = true;
             userClick = player;
@@ -93,7 +90,6 @@ const numberUsers = computed(() => {
         <a v-if="props.isOffLine == false && player.id != loggedUser?.id"
           class="hovertext hovertextC"
           data-hover="Invite to game"
-          href="#"
           @click="
             modaleOpenInviteGame = true;
             userClick = player;
@@ -107,7 +103,6 @@ const numberUsers = computed(() => {
         <a v-if="player.id != loggedUser?.id"
           class="hovertext hovertextL"
           data-hover="Add friend"
-          href="#"
           @click="
             socketChat?.emit('updateFriends', {
               id: loggedUser?.id,
@@ -123,7 +118,6 @@ const numberUsers = computed(() => {
         <a v-if="player.id != loggedUser?.id"
           class="hovertext hovertextL"
           data-hover="Remove friend"
-          href="#"
           @click="
             socketChat?.emit('updateFriends', {
               id: loggedUser?.id,

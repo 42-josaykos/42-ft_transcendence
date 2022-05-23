@@ -28,6 +28,7 @@ const emits = defineEmits(["updateUserProfil"]);
 
 const disconnectSockets = () => {
   // console.log("[Logout] Disconnecting sockets");
+  gameSocket.value?.emit("leaveQueue", loggedUser.value)
   statusSocket.value?.emit("logout");
   socketChat.value?.emit("logout");
   gameSocket.value?.emit("logout");
@@ -109,7 +110,7 @@ const disconnectSockets = () => {
                 v-bind:class="{ selected: mh_open }"
                 class="btn-block set-btn set-btn-yellow selector"
               >
-                Historical
+                Match History
               </button>
             </div>
             <div

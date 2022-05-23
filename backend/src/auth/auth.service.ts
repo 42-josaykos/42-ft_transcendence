@@ -185,7 +185,6 @@ export class AuthService implements AuthenticationProvider {
     };
 
     const [user] = await this.usersService.getUsersByFilter(filter);
-    console.log('istwofactor:', user);
 
     if (!user.twoFactorAuthenticationSecret) {
       return null;
