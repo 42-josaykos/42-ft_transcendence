@@ -27,113 +27,106 @@ onMounted(() => {
 
 <template>
   <div class="match_history">
-    <table style="width: 90%; table-layout: fixed; margin-top: 15px; margin-left: auto; margin-right: auto;">
-      <thead style="border-bottom: 20px solid rgba(0, 0, 0, 0)">
-          <tr>
-        <th class="table_title" scope="col">Player 1</th>
-        <th class="table_title" scope="col">Player 2</th>
-        <th class="table_title" scope="col">Score</th>
+    <div class="scrollspy-example4">
+    <table style="table-layout: fixed;">
+      <thead style="border-bottom: 10px solid rgba(0, 0, 0, 0);">
+        <tr>
+          <th class="table_title" scope="col">Player 1</th>
+          <th class="table_title" scope="col">Player 2</th>
+          <th class="table_title" scope="col">Score</th>
+          <th class="table_title" scope="col">Ranked</th>
         </tr>
       </thead>
+      <tbody>
+        <tr v-for="(match, index) in matches" :key="match.id">
+          <td style="" v-bind:class="{'mePlayer' : loggedUser?.id === match.players[0].id }" class="player">
+            <div class="box" style="gap: 5px;">
+              <div class="item"><img class="circular--square" style="width: 25px" v-bind:src="match.players[0].avatar" /></div>
+              <a
+                class="item player"
+                href="#"
+                @click="
+                  userClick = match.players[0];
+                  getMatchHistory();
+                "
+                >{{ match.players[0].username }}</a
+              >
+            </div>
+          </td>
+          <td v-bind:class="{'mePlayer' : loggedUser?.id === match.players[1].id}" class="player">
+            <div class="box" style="gap: 5px;">
+              <div class="item"><img class="circular--square" style="width: 25px" v-bind:src="match.players[1].avatar" /></div>
+              <a
+                class="item player"
+                href="#"
+                @click="
+                  userClick = match.players[1];
+                  getMatchHistory();
+                "
+                >{{ match.players[1].username }}</a
+              >
+            </div>
+          </td>
+          <td>
+            <div class="box">
+              <div class="item" v-bind:style= "match.score[0] === 10 ? 'color: #1e9c61;' :'' ">{{ match.score[0] }} </div>
+              <div class="item">-</div>
+              <div class="item" v-bind:style= "match.score[1] === 10 ? 'color: #1e9c61;' :'' ">{{ match.score[1] }} </div>
+            </div>
+          </td>
+          <td>
+              {{match.isRankedMatch ? 'Yes' : 'No'}}
+          </td>
+        </tr>
+      </tbody>
     </table>
-    <div  class="scrollspy-example4">
-      <table style="width: 90%; table-layout: fixed; margin-left: auto; margin-right: auto;">
-        <thead style="border-bottom: 20px solid rgba(0, 0, 0, 0)">
-          <tr v-for="(match, index) in matches" :key="match.id">
-            <th v-bind:class="{'mePlayer' : loggedUser?.id === match.players[0].id}" class="player">
-              <div class="box" style="gap: 5px; padding-left: 1vw;">
-                <div class="item"><img class="circular--square" style="width: 25px" v-bind:src="match.players[0].avatar" /></div>
-                <a
-                  class="item player"
-                  @click="
-                    userClick = match.players[0];
-                    getMatchHistory();
-                  "
-                  >{{ match.players[0].username }}</a
-                >
-              </div>
-            </th>
-            <th v-bind:class="{'mePlayer' : loggedUser?.id === match.players[1].id}" class="player">
-              <div class="box" style="gap: 5px; margin-left: -10px;">
-                <div class="item"><img class="circular--square" style="width: 25px" v-bind:src="match.players[1].avatar" /></div>
-                <a
-                  class="item player"
-                  @click="
-                    userClick = match.players[1];
-                    getMatchHistory();
-                  "
-                  >{{ match.players[1].username }}</a
-                >
-              </div>
-            </th>
-            <th class="d-flex" scope="col">
-              <div class="item" v-bind:style= "match.score[0] === 5 ? 'color: #1e9c61;' :'' ">{{ match.score[0] }}</div>
-              <div class="item"> - </div>
-              <div class="item" v-bind:style= "match.score[1] === 5 ? 'color: #1e9c61;' :'' ">{{ match.score[1] }}</div>
-            </th>
-          </tr>
-        </thead>
-      </table>
     </div>
   </div>
 </template>
-
 <style scoped>
-a:hover {
-  cursor: pointer;
-}
-.box{
-  display: flex;
-}
-
-a.item.player{
-  text-decoration: none;
-  color: inherit;
-}
-
- .item.player{
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-  width: 100px;
-}
-
-.item.player:hover{
-  overflow: visible;
-  white-space: normal;
-  width: 100px;
-  text-decoration: underline;
-} 
-.mePlayer{
-  color: #1e579c !important;
-}
-
-.match_history {
-  display: grid;
-  min-width: 220px;
-}
 
 .scrollspy-example4 {
   position: relative;
-  max-height: 200px;
+  max-height: 300px;
+  min-height: 300px;
+  margin-top: 0.5rem;
   overflow: auto;
   scrollbar-width: none;
+  min-width: 400px;
 }
+
 .scrollspy-example4::-webkit-scrollbar {
   display: none;
 }
+
 .scrollspy-example4::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .scrollspy-example4::-webkit-scrollbar-thumb {
   background-color: transparent;
+}
+.box{
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  justify-content: center;
+}
+.box .item{
+  width: 20px;
+}
+.winScore{
+  color: #1e9c61;
+}
+a.item.player{
+  text-decoration: none;
+  color: inherit;
 }
 .item.player{
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
   width: 100px;
-  text-align: start;
 }
 .item.player:hover{
   overflow: visible;
@@ -141,12 +134,13 @@ a.item.player{
   width: 100px;
   text-decoration: underline;
 }
-.table_title {
-  font-size: large;
+.mePlayer{
+  color: #1e579c !important;
 }
-
-th {
-  white-space: nowrap;
-  width: 40%;
+.match_history {
+  display: grid;
+}
+.table_title{
+  font-size: large;
 }
 </style>

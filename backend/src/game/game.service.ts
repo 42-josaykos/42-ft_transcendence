@@ -54,7 +54,7 @@ export class GameService implements OnModuleInit {
   }
 
   // Main game code
-  createGame(playerOne: Player, playerTwo: Player, gameOptions: GameOptions, isCustomGame: boolean) {
+  createGame(playerOne: Player, playerTwo: Player, gameOptions: GameOptions, isRankedMatch: boolean) {
     const inGameUsers = this.inGameUsers()
     if (inGameUsers.find((user) => user.id === playerOne.player.user.id) || inGameUsers.find((user) => user.id === playerTwo.player.user.id))
       return
@@ -75,7 +75,7 @@ export class GameService implements OnModuleInit {
       finished: false,
       winner: null,
       socketRoom: roomName,
-      isCustomGame: isCustomGame,
+      isRankedMatch: isRankedMatch,
     };
 
     this.games.push(game);

@@ -25,7 +25,7 @@ export const register_open = ref(false);
     <div class="overlay" @click="setting_open = !setting_open"></div>
     <div
       class="modale card scrollspy-profil"
-      style="min-width: 40vw; max-width: 75%; overflow: auto"
+      style="min-width: 40vw; max-width: 100%; overflow: auto"
     >
       <Profil @updateUserProfil="getUserData" />
     </div>
