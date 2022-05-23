@@ -1,21 +1,23 @@
 <script setup lang="ts">
-import { Get } from '@/services/requests';
-import { useUserStore } from '@/stores/user';
-import { useMatchStore } from '@/stores/match';
-import { storeToRefs } from 'pinia';
-import { onMounted, ref } from 'vue';
+import { Get } from "@/services/requests";
+import { useUserStore } from "@/stores/user";
+import { useMatchStore } from "@/stores/match";
+import { storeToRefs } from "pinia";
+import { onMounted, ref } from "vue";
 
 const { userClick } = storeToRefs(useUserStore());
 const { matches } = storeToRefs(useMatchStore());
-const nbMatches = ref(0)
+const nbMatches = ref(0);
 
 async function getMatchHistory() {
   let response;
   try {
-    response = await Get(`/users/${userClick.value?.id}/matches/played`);
+    response = await Get(
+      `http://${HOST}:${API_PORT}/users/${userClick.value?.id}/matches/played`
+    );
     if (response.status === 200) {
       matches.value = response.data.reverse();
-      nbMatches.value = matches.value.length
+      nbMatches.value = matches.value.length;
     }
   } catch (error: any) {}
 }
@@ -27,7 +29,6 @@ onMounted(() => {
 
 <template>
   <div class="container">
-
     <div class="history">
       <h4>
         <b><u>History</u></b>

@@ -88,7 +88,7 @@ function isNotAuthenticatedGuard(to: any, from: any, next: any) {
 async function routeGuard(to: any, from: any, next: any) {
   let response;
   try {
-    response = await Get("/auth/jwt-status");
+    response = await Get(`/auth/jwt-status`);
     if (response.status != 401) {
       next(); // allow to enter route
     } else {

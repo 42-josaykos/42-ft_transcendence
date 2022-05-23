@@ -18,7 +18,7 @@ import { Logger } from '@nestjs/common';
 @WebSocketGateway({
   namespace: 'status',
   cors: {
-    origin: `http://localhost:${process.env.FRONTEND_PORT}`,
+    origin: true,
     credentials: true,
   },
 })

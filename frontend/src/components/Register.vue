@@ -1,43 +1,43 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
-import { useUserStore } from '@/stores/user';
-import { ref, computed } from 'vue';
-import { Post } from '@/services/requests';
-import { useRouter } from 'vue-router';
+import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/user";
+import { ref, computed } from "vue";
+import { Post } from "@/services/requests";
+import { useRouter } from "vue-router";
 
 const userStore = useUserStore();
 const { isAuthenticated, loggedUser, flashMsg } = storeToRefs(userStore);
 const router = useRouter();
 
-const username = ref('');
-const password1 = ref('');
-const password2 = ref('');
+const username = ref("");
+const password1 = ref("");
+const password2 = ref("");
 const isInvalid = computed(() => {
   if (flashMsg.value) {
-    return 'form-control is-invalid';
+    return "form-control is-invalid";
   } else {
-    return 'form-control';
+    return "form-control";
   }
 });
 
 function register() {
   if (username.value.length > 15) {
-    flashMsg.value = 'Username must be less than 15 characters';
+    flashMsg.value = "Username must be less than 15 characters";
   } else if (password1.value == password2.value) {
-    Post('/users', {
+    Post(`http://${HOST}:${API_PORT}/users`, {
       username: username.value,
-      password: password1.value
-    }).then(res => {
+      password: password1.value,
+    }).then((res) => {
       if (res.status == 201) {
         userStore.createUser(res.data);
-        Post('/auth/login/local', {
+        Post("/auth/login/local", {
           username: res.data.username,
-          password: password1.value
-        }).then(res => {
+          password: password1.value,
+        }).then((res) => {
           if (res.status == 201) {
             isAuthenticated.value = true;
             loggedUser.value = res.data;
-            router.push('/');
+            router.push("/");
           }
         });
       }
@@ -46,16 +46,16 @@ function register() {
     flashMsg.value = "Password doesn't match";
   }
   setTimeout(() => {
-    flashMsg.value = '';
+    flashMsg.value = "";
   }, 5000);
 }
 
 const seePassword = (stringId: string) => {
   let pass = document.getElementById(stringId);
-  if (pass?.getAttribute('type') === 'password') {
-    pass?.setAttribute('type', 'text');
+  if (pass?.getAttribute("type") === "password") {
+    pass?.setAttribute("type", "text");
   } else {
-    pass?.setAttribute('type', 'password');
+    pass?.setAttribute("type", "password");
   }
 };
 </script>

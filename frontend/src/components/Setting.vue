@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import Toggle from '@vueform/toggle';
-import { useUserStore } from '@/stores/user';
-import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
-import { Patch, Post } from '@/services/requests';
-import ax from '@/services/interceptors';
-import type { User } from '@/models/user.model';
-import { computed } from '@vue/reactivity';
+import Toggle from "@vueform/toggle";
+import { useUserStore } from "@/stores/user";
+import { storeToRefs } from "pinia";
+import { ref } from "vue";
+import { Patch, Post } from "@/services/requests";
+import ax from "@/services/interceptors";
+import type { User } from "@/models/user.model";
+import { computed } from "@vue/reactivity";
 
 const userStore = useUserStore();
 const { isTwoFactorAuth, loggedUser, flashMsg } = storeToRefs(userStore);
@@ -16,21 +16,21 @@ if (loggedUser.value && loggedUser.value.isTwoFactorAuthenticationEnabled) {
   isTwoFactorAuth.value = false;
 }
 const qrcode = ref(null);
-const twoFactorInput = ref('');
-const usernameInput = ref('');
+const twoFactorInput = ref("");
+const usernameInput = ref("");
 const turnOffForm = ref(false);
 const error = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
 const isInvalid = computed(() => {
   if (flashMsg.value && error.value) {
-    return 'form-control is-invalid';
+    return "form-control is-invalid";
   } else {
-    return 'form-control';
+    return "form-control";
   }
 });
 
 const emit = defineEmits<{
-  (e: 'updateUserProfil'): void;
+  (e: "updateUserProfil"): void;
 }>();
 
 // Convert QR code image file stream from response to base64 string
@@ -39,17 +39,17 @@ function getBase64(file: any) {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
+    reader.onerror = (error) => reject(error);
   });
 }
 
 // Generate 2FA QR code
 function generate2FA() {
   ax({
-    method: 'post',
-    url: '/auth/generate-2fa',
-    responseType: 'blob'
-  }).then(res => {
+    method: "post",
+    url: "/auth/generate-2fa",
+    responseType: "blob",
+  }).then((res) => {
     getBase64(res.data).then((data: any) => {
       qrcode.value = data;
     });
@@ -58,9 +58,9 @@ function generate2FA() {
 
 // 2FA code validation handler
 function validateCode() {
-  Post('/auth/turn-2fa-on', {
-    twoFactorAuthenticationCode: twoFactorInput.value
-  }).then(res => {
+  Post("/auth/turn-2fa-on", {
+    twoFactorAuthenticationCode: twoFactorInput.value,
+  }).then((res) => {
     if (res.status === 201) {
       if (
         !isTwoFactorAuth.value &&
@@ -80,9 +80,9 @@ function validateCode() {
       qrcode.value = null;
       turnOffForm.value = false;
     } else {
-      alert('Invalid 2FA code');
+      alert("Invalid 2FA code");
     }
-    twoFactorInput.value = '';
+    twoFactorInput.value = "";
   });
 }
 
@@ -100,31 +100,31 @@ function toggleTwoFactorAuthentication() {
 // Update username
 function updateUsername() {
   if (usernameInput.value && usernameInput.value.length < 15) {
-    Patch(`/users/${loggedUser.value?.id}`, {
-      username: usernameInput.value
-    }).then(res => {
+    Patch(`http://${HOST}:${API_PORT}/users/${loggedUser.value?.id}`, {
+      username: usernameInput.value,
+    }).then((res) => {
       if (res.status === 200) {
         if (loggedUser.value) {
           let updatedUser: User = { ...loggedUser.value };
           updatedUser.username = res.data.username;
           loggedUser.value = updatedUser;
-          usernameInput.value = '';
-          emit('updateUserProfil');
+          usernameInput.value = "";
+          emit("updateUserProfil");
           error.value = false;
-          flashMsg.value = 'Username updated !';
+          flashMsg.value = "Username updated !";
         }
       } else {
         error.value = true;
-        flashMsg.value = 'Username already exists';
+        flashMsg.value = "Username already exists";
       }
     });
   } else {
     error.value = true;
-    flashMsg.value = 'Username must be not empty and 15 characters or less';
+    flashMsg.value = "Username must be not empty and 15 characters or less";
   }
   setTimeout(() => {
     error.value = false;
-    flashMsg.value = '';
+    flashMsg.value = "";
   }, 5000);
 }
 
@@ -133,23 +133,27 @@ async function updateAvatar(event: any) {
     const file = fileInput.value.files?.item(0);
     if (file) {
       let formData = new FormData();
-      formData.append('avatarUpload', file);
+      formData.append("avatarUpload", file);
       let response;
       try {
-        response = await ax.post('/upload', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        response = await ax.post(
+          `http://${HOST}:${API_PORT}/upload`,
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
         if (response.status === 201) {
-          Patch(`/users/${loggedUser.value?.id}`, {
-            avatar: response.data.path
-          }).then(res => {
+          Patch(`http://${HOST}:${API_PORT}/users/${loggedUser.value?.id}`, {
+            avatar: response.data.path,
+          }).then((res) => {
             if (res.status === 200) {
               if (loggedUser.value) {
                 loggedUser.value.avatar = res.data.avatar;
                 fileInput.value = null;
-                emit('updateUserProfil');
+                emit("updateUserProfil");
                 error.value = false;
-                flashMsg.value = 'Avatar updated !';
+                flashMsg.value = "Avatar updated !";
               }
             }
           });
@@ -160,7 +164,7 @@ async function updateAvatar(event: any) {
     }
     setTimeout(() => {
       error.value = false;
-      flashMsg.value = '';
+      flashMsg.value = "";
     }, 5000);
   }
 }
@@ -328,7 +332,7 @@ async function updateAvatar(event: any) {
 </template>
 
 <style>
-@import '@vueform/toggle/themes/default.css';
+@import "@vueform/toggle/themes/default.css";
 
 .submit-btn {
   border: none;

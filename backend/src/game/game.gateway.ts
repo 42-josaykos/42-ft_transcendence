@@ -21,7 +21,7 @@ import { Game, Player, Invites, GameOptions } from 'src/game/game.class';
 @WebSocketGateway({
   namespace: 'game',
   cors: {
-    origin: `http://localhost:${process.env.FRONTEND_PORT}`,
+    origin: true,
     credentials: true,
   },
 })
@@ -152,7 +152,7 @@ export class GameGateway
           { ...playerTwo },
           this.matchmakingOptions,
           'matchmaking',
-          'startGame'
+          'startGame',
         );
       }
     }
@@ -302,7 +302,7 @@ export class GameGateway
         score: [game.players[0].score, game.players[1].score],
       };
       const match = await axios({
-        url: `http://${process.env.FRONTEND_HOST}:${process.env.FRONTEND_PORT}/matches`,
+        url: `http://${process.env.HOST}:${process.env.API_PORT}/matches`,
         method: 'POST',
         data: body,
       });
@@ -420,10 +420,14 @@ export class GameGateway
     );
 
     //Remove users from queue
-    const userInviteIndex = this.queue.findIndex((user) => user.user.id === userInvite.user.id)
-    const userGuestIndex = this.queue.findIndex((user) => user.user.id === userGuest.user.id)
-    if (userInviteIndex !== -1) this.queue.splice(userInviteIndex, 1)
-    if (userGuestIndex !== -1) this.queue.splice(userGuestIndex, 1)
+    const userInviteIndex = this.queue.findIndex(
+      (user) => user.user.id === userInvite.user.id,
+    );
+    const userGuestIndex = this.queue.findIndex(
+      (user) => user.user.id === userGuest.user.id,
+    );
+    if (userInviteIndex !== -1) this.queue.splice(userInviteIndex, 1);
+    if (userGuestIndex !== -1) this.queue.splice(userGuestIndex, 1);
 
     // Get game options
     const inviteGuest = this.invites.find(

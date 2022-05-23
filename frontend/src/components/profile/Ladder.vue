@@ -23,7 +23,7 @@ socketChat.value?.on("receiveStatsUpdate", (data: any) => {
 async function getPlayersStats() {
   let response;
   try {
-    response = await Get("/stats");
+    response = await Get(`http://${HOST}:${API_PORT}/stats`);
     if (response.status === 200) {
       leaderboard.value = response.data;
       getLadder();

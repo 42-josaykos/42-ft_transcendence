@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { onBeforeMount, onUnmounted, ref } from 'vue';
+import { onBeforeMount, onUnmounted, ref } from "vue";
 
-import { storeToRefs } from 'pinia';
+import { storeToRefs } from "pinia";
 
-import { useUserStore } from '@/stores/user';
-import { useChannelStore } from '@/stores/channel';
+import { useUserStore } from "@/stores/user";
+import { useChannelStore } from "@/stores/channel";
 
-import { Get } from '@/services/requests';
+import { Get } from "@/services/requests";
 
 import ChatMenu from "./ChatMenu.vue";
 import ChatUsers from "./ChatUsers.vue";
 import ChatMessages from "./ChatMessages.vue";
 import ModalChat from "./ModalChat.vue";
-import Navbar from '../Navbar.vue';
+import Navbar from "../Navbar.vue";
 // import BansMutesButton from './BansMutesButton.vue';
 
 const userStore = useUserStore();
@@ -22,18 +22,20 @@ const { isAuthenticated, loggedUser, socketChat, usersBlocked, usersFriends } =
 const channelStore = useChannelStore();
 const { allChannels, newOwner, channelType } = storeToRefs(channelStore);
 
-const modalError = ref<boolean>(false)
-const msgError = ref<string>('')
+const modalError = ref<boolean>(false);
+const msgError = ref<string>("");
 
 onBeforeMount(async () => {
-  await Get(`/channels/search?&members&invites&bans&mutes`).then((res) => {
+  await Get(
+    `http://${HOST}:${API_PORT}/channels/search?members&invites&bans&mutes`
+  ).then((res) => {
     if (res.status == 200) {
       allChannels.value = res.data;
       if (loggedUser.value != undefined) {
         channelStore.updateInvite(loggedUser.value?.id);
         Get(
-          `/users/search?id=${loggedUser.value?.id}&banChannels&muteChannels&blockedUsers`
-        ).then(res => {
+          `http://${HOST}:${API_PORT}/users/search?id=${loggedUser.value?.id}&banChannels&muteChannels&blockedUsers`
+        ).then((res) => {
           if (res.status == 200) {
             channelStore.updateBanMute(res.data);
             usersBlocked.value = res.data[0].blockedUsers;
@@ -47,17 +49,17 @@ onBeforeMount(async () => {
 });
 
 onUnmounted(() => {
-  socketChat.value?.off('newMessage');
-  socketChat.value?.off('newChannel');
-  socketChat.value?.off('deleteChannel');
-  socketChat.value?.off('joinChannel');
-  socketChat.value?.off('updateChannel');
-  socketChat.value?.off('inviteChannel');
+  socketChat.value?.off("newMessage");
+  socketChat.value?.off("newChannel");
+  socketChat.value?.off("deleteChannel");
+  socketChat.value?.off("joinChannel");
+  socketChat.value?.off("updateChannel");
+  socketChat.value?.off("inviteChannel");
 });
 
 const removeAlert = () => {
   modalError.value = false;
-  msgError.value = '';
+  msgError.value = "";
 };
 
 const addAlert = (message: string) => {
@@ -67,14 +69,14 @@ const addAlert = (message: string) => {
 };
 
 if (socketChat.value != undefined) {
-  socketChat.value.on('error', data => {
+  socketChat.value.on("error", (data) => {
     addAlert(data.message);
   });
 }
 </script>
 
 <template>
-  <Navbar componentName="Chat"/>
+  <Navbar componentName="Chat" />
   <div class="container">
     <div class="row-chat">
       <div class="col-md-3 col-chat">
@@ -88,8 +90,6 @@ if (socketChat.value != undefined) {
         </div>
       </div>
       <div class="col-md-3 col-chat ms-auto">
-
-
         <!-- <div class="horizontal-line-bottom d-grid">
           <div class="wrapper-btn-friends">
             <BansMutesButton />
@@ -116,7 +116,6 @@ if (socketChat.value != undefined) {
       </div>
     </template>
   </ModalChat>
-
 </template>
 
 <style>

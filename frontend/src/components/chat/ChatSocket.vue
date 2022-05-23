@@ -23,7 +23,7 @@ const { channel, channelJoin, usersMembers, usersInvite } =
 
 if (isAuthenticated.value) {
   if (socketChat.value == undefined) {
-    socketChat.value = io(`http://localhost:${API_PORT}/chat`, {
+    socketChat.value = io(`http://${HOST}:${API_PORT}/chat`, {
       withCredentials: true,
     });
   }
@@ -64,7 +64,7 @@ if (isAuthenticated.value) {
       loggedUser.value?.id == newMessage.author.id
     ) {
       await Get(
-        `/channels/search?id=${newMessage.channel.id.toString()}&members&bans&mutes&admins&owner&messages`
+        `http://${HOST}:${API_PORT}/channels/search?id=${newMessage.channel.id}&members&bans&mutes&admins&owner&messages`
       ).then((res) => {
         if (res.status == 200) {
           if (res.data[0].isDirectChannel) {
@@ -93,7 +93,7 @@ if (isAuthenticated.value) {
           );
         }
         await Get(
-          `/channels/search?id=${newChannel.id.toString()}&members&bans&mutes&admins&owner`
+          `http://${HOST}:${API_PORT}/channels/search?id=${newChannel.id}&members&bans&mutes&admins&owner`
         ).then((res) => {
           if (res.status == 200) {
             channel.value = res.data[0];
@@ -168,7 +168,7 @@ if (isAuthenticated.value) {
       channelStore.updateOwner(loggedUser.value.id);
       if (channel.value?.id === updateChannel.id) {
         Get(
-          `/channels/search?id=${channel.value.id.toString()}&owner&admins&members&mutes&bans&messages`
+          `http://${HOST}:${API_PORT}/channels/search?id=${channel.value.id}&owner&admins&members&mutes&bans&messages`
         ).then((res) => {
           if (res.status == 200) {
             usersMembers.value = res.data[0].members;

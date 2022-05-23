@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Navbar from "./components/Navbar.vue";
 import StatusSystem from "./components/StatusSystem.vue";
 import GameSystem from "./components/game/GameSystem.vue";
 import { storeToRefs } from "pinia";
@@ -7,15 +6,13 @@ import { useUserStore } from "@/stores/user";
 import { onMounted, ref } from "vue";
 import { Get } from "./services/requests";
 import ChatSocket from "./components/chat/ChatSocket.vue";
-import axios from "axios";
-import Login from "./components/Login.vue";
 
 const userStore = useUserStore();
 const { loggedUser, isAuthenticated } = storeToRefs(userStore);
 
 // Verify if user is already logged
 onMounted(() => {
-  Get("/auth/jwt-status")
+  Get(`/auth/jwt-status`)
     .then((res) => {
       if (res.status == 403) {
         console.log("[App] isAuthenticated: ", false);

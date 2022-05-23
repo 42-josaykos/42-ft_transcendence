@@ -26,7 +26,7 @@ console.log("[StatusStore] isAuthenticated: ", isAuthenticated.value);
 
 if (isAuthenticated.value) {
   // console.log("[StatusStore] loggedUser: ", loggedUser.value);
-  statusSocket.value = io(`http://localhost:${STATUS_PORT}/status`, {
+  statusSocket.value = io(`http://${HOST}:${STATUS_PORT}/status`, {
     withCredentials: true,
   });
 
@@ -62,21 +62,19 @@ if (isAuthenticated.value) {
     if (userClick.value && userClick.value.id == data.id) {
       userClick.value = data;
       const response = await Get(
-        `/users/${userClick.value?.id}/matches/played`
+        `http://${HOST}:${API_PORT}/users/${userClick.value?.id}/matches/played`
       );
       if (response.status === 200) {
         matches.value = response.data.reverse();
       }
     }
-    const response = await Get("/stats");
+    const response = await Get(`http://${HOST}:${API_PORT}/stats`);
     if (response.status === 200) {
       leaderboard.value = response.data;
     }
     if (channel.value) {
       Get(
-        "/channels/search?id=" +
-          channel.value.id.toString() +
-          "&messages&owner&admins&members&mutes&bans&invites"
+        `http://${HOST}:${API_PORT}/channels/search?id=${channel.value.id}&messages&owner&admins&members&mutes&bans&invites`
       ).then((res) => {
         channel.value = res.data[0];
         useMessageStore().sortMessages(res.data[0].messages);
@@ -90,19 +88,19 @@ if (isAuthenticated.value) {
       });
     }
     if (users.value) {
-      await Get("/users/search").then((res) => {
+      await Get(`http://${HOST}:${API_PORT}/users/search`).then((res) => {
         if (res.status == 200) {
           users.value = res.data;
         }
       });
     }
-    await Get(`/users/search?id=${loggedUser.value?.id}&friends`).then(
-      (res: any) => {
-        if (res.status == 200) {
-          usersFriends.value = res.data[0].friends;
-        }
+    await Get(
+      `http://${HOST}:${API_PORT}/users/search?id=${loggedUser.value?.id}&friends`
+    ).then((res: any) => {
+      if (res.status == 200) {
+        usersFriends.value = res.data[0].friends;
       }
-    );
+    });
   });
 }
 </script>

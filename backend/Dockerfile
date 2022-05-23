@@ -1,9 +1,9 @@
 FROM node:16-alpine
 
-WORKDIR /usr/app
+WORKDIR /node/home
 
 COPY package*.json ./
 
-RUN npm install
+RUN apk add curl && npm install
 
 COPY . .
