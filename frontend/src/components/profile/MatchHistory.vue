@@ -26,7 +26,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="match_history">
+  <div v-if="matches.length > 0" class="match_history">
     <div class="scrollspy-example4">
     <table style="table-layout: fixed;">
       <thead style="border-bottom: 10px solid rgba(0, 0, 0, 0);">
@@ -82,7 +82,11 @@ onMounted(() => {
     </table>
     </div>
   </div>
+  <div v-else class="match_history">
+    No game history
+  </div>
 </template>
+
 <style scoped>
 
 .scrollspy-example4 {
