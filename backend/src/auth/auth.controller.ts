@@ -55,7 +55,7 @@ export class AuthController {
   async loginLocal(@Req() req: RequestWithUser, @Res() res: Response) {
     const { user } = req;
     if (user.isTwoFactorAuthenticationEnabled) {
-      console.log('2FA enabled');
+      // console.log('2FA enabled');
       // return { statusCode: 303, url: '/twofactorauth' };
       return res.setHeader('url', '/twofactorauth').status(303).end();
     }
@@ -79,7 +79,7 @@ export class AuthController {
   async redirect(@Req() req: RequestWithUser, @Res() res: Response) {
     const { user } = req;
     if (user.isTwoFactorAuthenticationEnabled) {
-      console.log('2FA enabled');
+      // console.log('2FA enabled');
       return { statusCode: 303, url: '/twofactorauth' };
     }
     const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
@@ -98,7 +98,7 @@ export class AuthController {
   async redirectGithub(@Req() req: RequestWithUser, @Res() res: Response) {
     const { user } = req;
     if (user.isTwoFactorAuthenticationEnabled) {
-      console.log('2FA enabled');
+      // console.log('2FA enabled');
       return { statusCode: 303, url: '/twofactorauth' };
     }
     const accessTokenCookie = this.authService.getCookieWithJwtAccessToken(
@@ -155,7 +155,7 @@ export class AuthController {
     @Body() { twoFactorAuthenticationCode }: twoFactorAuthenticationCodeDTO,
   ) {
     const { user } = request;
-    console.log(user);
+    // console.log(user);
 
     const isCodeValid =
       await this.authService.isTwoFactorAuthenticationCodeValid(
