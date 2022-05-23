@@ -180,7 +180,8 @@ export class GameGateway
     });
 
     // Start the game is the backend
-    this.gameService.createGame(playerOne, playerTwo, gameOptions);
+    const isRankedMatch = gameMode === 'matchmaking' ? true : false;
+    this.gameService.createGame(playerOne, playerTwo, gameOptions, isRankedMatch);
     // Emit live games to clients
     this.server.emit('liveGames', this.getOngoingGames());
   }
@@ -228,10 +229,12 @@ export class GameGateway
     // console.log('Spectated game: ', spectatedGame);
 
     // Add the spectator socket to the game room
-    if (spectatedGame) {
+    if (spectatedGame && !spectatedGame.finished) {
       this.server.to(client.id).socketsJoin(spectatedGame.socketRoom);
       this.server.to(client.id).emit('spectateGame');
     }
+    else
+      this.server.to(client.id).emit('error', {title: 'Game finished', message: "Can't spectate : game is finishing"})
   }
 
   // SocketIO room managment
@@ -239,6 +242,14 @@ export class GameGateway
     if (socketIDs)
       for (const socketID of socketIDs)
         this.server.to(socketID).socketsJoin(roomName);
+  }
+
+  @SubscribeMessage('leaveRoom')
+  handleLeaveRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() roomName: string,
+  ) {
+    this.server.to(client.id).socketsLeave(roomName)
   }
 
   leaveRoom(roomName: string, socketIDs: string[]) {
@@ -284,6 +295,7 @@ export class GameGateway
       },
       ball: { x: game.ball.x, y: game.ball.y, size: game.ball.size },
       options: game.options,
+      roomName: game.socketRoom,
       events: game.events,
     };
 
@@ -300,6 +312,7 @@ export class GameGateway
           { id: game.players[1].player.user.id },
         ],
         score: [game.players[0].score, game.players[1].score],
+        isRankedMatch: game.isRankedMatch,
       };
       const match = await axios({
         url: 'http://localhost:4000/matches',
@@ -307,17 +320,19 @@ export class GameGateway
         data: body,
       });
       // console.log('Match Result: ', match.data);
+      this.server.emit('askStatsUpdate');
 
       this.server.to(game.socketRoom).emit('endGame');
-      this.server.emit('liveGames', this.getOngoingGames());
-      this.server.emit('askStatsUpdate');
-      this.sendInGameUsers();
 
       // Make the players / spectators leave the room
       this.server.to(game.socketRoom).socketsLeave(game.socketRoom);
     } catch (error) {
       throw error;
     }
+  }
+
+  sendLiveGames() {
+    this.server.emit('liveGames', this.getOngoingGames());
   }
 
   // Player Handling
@@ -425,16 +440,16 @@ export class GameGateway
     if (userInviteIndex !== -1) this.queue.splice(userInviteIndex, 1)
     if (userGuestIndex !== -1) this.queue.splice(userGuestIndex, 1)
 
-    // Get game options
-    const inviteGuest = this.invites.find(
-      (invite) => invite.user.user.id === userGuest.user.id,
-    );
-    const options = inviteGuest.invitesReceived.find(
-      (invite) => invite.sender.user.id === userInvite.user.id,
-    ).gameOptions;
-
     // If user are still connected
     if (userInvite && userGuest) {
+      // Get game options
+      const inviteGuest = this.invites.find(
+        (invite) => invite.user.user.id === userGuest.user.id,
+      );
+      const options = inviteGuest.invitesReceived.find(
+        (invite) => invite.sender.user.id === userInvite.user.id,
+      ).gameOptions;
+
       const playerOne: Player = { player: userInvite };
       const playerTwo: Player = { player: userGuest };
 
@@ -449,6 +464,9 @@ export class GameGateway
 
       // Delete guest's invite
       this.removeGameInvite(userInvite, userGuest);
+    }
+    else {
+      this.server.to(client.id).emit('error', { title: 'Game', message: `${players[0].username} is disconnect, the game can't be started` })
     }
   }
 

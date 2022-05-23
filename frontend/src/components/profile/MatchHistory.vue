@@ -26,17 +26,15 @@ onMounted(() => {
 </script>
 
 <template>
-  <h4>
-    <b><u>Match history</u></b>
-  </h4>
-  <div class="match_history">
+  <div v-if="matches.length > 0" class="match_history">
+    <div class="scrollspy-example4">
     <table style="table-layout: fixed;">
       <thead style="border-bottom: 10px solid rgba(0, 0, 0, 0);">
         <tr>
-          <!-- <th scope="col">#</th> -->
           <th class="table_title" scope="col">Player 1</th>
           <th class="table_title" scope="col">Player 2</th>
           <th class="table_title" scope="col">Score</th>
+          <th class="table_title" scope="col">Ranked</th>
         </tr>
       </thead>
       <tbody>
@@ -53,7 +51,6 @@ onMounted(() => {
                 "
                 >{{ match.players[0].username }}</a
               >
-              <!-- <div class="item player">{{ match.players[0].username }}</div> -->
             </div>
           </td>
           <td v-bind:class="{'mePlayer' : loggedUser?.id === match.players[1].id}" class="player">
@@ -68,50 +65,73 @@ onMounted(() => {
                 "
                 >{{ match.players[1].username }}</a
               >
-              <!-- <div class="item player">{{ match.players[1].username }}</div> -->
             </div>
           </td>
           <td>
             <div class="box">
-              <div class="item" v-bind:style= "match.score[0] === 10 ? 'color: #1e9c61;' :'' ">{{ match.score[0] }} </div>
+              <div class="item" v-bind:style= "match.score[0] > match.score[1] ? 'color: #1e9c61;' :'' ">{{ match.score[0] }} </div>
               <div class="item">-</div>
-              <div class="item" v-bind:style= "match.score[1] === 10 ? 'color: #1e9c61;' :'' ">{{ match.score[1] }} </div>
+              <div class="item" v-bind:style= "match.score[1] > match.score[0] ? 'color: #1e9c61;' :'' ">{{ match.score[1] }} </div>
             </div>
+          </td>
+          <td>
+              {{match.isRankedMatch ? 'Yes' : 'No'}}
           </td>
         </tr>
       </tbody>
     </table>
+    </div>
+  </div>
+  <div v-else class="match_history">
+    No game history
   </div>
 </template>
 
 <style scoped>
 
+.scrollspy-example4 {
+  position: relative;
+  max-height: 300px;
+  min-height: 300px;
+  margin-top: 0.5rem;
+  overflow: auto;
+  scrollbar-width: none;
+  min-width: 400px;
+}
+
+.scrollspy-example4::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollspy-example4::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollspy-example4::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
 .box{
   display: flex;
   align-items: center;
   flex-wrap: nowrap;
   justify-content: center;
 }
-
 .box .item{
   width: 20px;
 }
 .winScore{
   color: #1e9c61;
 }
-
 a.item.player{
   text-decoration: none;
   color: inherit;
 }
-
 .item.player{
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
   width: 100px;
 }
-
 .item.player:hover{
   overflow: visible;
   white-space: normal;
@@ -121,11 +141,9 @@ a.item.player{
 .mePlayer{
   color: #1e579c !important;
 }
-
 .match_history {
   display: grid;
 }
-
 .table_title{
   font-size: large;
 }

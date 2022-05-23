@@ -187,7 +187,7 @@ const addAdmin = () => {
           type="button"
           class="btn-user-click my-2"
         >
-          PROFIL
+          Profile
         </button>
         <div v-if="loggedUser?.id != userClick?.id" style="display: grid">
           <button
@@ -195,24 +195,24 @@ const addAdmin = () => {
             type="button"
             class="btn-user-click my-2"
           >
-            SEND MESSAGE
+            Send message
           </button>
           <button v-if="userStore.IDInArray(userClick?.id, usersOnline)"
             @click="userClickBool = false; modaleOpenInviteGame = true;"
             type="button"
             class="btn-user-click my-2"
           >
-            INVITE TO PLAY
+            Invite to play
           </button>
           <button
             @click="modalFriend = true; userClickBool = false"
             type="button" class="btn-user-click my-2">
-            {{userStore.isFriend(userClick) ? 'REMOVE FRIEND' : 'ADD FRIEND'}}
+            {{userStore.isFriend(userClick) ? 'Remove friend' : 'Add friend'}}
           </button>
           <button
             @click="modalBlock = true; userClickBool = false"
             type="button" class="btn-user-click my-2">
-            {{userStore.isBlocked(userClick) ? 'UNBLOCK' : 'BLOCK'}}
+            {{userStore.isBlocked(userClick) ? 'Unblock' : 'Block'}}
           </button>
           <div
             v-if="channelStore.isAdmin(channel, loggedUser?.id) && !channelStore.isAdmin(channel, userClick?.id)"
@@ -223,14 +223,14 @@ const addAdmin = () => {
               type="button"
               class="btn-user-click my-2"
             >
-              MUTE
+              Mute
             </button>
             <button
               @click="modalBan = true; userClickBool = false"
               type="button"
               class="btn-user-click my-2"
             >
-              BAN
+              Ban
             </button>
           </div>
           <div
@@ -242,7 +242,7 @@ const addAdmin = () => {
               type="button"
               class="btn-user-click my-2"
             >
-              {{ channelStore.isAdmin(channel, userClick?.id) ? 'REMOVE ADMIN' : 'ADD ADMIN'}}
+              {{ channelStore.isAdmin(channel, userClick?.id) ? 'Remove admin' : 'Add admin'}}
             </button>
           </div>
         </div>

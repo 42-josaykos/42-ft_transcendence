@@ -6,7 +6,7 @@ import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
 
 const { userClick } = storeToRefs(useUserStore());
-const stats = ref([7, 7, 7, 7]);
+const stats = ref([0, 0, 0, 0]);
 
 async function getSingleStats() {
   let response;

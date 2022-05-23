@@ -5,4 +5,5 @@ export interface Match {
   players: User[];
   winner: User;
   score: number[];
+  isRankedMatch: boolean;
 }

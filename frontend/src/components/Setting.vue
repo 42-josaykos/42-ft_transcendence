@@ -257,7 +257,7 @@ async function updateAvatar(event: any) {
                   name="username"
                   type="text"
                   style="width: 100%"
-                  placeholder="UserName"
+                  placeholder="Username"
                 />
               </div>
               <div class="col-2 p-0">

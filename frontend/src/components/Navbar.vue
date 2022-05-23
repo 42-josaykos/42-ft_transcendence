@@ -40,11 +40,16 @@ onMounted(async () => {
   <div class="container pt-2">
     <div v-if="loggedUser" class="d-flex pb-4 my-navbar">
       <BtnUserCard :user="loggedUser" :profile="true" @open="userClick = loggedUser; setting_open = !setting_open;"/>
-      <div>
-        <span class="neonText display-1 size-title" >
+      <div style="width: 67vw">
+        <span class="neonText display-1 size-title">
           <b>Space Pong</b>
         </span>
       </div>
+    </div>
+    <div class="title-small-screen">
+      <span class="neonText">
+          Space Pong
+        </span>
     </div>
 
     <div class="row">
@@ -54,8 +59,8 @@ onMounted(async () => {
           class="d-flex justify-content-center my-2 mx-2 router-nav"
         >
           <button
-            @click=""
             class="btn-block set-btn set-btn-nav btn-nav selector"
+            v-bind:class="{ 'active_tab' :  componentName === 'Home'}"
           >
             Home
           </button>
@@ -66,8 +71,8 @@ onMounted(async () => {
           class="d-flex justify-content-center my-2 mx-2 router-nav"
         >
           <button
-            @click=""
             class="btn-block set-btn set-btn-nav btn-nav selector"
+            v-bind:class="{ 'active_tab' : componentName === 'Chat' }"
           >
             Chat
           </button>
@@ -114,6 +119,9 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.display-1{
+  font-size: calc(1.625rem + 4.4vw);
+}
 li .row {
   transition: 0.4s;
 }
@@ -127,8 +135,8 @@ li .row:hover {
   padding-right: 0px !important;
 }
 .set-btn-nav {
-  background-color: white;
-  color: #66645f;
+  background-color: transparent;
+  color: white;
   box-shadow: 0px 0px 10px 2px white;
   font-weight: bold;
   text-decoration: none;
@@ -141,6 +149,9 @@ li .row:hover {
   margin-right: auto;
   margin-left: auto;
   width: 115px;
+  padding: 0.25rem 0.5rem;
+  font-size: .875rem;
+  border-radius: 0.2rem;
 }
 .btn-navbar {
   justify-content: space-around;
@@ -157,6 +168,17 @@ li .row:hover {
   width: 8vw;
   height: 8vw;
 }
+.title-small-screen{
+  display: none;
+}
+.active_tab{
+  background-color: rgba(255, 255, 255, 0);
+  color: #ffff;
+  transform: scale(1.5);
+  text-shadow: 0px 4px 15px #5271ff, 0px 0px 10px #5271ff;
+  box-shadow: none !important;
+  font-weight: bold;
+}
 @media screen and (max-width: 540px) {
   .btn-nav {
     margin-bottom: 45px;
@@ -169,6 +191,20 @@ li .row:hover {
   .avatar-img {
     width: 12vw;
     height: 12vw;
+  }
+
+  .size-title {
+    font-size: calc(1.625rem + 2.5vw);
+    white-space: nowrap;
+  }
+}
+@media screen and (max-width: 402px) {
+  .size-title {
+    display: none;
+  }
+  .title-small-screen{
+    display: block;
+    font-size: xx-large;
   }
 }
 </style>
