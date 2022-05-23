@@ -69,10 +69,6 @@ async function bootstrap() {
   await api.listen(port, '0.0.0.0');
   // console.log(`[APIModule] API is listening on: ${await api.getUrl()}`);
 
-  // Auth Module
-  // const authApp = await NestFactory.create(AuthModule);
-  // await authApp.listen(5000);
-
   // Status Module
   const statusSystemPort = configService.get('STATUS_PORT') || 3615;
   const statusSystem = await NestFactory.create(StatusModule);

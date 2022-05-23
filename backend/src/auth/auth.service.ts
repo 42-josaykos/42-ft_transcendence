@@ -141,7 +141,7 @@ export class AuthService implements AuthenticationProvider {
 
   public getCookieForLogout() {
     return [
-      'Authentication=; HttpOnly; Path=/; Max-Age=0',
+      'Authentication=; Path=/; Max-Age=0',
       'Refresh=; HttpOnly; Path=/; Max-Age=0',
     ];
   }

@@ -5,7 +5,6 @@ all: up
 re: down all
 
 ### Dev environment ###
-# dev: database backend frontend
 
 frontend:
 	-cd frontend && npm run dev
@@ -44,6 +43,14 @@ images:
 
 exec:
 	-docker exec -it postgres-transcendence bash
+
+###
+
+logsFrontend:
+	-docker logs frontend-transcendence
+
+logsBackend:
+	-docker logs backend-transcendence
 
 
 .PHONY: frontend backend

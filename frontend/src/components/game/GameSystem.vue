@@ -25,7 +25,7 @@ const {
 const router = useRouter();
 
 if (isAuthenticated.value) {
-  gameSocket.value = io("ws://localhost:6060/game", {
+  gameSocket.value = io(`http://${HOST}:${GAME_PORT}/game`, {
     withCredentials: true,
   });
 
@@ -79,16 +79,16 @@ if (isAuthenticated.value) {
     // console.log("[QueueSystem] A new match is starting");
 
     // If players aren't already in game
-    if (userStore.valueInArray(startEvent.players[0].id, usersInGame.value) || userStore.valueInArray(startEvent.players[1].id, usersInGame.value))
-      return
+    if (
+      userStore.valueInArray(startEvent.players[0].id, usersInGame.value) ||
+      userStore.valueInArray(startEvent.players[1].id, usersInGame.value)
+    )
+      return;
 
     const startTime = 5000;
     players.value = startEvent.players;
-    if (startEvent.mode === "matchmaking") 
-      matchFound.value = true;
-    else if (startEvent.mode === "invite")
-      matchInvite.value = true;
-
+    if (startEvent.mode === "matchmaking") matchFound.value = true;
+    else if (startEvent.mode === "invite") matchInvite.value = true;
 
     setTimeout(() => {
       if (startEvent.mode === "matchmaking") matchFound.value = false;

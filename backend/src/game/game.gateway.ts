@@ -21,7 +21,8 @@ import { Game, Player, Invites, GameOptions } from 'src/game/game.class';
 @WebSocketGateway({
   namespace: 'game',
   cors: {
-    origin: `http://localhost:3001`,
+    // origin: `http://localhost:${process.env.FRONTEND_PORT}`,
+    origin: `http://${process.env.HOST}:${process.env.FRONTEND_PORT}`,
     credentials: true,
   },
 })
@@ -315,7 +316,7 @@ export class GameGateway
         isRankedMatch: game.isRankedMatch,
       };
       const match = await axios({
-        url: 'http://localhost:4000/matches',
+        url: `http://${process.env.FRONTEND_HOST}:${process.env.FRONTEND_PORT}/matches`,
         method: 'POST',
         data: body,
       });

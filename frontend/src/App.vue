@@ -4,7 +4,6 @@ import StatusSystem from "./components/StatusSystem.vue";
 import GameSystem from "./components/game/GameSystem.vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
-import { useStatusStore } from "@/stores/status";
 import { onMounted, ref } from "vue";
 import { Get } from "./services/requests";
 import ChatSocket from "./components/chat/ChatSocket.vue";

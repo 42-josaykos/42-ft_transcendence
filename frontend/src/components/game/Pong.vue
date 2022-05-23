@@ -4,7 +4,6 @@ import { storeToRefs, mapState } from "pinia";
 import { useUserStore } from "@/stores/user";
 import { useGameStore } from "@/stores/game";
 import { useRouter } from "vue-router";
-import { Player } from "src/../../backend/src/game/game.class.ts";
 import MatchInfo from "./MatchInfo.vue";
 import ModaleResult from "./ModaleResult.vue";
 
@@ -236,7 +235,7 @@ export default {
 
 <template>
   <Navbar componentName="Pong" />
-  <div class="container" style="min-height: 100vh;">
+  <div class="container" style="min-height: 100vh">
     <div
       class="pong-set"
       style="top: 15%; left: 25%; max-width: 1000px; max-height: 600px"

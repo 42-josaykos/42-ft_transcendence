@@ -31,7 +31,7 @@ import {
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('JWT_ACCESS_SECRET'),
         signOptions: {
-          expiresIn: `${configService.get('JWT_ACCESS_EXPIRATION_TIME')}s`,
+          expiresIn: `${Number(configService.get('JWT_EXPIRATION_TIME'))}`,
         },
       }),
     }),

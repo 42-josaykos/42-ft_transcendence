@@ -26,7 +26,8 @@ const { matches } = storeToRefs(useMatchStore());
 
 if (isAuthenticated.value) {
   // console.log("[StatusStore] loggedUser: ", loggedUser.value);
-  statusSocket.value = io("ws://localhost:3615/status", {
+	console.log(HOST)
+  statusSocket.value = io(`http://${HOST}:${STATUS_PORT}/status`, {
     withCredentials: true,
   });
 
