@@ -782,9 +782,9 @@ const seePassword = (stringId: string) => {
           class="form-check-input"
           type="radio"
           name="inlineRadioOptions"
-          id="inlineRadio2"
+          id="inlineRadio3"
         />
-        <label class="form-check-label" for="inlineRadio2">Protected</label>
+        <label class="form-check-label" for="inlineRadio3">Protected</label>
       </div>
       <div v-if="channelType == 3">
         <div class="form-signin pt-3">
@@ -928,9 +928,9 @@ const seePassword = (stringId: string) => {
           class="form-check-input"
           type="radio"
           name="inlineRadioOptions"
-          id="inlineRadio2"
+          id="inlineRadio3"
         />
-        <label class="form-check-label" for="inlineRadio2">Protected</label>
+        <label class="form-check-label" for="inlineRadio3">Protected</label>
       </div>
       <div v-if="channelType == 3">
         <div class="form-signin pt-3">

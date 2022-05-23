@@ -74,7 +74,7 @@ async function bootstrap() {
   // await authApp.listen(5000);
 
   // Status Module
-  const statusSystemPort = 3615;
+  const statusSystemPort = configService.get('STATUS_PORT') || 3615;
   const statusSystem = await NestFactory.create(StatusModule);
   await statusSystem.listen(statusSystemPort, '0.0.0.0');
   console.log(
@@ -82,13 +82,13 @@ async function bootstrap() {
   );
 
   // Game Module
-  const gameGatewayPort = 6060;
+  const gameGatewayPort = configService.get('GAME_PORT') || 6060;
   const game = await NestFactory.create(GameModule);
   await game.listen(gameGatewayPort, '0.0.0.0');
   console.log(`[GameModule] Game gateway running on: ${await game.getUrl()}`);
 
   // Upload Module
-  const uploadModulePort = 7002;
+  const uploadModulePort = configService.get('UPLOAD_PORT') || 7000;
   const fileUpload = await NestFactory.create(UploadModule);
   await fileUpload.listen(uploadModulePort, '0.0.0.0');
   console.log(

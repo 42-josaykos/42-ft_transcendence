@@ -31,10 +31,10 @@ export default ({ mode }: any) => {
           target: `http://localhost:${process.env.API_PORT}`
         },
         '/upload': {
-          target: `http://localhost:7002`
+          target: `http://localhost:${process.env.API_PORT}`
         },
         '/assets': {
-          target: `http://localhost:7002`
+          target: `http://localhost:${process.env.API_PORT}`
         }
       }
     },
