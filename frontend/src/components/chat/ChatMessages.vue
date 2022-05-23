@@ -49,7 +49,7 @@ const sendNewMessage = (channelId: Number | undefined) => {
 const timerBan = computed(() => {
   const index = timerIntervalBan.value.findIndex((el: any) => el.channelId == channel.value?.id)
   if (index != -1) {
-    return `You are muted from this channel for ${ timerIntervalBan.value[index].timeLeft } time`
+    return `You are baned from this channel for ${ timerIntervalBan.value[index].timeLeft } time`
   }
 })
 

@@ -22,7 +22,7 @@ const { channel, usersMembers, channelLeave, channelUpdate, allChannels } =
   storeToRefs(useChannelStore());
 const { matches } = storeToRefs(useMatchStore());
 
-console.log("[StatusStore] isAuthenticated: ", isAuthenticated.value);
+// console.log("[StatusStore] isAuthenticated: ", isAuthenticated.value);
 
 if (isAuthenticated.value) {
   // console.log("[StatusStore] loggedUser: ", loggedUser.value);

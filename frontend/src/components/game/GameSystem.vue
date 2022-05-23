@@ -91,7 +91,6 @@ if (isAuthenticated.value) {
 
 
     setTimeout(() => {
-      console.log("players =>  ", players.value )
       if (startEvent.mode === "matchmaking") matchFound.value = false;
       else if (startEvent.mode === "invite") matchInvite.value = false;
       players.value = [];
