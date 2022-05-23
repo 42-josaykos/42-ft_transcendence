@@ -127,10 +127,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     } else {
       this.connectedClients[userIndex].socketID.push(client.id);
     }
-    this.server.emit(
-      'receiveFilteredUsers',
-      await this.usersService.getUsersByFilter({}),
-    );
+    try {
+      const users = await this.usersService.getUsersByFilter({});
+      this.server.emit('receiveFilteredUsers', users);
+    } catch (error) {}
     // console.log('Clients connected after connect: ', this.connectedClients);
   }
 
@@ -644,12 +644,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() filter: FilterUserDTO,
   ) {
-    this.server
-      .to(client.id)
-      .emit(
-        'receiveFilteredUsers',
-        await this.usersService.getUsersByFilter(filter),
-      );
+    try {
+      const users = await this.usersService.getUsersByFilter(filter);
+      this.server.to(client.id).emit('receiveFilteredUsers', users);
+    } catch (error) {}
   }
 
   @SubscribeMessage('getUserFriends')
@@ -657,13 +655,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() loggedUser: User,
   ) {
-    this.server
-      .to(client.id)
-      .emit(
-        'receiveFriends',
-        (await this.usersService.getUserByID(loggedUser.id, ['friends']))
-          .friends,
-      );
+    try {
+      const friends = (
+        await this.usersService.getUserByID(loggedUser.id, ['friends'])
+      ).friends;
+      this.server.to(client.id).emit('receiveFriends', friends);
+    } catch (error) {}
   }
 
   @SubscribeMessage('updateFriends')

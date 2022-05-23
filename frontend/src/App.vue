@@ -18,14 +18,14 @@ onMounted(() => {
   Get("/auth/jwt-status")
     .then((res) => {
       if (res.status == 403) {
-        console.log("[App] isAuthenticated: ", false);
+        // console.log("[App] isAuthenticated: ", false);
         isAuthenticated.value = false;
         loggedUser.value = undefined;
       } else {
-        console.log("[App] isAuthenticated: ", true);
+        // console.log("[App] isAuthenticated: ", true);
         isAuthenticated.value = true;
         loggedUser.value = res.data;
-        console.log("[App] loggedUser: ", res.data);
+        // console.log("[App] loggedUser: ", res.data);
       }
     })
     .catch((error) => {});
