@@ -13,6 +13,7 @@ const router = useRouter();
 const username = ref('');
 const password1 = ref('');
 const password2 = ref('');
+const isRegister = ref<boolean>(false);
 const isInvalid = computed(() => {
   if (flashMsg.value) {
     return 'form-control is-invalid';
@@ -22,6 +23,7 @@ const isInvalid = computed(() => {
 });
 
 function register() {
+  isRegister.value = true
   if (username.value.length > 15) {
     flashMsg.value = true
     notify({
@@ -81,7 +83,7 @@ const seePassword = (stringId: string) => {
 <template>
   <div>
     <h2><u>Create a new account</u></h2>
-      <form @submit.prevent.trim.lazy="register" class="form-signup">
+      <form v-if="!isRegister" @submit.prevent.trim.lazy="register" class="form-signup">
         <div class="form-signin pt-3">
           <label for="inputUsername" class="sr-only">Username</label>
           <input
