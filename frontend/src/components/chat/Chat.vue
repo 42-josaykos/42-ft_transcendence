@@ -8,20 +8,19 @@ import { useChannelStore } from '@/stores/channel';
 
 import { Get } from '@/services/requests';
 
-import ChatMenu from "./ChatMenu.vue";
-import ChatUsers from "./ChatUsers.vue";
-import ChatMessages from "./ChatMessages.vue";
+import ChatMenu from './ChatMenu.vue';
+import ChatUsers from './ChatUsers.vue';
+import ChatMessages from './ChatMessages.vue';
 import Navbar from '../Navbar.vue';
 
 const userStore = useUserStore();
-const { loggedUser, socketChat, usersBlocked } =
-  storeToRefs(userStore);
+const { loggedUser, socketChat, usersBlocked } = storeToRefs(userStore);
 
 const channelStore = useChannelStore();
 const { allChannels, newOwner, channelType } = storeToRefs(channelStore);
 
 onBeforeMount(async () => {
-  await Get(`/channels/search?&members&invites&bans&mutes`).then((res) => {
+  await Get(`/channels/search?&members&invites&bans&mutes`).then(res => {
     if (res.status == 200) {
       allChannels.value = res.data;
       if (loggedUser.value != undefined) {
@@ -41,18 +40,18 @@ onBeforeMount(async () => {
   channelType.value = 0;
 });
 
-onUnmounted(() => {
-  socketChat.value?.off('newMessage');
-  socketChat.value?.off('newChannel');
-  socketChat.value?.off('deleteChannel');
-  socketChat.value?.off('joinChannel');
-  socketChat.value?.off('updateChannel');
-  socketChat.value?.off('inviteChannel');
-});
+// onUnmounted(() => {
+//   socketChat.value?.off('newMessage');
+//   socketChat.value?.off('newChannel');
+//   socketChat.value?.off('deleteChannel');
+//   socketChat.value?.off('joinChannel');
+//   socketChat.value?.off('updateChannel');
+//   socketChat.value?.off('inviteChannel');
+// });
 </script>
 
 <template>
-  <Navbar componentName="Chat"/>
+  <Navbar componentName="Chat" />
   <div class="container">
     <div class="row-chat">
       <div class="col-md-3 col-chat">
